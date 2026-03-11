@@ -8,6 +8,13 @@ Apply these rules when creating or editing tests in this repository.
 - Use `xUnit`
 - Prefer unit tests first; add integration tests only when the behavior crosses process, database, or HTTP boundaries
 
+## Definition of done
+
+- No production feature, bug fix, or behavior change is complete without automated tests in the same change
+- If a change cannot be covered meaningfully by an automated test, document the reason in the change itself and keep the change narrowly scoped
+- Every regression fix must add or update a regression test that would fail without the fix
+- Before pushing, run `dotnet build BG.sln` and `dotnet test BG.sln`
+
 ## Test priorities
 
 Write tests in this order:
