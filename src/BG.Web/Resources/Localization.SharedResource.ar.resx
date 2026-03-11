@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NavHome" xml:space="preserve"><value>الرئيسية</value></data>
+  <data name="NavIntake" xml:space="preserve"><value>الإدخال</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>اللغة</value></data>
+  <data name="ThemeLabel" xml:space="preserve"><value>الثيم</value></data>
+  <data name="Culture_ar" xml:space="preserve"><value>العربية</value></data>
+  <data name="Culture_en" xml:space="preserve"><value>English</value></data>
+  <data name="Theme_emerald" xml:space="preserve"><value>زمردي</value></data>
+  <data name="Theme_slate" xml:space="preserve"><value>رمادي أردوازي</value></data>
+  <data name="Theme_sand" xml:space="preserve"><value>رملي</value></data>
+  <data name="FooterBaseline" xml:space="preserve"><value>الخط الأساسي الداخلي لـ BG</value></data>
+  <data name="FooterStack" xml:space="preserve"><value>ASP.NET Core 8 + Razor Pages + API + PostgreSQL + IIS</value></data>
+  <data name="HomeTitle" xml:space="preserve"><value>البيئة الأساسية</value></data>
+  <data name="HeroTitle" xml:space="preserve"><value>بيئة نظيفة لتطبيق الضمانات البنكية</value></data>
+  <data name="HeroSummaryPrefix" xml:space="preserve"><value>هذا الأساس يثبت الخيارات التقنية المتفق عليها: واجهات تشغيلية بـ</value></data>
+  <data name="HeroSummaryMiddle" xml:space="preserve"><value>وتكاملات مستقبلية عبر</value></data>
+  <data name="HeroSummarySuffix" xml:space="preserve"><value>مع استضافة داخلية على</value></data>
+  <data name="MetricFramework" xml:space="preserve"><value>إطار العمل</value></data>
+  <data name="MetricDatabase" xml:space="preserve"><value>قاعدة البيانات</value></data>
+  <data name="MetricHosting" xml:space="preserve"><value>الاستضافة</value></data>
+  <data name="ArchitectureDecisions" xml:space="preserve"><value>القرارات المعتمدة</value></data>
+  <data name="ApplicationNameLabel" xml:space="preserve"><value>اسم التطبيق:</value></data>
+  <data name="UserInterfaceLabel" xml:space="preserve"><value>الواجهات:</value></data>
+  <data name="ApiLabel" xml:space="preserve"><value>الـ API:</value></data>
+  <data name="IntegrationsLabel" xml:space="preserve"><value>التكاملات:</value></data>
+  <data name="LocalizationAndTheme" xml:space="preserve"><value>اللغة والثيم</value></data>
+  <data name="CurrentLanguageLabel" xml:space="preserve"><value>اللغة الحالية:</value></data>
+  <data name="CurrentDirectionLabel" xml:space="preserve"><value>الاتجاه الحالي:</value></data>
+  <data name="CurrentThemeLabel" xml:space="preserve"><value>الثيم الحالي:</value></data>
+  <data name="SupportedLanguagesLabel" xml:space="preserve"><value>اللغات المدعومة:</value></data>
+  <data name="HospitalApiReadiness" xml:space="preserve"><value>جاهزية Hospital API</value></data>
+  <data name="HospitalApiLabel" xml:space="preserve"><value>Hospital API:</value></data>
+  <data name="Configured" xml:space="preserve"><value>مهيأ</value></data>
+  <data name="Pending" xml:space="preserve"><value>قيد الانتظار</value></data>
+  <data name="BaseUrlLabel" xml:space="preserve"><value>الرابط الأساسي:</value></data>
+  <data name="AuthenticationLabel" xml:space="preserve"><value>المصادقة:</value></data>
+  <data name="HealthEndpointLabel" xml:space="preserve"><value>Health endpoint:</value></data>
+  <data name="NotConfigured" xml:space="preserve"><value>غير مهيأ</value></data>
+  <data name="DeveloperTools" xml:space="preserve"><value>أدوات التطوير</value></data>
+  <data name="NextStepTitle" xml:space="preserve"><value>الخطوة التالية</value></data>
+  <data name="NextStepBody" xml:space="preserve"><value>بعد تثبيت هذا الأساس سنبدأ تصميم Modules النظام نفسها: الضمانات البنكية، الدفعات، الصلاحيات، سير العمل، وشاشات تشغيل ثنائية اللغة.</value></data>
+  <data name="NavUsers" xml:space="preserve"><value>المستخدمون</value></data>
+  <data name="NavRoles" xml:space="preserve"><value>الأدوار</value></data>
+  <data name="UsersPageTitle" xml:space="preserve"><value>إدارة المستخدمين</value></data>
+  <data name="UsersPageHeading" xml:space="preserve"><value>المستخدمون المحليون</value></data>
+  <data name="UsersPageSummary" xml:space="preserve"><value>يدير BG المستخدمين محليًا حاليًا مع إبقاء النموذج جاهزًا للربط المستقبلي مع هوية المستشفى.</value></data>
+  <data name="CreateUserTitle" xml:space="preserve"><value>إنشاء مستخدم</value></data>
+  <data name="UsersListTitle" xml:space="preserve"><value>المستخدمون الحاليون</value></data>
+  <data name="EmptyUsers" xml:space="preserve"><value>لم يتم إنشاء أي مستخدمين بعد.</value></data>
+  <data name="UsernameField" xml:space="preserve"><value>اسم المستخدم</value></data>
+  <data name="DisplayNameField" xml:space="preserve"><value>الاسم المعروض</value></data>
+  <data name="EmailField" xml:space="preserve"><value>البريد الإلكتروني</value></data>
+  <data name="RolesField" xml:space="preserve"><value>الأدوار</value></data>
+  <data name="SourceField" xml:space="preserve"><value>المصدر</value></data>
+  <data name="CreatedAtField" xml:space="preserve"><value>تاريخ الإنشاء</value></data>
+  <data name="SaveUserAction" xml:space="preserve"><value>إنشاء مستخدم</value></data>
+  <data name="NoRolesAvailable" xml:space="preserve"><value>أنشئ الأدوار أولًا قبل ربطها بالمستخدمين.</value></data>
+  <data name="NoRolesAssigned" xml:space="preserve"><value>لا توجد أدوار مرتبطة.</value></data>
+  <data name="RolesPageTitle" xml:space="preserve"><value>إدارة الأدوار</value></data>
+  <data name="RolesPageHeading" xml:space="preserve"><value>الأدوار والصلاحيات</value></data>
+  <data name="RolesPageSummary" xml:space="preserve"><value>تجمع الأدوار الصلاحيات الآن حتى تُبنى بقية Modules فوق أساس ثابت للصلاحيات.</value></data>
+  <data name="CreateRoleTitle" xml:space="preserve"><value>إنشاء دور</value></data>
+  <data name="RoleNameField" xml:space="preserve"><value>اسم الدور</value></data>
+  <data name="DescriptionField" xml:space="preserve"><value>الوصف</value></data>
+  <data name="PermissionsField" xml:space="preserve"><value>الصلاحيات</value></data>
+  <data name="SaveRoleAction" xml:space="preserve"><value>إنشاء دور</value></data>
+  <data name="RolesListTitle" xml:space="preserve"><value>الأدوار الحالية</value></data>
+  <data name="EmptyRoles" xml:space="preserve"><value>لم يتم إنشاء أي أدوار بعد.</value></data>
+  <data name="NoPermissionsAvailable" xml:space="preserve"><value>لا توجد صلاحيات متاحة.</value></data>
+  <data name="NoPermissionsAssigned" xml:space="preserve"><value>لا توجد صلاحيات مرتبطة.</value></data>
+  <data name="Status_Active" xml:space="preserve"><value>نشط</value></data>
+  <data name="Status_Inactive" xml:space="preserve"><value>غير نشط</value></data>
+  <data name="SourceType_Local" xml:space="preserve"><value>محلي</value></data>
+  <data name="SourceType_Hospital" xml:space="preserve"><value>مستشفى</value></data>
+  <data name="IdentityOperationFailedTitle" xml:space="preserve"><value>فشلت عملية الهوية</value></data>
+  <data name="identity.username_required" xml:space="preserve"><value>اسم المستخدم مطلوب.</value></data>
+  <data name="identity.display_name_required" xml:space="preserve"><value>الاسم المعروض مطلوب.</value></data>
+  <data name="identity.role_name_required" xml:space="preserve"><value>اسم الدور مطلوب.</value></data>
+  <data name="identity.duplicate_username" xml:space="preserve"><value>اسم المستخدم موجود مسبقًا.</value></data>
+  <data name="identity.duplicate_role_name" xml:space="preserve"><value>اسم الدور موجود مسبقًا.</value></data>
+  <data name="identity.role_not_found" xml:space="preserve"><value>واحد أو أكثر من الأدوار المحددة غير موجود.</value></data>
+  <data name="identity.permission_not_found" xml:space="preserve"><value>واحد أو أكثر من الصلاحيات المحددة غير موجود.</value></data>
+  <data name="PermissionGroup_Dashboard" xml:space="preserve"><value>لوحة المعلومات</value></data>
+  <data name="PermissionGroup_Intake" xml:space="preserve"><value>إدخال المستندات</value></data>
+  <data name="PermissionGroup_Dispatch" xml:space="preserve"><value>إرسال الخطابات</value></data>
+  <data name="PermissionGroup_Administration" xml:space="preserve"><value>الإدارة</value></data>
+  <data name="PermissionGroup_Guarantees" xml:space="preserve"><value>الضمانات</value></data>
+  <data name="Permission_dashboard.view" xml:space="preserve"><value>عرض لوحة المعلومات</value></data>
+  <data name="Permission_intake.view" xml:space="preserve"><value>عرض مساحة إدخال المستندات</value></data>
+  <data name="Permission_intake.scan" xml:space="preserve"><value>مسح المستندات وربطها</value></data>
+  <data name="Permission_intake.verify" xml:space="preserve"><value>مراجعة البيانات المستخرجة من المستند</value></data>
+  <data name="Permission_intake.finalize" xml:space="preserve"><value>اعتماد الإدخال بحفظ واحد</value></data>
+  <data name="Permission_dispatch.view" xml:space="preserve"><value>عرض مساحة إرسال الخطابات</value></data>
+  <data name="Permission_dispatch.print" xml:space="preserve"><value>طباعة الخطابات الموقعة</value></data>
+  <data name="Permission_dispatch.record" xml:space="preserve"><value>تسجيل التسليم أو الإرسال للبنك</value></data>
+  <data name="Permission_dispatch.email" xml:space="preserve"><value>إرسال الخطابات إلى البريد الرسمي للبنك</value></data>
+  <data name="Permission_users.view" xml:space="preserve"><value>عرض المستخدمين</value></data>
+  <data name="Permission_users.manage" xml:space="preserve"><value>إدارة المستخدمين</value></data>
+  <data name="Permission_roles.view" xml:space="preserve"><value>عرض الأدوار</value></data>
+  <data name="Permission_roles.manage" xml:space="preserve"><value>إدارة الأدوار</value></data>
+  <data name="Permission_guarantees.view" xml:space="preserve"><value>عرض الضمانات</value></data>
+  <data name="Permission_guarantees.manage" xml:space="preserve"><value>إدارة الضمانات</value></data>
+  <data name="IntakeWorkspace_PageTitle" xml:space="preserve"><value>مساحة إدخال المستندات</value></data>
+  <data name="IntakeWorkspace_Heading" xml:space="preserve"><value>مساحة عمل الإدخال بالمسح</value></data>
+  <data name="IntakeWorkspace_Summary" xml:space="preserve"><value>هذه المساحة مخصصة للموظف المختص الذي يمسح المستندات الورقية، يراجع البيانات المستخرجة، ثم يحفظ المستند وبياناته معًا ضمن تسليم مضبوط.</value></data>
+  <data name="IntakeWorkspace_PrimaryFlow" xml:space="preserve"><value>مسار الإدخال الأساسي</value></data>
+  <data name="IntakeWorkspace_SelectedScenarioLabel" xml:space="preserve"><value>السيناريو المحدد</value></data>
+  <data name="IntakeWorkspace_MetricRole" xml:space="preserve"><value>الدور المخصص</value></data>
+  <data name="IntakeWorkspace_MetricSave" xml:space="preserve"><value>أسلوب الحفظ</value></data>
+  <data name="IntakeWorkspace_MetricReview" xml:space="preserve"><value>بوابة المراجعة</value></data>
+  <data name="IntakeWorkspace_OperatorScopeTitle" xml:space="preserve"><value>نطاق عمل الموظف</value></data>
+  <data name="IntakeWorkspace_AllowedTitle" xml:space="preserve"><value>المسموح به</value></data>
+  <data name="IntakeWorkspace_ExcludedTitle" xml:space="preserve"><value>غير المسموح به</value></data>
+  <data name="IntakeWorkspace_ReviewCardTitle" xml:space="preserve"><value>عينة مراجعة الاستخراج</value></data>
+  <data name="IntakeWorkspace_ReviewCardBody" xml:space="preserve"><value>يرى الموظف القيم المستخرجة، ويقارنها مع المستند الورقي، ثم ينهي الإدخال بحفظ نهائي واحد.</value></data>
+  <data name="IntakeWorkspace_ReviewRequired" xml:space="preserve"><value>تتطلب مراجعة</value></data>
+  <data name="IntakeWorkspace_SaveOutcomeTitle" xml:space="preserve"><value>نتيجة الحفظ</value></data>
+  <data name="IntakeWorkspace_HandoffTitle" xml:space="preserve"><value>مرحلة التسليم التالية</value></data>
+  <data name="IntakeWorkspace_RequiredFieldsTitle" xml:space="preserve"><value>الحقول التي يجب فحصها صراحة</value></data>
+  <data name="IntakeWorkspace_FutureScannerTitle" xml:space="preserve"><value>الربط المستقبلي مع أجهزة المسح</value></data>
+  <data name="IntakeWorkspace_PipelineTitle" xml:space="preserve"><value>مسار الاستخراج المعتمد</value></data>
+  <data name="IntakeWorkspace_QualityTitle" xml:space="preserve"><value>بوابات الجودة الإلزامية</value></data>
+  <data name="IntakeWorkspace_PrimaryRole" xml:space="preserve"><value>موظف إدخال المستندات</value></data>
+  <data name="IntakeWorkspace_SaveMode" xml:space="preserve"><value>حفظ واحد للمستند والبيانات المراجعة</value></data>
+  <data name="IntakeWorkspace_ReviewGate" xml:space="preserve"><value>مراجعة بشرية قبل الحفظ النهائي</value></data>
+  <data name="IntakeAction_Scan" xml:space="preserve"><value>مسح المستند الورقي أو رفعه</value></data>
+  <data name="IntakeAction_Classify" xml:space="preserve"><value>تأكيد نوع المستند وسيناريو الإدخال</value></data>
+  <data name="IntakeAction_Verify" xml:space="preserve"><value>مراجعة الحقول المستخرجة مقابل المصدر الورقي</value></data>
+  <data name="IntakeAction_Save" xml:space="preserve"><value>حفظ المستند والبيانات المراجعة معًا</value></data>
+  <data name="IntakeExcluded_RequestActions" xml:space="preserve"><value>لا ينشئ طلبات أو إجراءات تشغيلية</value></data>
+  <data name="IntakeExcluded_Printing" xml:space="preserve"><value>لا يطبع ولا يرسل الخطابات</value></data>
+  <data name="IntakeExcluded_Approvals" xml:space="preserve"><value>لا يوافق ولا يوقع</value></data>
+  <data name="IntakeExcluded_Dispatch" xml:space="preserve"><value>لا يسلم للبنوك ولا يرسل عبر البريد</value></data>
+  <data name="IntakePipeline_ClassifyPage" xml:space="preserve"><value>تصنيف كل صفحة إلى نصية أو مختلطة أو ممسوحة قبل الاستخراج.</value></data>
+  <data name="IntakePipeline_DirectPdfText" xml:space="preserve"><value>استخدام استخراج النص المباشر من PDF أولًا عند وجود طبقة نصية.</value></data>
+  <data name="IntakePipeline_ImagePreprocessing" xml:space="preserve"><value>تطبيق تحسين الصورة فقط على الصفحات المختلطة أو الممسوحة التي تحتاج OCR.</value></data>
+  <data name="IntakePipeline_OcrAndLayout" xml:space="preserve"><value>تنفيذ OCR وتحليل البنية للمحتوى الممسوح عبر المسار المحلي المعتمد.</value></data>
+  <data name="IntakePipeline_PostProcessing" xml:space="preserve"><value>تطبيع القيم مثل أسماء البنوك والتواريخ والمبالغ وأنواع المستندات.</value></data>
+  <data name="IntakePipeline_HumanReview" xml:space="preserve"><value>عرض درجات الثقة وفرض مراجعة صريحة للحقول الحرجة.</value></data>
+  <data name="IntakePipeline_SaveAndHandoff" xml:space="preserve"><value>الحفظ مرة واحدة ثم تسليم السجل إلى المرحلة التشغيلية التالية.</value></data>
+  <data name="IntakeQuality_TextFirst" xml:space="preserve"><value>استخراج النص المباشر أولًا إلزامي للصفحات النصية.</value></data>
+  <data name="IntakeQuality_Confidence" xml:space="preserve"><value>كل حقل مستخرج يجب أن يحمل درجة ثقة.</value></data>
+  <data name="IntakeQuality_SingleSave" xml:space="preserve"><value>ينهي الموظف المهمة عبر حفظ نهائي واحد فقط.</value></data>
+  <data name="IntakeQuality_SourceDocument" xml:space="preserve"><value>لا يوجد إدخال معتمد بدون المستند الممسوح المصدري.</value></data>
+  <data name="IntakeQuality_BankSpecificRules" xml:space="preserve"><value>يسمح بقواعد استخراج خاصة بكل بنك عند عدم كفاية قالب واحد.</value></data>
+  <data name="IntakeFuture_ScanStation" xml:space="preserve"><value>الإبقاء على محطة إدخال مخصصة للمسح اليدوي في الإطلاق الأول.</value></data>
+  <data name="IntakeFuture_ScanToFolder" xml:space="preserve"><value>دعم المسح إلى مجلد كمسار تكامل داخلي بسيط.</value></data>
+  <data name="IntakeFuture_DeviceApi" xml:space="preserve"><value>إتاحة ربط جهاز المسح عبر API لاحقًا دون تغيير دورة المراجعة.</value></data>
+  <data name="IntakeScenario_NewGuarantee_Title" xml:space="preserve"><value>ضمان جديد</value></data>
+  <data name="IntakeScenario_NewGuarantee_Summary" xml:space="preserve"><value>تسجيل ضمان جديد مستلم من المستند الورقي الممسوح.</value></data>
+  <data name="IntakeScenario_NewGuarantee_SaveOutcome" xml:space="preserve"><value>يحفظ الضمان ومستنده الممسوح وبياناته الأساسية المراجعة معًا.</value></data>
+  <data name="IntakeScenario_NewGuarantee_Handoff" xml:space="preserve"><value>ينتقل السجل المحفوظ إلى الفريق التشغيلي لأي إجراء أو سير عمل لاحق.</value></data>
+  <data name="IntakeScenario_Extension_Title" xml:space="preserve"><value>تأكيد تمديد</value></data>
+  <data name="IntakeScenario_Extension_Summary" xml:space="preserve"><value>إدخال خطاب وارد من البنك يؤكد تمديد تاريخ انتهاء الضمان.</value></data>
+  <data name="IntakeScenario_Extension_SaveOutcome" xml:space="preserve"><value>يحفظ رد البنك ومستنده الممسوح وبياناته المستخرجة المراجعة ضمن حزمة إدخال واحدة.</value></data>
+  <data name="IntakeScenario_Extension_Handoff" xml:space="preserve"><value>يراجع الفريق التشغيلي التأكيد المحفوظ ويكمل إجراء التمديد.</value></data>
+  <data name="IntakeScenario_Release_Title" xml:space="preserve"><value>تأكيد إفراج</value></data>
+  <data name="IntakeScenario_Release_Summary" xml:space="preserve"><value>إدخال خطاب وارد من البنك يؤكد الإفراج عن الضمان.</value></data>
+  <data name="IntakeScenario_Release_SaveOutcome" xml:space="preserve"><value>يحفظ خطاب الإفراج الممسوح وبياناته المراجعة ضمن إدخال واحد.</value></data>
+  <data name="IntakeScenario_Release_Handoff" xml:space="preserve"><value>الدور التالي يراجع الإدخال ويعتمد نتيجة الإفراج في العمليات.</value></data>
+  <data name="IntakeScenario_Status_Title" xml:space="preserve"><value>تحقق من الحالة</value></data>
+  <data name="IntakeScenario_Status_Summary" xml:space="preserve"><value>إدخال رد من البنك يؤكد الحالة الحالية لضمان قائم.</value></data>
+  <data name="IntakeScenario_Status_SaveOutcome" xml:space="preserve"><value>يحفظ رد التحقق دون منح موظف الإدخال أي صلاحية تشغيلية.</value></data>
+  <data name="IntakeScenario_Status_Handoff" xml:space="preserve"><value>يراجع فريق العمليات الرد ويقرر إن كانت هناك حاجة لإجراء أعمال إضافية.</value></data>
+  <data name="IntakeScenario_Attachment_Title" xml:space="preserve"><value>مرفق داعم</value></data>
+  <data name="IntakeScenario_Attachment_Summary" xml:space="preserve"><value>ربط مستند ممسوح إضافي بضمان قائم.</value></data>
+  <data name="IntakeScenario_Attachment_SaveOutcome" xml:space="preserve"><value>يحفظ المرفق مع بياناته ويربط بالضمان بحفظ واحد.</value></data>
+  <data name="IntakeScenario_Attachment_Handoff" xml:space="preserve"><value>يصبح المرفق متاحًا للمراحل التشغيلية أو الاعتمادية أو الإرسالية اللاحقة.</value></data>
+  <data name="IntakeField_GuaranteeNumber" xml:space="preserve"><value>رقم الضمان</value></data>
+  <data name="IntakeField_BankName" xml:space="preserve"><value>اسم البنك</value></data>
+  <data name="IntakeField_Beneficiary" xml:space="preserve"><value>المستفيد</value></data>
+  <data name="IntakeField_Amount" xml:space="preserve"><value>المبلغ</value></data>
+  <data name="IntakeField_ExpiryDate" xml:space="preserve"><value>تاريخ الانتهاء</value></data>
+  <data name="IntakeField_DocumentType" xml:space="preserve"><value>نوع المستند</value></data>
+  <data name="IntakeField_OfficialLetterDate" xml:space="preserve"><value>تاريخ الخطاب الرسمي</value></data>
+  <data name="IntakeField_NewExpiryDate" xml:space="preserve"><value>تاريخ الانتهاء الجديد</value></data>
+  <data name="IntakeField_BankReference" xml:space="preserve"><value>مرجع البنك</value></data>
+  <data name="IntakeField_StatusStatement" xml:space="preserve"><value>بيان الحالة</value></data>
+  <data name="IntakeField_AttachmentNote" xml:space="preserve"><value>ملاحظة المرفق</value></data>
+</root>

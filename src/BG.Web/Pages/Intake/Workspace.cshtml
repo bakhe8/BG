@@ -1,0 +1,163 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Intake.WorkspaceModel
+@{
+    ViewData["Title"] = T["IntakeWorkspace_PageTitle"];
+}
+
+<section class="section-shell">
+    <div class="section-header">
+        <span class="eyebrow">@T["NavIntake"]</span>
+        <h1>@T["IntakeWorkspace_Heading"]</h1>
+        <p class="compact-copy">@T["IntakeWorkspace_Summary"]</p>
+    </div>
+
+    <section class="hero-panel intake-hero">
+        <div class="hero-copy">
+            <span class="eyebrow">@T["IntakeWorkspace_PrimaryFlow"]</span>
+            <h2>@T["IntakeWorkspace_SelectedScenarioLabel"]: @T[Model.SelectedScenario.TitleResourceKey]</h2>
+            <p>@T[Model.SelectedScenario.SummaryResourceKey]</p>
+        </div>
+        <div class="hero-metrics">
+            <div class="metric-card">
+                <span>@T["IntakeWorkspace_MetricRole"]</span>
+                <strong>@T[Model.Workspace.PrimaryRoleResourceKey]</strong>
+            </div>
+            <div class="metric-card">
+                <span>@T["IntakeWorkspace_MetricSave"]</span>
+                <strong>@T[Model.Workspace.SaveModeResourceKey]</strong>
+            </div>
+            <div class="metric-card">
+                <span>@T["IntakeWorkspace_MetricReview"]</span>
+                <strong>@T[Model.Workspace.ReviewGateResourceKey]</strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="scenario-strip">
+        @foreach (var scenario in Model.Workspace.Scenarios)
+        {
+            var isActive = scenario.Key == Model.SelectedScenario.Key;
+            <a class="scenario-card @(isActive ? "active" : null)"
+               asp-page="/Intake/Workspace"
+               asp-route-scenario="@scenario.Key">
+                <span class="scenario-title">@T[scenario.TitleResourceKey]</span>
+                <span class="selection-copy">@T[scenario.SummaryResourceKey]</span>
+            </a>
+        }
+    </section>
+
+    <div class="intake-grid">
+        <article class="info-card">
+            <h2>@T["IntakeWorkspace_OperatorScopeTitle"]</h2>
+            <div class="scope-grid">
+                <section>
+                    <span class="section-caption">@T["IntakeWorkspace_AllowedTitle"]</span>
+                    <ul class="plain-list">
+                        @foreach (var actionKey in Model.Workspace.AllowedActionKeys)
+                        {
+                            <li>@T[actionKey]</li>
+                        }
+                    </ul>
+                </section>
+                <section>
+                    <span class="section-caption">@T["IntakeWorkspace_ExcludedTitle"]</span>
+                    <ul class="plain-list">
+                        @foreach (var actionKey in Model.Workspace.ExcludedActionKeys)
+                        {
+                            <li>@T[actionKey]</li>
+                        }
+                    </ul>
+                </section>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <h2>@T["IntakeWorkspace_ReviewCardTitle"]</h2>
+            <p class="compact-copy">@T["IntakeWorkspace_ReviewCardBody"]</p>
+
+            <div class="review-table">
+                @foreach (var field in Model.SelectedScenario.SampleFields)
+                {
+                    var confidenceClass = field.ConfidencePercent >= 95
+                        ? "is-high"
+                        : field.ConfidencePercent >= 90
+                            ? "is-medium"
+                            : "is-low";
+
+                    <div class="review-row">
+                        <div>
+                            <strong>@T[field.LabelResourceKey]</strong>
+                            <div class="selection-copy">@field.Value</div>
+                        </div>
+                        <div class="review-meta">
+                            <span class="confidence-chip @confidenceClass">@field.ConfidencePercent%</span>
+                            @if (field.RequiresExplicitReview)
+                            {
+                                <span class="review-flag">@T["IntakeWorkspace_ReviewRequired"]</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="intake-outcome">
+                <div>
+                    <span class="section-caption">@T["IntakeWorkspace_SaveOutcomeTitle"]</span>
+                    <p class="compact-copy">@T[Model.SelectedScenario.SaveOutcomeResourceKey]</p>
+                </div>
+                <div>
+                    <span class="section-caption">@T["IntakeWorkspace_HandoffTitle"]</span>
+                    <p class="compact-copy">@T[Model.SelectedScenario.HandoffResourceKey]</p>
+                </div>
+            </div>
+        </article>
+
+        <article class="info-card">
+            <h2>@T["IntakeWorkspace_RequiredFieldsTitle"]</h2>
+            <div class="pill-list">
+                @foreach (var fieldKey in Model.SelectedScenario.RequiredReviewFieldKeys)
+                {
+                    <span class="pill">@T[fieldKey]</span>
+                }
+            </div>
+        </article>
+
+        <article class="info-card">
+            <h2>@T["IntakeWorkspace_FutureScannerTitle"]</h2>
+            <ul class="plain-list">
+                @foreach (var itemKey in Model.Workspace.FutureIntegrationKeys)
+                {
+                    <li>@T[itemKey]</li>
+                }
+            </ul>
+        </article>
+
+        <article class="info-card full-span">
+            <h2>@T["IntakeWorkspace_PipelineTitle"]</h2>
+            <div class="pipeline-grid">
+                @for (var index = 0; index < Model.Workspace.PipelineStepKeys.Count; index++)
+                {
+                    <section class="pipeline-step">
+                        <span class="pipeline-index">@(index + 1)</span>
+                        <p>@T[Model.Workspace.PipelineStepKeys[index]]</p>
+                    </section>
+                }
+            </div>
+        </article>
+
+        <article class="info-card full-span">
+            <h2>@T["IntakeWorkspace_QualityTitle"]</h2>
+            <div class="quality-grid">
+                @foreach (var qualityKey in Model.Workspace.QualityGateKeys)
+                {
+                    <section class="quality-item">
+                        <span class="quality-dot"></span>
+                        <p>@T[qualityKey]</p>
+                    </section>
+                }
+            </div>
+        </article>
+    </div>
+</section>

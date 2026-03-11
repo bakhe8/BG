@@ -1,0 +1,101 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@inject IUiConfigurationService UiConfiguration
+@{
+    var currentCulture = UiConfiguration.GetCurrentCulture();
+    var currentDirection = UiConfiguration.GetDirection(currentCulture);
+    var currentTheme = UiConfiguration.GetCurrentTheme();
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
+}
+<!DOCTYPE html>
+<html lang="@currentCulture" dir="@currentDirection">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BG</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/BG.Web.styles.css" asp-append-version="true" />
+</head>
+<body class="theme-@currentTheme">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm app-nav mb-4">
+            <div class="container-lg app-nav-shell">
+                <a class="navbar-brand app-brand" asp-area="" asp-page="/Index">BG</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 gap-sm-2">
+                        <li class="nav-item">
+                            <a class="nav-link app-link" asp-area="" asp-page="/Index">@T["NavHome"]</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link app-link" asp-area="" asp-page="/Intake/Workspace">@T["NavIntake"]</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link app-link" asp-area="" asp-page="/Administration/Users">@T["NavUsers"]</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link app-link" asp-area="" asp-page="/Administration/Roles">@T["NavRoles"]</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link app-link" href="/swagger">Swagger</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link app-link" href="/health">Health</a>
+                        </li>
+                    </ul>
+                    <div class="toolbar-group">
+                        <div class="toolbar-block">
+                            <span class="toolbar-label">@T["LanguageLabel"]</span>
+                            <div class="toolbar-options">
+                                @foreach (var culture in UiConfiguration.SupportedCultures)
+                                {
+                                    var isActive = culture.Culture == currentCulture;
+                                    <a class="toolbar-chip @(isActive ? "active" : null)"
+                                       href="@Url.Action("SetCulture", "UiPreferences", new { culture = culture.Culture, returnUrl })">
+                                        @T[$"Culture_{culture.Culture}"]
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                        <div class="toolbar-block">
+                            <span class="toolbar-label">@T["ThemeLabel"]</span>
+                            <div class="toolbar-options">
+                                @foreach (var theme in UiConfiguration.SupportedThemes)
+                                {
+                                    var isActive = theme.Key == currentTheme;
+                                    <a class="toolbar-chip @(isActive ? "active" : null)"
+                                       href="@Url.Action("SetTheme", "UiPreferences", new { theme = theme.Key, returnUrl })">
+                                        @T[$"Theme_{theme.Key}"]
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-lg">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="footer-shell">
+        <div class="container-lg footer-copy">
+            <span>@T["FooterBaseline"]</span>
+            <span>@T["FooterStack"]</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

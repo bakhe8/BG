@@ -1,0 +1,119 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Administration.UsersModel
+@{
+    ViewData["Title"] = T["UsersPageTitle"];
+}
+
+<section class="section-shell">
+    <div class="section-header">
+        <span class="eyebrow">@T["NavUsers"]</span>
+        <h1>@T["UsersPageHeading"]</h1>
+        <p class="compact-copy">@T["UsersPageSummary"]</p>
+    </div>
+
+    <div class="admin-grid">
+        <article class="info-card">
+            <h2>@T["CreateUserTitle"]</h2>
+            <form method="post" class="stack-form">
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                <label class="form-label" asp-for="Input.Username">@T["UsernameField"]</label>
+                <input asp-for="Input.Username" class="form-control" maxlength="64" />
+
+                <label class="form-label" asp-for="Input.DisplayName">@T["DisplayNameField"]</label>
+                <input asp-for="Input.DisplayName" class="form-control" maxlength="128" />
+
+                <label class="form-label" asp-for="Input.Email">@T["EmailField"]</label>
+                <input asp-for="Input.Email" class="form-control" maxlength="256" />
+
+                <fieldset class="selection-block">
+                    <legend>@T["RolesField"]</legend>
+                    @if (Model.Roles.Count == 0)
+                    {
+                        <p class="compact-copy">@T["NoRolesAvailable"]</p>
+                    }
+                    else
+                    {
+                        <div class="checkbox-grid">
+                            @foreach (var role in Model.Roles)
+                            {
+                                <label class="selection-card">
+                                    <input type="checkbox" name="Input.SelectedRoleIds" value="@role.Id" />
+                                    <span class="selection-title">@role.Name</span>
+                                    @if (!string.IsNullOrWhiteSpace(role.Description))
+                                    {
+                                        <span class="selection-copy">@role.Description</span>
+                                    }
+                                </label>
+                            }
+                        </div>
+                    }
+                </fieldset>
+
+                <button type="submit" class="btn btn-primary action-button">@T["SaveUserAction"]</button>
+            </form>
+        </article>
+
+        <article class="info-card">
+            <h2>@T["UsersListTitle"]</h2>
+
+            @if (Model.Users.Count == 0)
+            {
+                <p class="compact-copy">@T["EmptyUsers"]</p>
+            }
+            else
+            {
+                <div class="stack-list">
+                    @foreach (var user in Model.Users)
+                    {
+                        <section class="entity-card">
+                            <div class="entity-header">
+                                <div>
+                                    <h3>@user.DisplayName</h3>
+                                    <p class="entity-subtitle">@user.Username</p>
+                                </div>
+                                <span class="status-badge @(user.IsActive ? "is-active" : "is-inactive")">
+                                    @T[user.IsActive ? "Status_Active" : "Status_Inactive"]
+                                </span>
+                            </div>
+
+                            <dl class="data-pairs">
+                                <div>
+                                    <dt>@T["EmailField"]</dt>
+                                    <dd>@(string.IsNullOrWhiteSpace(user.Email) ? "-" : user.Email)</dd>
+                                </div>
+                                <div>
+                                    <dt>@T["SourceField"]</dt>
+                                    <dd>@T[$"SourceType_{user.SourceType}"]</dd>
+                                </div>
+                                <div>
+                                    <dt>@T["CreatedAtField"]</dt>
+                                    <dd>@user.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                                </div>
+                            </dl>
+
+                            <div class="pill-section">
+                                <span class="section-caption">@T["RolesField"]</span>
+                                @if (user.Roles.Count == 0)
+                                {
+                                    <p class="compact-copy">@T["NoRolesAssigned"]</p>
+                                }
+                                else
+                                {
+                                    <div class="pill-list">
+                                        @foreach (var roleName in user.Roles)
+                                        {
+                                            <span class="pill">@roleName</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </section>
+                    }
+                </div>
+            }
+        </article>
+    </div>
+</section>

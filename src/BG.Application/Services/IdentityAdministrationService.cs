@@ -1,0 +1,166 @@
+using BG.Application.Common;
+using BG.Application.Contracts.Persistence;
+using BG.Application.Contracts.Services;
+using BG.Application.Identity;
+using BG.Application.Models.Identity;
+using BG.Domain.Identity;
+
+namespace BG.Application.Services;
+
+internal sealed class IdentityAdministrationService : IIdentityAdministrationService
+{
+    private readonly IIdentityAdministrationRepository _repository;
+
+    public IdentityAdministrationService(IIdentityAdministrationRepository repository)
+    {
+        _repository = repository;
+    }
+
+    public async Task<IReadOnlyList<UserSummaryDto>> GetUsersAsync(CancellationToken cancellationToken = default)
+    {
+        var users = await _repository.ListUsersAsync(cancellationToken);
+
+        return users
+            .OrderBy(user => user.DisplayName, StringComparer.OrdinalIgnoreCase)
+            .Select(MapUser)
+            .ToArray();
+    }
+
+    public async Task<IReadOnlyList<RoleSummaryDto>> GetRolesAsync(CancellationToken cancellationToken = default)
+    {
+        var roles = await _repository.ListRolesAsync(cancellationToken);
+
+        return roles
+            .OrderBy(role => role.Name, StringComparer.OrdinalIgnoreCase)
+            .Select(MapRole)
+            .ToArray();
+    }
+
+    public async Task<IReadOnlyList<PermissionDto>> GetPermissionsAsync(CancellationToken cancellationToken = default)
+    {
+        var permissions = await _repository.ListPermissionsAsync(cancellationToken);
+
+        return permissions
+            .OrderBy(permission => permission.Area, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(permission => permission.Key, StringComparer.OrdinalIgnoreCase)
+            .Select(permission => new PermissionDto(permission.Key, permission.Area))
+            .ToArray();
+    }
+
+    public async Task<OperationResult<UserSummaryDto>> CreateUserAsync(
+        CreateUserCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(command.Username))
+        {
+            return OperationResult<UserSummaryDto>.Failure(IdentityErrorCodes.UsernameRequired);
+        }
+
+        if (string.IsNullOrWhiteSpace(command.DisplayName))
+        {
+            return OperationResult<UserSummaryDto>.Failure(IdentityErrorCodes.DisplayNameRequired);
+        }
+
+        var normalizedUsername = User.NormalizeUsernameKey(command.Username);
+
+        if (await _repository.UsernameExistsAsync(normalizedUsername, cancellationToken))
+        {
+            return OperationResult<UserSummaryDto>.Failure(IdentityErrorCodes.DuplicateUsername);
+        }
+
+        var roleIds = command.RoleIds
+            .Where(roleId => roleId != Guid.Empty)
+            .Distinct()
+            .ToArray();
+
+        var roles = await _repository.GetRolesByIdsAsync(roleIds, cancellationToken);
+
+        if (roles.Count != roleIds.Length)
+        {
+            return OperationResult<UserSummaryDto>.Failure(IdentityErrorCodes.RoleNotFound);
+        }
+
+        var user = new User(
+            command.Username,
+            command.DisplayName,
+            command.Email,
+            externalId: null,
+            UserSourceType.Local,
+            isActive: true,
+            createdAtUtc: DateTimeOffset.UtcNow);
+
+        user.AssignRoles(roles);
+
+        await _repository.AddUserAsync(user, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return OperationResult<UserSummaryDto>.Success(MapUser(user));
+    }
+
+    public async Task<OperationResult<RoleSummaryDto>> CreateRoleAsync(
+        CreateRoleCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(command.Name))
+        {
+            return OperationResult<RoleSummaryDto>.Failure(IdentityErrorCodes.RoleNameRequired);
+        }
+
+        var normalizedRoleName = Role.NormalizeNameKey(command.Name);
+
+        if (await _repository.RoleNameExistsAsync(normalizedRoleName, cancellationToken))
+        {
+            return OperationResult<RoleSummaryDto>.Failure(IdentityErrorCodes.DuplicateRoleName);
+        }
+
+        var permissionKeys = command.PermissionKeys
+            .Where(permissionKey => !string.IsNullOrWhiteSpace(permissionKey))
+            .Select(permissionKey => permissionKey.Trim().ToLowerInvariant())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        var permissions = await _repository.GetPermissionsByKeysAsync(permissionKeys, cancellationToken);
+
+        if (permissions.Count != permissionKeys.Length)
+        {
+            return OperationResult<RoleSummaryDto>.Failure(IdentityErrorCodes.PermissionNotFound);
+        }
+
+        var role = new Role(command.Name, command.Description);
+        role.AssignPermissions(permissions);
+
+        await _repository.AddRoleAsync(role, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return OperationResult<RoleSummaryDto>.Success(MapRole(role));
+    }
+
+    private static UserSummaryDto MapUser(User user)
+    {
+        return new UserSummaryDto(
+            user.Id,
+            user.Username,
+            user.DisplayName,
+            user.Email,
+            user.ExternalId,
+            user.SourceType.ToString(),
+            user.IsActive,
+            user.CreatedAtUtc,
+            user.UserRoles
+                .Select(userRole => userRole.Role.Name)
+                .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+                .ToArray());
+    }
+
+    private static RoleSummaryDto MapRole(Role role)
+    {
+        return new RoleSummaryDto(
+            role.Id,
+            role.Name,
+            role.Description,
+            role.RolePermissions
+                .Select(rolePermission => rolePermission.Permission.Key)
+                .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
+                .ToArray());
+    }
+}

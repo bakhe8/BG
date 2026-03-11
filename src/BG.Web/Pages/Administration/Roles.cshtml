@@ -1,0 +1,101 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Administration.RolesModel
+@{
+    ViewData["Title"] = T["RolesPageTitle"];
+}
+
+<section class="section-shell">
+    <div class="section-header">
+        <span class="eyebrow">@T["NavRoles"]</span>
+        <h1>@T["RolesPageHeading"]</h1>
+        <p class="compact-copy">@T["RolesPageSummary"]</p>
+    </div>
+
+    <div class="admin-grid">
+        <article class="info-card">
+            <h2>@T["CreateRoleTitle"]</h2>
+            <form method="post" class="stack-form">
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                <label class="form-label" asp-for="Input.Name">@T["RoleNameField"]</label>
+                <input asp-for="Input.Name" class="form-control" maxlength="64" />
+
+                <label class="form-label" asp-for="Input.Description">@T["DescriptionField"]</label>
+                <textarea asp-for="Input.Description" class="form-control" rows="3" maxlength="256"></textarea>
+
+                <fieldset class="selection-block">
+                    <legend>@T["PermissionsField"]</legend>
+                    @if (Model.PermissionGroups.Count == 0)
+                    {
+                        <p class="compact-copy">@T["NoPermissionsAvailable"]</p>
+                    }
+                    else
+                    {
+                        @foreach (var group in Model.PermissionGroups)
+                        {
+                            <div class="permission-group">
+                                <h3>@T[$"PermissionGroup_{group.Area}"]</h3>
+                                <div class="checkbox-grid">
+                                    @foreach (var permission in group.Permissions)
+                                    {
+                                        <label class="selection-card">
+                                            <input type="checkbox" name="Input.SelectedPermissionKeys" value="@permission.Key" />
+                                            <span class="selection-title">@T[$"Permission_{permission.Key}"]</span>
+                                            <span class="selection-copy">@permission.Key</span>
+                                        </label>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </fieldset>
+
+                <button type="submit" class="btn btn-primary action-button">@T["SaveRoleAction"]</button>
+            </form>
+        </article>
+
+        <article class="info-card">
+            <h2>@T["RolesListTitle"]</h2>
+
+            @if (Model.Roles.Count == 0)
+            {
+                <p class="compact-copy">@T["EmptyRoles"]</p>
+            }
+            else
+            {
+                <div class="stack-list">
+                    @foreach (var role in Model.Roles)
+                    {
+                        <section class="entity-card">
+                            <div class="entity-header">
+                                <div>
+                                    <h3>@role.Name</h3>
+                                    <p class="entity-subtitle">@(string.IsNullOrWhiteSpace(role.Description) ? "-" : role.Description)</p>
+                                </div>
+                            </div>
+
+                            <div class="pill-section">
+                                <span class="section-caption">@T["PermissionsField"]</span>
+                                @if (role.PermissionKeys.Count == 0)
+                                {
+                                    <p class="compact-copy">@T["NoPermissionsAssigned"]</p>
+                                }
+                                else
+                                {
+                                    <div class="pill-list">
+                                        @foreach (var permissionKey in role.PermissionKeys)
+                                        {
+                                            <span class="pill">@T[$"Permission_{permissionKey}"]</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </section>
+                    }
+                </div>
+            }
+        </article>
+    </div>
+</section>

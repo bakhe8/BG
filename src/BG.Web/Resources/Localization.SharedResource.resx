@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NavHome" xml:space="preserve"><value>Home</value></data>
+  <data name="NavIntake" xml:space="preserve"><value>Intake</value></data>
+  <data name="LanguageLabel" xml:space="preserve"><value>Language</value></data>
+  <data name="ThemeLabel" xml:space="preserve"><value>Theme</value></data>
+  <data name="Culture_ar" xml:space="preserve"><value>Arabic</value></data>
+  <data name="Culture_en" xml:space="preserve"><value>English</value></data>
+  <data name="Theme_emerald" xml:space="preserve"><value>Emerald</value></data>
+  <data name="Theme_slate" xml:space="preserve"><value>Slate</value></data>
+  <data name="Theme_sand" xml:space="preserve"><value>Sand</value></data>
+  <data name="FooterBaseline" xml:space="preserve"><value>BG internal baseline</value></data>
+  <data name="FooterStack" xml:space="preserve"><value>ASP.NET Core 8 + Razor Pages + API + PostgreSQL + IIS</value></data>
+  <data name="HomeTitle" xml:space="preserve"><value>Environment Baseline</value></data>
+  <data name="HeroTitle" xml:space="preserve"><value>Clean baseline for the bank guarantees application</value></data>
+  <data name="HeroSummaryPrefix" xml:space="preserve"><value>This baseline confirms the agreed technical choices: operational UI with</value></data>
+  <data name="HeroSummaryMiddle" xml:space="preserve"><value>future integration through</value></data>
+  <data name="HeroSummarySuffix" xml:space="preserve"><value>and internal hosting on</value></data>
+  <data name="MetricFramework" xml:space="preserve"><value>Framework</value></data>
+  <data name="MetricDatabase" xml:space="preserve"><value>Database</value></data>
+  <data name="MetricHosting" xml:space="preserve"><value>Hosting</value></data>
+  <data name="ArchitectureDecisions" xml:space="preserve"><value>Approved decisions</value></data>
+  <data name="ApplicationNameLabel" xml:space="preserve"><value>Application:</value></data>
+  <data name="UserInterfaceLabel" xml:space="preserve"><value>User interface:</value></data>
+  <data name="ApiLabel" xml:space="preserve"><value>API:</value></data>
+  <data name="IntegrationsLabel" xml:space="preserve"><value>Integrations:</value></data>
+  <data name="LocalizationAndTheme" xml:space="preserve"><value>Localization and theme</value></data>
+  <data name="CurrentLanguageLabel" xml:space="preserve"><value>Current language:</value></data>
+  <data name="CurrentDirectionLabel" xml:space="preserve"><value>Current direction:</value></data>
+  <data name="CurrentThemeLabel" xml:space="preserve"><value>Current theme:</value></data>
+  <data name="SupportedLanguagesLabel" xml:space="preserve"><value>Supported languages:</value></data>
+  <data name="HospitalApiReadiness" xml:space="preserve"><value>Hospital API readiness</value></data>
+  <data name="HospitalApiLabel" xml:space="preserve"><value>Hospital API:</value></data>
+  <data name="Configured" xml:space="preserve"><value>Configured</value></data>
+  <data name="Pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="BaseUrlLabel" xml:space="preserve"><value>Base URL:</value></data>
+  <data name="AuthenticationLabel" xml:space="preserve"><value>Authentication:</value></data>
+  <data name="HealthEndpointLabel" xml:space="preserve"><value>Health endpoint:</value></data>
+  <data name="NotConfigured" xml:space="preserve"><value>Not configured</value></data>
+  <data name="DeveloperTools" xml:space="preserve"><value>Developer tools</value></data>
+  <data name="NextStepTitle" xml:space="preserve"><value>Next step</value></data>
+  <data name="NextStepBody" xml:space="preserve"><value>After this baseline we will start designing the system modules themselves: bank guarantees, batches, permissions, workflow, and bilingual operational screens.</value></data>
+  <data name="NavUsers" xml:space="preserve"><value>Users</value></data>
+  <data name="NavRoles" xml:space="preserve"><value>Roles</value></data>
+  <data name="UsersPageTitle" xml:space="preserve"><value>User Administration</value></data>
+  <data name="UsersPageHeading" xml:space="preserve"><value>Local users</value></data>
+  <data name="UsersPageSummary" xml:space="preserve"><value>BG currently manages users locally while keeping the model ready for future hospital identity integration.</value></data>
+  <data name="CreateUserTitle" xml:space="preserve"><value>Create user</value></data>
+  <data name="UsersListTitle" xml:space="preserve"><value>Current users</value></data>
+  <data name="EmptyUsers" xml:space="preserve"><value>No users have been created yet.</value></data>
+  <data name="UsernameField" xml:space="preserve"><value>Username</value></data>
+  <data name="DisplayNameField" xml:space="preserve"><value>Display name</value></data>
+  <data name="EmailField" xml:space="preserve"><value>Email</value></data>
+  <data name="RolesField" xml:space="preserve"><value>Roles</value></data>
+  <data name="SourceField" xml:space="preserve"><value>Source</value></data>
+  <data name="CreatedAtField" xml:space="preserve"><value>Created at</value></data>
+  <data name="SaveUserAction" xml:space="preserve"><value>Create user</value></data>
+  <data name="NoRolesAvailable" xml:space="preserve"><value>Create roles first before assigning them to users.</value></data>
+  <data name="NoRolesAssigned" xml:space="preserve"><value>No roles assigned.</value></data>
+  <data name="RolesPageTitle" xml:space="preserve"><value>Role Administration</value></data>
+  <data name="RolesPageHeading" xml:space="preserve"><value>Roles and permissions</value></data>
+  <data name="RolesPageSummary" xml:space="preserve"><value>Roles group permissions now so the rest of the modules can build on a stable authorization baseline.</value></data>
+  <data name="CreateRoleTitle" xml:space="preserve"><value>Create role</value></data>
+  <data name="RoleNameField" xml:space="preserve"><value>Role name</value></data>
+  <data name="DescriptionField" xml:space="preserve"><value>Description</value></data>
+  <data name="PermissionsField" xml:space="preserve"><value>Permissions</value></data>
+  <data name="SaveRoleAction" xml:space="preserve"><value>Create role</value></data>
+  <data name="RolesListTitle" xml:space="preserve"><value>Current roles</value></data>
+  <data name="EmptyRoles" xml:space="preserve"><value>No roles have been created yet.</value></data>
+  <data name="NoPermissionsAvailable" xml:space="preserve"><value>No permissions are available.</value></data>
+  <data name="NoPermissionsAssigned" xml:space="preserve"><value>No permissions assigned.</value></data>
+  <data name="Status_Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Status_Inactive" xml:space="preserve"><value>Inactive</value></data>
+  <data name="SourceType_Local" xml:space="preserve"><value>Local</value></data>
+  <data name="SourceType_Hospital" xml:space="preserve"><value>Hospital</value></data>
+  <data name="IdentityOperationFailedTitle" xml:space="preserve"><value>Identity operation failed</value></data>
+  <data name="identity.username_required" xml:space="preserve"><value>Username is required.</value></data>
+  <data name="identity.display_name_required" xml:space="preserve"><value>Display name is required.</value></data>
+  <data name="identity.role_name_required" xml:space="preserve"><value>Role name is required.</value></data>
+  <data name="identity.duplicate_username" xml:space="preserve"><value>This username already exists.</value></data>
+  <data name="identity.duplicate_role_name" xml:space="preserve"><value>This role name already exists.</value></data>
+  <data name="identity.role_not_found" xml:space="preserve"><value>One or more selected roles were not found.</value></data>
+  <data name="identity.permission_not_found" xml:space="preserve"><value>One or more selected permissions were not found.</value></data>
+  <data name="PermissionGroup_Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="PermissionGroup_Intake" xml:space="preserve"><value>Document intake</value></data>
+  <data name="PermissionGroup_Dispatch" xml:space="preserve"><value>Dispatch</value></data>
+  <data name="PermissionGroup_Administration" xml:space="preserve"><value>Administration</value></data>
+  <data name="PermissionGroup_Guarantees" xml:space="preserve"><value>Guarantees</value></data>
+  <data name="Permission_dashboard.view" xml:space="preserve"><value>View dashboard</value></data>
+  <data name="Permission_intake.view" xml:space="preserve"><value>View intake workspace</value></data>
+  <data name="Permission_intake.scan" xml:space="preserve"><value>Scan and attach documents</value></data>
+  <data name="Permission_intake.verify" xml:space="preserve"><value>Verify extracted document data</value></data>
+  <data name="Permission_intake.finalize" xml:space="preserve"><value>Finalize intake in one save operation</value></data>
+  <data name="Permission_dispatch.view" xml:space="preserve"><value>View dispatch workspace</value></data>
+  <data name="Permission_dispatch.print" xml:space="preserve"><value>Print signed letters</value></data>
+  <data name="Permission_dispatch.record" xml:space="preserve"><value>Record bank delivery or sending</value></data>
+  <data name="Permission_dispatch.email" xml:space="preserve"><value>Send letters to bank official email</value></data>
+  <data name="Permission_users.view" xml:space="preserve"><value>View users</value></data>
+  <data name="Permission_users.manage" xml:space="preserve"><value>Manage users</value></data>
+  <data name="Permission_roles.view" xml:space="preserve"><value>View roles</value></data>
+  <data name="Permission_roles.manage" xml:space="preserve"><value>Manage roles</value></data>
+  <data name="Permission_guarantees.view" xml:space="preserve"><value>View guarantees</value></data>
+  <data name="Permission_guarantees.manage" xml:space="preserve"><value>Manage guarantees</value></data>
+  <data name="IntakeWorkspace_PageTitle" xml:space="preserve"><value>Intake Workspace</value></data>
+  <data name="IntakeWorkspace_Heading" xml:space="preserve"><value>Document intake workspace</value></data>
+  <data name="IntakeWorkspace_Summary" xml:space="preserve"><value>This workspace is dedicated to the specialist who scans paper documents, verifies the extracted data, and saves the document and its data in one controlled handoff.</value></data>
+  <data name="IntakeWorkspace_PrimaryFlow" xml:space="preserve"><value>Primary intake flow</value></data>
+  <data name="IntakeWorkspace_SelectedScenarioLabel" xml:space="preserve"><value>Selected scenario</value></data>
+  <data name="IntakeWorkspace_MetricRole" xml:space="preserve"><value>Assigned role</value></data>
+  <data name="IntakeWorkspace_MetricSave" xml:space="preserve"><value>Save mode</value></data>
+  <data name="IntakeWorkspace_MetricReview" xml:space="preserve"><value>Review gate</value></data>
+  <data name="IntakeWorkspace_OperatorScopeTitle" xml:space="preserve"><value>Operator scope</value></data>
+  <data name="IntakeWorkspace_AllowedTitle" xml:space="preserve"><value>Allowed actions</value></data>
+  <data name="IntakeWorkspace_ExcludedTitle" xml:space="preserve"><value>Excluded actions</value></data>
+  <data name="IntakeWorkspace_ReviewCardTitle" xml:space="preserve"><value>Extraction review sample</value></data>
+  <data name="IntakeWorkspace_ReviewCardBody" xml:space="preserve"><value>The operator sees extracted values, checks them against the paper document, then completes the intake in a single save operation.</value></data>
+  <data name="IntakeWorkspace_ReviewRequired" xml:space="preserve"><value>Review required</value></data>
+  <data name="IntakeWorkspace_SaveOutcomeTitle" xml:space="preserve"><value>Save outcome</value></data>
+  <data name="IntakeWorkspace_HandoffTitle" xml:space="preserve"><value>Next handoff</value></data>
+  <data name="IntakeWorkspace_RequiredFieldsTitle" xml:space="preserve"><value>Fields that must be checked explicitly</value></data>
+  <data name="IntakeWorkspace_FutureScannerTitle" xml:space="preserve"><value>Future scanner integration</value></data>
+  <data name="IntakeWorkspace_PipelineTitle" xml:space="preserve"><value>Approved extraction pipeline</value></data>
+  <data name="IntakeWorkspace_QualityTitle" xml:space="preserve"><value>Mandatory quality gates</value></data>
+  <data name="IntakeWorkspace_PrimaryRole" xml:space="preserve"><value>Document intake specialist</value></data>
+  <data name="IntakeWorkspace_SaveMode" xml:space="preserve"><value>One save for document and verified data</value></data>
+  <data name="IntakeWorkspace_ReviewGate" xml:space="preserve"><value>Human review before final save</value></data>
+  <data name="IntakeAction_Scan" xml:space="preserve"><value>Scan or upload the paper document</value></data>
+  <data name="IntakeAction_Classify" xml:space="preserve"><value>Confirm the document type and intake scenario</value></data>
+  <data name="IntakeAction_Verify" xml:space="preserve"><value>Review extracted fields against the printed source</value></data>
+  <data name="IntakeAction_Save" xml:space="preserve"><value>Save the document and verified data together</value></data>
+  <data name="IntakeExcluded_RequestActions" xml:space="preserve"><value>No request creation or operational actions</value></data>
+  <data name="IntakeExcluded_Printing" xml:space="preserve"><value>No printing or dispatch responsibilities</value></data>
+  <data name="IntakeExcluded_Approvals" xml:space="preserve"><value>No approvals or signatures</value></data>
+  <data name="IntakeExcluded_Dispatch" xml:space="preserve"><value>No bank delivery or email dispatch</value></data>
+  <data name="IntakePipeline_ClassifyPage" xml:space="preserve"><value>Classify each page as text-native, mixed, or image-only before extraction.</value></data>
+  <data name="IntakePipeline_DirectPdfText" xml:space="preserve"><value>Use direct PDF text extraction first whenever a text layer is present.</value></data>
+  <data name="IntakePipeline_ImagePreprocessing" xml:space="preserve"><value>Apply image preprocessing only to mixed or scanned pages that need OCR help.</value></data>
+  <data name="IntakePipeline_OcrAndLayout" xml:space="preserve"><value>Run OCR and layout parsing for scanned content using the approved local pipeline.</value></data>
+  <data name="IntakePipeline_PostProcessing" xml:space="preserve"><value>Normalize values such as bank names, dates, amounts, and document types.</value></data>
+  <data name="IntakePipeline_HumanReview" xml:space="preserve"><value>Show confidence scores and require explicit review for critical fields.</value></data>
+  <data name="IntakePipeline_SaveAndHandoff" xml:space="preserve"><value>Save once, then hand the record off to the next operational queue.</value></data>
+  <data name="IntakeQuality_TextFirst" xml:space="preserve"><value>Text-first extraction remains mandatory for native PDF pages.</value></data>
+  <data name="IntakeQuality_Confidence" xml:space="preserve"><value>Every extracted field must carry a confidence score.</value></data>
+  <data name="IntakeQuality_SingleSave" xml:space="preserve"><value>The operator finishes the task through one final save action.</value></data>
+  <data name="IntakeQuality_SourceDocument" xml:space="preserve"><value>No verified intake record exists without the scanned source document.</value></data>
+  <data name="IntakeQuality_BankSpecificRules" xml:space="preserve"><value>Bank-specific extraction rules are allowed when one template is not enough.</value></data>
+  <data name="IntakeFuture_ScanStation" xml:space="preserve"><value>Keep a dedicated intake workstation for manual scanning in the initial rollout.</value></data>
+  <data name="IntakeFuture_ScanToFolder" xml:space="preserve"><value>Support scan-to-folder as a simple internal integration path.</value></data>
+  <data name="IntakeFuture_DeviceApi" xml:space="preserve"><value>Allow future scanner-device API integration without changing the review workflow.</value></data>
+  <data name="IntakeScenario_NewGuarantee_Title" xml:space="preserve"><value>New guarantee</value></data>
+  <data name="IntakeScenario_NewGuarantee_Summary" xml:space="preserve"><value>Register a newly received guarantee instrument from the scanned paper document.</value></data>
+  <data name="IntakeScenario_NewGuarantee_SaveOutcome" xml:space="preserve"><value>The guarantee, its scanned document, and the verified core data are stored together.</value></data>
+  <data name="IntakeScenario_NewGuarantee_Handoff" xml:space="preserve"><value>The saved record moves to the operational team for any later action or workflow.</value></data>
+  <data name="IntakeScenario_Extension_Title" xml:space="preserve"><value>Extension confirmation</value></data>
+  <data name="IntakeScenario_Extension_Summary" xml:space="preserve"><value>Capture an incoming bank letter confirming that the guarantee expiry date was extended.</value></data>
+  <data name="IntakeScenario_Extension_SaveOutcome" xml:space="preserve"><value>The bank response document and its verified extracted data are stored for later operational confirmation handling.</value></data>
+  <data name="IntakeScenario_Extension_Handoff" xml:space="preserve"><value>The operational team reviews the saved confirmation and completes the extension process.</value></data>
+  <data name="IntakeScenario_Release_Title" xml:space="preserve"><value>Release confirmation</value></data>
+  <data name="IntakeScenario_Release_Summary" xml:space="preserve"><value>Capture an incoming bank letter confirming that the guarantee was released.</value></data>
+  <data name="IntakeScenario_Release_SaveOutcome" xml:space="preserve"><value>The scanned release confirmation and its verified data are saved as one intake package.</value></data>
+  <data name="IntakeScenario_Release_Handoff" xml:space="preserve"><value>The next role decides and confirms the release outcome in operations.</value></data>
+  <data name="IntakeScenario_Status_Title" xml:space="preserve"><value>Status verification</value></data>
+  <data name="IntakeScenario_Status_Summary" xml:space="preserve"><value>Capture a bank reply that confirms the current status of an existing guarantee.</value></data>
+  <data name="IntakeScenario_Status_SaveOutcome" xml:space="preserve"><value>The status reply is saved without giving the intake user any operational authority.</value></data>
+  <data name="IntakeScenario_Status_Handoff" xml:space="preserve"><value>The operations team reviews the reply and decides whether any business action is needed.</value></data>
+  <data name="IntakeScenario_Attachment_Title" xml:space="preserve"><value>Supporting attachment</value></data>
+  <data name="IntakeScenario_Attachment_Summary" xml:space="preserve"><value>Attach an additional scanned document related to an existing guarantee.</value></data>
+  <data name="IntakeScenario_Attachment_SaveOutcome" xml:space="preserve"><value>The attachment is stored with metadata and linked to the guarantee in one save.</value></data>
+  <data name="IntakeScenario_Attachment_Handoff" xml:space="preserve"><value>The attachment becomes available to later operational, approval, or dispatch stages.</value></data>
+  <data name="IntakeField_GuaranteeNumber" xml:space="preserve"><value>Guarantee number</value></data>
+  <data name="IntakeField_BankName" xml:space="preserve"><value>Bank name</value></data>
+  <data name="IntakeField_Beneficiary" xml:space="preserve"><value>Beneficiary</value></data>
+  <data name="IntakeField_Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="IntakeField_ExpiryDate" xml:space="preserve"><value>Expiry date</value></data>
+  <data name="IntakeField_DocumentType" xml:space="preserve"><value>Document type</value></data>
+  <data name="IntakeField_OfficialLetterDate" xml:space="preserve"><value>Official letter date</value></data>
+  <data name="IntakeField_NewExpiryDate" xml:space="preserve"><value>New expiry date</value></data>
+  <data name="IntakeField_BankReference" xml:space="preserve"><value>Bank reference</value></data>
+  <data name="IntakeField_StatusStatement" xml:space="preserve"><value>Status statement</value></data>
+  <data name="IntakeField_AttachmentNote" xml:space="preserve"><value>Attachment note</value></data>
+</root>

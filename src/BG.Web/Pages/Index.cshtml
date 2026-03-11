@@ -1,0 +1,87 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model IndexModel
+@{
+    ViewData["Title"] = T["HomeTitle"];
+}
+
+<section class="hero-panel">
+    <div class="hero-copy">
+        <span class="eyebrow">BG baseline</span>
+        <h1>@T["HeroTitle"]</h1>
+        <p>
+            @T["HeroSummaryPrefix"]
+            <strong>@Model.Architecture.UserInterface</strong>,
+            @T["HeroSummaryMiddle"]
+            <strong>@Model.Architecture.ApiStyle</strong>,
+            @T["HeroSummarySuffix"]
+            <strong>@Model.Architecture.Hosting</strong>.
+        </p>
+    </div>
+    <div class="hero-metrics">
+        <div class="metric-card">
+            <span>@T["MetricFramework"]</span>
+            <strong>@Model.Architecture.Framework</strong>
+        </div>
+        <div class="metric-card">
+            <span>@T["MetricDatabase"]</span>
+            <strong>@Model.Architecture.Database</strong>
+        </div>
+        <div class="metric-card">
+            <span>@T["MetricHosting"]</span>
+            <strong>@Model.Architecture.Hosting</strong>
+        </div>
+    </div>
+</section>
+
+<section class="baseline-grid">
+    <article class="info-card">
+        <h2>@T["ArchitectureDecisions"]</h2>
+        <ul class="plain-list">
+            <li><strong>@T["ApplicationNameLabel"]</strong> @Model.Architecture.ApplicationName</li>
+            <li><strong>@T["UserInterfaceLabel"]</strong> @Model.Architecture.UserInterface</li>
+            <li><strong>@T["ApiLabel"]</strong> @Model.Architecture.ApiStyle</li>
+            <li><strong>@T["IntegrationsLabel"]</strong> @Model.Architecture.IntegrationApproach</li>
+        </ul>
+    </article>
+
+    <article class="info-card">
+        <h2>@T["LocalizationAndTheme"]</h2>
+        <ul class="plain-list">
+            <li><strong>@T["CurrentLanguageLabel"]</strong> @T[$"Culture_{Model.CurrentCulture}"]</li>
+            <li><strong>@T["CurrentDirectionLabel"]</strong> @Model.CurrentDirection.ToUpperInvariant()</li>
+            <li><strong>@T["CurrentThemeLabel"]</strong> @T[$"Theme_{Model.CurrentTheme}"]</li>
+            <li><strong>@T["SupportedLanguagesLabel"]</strong> @string.Join(" / ", Model.SupportedCultures.Select(c => T[$"Culture_{c.Culture}"]))</li>
+        </ul>
+    </article>
+
+    <article class="info-card">
+        <h2>@T["HospitalApiReadiness"]</h2>
+        <ul class="plain-list">
+            <li>
+                <strong>@T["HospitalApiLabel"]</strong>
+                @(Model.HospitalApiConfigured ? T["Configured"] : T["Pending"])
+            </li>
+            <li><strong>@T["BaseUrlLabel"]</strong> @(Model.HospitalApiBaseUrl ?? T["NotConfigured"])</li>
+            <li><strong>@T["AuthenticationLabel"]</strong> @Model.HospitalApiAuthMode</li>
+            <li><strong>@T["HealthEndpointLabel"]</strong> <a href="/health">/health</a></li>
+        </ul>
+    </article>
+
+    <article class="info-card">
+        <h2>@T["DeveloperTools"]</h2>
+        <ul class="plain-list">
+            <li><a href="/swagger">Swagger</a></li>
+            <li><a href="/api/system/ping">/api/system/ping</a></li>
+            <li><a href="/api/system/architecture">/api/system/architecture</a></li>
+        </ul>
+    </article>
+
+    <article class="info-card full-span">
+        <h2>@T["NextStepTitle"]</h2>
+        <p class="compact-copy">
+            @T["NextStepBody"]
+        </p>
+    </article>
+</section>
