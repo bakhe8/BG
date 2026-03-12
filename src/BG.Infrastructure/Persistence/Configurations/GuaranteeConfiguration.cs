@@ -28,6 +28,11 @@ public sealed class GuaranteeConfiguration : IEntityTypeConfiguration<Guarantee>
             .HasMaxLength(256)
             .IsRequired();
 
+        builder.Property(guarantee => guarantee.Category)
+            .HasConversion<string>()
+            .HasMaxLength(32)
+            .IsRequired();
+
         builder.Property(guarantee => guarantee.CurrentAmount)
             .HasPrecision(18, 2)
             .IsRequired();

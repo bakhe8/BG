@@ -1,12 +1,15 @@
 using BG.Application.Contracts.Services;
 using BG.Application.Models.Identity;
 using BG.Web.Localization;
+using BG.Web.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Localization;
 
 namespace BG.Web.Pages.Administration;
 
+[Authorize(Policy = PermissionPolicyNames.UsersManage)]
 public sealed class UsersModel : PageModel
 {
     private readonly IIdentityAdministrationService _identityAdministrationService;
@@ -27,6 +30,9 @@ public sealed class UsersModel : PageModel
 
     public IReadOnlyList<RoleSummaryDto> Roles { get; private set; } = Array.Empty<RoleSummaryDto>();
 
+    [TempData]
+    public string? StatusMessage { get; set; }
+
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         await LoadAsync(cancellationToken);
@@ -39,11 +45,30 @@ public sealed class UsersModel : PageModel
                 Input.Username,
                 Input.DisplayName,
                 Input.Email,
+                Input.InitialPassword,
                 Input.SelectedRoleIds),
             cancellationToken);
 
         if (result.Succeeded)
         {
+            StatusMessage = _localizer["UsersPage_UserCreated"];
+            return RedirectToPage();
+        }
+
+        ModelState.AddModelError(string.Empty, _localizer[result.ErrorCode!]);
+        await LoadAsync(cancellationToken);
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostSetPasswordAsync(Guid userId, string newPassword, CancellationToken cancellationToken)
+    {
+        var result = await _identityAdministrationService.SetUserPasswordAsync(
+            new SetLocalUserPasswordCommand(userId, newPassword),
+            cancellationToken);
+
+        if (result.Succeeded)
+        {
+            StatusMessage = _localizer["UsersPage_PasswordUpdated"];
             return RedirectToPage();
         }
 
@@ -65,6 +90,8 @@ public sealed class UsersModel : PageModel
         public string DisplayName { get; set; } = string.Empty;
 
         public string? Email { get; set; }
+
+        public string InitialPassword { get; set; } = string.Empty;
 
         public List<Guid> SelectedRoleIds { get; set; } = [];
     }

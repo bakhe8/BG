@@ -38,6 +38,11 @@ namespace BG.Infrastructure.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -99,10 +104,36 @@ namespace BG.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("AppliedToGuaranteeAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("DeliveredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeliveryNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DeliveryReference")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.Property<string>("Direction")
                         .IsRequired()
                         .HasMaxLength(24)
                         .HasColumnType("character varying(24)");
+
+                    b.Property<string>("DispatchChannel")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("DispatchNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("DispatchReference")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<DateTimeOffset?>("DispatchedAtUtc")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("GuaranteeId")
                         .HasColumnType("uuid");
@@ -115,12 +146,22 @@ namespace BG.Infrastructure.Persistence.Migrations
                         .HasMaxLength(48)
                         .HasColumnType("character varying(48)");
 
+                    b.Property<string>("LastPrintMode")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset?>("LastPrintedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateOnly>("LetterDate")
                         .HasColumnType("date");
 
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("PrintCount")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ReferenceNumber")
                         .IsRequired()
@@ -150,13 +191,29 @@ namespace BG.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("CaptureChannel")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<DateTimeOffset>("CapturedAtUtc")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CapturedByDisplayName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("CapturedByUserId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("DocumentType")
                         .IsRequired()
                         .HasMaxLength(48)
                         .HasColumnType("character varying(48)");
+
+                    b.Property<string>("ExtractionMethod")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("FileName")
                         .IsRequired()
@@ -166,12 +223,24 @@ namespace BG.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("GuaranteeId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("IntakeScenarioKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
                     b.Property<int>("PageCount")
                         .HasColumnType("integer");
+
+                    b.Property<string>("SourceReference")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("SourceSystemName")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("SourceType")
                         .IsRequired()
@@ -183,7 +252,12 @@ namespace BG.Infrastructure.Persistence.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)");
 
+                    b.Property<string>("VerifiedDataJson")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CapturedByUserId");
 
                     b.HasIndex("GuaranteeId", "CapturedAtUtc");
 
@@ -196,12 +270,50 @@ namespace BG.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ActorDisplayName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ApprovalExecutionMode")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("ApprovalPolicyResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("ApprovalResponsibleSignerDisplayName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("ApprovalStageLabel")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("DispatchMethodResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("DispatchPolicyResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("DispatchStageResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.Property<string>("EventType")
                         .IsRequired()
                         .HasMaxLength(48)
                         .HasColumnType("character varying(48)");
 
                     b.Property<Guid?>("GuaranteeCorrespondenceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("GuaranteeDocumentId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("GuaranteeId")
@@ -224,6 +336,25 @@ namespace BG.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("OccurredAtUtc")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("OperationsLaneResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("OperationsMatchConfidenceResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<int?>("OperationsMatchScore")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OperationsPolicyResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("OperationsScenarioTitleResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
                     b.Property<decimal?>("PreviousAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
@@ -242,7 +373,11 @@ namespace BG.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ActorUserId");
+
                     b.HasIndex("GuaranteeCorrespondenceId");
+
+                    b.HasIndex("GuaranteeDocumentId");
 
                     b.HasIndex("GuaranteeRequestId");
 
@@ -273,6 +408,11 @@ namespace BG.Infrastructure.Persistence.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<string>("RequestChannel")
+                        .IsRequired()
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)");
+
                     b.Property<string>("RequestType")
                         .IsRequired()
                         .HasMaxLength(48)
@@ -281,6 +421,9 @@ namespace BG.Infrastructure.Persistence.Migrations
                     b.Property<decimal?>("RequestedAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("numeric(18,2)");
+
+                    b.Property<Guid>("RequestedByUserId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateOnly?>("RequestedExpiryDate")
                         .HasColumnType("date");
@@ -297,7 +440,43 @@ namespace BG.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("GuaranteeId", "Status");
 
+                    b.HasIndex("RequestedByUserId", "Status");
+
                     b.ToTable("guarantee_requests", (string)null);
+                });
+
+            modelBuilder.Entity("BG.Domain.Guarantees.GuaranteeRequestDocumentLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GuaranteeDocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GuaranteeRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("LinkedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LinkedByDisplayName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("LinkedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuaranteeDocumentId");
+
+                    b.HasIndex("LinkedByUserId");
+
+                    b.HasIndex("GuaranteeRequestId", "GuaranteeDocumentId")
+                        .IsUnique();
+
+                    b.ToTable("guarantee_request_documents", (string)null);
                 });
 
             modelBuilder.Entity("BG.Domain.Identity.Permission", b =>
@@ -393,6 +572,13 @@ namespace BG.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<DateTimeOffset?>("PasswordChangedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PasswordHash")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
                     b.Property<string>("SourceType")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -426,6 +612,361 @@ namespace BG.Infrastructure.Persistence.Migrations
                     b.ToTable("user_roles", (string)null);
                 });
 
+            modelBuilder.Entity("BG.Domain.Operations.OperationsReviewItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("GuaranteeCorrespondenceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GuaranteeDocumentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("GuaranteeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("GuaranteeNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset?>("RoutedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RoutedToLaneKey")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("ScenarioKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuaranteeCorrespondenceId");
+
+                    b.HasIndex("GuaranteeDocumentId");
+
+                    b.HasIndex("GuaranteeId", "Status");
+
+                    b.HasIndex("Status", "CreatedAtUtc");
+
+                    b.ToTable("operations_review_items", (string)null);
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.ApprovalDelegation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DelegateUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("DelegatorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("EndsAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("RevocationReason")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<DateTimeOffset?>("RevokedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("StartsAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DelegatorUserId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("DelegateUserId", "RoleId", "StartsAtUtc", "EndsAtUtc");
+
+                    b.ToTable("approval_delegations", (string)null);
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.RequestApprovalProcess", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("CompletedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("DelegationAmountThreshold")
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("FinalSignatureDelegationPolicy")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<Guid>("GuaranteeRequestId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("LastRejectedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastRejectedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LastRejectedNote")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<DateTimeOffset?>("LastReturnedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastReturnedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LastReturnedNote")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("SubmittedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("WorkflowDefinitionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuaranteeRequestId")
+                        .IsUnique();
+
+                    b.HasIndex("WorkflowDefinitionId");
+
+                    b.ToTable("request_approval_processes", (string)null);
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.RequestApprovalStage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ActedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ActedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ActedOnBehalfOfUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ApprovalDelegationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ApprovalProcessId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("DecisionNote")
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("DelegationPolicy")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<bool>("RequiresLetterSignature")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("SignatureAppliedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("SummaryResourceKey")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("SummaryText")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("TitleResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("TitleText")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActedByUserId");
+
+                    b.HasIndex("ActedOnBehalfOfUserId");
+
+                    b.HasIndex("ApprovalDelegationId");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("ApprovalProcessId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("request_approval_stages", (string)null);
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.RequestWorkflowDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal?>("DelegationAmountThreshold")
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<string>("FinalSignatureDelegationPolicy")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("GuaranteeCategory")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("GuaranteeCategoryResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(96)
+                        .HasColumnType("character varying(96)");
+
+                    b.Property<DateTimeOffset?>("LastModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("RequestType")
+                        .IsRequired()
+                        .HasMaxLength(48)
+                        .HasColumnType("character varying(48)");
+
+                    b.Property<string>("SummaryResourceKey")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("TitleResourceKey")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("request_workflow_definitions", (string)null);
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.RequestWorkflowStageDefinition", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CustomSummary")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("CustomTitle")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("DelegationPolicy")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<bool>("RequiresLetterSignature")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SummaryResourceKey")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("TitleResourceKey")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<Guid>("WorkflowDefinitionId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("WorkflowDefinitionId", "Sequence")
+                        .IsUnique();
+
+                    b.ToTable("request_workflow_stages", (string)null);
+                });
+
             modelBuilder.Entity("BG.Domain.Guarantees.GuaranteeCorrespondence", b =>
                 {
                     b.HasOne("BG.Domain.Guarantees.Guarantee", "Guarantee")
@@ -452,20 +993,37 @@ namespace BG.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("BG.Domain.Guarantees.GuaranteeDocument", b =>
                 {
+                    b.HasOne("BG.Domain.Identity.User", "CapturedByUser")
+                        .WithMany()
+                        .HasForeignKey("CapturedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("BG.Domain.Guarantees.Guarantee", "Guarantee")
                         .WithMany("Documents")
                         .HasForeignKey("GuaranteeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("CapturedByUser");
+
                     b.Navigation("Guarantee");
                 });
 
             modelBuilder.Entity("BG.Domain.Guarantees.GuaranteeEvent", b =>
                 {
+                    b.HasOne("BG.Domain.Identity.User", "ActorUser")
+                        .WithMany()
+                        .HasForeignKey("ActorUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("BG.Domain.Guarantees.GuaranteeCorrespondence", "GuaranteeCorrespondence")
                         .WithMany()
                         .HasForeignKey("GuaranteeCorrespondenceId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BG.Domain.Guarantees.GuaranteeDocument", "GuaranteeDocument")
+                        .WithMany()
+                        .HasForeignKey("GuaranteeDocumentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("BG.Domain.Guarantees.Guarantee", "Guarantee")
@@ -479,9 +1037,13 @@ namespace BG.Infrastructure.Persistence.Migrations
                         .HasForeignKey("GuaranteeRequestId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.Navigation("ActorUser");
+
                     b.Navigation("Guarantee");
 
                     b.Navigation("GuaranteeCorrespondence");
+
+                    b.Navigation("GuaranteeDocument");
 
                     b.Navigation("GuaranteeRequest");
                 });
@@ -494,7 +1056,41 @@ namespace BG.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("BG.Domain.Identity.User", "RequestedByUser")
+                        .WithMany()
+                        .HasForeignKey("RequestedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Guarantee");
+
+                    b.Navigation("RequestedByUser");
+                });
+
+            modelBuilder.Entity("BG.Domain.Guarantees.GuaranteeRequestDocumentLink", b =>
+                {
+                    b.HasOne("BG.Domain.Guarantees.GuaranteeDocument", "GuaranteeDocument")
+                        .WithMany("RequestLinks")
+                        .HasForeignKey("GuaranteeDocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BG.Domain.Guarantees.GuaranteeRequest", "GuaranteeRequest")
+                        .WithMany("RequestDocuments")
+                        .HasForeignKey("GuaranteeRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BG.Domain.Identity.User", "LinkedByUser")
+                        .WithMany()
+                        .HasForeignKey("LinkedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("GuaranteeDocument");
+
+                    b.Navigation("GuaranteeRequest");
+
+                    b.Navigation("LinkedByUser");
                 });
 
             modelBuilder.Entity("BG.Domain.Identity.RolePermission", b =>
@@ -535,6 +1131,135 @@ namespace BG.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BG.Domain.Operations.OperationsReviewItem", b =>
+                {
+                    b.HasOne("BG.Domain.Guarantees.GuaranteeCorrespondence", "GuaranteeCorrespondence")
+                        .WithMany()
+                        .HasForeignKey("GuaranteeCorrespondenceId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("BG.Domain.Guarantees.GuaranteeDocument", "GuaranteeDocument")
+                        .WithMany()
+                        .HasForeignKey("GuaranteeDocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BG.Domain.Guarantees.Guarantee", "Guarantee")
+                        .WithMany()
+                        .HasForeignKey("GuaranteeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Guarantee");
+
+                    b.Navigation("GuaranteeCorrespondence");
+
+                    b.Navigation("GuaranteeDocument");
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.ApprovalDelegation", b =>
+                {
+                    b.HasOne("BG.Domain.Identity.User", "DelegateUser")
+                        .WithMany()
+                        .HasForeignKey("DelegateUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BG.Domain.Identity.User", "DelegatorUser")
+                        .WithMany()
+                        .HasForeignKey("DelegatorUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BG.Domain.Identity.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DelegateUser");
+
+                    b.Navigation("DelegatorUser");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.RequestApprovalProcess", b =>
+                {
+                    b.HasOne("BG.Domain.Guarantees.GuaranteeRequest", "GuaranteeRequest")
+                        .WithOne("ApprovalProcess")
+                        .HasForeignKey("BG.Domain.Workflow.RequestApprovalProcess", "GuaranteeRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BG.Domain.Workflow.RequestWorkflowDefinition", "WorkflowDefinition")
+                        .WithMany()
+                        .HasForeignKey("WorkflowDefinitionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GuaranteeRequest");
+
+                    b.Navigation("WorkflowDefinition");
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.RequestApprovalStage", b =>
+                {
+                    b.HasOne("BG.Domain.Identity.User", "ActedByUser")
+                        .WithMany()
+                        .HasForeignKey("ActedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BG.Domain.Identity.User", "ActedOnBehalfOfUser")
+                        .WithMany()
+                        .HasForeignKey("ActedOnBehalfOfUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BG.Domain.Workflow.ApprovalDelegation", "ApprovalDelegation")
+                        .WithMany()
+                        .HasForeignKey("ApprovalDelegationId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BG.Domain.Workflow.RequestApprovalProcess", "ApprovalProcess")
+                        .WithMany("Stages")
+                        .HasForeignKey("ApprovalProcessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BG.Domain.Identity.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("ActedByUser");
+
+                    b.Navigation("ActedOnBehalfOfUser");
+
+                    b.Navigation("ApprovalDelegation");
+
+                    b.Navigation("ApprovalProcess");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.RequestWorkflowStageDefinition", b =>
+                {
+                    b.HasOne("BG.Domain.Identity.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("BG.Domain.Workflow.RequestWorkflowDefinition", "WorkflowDefinition")
+                        .WithMany("Stages")
+                        .HasForeignKey("WorkflowDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("WorkflowDefinition");
+                });
+
             modelBuilder.Entity("BG.Domain.Guarantees.Guarantee", b =>
                 {
                     b.Navigation("Correspondence");
@@ -549,11 +1274,17 @@ namespace BG.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("BG.Domain.Guarantees.GuaranteeDocument", b =>
                 {
                     b.Navigation("Correspondence");
+
+                    b.Navigation("RequestLinks");
                 });
 
             modelBuilder.Entity("BG.Domain.Guarantees.GuaranteeRequest", b =>
                 {
+                    b.Navigation("ApprovalProcess");
+
                     b.Navigation("Correspondence");
+
+                    b.Navigation("RequestDocuments");
                 });
 
             modelBuilder.Entity("BG.Domain.Identity.Permission", b =>
@@ -571,6 +1302,16 @@ namespace BG.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("BG.Domain.Identity.User", b =>
                 {
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.RequestApprovalProcess", b =>
+                {
+                    b.Navigation("Stages");
+                });
+
+            modelBuilder.Entity("BG.Domain.Workflow.RequestWorkflowDefinition", b =>
+                {
+                    b.Navigation("Stages");
                 });
 #pragma warning restore 612, 618
         }

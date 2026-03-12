@@ -1,0 +1,167 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Administration.DelegationsModel
+@{
+    ViewData["Title"] = T["ApprovalDelegation_PageTitle"];
+}
+
+<section class="section-shell">
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="notice-banner is-success">@Model.StatusMessage</div>
+    }
+
+    <div class="section-header">
+        <span class="eyebrow">@T["NavDelegations"]</span>
+        <h1>@T["ApprovalDelegation_Heading"]</h1>
+        <p class="compact-copy">@T["ApprovalDelegation_Summary"]</p>
+    </div>
+
+    <div class="admin-grid">
+        <article class="info-card">
+            <h2>@T["ApprovalDelegation_CreateTitle"]</h2>
+            <p class="compact-copy">@T["ApprovalDelegation_CreateSummary"]</p>
+
+            <form method="post" asp-page-handler="Create" class="stack-form">
+                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                <label class="form-label" for="delegator-user">@T["ApprovalDelegation_DelegatorField"]</label>
+                <select id="delegator-user" name="Input.DelegatorUserId" class="form-control">
+                    <option value="">@T["ApprovalDelegation_SelectUser"]</option>
+                    @foreach (var user in Model.Snapshot.AvailableUsers)
+                    {
+                        <option value="@user.Id" selected="@(user.Id == Model.Input.DelegatorUserId ? "selected" : null)">
+                            @user.DisplayName (@user.Username)
+                        </option>
+                    }
+                </select>
+
+                <label class="form-label" for="delegate-user">@T["ApprovalDelegation_DelegateField"]</label>
+                <select id="delegate-user" name="Input.DelegateUserId" class="form-control">
+                    <option value="">@T["ApprovalDelegation_SelectUser"]</option>
+                    @foreach (var user in Model.Snapshot.AvailableUsers)
+                    {
+                        <option value="@user.Id" selected="@(user.Id == Model.Input.DelegateUserId ? "selected" : null)">
+                            @user.DisplayName (@user.Username)
+                        </option>
+                    }
+                </select>
+
+                <label class="form-label" for="delegation-role">@T["ApprovalDelegation_RoleField"]</label>
+                <select id="delegation-role" name="Input.RoleId" class="form-control">
+                    <option value="">@T["ApprovalDelegation_SelectRole"]</option>
+                    @foreach (var role in Model.Snapshot.AvailableRoles)
+                    {
+                        <option value="@role.Id" selected="@(role.Id == Model.Input.RoleId ? "selected" : null)">@role.Name</option>
+                    }
+                </select>
+
+                <label class="form-label" for="delegation-start">@T["ApprovalDelegation_StartField"]</label>
+                <input
+                    id="delegation-start"
+                    name="Input.StartsAtUtc"
+                    type="datetime-local"
+                    class="form-control"
+                    value="@(Model.Input.StartsAtUtc?.ToLocalTime().ToString("yyyy-MM-ddTHH:mm"))" />
+
+                <label class="form-label" for="delegation-end">@T["ApprovalDelegation_EndField"]</label>
+                <input
+                    id="delegation-end"
+                    name="Input.EndsAtUtc"
+                    type="datetime-local"
+                    class="form-control"
+                    value="@(Model.Input.EndsAtUtc?.ToLocalTime().ToString("yyyy-MM-ddTHH:mm"))" />
+
+                <label class="form-label" for="delegation-reason">@T["ApprovalDelegation_ReasonField"]</label>
+                <textarea
+                    id="delegation-reason"
+                    name="Input.Reason"
+                    class="form-control"
+                    rows="3">@Model.Input.Reason</textarea>
+
+                <button type="submit" class="btn btn-primary action-button">@T["ApprovalDelegation_CreateAction"]</button>
+            </form>
+        </article>
+
+        <article class="info-card">
+            <h2>@T["ApprovalDelegation_ListTitle"]</h2>
+            <p class="compact-copy">@T["ApprovalDelegation_ListSummary"]</p>
+
+            @if (Model.Snapshot.Delegations.Count == 0)
+            {
+                <p class="compact-copy">@T["ApprovalDelegation_Empty"]</p>
+            }
+            else
+            {
+                <div class="stack-list">
+                    @foreach (var delegation in Model.Snapshot.Delegations)
+                    {
+                        <section class="entity-card">
+                            <div class="entity-header">
+                                <div>
+                                    <h3>@delegation.DelegateDisplayName</h3>
+                                    <p class="entity-subtitle">@delegation.RoleName</p>
+                                </div>
+                                <span class="status-badge is-active">@T[delegation.StatusResourceKey]</span>
+                            </div>
+
+                            <dl class="data-pairs">
+                                <div>
+                                    <dt>@T["ApprovalDelegation_DelegatorField"]</dt>
+                                    <dd>@delegation.DelegatorDisplayName</dd>
+                                </div>
+                                <div>
+                                    <dt>@T["ApprovalDelegation_DelegateField"]</dt>
+                                    <dd>@delegation.DelegateDisplayName</dd>
+                                </div>
+                                <div>
+                                    <dt>@T["ApprovalDelegation_StartField"]</dt>
+                                    <dd>@delegation.StartsAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                                </div>
+                                <div>
+                                    <dt>@T["ApprovalDelegation_EndField"]</dt>
+                                    <dd>@delegation.EndsAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                                </div>
+                                <div>
+                                    <dt>@T["ApprovalDelegation_CreatedAtLabel"]</dt>
+                                    <dd>@delegation.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                                </div>
+                                @if (delegation.RevokedAtUtc.HasValue)
+                                {
+                                    <div>
+                                        <dt>@T["ApprovalDelegation_RevokedAtLabel"]</dt>
+                                        <dd>@delegation.RevokedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                                    </div>
+                                }
+                            </dl>
+
+                            <div class="pill-section">
+                                <span class="section-caption">@T["ApprovalDelegation_ReasonField"]</span>
+                                <p class="compact-copy">@(string.IsNullOrWhiteSpace(delegation.Reason) ? "-" : delegation.Reason)</p>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(delegation.RevocationReason))
+                            {
+                                <div class="pill-section">
+                                    <span class="section-caption">@T["ApprovalDelegation_RevocationReasonLabel"]</span>
+                                    <p class="compact-copy">@delegation.RevocationReason</p>
+                                </div>
+                            }
+
+                            @if (!delegation.RevokedAtUtc.HasValue)
+                            {
+                                <form method="post" asp-page-handler="Revoke" class="stack-form">
+                                    <input type="hidden" name="delegationId" value="@delegation.Id" />
+                                    <label class="form-label" for="revoke-@delegation.Id">@T["ApprovalDelegation_RevokeReasonField"]</label>
+                                    <textarea id="revoke-@delegation.Id" name="reason" class="form-control" rows="2"></textarea>
+                                    <button type="submit" class="btn btn-outline-danger action-button">@T["ApprovalDelegation_RevokeAction"]</button>
+                                </form>
+                            }
+                        </section>
+                    }
+                </div>
+            }
+        </article>
+    </div>
+</section>

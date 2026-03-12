@@ -8,5 +8,7 @@ public sealed record UserSummaryDto(
     string? ExternalId,
     string SourceType,
     bool IsActive,
+    bool HasLocalPassword,
+    DateTimeOffset? PasswordChangedAtUtc,
     DateTimeOffset CreatedAtUtc,
     IReadOnlyList<string> Roles);

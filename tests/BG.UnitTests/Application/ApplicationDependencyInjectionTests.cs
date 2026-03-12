@@ -40,6 +40,30 @@ public sealed class ApplicationDependencyInjectionTests
     }
 
     [Fact]
+    public void AddApplication_registers_local_authentication_service()
+    {
+        var services = new ServiceCollection();
+
+        services.AddApplication();
+
+        var descriptor = Assert.Single(services.Where(service => service.ServiceType == typeof(ILocalAuthenticationService)));
+
+        Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
+    }
+
+    [Fact]
+    public void AddApplication_registers_home_dashboard_service()
+    {
+        var services = new ServiceCollection();
+
+        services.AddApplication();
+
+        var descriptor = Assert.Single(services.Where(service => service.ServiceType == typeof(IHomeDashboardService)));
+
+        Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
+    }
+
+    [Fact]
     public void AddApplication_registers_intake_workspace_service()
     {
         var services = new ServiceCollection();
@@ -48,6 +72,66 @@ public sealed class ApplicationDependencyInjectionTests
 
         var descriptor = Assert.Single(services.Where(service => service.ServiceType == typeof(IIntakeWorkspaceService)));
 
+        Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
+    }
+
+    [Fact]
+    public void AddApplication_registers_intake_extraction_engine()
+    {
+        var services = new ServiceCollection();
+
+        services.AddApplication();
+
+        var descriptor = Assert.Single(services.Where(service => service.ServiceType == typeof(IIntakeExtractionEngine)));
+
         Assert.Equal(ServiceLifetime.Singleton, descriptor.Lifetime);
+    }
+
+    [Fact]
+    public void AddApplication_registers_intake_submission_service()
+    {
+        var services = new ServiceCollection();
+
+        services.AddApplication();
+
+        var descriptor = Assert.Single(services.Where(service => service.ServiceType == typeof(IIntakeSubmissionService)));
+
+        Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
+    }
+
+    [Fact]
+    public void AddApplication_registers_operations_review_queue_service()
+    {
+        var services = new ServiceCollection();
+
+        services.AddApplication();
+
+        var descriptor = Assert.Single(services.Where(service => service.ServiceType == typeof(IOperationsReviewQueueService)));
+
+        Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
+    }
+
+    [Fact]
+    public void AddApplication_registers_request_workspace_service()
+    {
+        var services = new ServiceCollection();
+
+        services.AddApplication();
+
+        var descriptor = Assert.Single(services.Where(service => service.ServiceType == typeof(IRequestWorkspaceService)));
+
+        Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
+    }
+
+    [Fact]
+    public void AddApplication_registers_dispatch_workspace_service()
+    {
+        var services = new ServiceCollection();
+
+        services.AddApplication();
+
+        var descriptor = Assert.Single(services.Where(service => service.ServiceType == typeof(IDispatchWorkspaceService)));
+
+        Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
     }
 }

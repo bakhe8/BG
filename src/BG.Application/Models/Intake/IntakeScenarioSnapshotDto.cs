@@ -7,4 +7,9 @@ public sealed record IntakeScenarioSnapshotDto(
     string SaveOutcomeResourceKey,
     string HandoffResourceKey,
     IReadOnlyList<string> RequiredReviewFieldKeys,
-    IReadOnlyList<IntakeFieldSampleDto> SampleFields);
+    IReadOnlyList<IntakeFieldReviewDto> SampleFields,
+    bool RequiresExistingGuarantee,
+    bool RequiresConfirmedExpiryDate,
+    bool RequiresConfirmedAmount,
+    bool RequiresStatusStatement,
+    bool RequiresAttachmentNote);

@@ -4,5 +4,8 @@ namespace BG.Application.Contracts.Services;
 
 public interface IIntakeWorkspaceService
 {
-    IntakeWorkspaceSnapshotDto GetWorkspace(string? scenarioKey = null);
+    Task<IntakeWorkspaceSnapshotDto> GetWorkspaceAsync(
+        Guid? intakeActorId = null,
+        string? scenarioKey = null,
+        CancellationToken cancellationToken = default);
 }

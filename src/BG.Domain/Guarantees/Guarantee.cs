@@ -2,11 +2,12 @@ namespace BG.Domain.Guarantees;
 
 public sealed class Guarantee
 {
-    public Guarantee(
+    private Guarantee(
         string guaranteeNumber,
         string bankName,
         string beneficiaryName,
         string principalName,
+        GuaranteeCategory category,
         decimal currentAmount,
         string currencyCode,
         DateOnly issueDate,
@@ -24,11 +25,17 @@ public sealed class Guarantee
             throw new ArgumentOutOfRangeException(nameof(expiryDate), "Expiry date cannot be before issue date.");
         }
 
+        if (!Enum.IsDefined(category))
+        {
+            throw new ArgumentOutOfRangeException(nameof(category), "Guarantee category must be valid.");
+        }
+
         Id = Guid.NewGuid();
         GuaranteeNumber = NormalizeRequired(guaranteeNumber, nameof(guaranteeNumber), 64);
         BankName = NormalizeRequired(bankName, nameof(bankName), 128);
         BeneficiaryName = NormalizeRequired(beneficiaryName, nameof(beneficiaryName), 256);
         PrincipalName = NormalizeRequired(principalName, nameof(principalName), 256);
+        Category = category;
         CurrentAmount = decimal.Round(currentAmount, 2, MidpointRounding.AwayFromZero);
         CurrencyCode = NormalizeCode(currencyCode, nameof(currencyCode), 3);
         IssueDate = issueDate;
@@ -36,10 +43,6 @@ public sealed class Guarantee
         Status = GuaranteeStatus.Active;
         CreatedAtUtc = createdAtUtc;
         ExternalReference = NormalizeOptional(externalReference, 128);
-
-        var registeredEvent = GuaranteeEvent.Registered(Id, createdAtUtc);
-        registeredEvent.Guarantee = this;
-        Events.Add(registeredEvent);
     }
 
     private Guarantee()
@@ -49,6 +52,7 @@ public sealed class Guarantee
         BeneficiaryName = string.Empty;
         PrincipalName = string.Empty;
         CurrencyCode = string.Empty;
+        Category = GuaranteeCategory.Contract;
     }
 
     public Guid Id { get; private set; }
@@ -60,6 +64,8 @@ public sealed class Guarantee
     public string BeneficiaryName { get; private set; }
 
     public string PrincipalName { get; private set; }
+
+    public GuaranteeCategory Category { get; private set; }
 
     public decimal CurrentAmount { get; private set; }
 
@@ -87,59 +93,185 @@ public sealed class Guarantee
 
     public ICollection<GuaranteeEvent> Events { get; private set; } = new List<GuaranteeEvent>();
 
+    public static Guarantee RegisterNew(
+        string guaranteeNumber,
+        string bankName,
+        string beneficiaryName,
+        string principalName,
+        GuaranteeCategory category,
+        decimal currentAmount,
+        string currencyCode,
+        DateOnly issueDate,
+        DateOnly expiryDate,
+        DateTimeOffset createdAtUtc,
+        string? externalReference = null)
+    {
+        var guarantee = new Guarantee(
+            guaranteeNumber,
+            bankName,
+            beneficiaryName,
+            principalName,
+            category,
+            currentAmount,
+            currencyCode,
+            issueDate,
+            expiryDate,
+            createdAtUtc,
+            externalReference);
+
+        guarantee.AddEvent(GuaranteeEvent.Registered(guarantee.Id, createdAtUtc));
+        return guarantee;
+    }
+
     public GuaranteeDocument RegisterScannedDocument(
         GuaranteeDocumentType documentType,
         string fileName,
         string storagePath,
         int pageCount,
         DateTimeOffset capturedAtUtc,
+        Guid? capturedByUserId = null,
+        string? capturedByDisplayName = null,
+        GuaranteeDocumentCaptureChannel captureChannel = GuaranteeDocumentCaptureChannel.ManualUpload,
+        string? sourceSystemName = null,
+        string? sourceReference = null,
+        string? intakeScenarioKey = null,
+        string? extractionMethod = null,
+        string? verifiedDataJson = null,
         string? notes = null)
     {
+        var sourceType = captureChannel switch
+        {
+            GuaranteeDocumentCaptureChannel.ManualUpload => GuaranteeDocumentSourceType.Uploaded,
+            GuaranteeDocumentCaptureChannel.ScanStation => GuaranteeDocumentSourceType.Scanned,
+            GuaranteeDocumentCaptureChannel.OracleImport => GuaranteeDocumentSourceType.Imported,
+            _ => GuaranteeDocumentSourceType.Scanned
+        };
+
         var document = new GuaranteeDocument(
             Id,
             documentType,
-            GuaranteeDocumentSourceType.Scanned,
+            sourceType,
             fileName,
             storagePath,
             pageCount,
             capturedAtUtc,
+            capturedByUserId,
+            capturedByDisplayName,
+            captureChannel,
+            sourceSystemName,
+            sourceReference,
+            intakeScenarioKey,
+            extractionMethod,
+            verifiedDataJson,
             notes)
         {
             Guarantee = this
         };
 
         Documents.Add(document);
+        AddEvent(
+            GuaranteeEvent.DocumentCaptured(
+                Id,
+                document.Id,
+                requestId: null,
+                documentType,
+                captureChannel,
+                capturedAtUtc,
+                capturedByUserId,
+                capturedByDisplayName,
+                sourceSystemName,
+                sourceReference),
+            document: document);
         return document;
     }
 
     public GuaranteeRequest CreateRequest(
+        Guid requestedByUserId,
         GuaranteeRequestType requestType,
         decimal? requestedAmount,
         DateOnly? requestedExpiryDate,
         string? notes,
-        DateTimeOffset createdAtUtc)
+        DateTimeOffset createdAtUtc,
+        string? requestedByDisplayName = null,
+        GuaranteeRequestChannel requestChannel = GuaranteeRequestChannel.RequestWorkspace)
     {
         ValidateRequestData(requestType, requestedAmount, requestedExpiryDate);
 
         var request = new GuaranteeRequest(
             Id,
+            requestedByUserId,
             requestType,
             requestedAmount,
             requestedExpiryDate,
             notes,
-            createdAtUtc)
+            createdAtUtc,
+            requestChannel)
         {
             Guarantee = this
         };
 
         Requests.Add(request);
 
-        var requestEvent = GuaranteeEvent.RequestRecorded(Id, request.Id, requestType, createdAtUtc);
-        requestEvent.Guarantee = this;
-        requestEvent.GuaranteeRequest = request;
-        Events.Add(requestEvent);
+        AddEvent(
+            GuaranteeEvent.RequestRecorded(
+                Id,
+                request.Id,
+                requestType,
+                requestChannel,
+                createdAtUtc,
+                requestedByUserId,
+                requestedByDisplayName),
+            request);
 
         return request;
+    }
+
+    public void AttachDocumentToRequest(
+        Guid requestId,
+        Guid documentId,
+        DateTimeOffset linkedAtUtc,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null)
+    {
+        var request = FindRequest(requestId);
+        var document = FindDocument(documentId);
+
+        if (document.DocumentType is not GuaranteeDocumentType.GuaranteeInstrument and not GuaranteeDocumentType.SupportingDocument)
+        {
+            throw new InvalidOperationException("Only guarantee instruments and supporting documents can be attached to a request.");
+        }
+
+        if (request.RequestDocuments.Any(existing => existing.GuaranteeDocumentId == document.Id))
+        {
+            return;
+        }
+
+        var requestDocument = new GuaranteeRequestDocumentLink(
+            request.Id,
+            document.Id,
+            linkedAtUtc,
+            actorUserId,
+            actorDisplayName)
+        {
+            GuaranteeRequest = request,
+            GuaranteeDocument = document
+        };
+
+        request.AttachDocument(requestDocument);
+        document.RequestLinks.Add(requestDocument);
+
+        AddEvent(
+            GuaranteeEvent.RequestDocumentLinked(
+                Id,
+                request.Id,
+                document.Id,
+                document.DocumentType,
+                document.FileName,
+                linkedAtUtc,
+                actorUserId,
+                actorDisplayName),
+            request,
+            document: document);
     }
 
     public GuaranteeCorrespondence RegisterCorrespondence(
@@ -150,10 +282,13 @@ public sealed class Guarantee
         DateOnly letterDate,
         Guid? scannedDocumentId,
         string? notes,
-        DateTimeOffset registeredAtUtc)
+        DateTimeOffset registeredAtUtc,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null)
     {
         var request = requestId.HasValue ? FindRequest(requestId.Value) : null;
         var document = scannedDocumentId.HasValue ? FindDocument(scannedDocumentId.Value) : null;
+        ValidateCorrespondenceRegistration(request, direction, kind);
 
         var correspondence = new GuaranteeCorrespondence(
             Id,
@@ -177,14 +312,151 @@ public sealed class Guarantee
         if (request is not null)
         {
             request.AttachCorrespondence(correspondence);
-
-            if (direction == GuaranteeCorrespondenceDirection.Outgoing)
-            {
-                request.MarkSubmittedToBank(registeredAtUtc);
-            }
         }
 
+        AddEvent(
+            GuaranteeEvent.CorrespondenceRecorded(
+                Id,
+                requestId,
+                correspondence.Id,
+                direction,
+                kind,
+                referenceNumber,
+                registeredAtUtc,
+                actorUserId,
+                actorDisplayName),
+            request,
+            correspondence);
+
         return correspondence;
+    }
+
+    public GuaranteeCorrespondence RecordOutgoingLetterPrint(
+        Guid requestId,
+        string referenceNumber,
+        DateOnly letterDate,
+        GuaranteeOutgoingLetterPrintMode printMode,
+        DateTimeOffset printedAtUtc,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null,
+        string? note = null)
+    {
+        var request = FindRequest(requestId);
+
+        if (request.Status is not GuaranteeRequestStatus.ApprovedForDispatch and not GuaranteeRequestStatus.AwaitingBankResponse)
+        {
+            throw new InvalidOperationException("Only approved or already dispatched requests can have outgoing letters printed.");
+        }
+
+        var correspondence = FindOrCreateOutgoingRequestLetter(
+            request,
+            referenceNumber,
+            letterDate,
+            note,
+            printedAtUtc,
+            actorUserId,
+            actorDisplayName);
+
+        correspondence.RecordPrint(printMode, printedAtUtc);
+        LastUpdatedAtUtc = printedAtUtc;
+
+        AddEvent(
+            GuaranteeEvent.OutgoingLetterPrinted(
+                Id,
+                request.Id,
+                correspondence.Id,
+                printMode,
+                correspondence.PrintCount,
+                printedAtUtc,
+                actorUserId,
+                actorDisplayName),
+            request,
+            correspondence);
+
+        return correspondence;
+    }
+
+    public GuaranteeCorrespondence RecordOutgoingDispatch(
+        Guid requestId,
+        string referenceNumber,
+        DateOnly letterDate,
+        GuaranteeDispatchChannel dispatchChannel,
+        string? dispatchReference,
+        string? dispatchNote,
+        DateTimeOffset dispatchedAtUtc,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null)
+    {
+        var request = FindRequest(requestId);
+
+        if (request.Status != GuaranteeRequestStatus.ApprovedForDispatch)
+        {
+            throw new InvalidOperationException("Only requests approved for dispatch can be sent to the bank.");
+        }
+
+        var correspondence = FindOrCreateOutgoingRequestLetter(
+            request,
+            referenceNumber,
+            letterDate,
+            dispatchNote,
+            dispatchedAtUtc,
+            actorUserId,
+            actorDisplayName);
+
+        correspondence.RecordDispatch(dispatchChannel, dispatchReference, dispatchNote, dispatchedAtUtc);
+        request.MarkSubmittedToBank(dispatchedAtUtc);
+        LastUpdatedAtUtc = dispatchedAtUtc;
+
+        AddEvent(
+            GuaranteeEvent.OutgoingLetterDispatched(
+                Id,
+                request.Id,
+                correspondence.Id,
+                dispatchChannel,
+                dispatchReference,
+                dispatchNote,
+                dispatchedAtUtc,
+                actorUserId,
+                actorDisplayName),
+            request,
+            correspondence);
+
+        return correspondence;
+    }
+
+    public void ConfirmOutgoingDispatchDelivery(
+        Guid requestId,
+        Guid correspondenceId,
+        DateTimeOffset deliveredAtUtc,
+        string? deliveryReference = null,
+        string? deliveryNote = null,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null)
+    {
+        var request = FindRequest(requestId);
+        var correspondence = FindCorrespondence(correspondenceId);
+
+        if (correspondence.GuaranteeRequestId != request.Id)
+        {
+            throw new InvalidOperationException("The outgoing correspondence does not belong to the request.");
+        }
+
+        correspondence.ConfirmDelivery(deliveryReference, deliveryNote, deliveredAtUtc);
+        LastUpdatedAtUtc = deliveredAtUtc;
+
+        AddEvent(
+            GuaranteeEvent.OutgoingLetterDelivered(
+                Id,
+                request.Id,
+                correspondence.Id,
+                correspondence.DispatchChannel,
+                deliveryReference,
+                deliveryNote,
+                deliveredAtUtc,
+                actorUserId,
+                actorDisplayName),
+            request,
+            correspondence);
     }
 
     public void ApplyBankConfirmation(
@@ -194,7 +466,14 @@ public sealed class Guarantee
         DateOnly? confirmedExpiryDate = null,
         decimal? confirmedAmount = null,
         string? replacementGuaranteeNumber = null,
-        string? notes = null)
+        string? notes = null,
+        Guid? actedByUserId = null,
+        string? actedByDisplayName = null,
+        string? operationsScenarioTitleResourceKey = null,
+        string? operationsLaneResourceKey = null,
+        string? operationsMatchConfidenceResourceKey = null,
+        int? operationsMatchScore = null,
+        string? operationsPolicyResourceKey = null)
     {
         var request = FindRequest(requestId);
         var correspondence = FindCorrespondence(correspondenceId);
@@ -207,6 +486,24 @@ public sealed class Guarantee
         if (!correspondence.ScannedDocumentId.HasValue)
         {
             throw new InvalidOperationException("A scanned bank document is required before applying the confirmation.");
+        }
+
+        if (correspondence.GuaranteeRequestId != request.Id)
+        {
+            correspondence.LinkToRequest(request);
+
+            if (!request.Correspondence.Contains(correspondence))
+            {
+                request.AttachCorrespondence(correspondence);
+            }
+
+            foreach (var ledgerEntry in Events.Where(entry =>
+                         (entry.GuaranteeCorrespondenceId == correspondence.Id ||
+                          (correspondence.ScannedDocumentId.HasValue && entry.GuaranteeDocumentId == correspondence.ScannedDocumentId.Value)) &&
+                         !entry.GuaranteeRequestId.HasValue))
+            {
+                ledgerEntry.LinkToRequest(request);
+            }
         }
 
         decimal? previousAmount = null;
@@ -283,24 +580,77 @@ public sealed class Guarantee
         request.MarkCompleted(correspondence.Id, appliedAtUtc);
         correspondence.MarkAppliedToGuarantee(appliedAtUtc);
 
-        var guaranteeEvent = GuaranteeEvent.FromConfirmedChange(
-            Id,
-            request.Id,
-            correspondence.Id,
-            eventType,
-            appliedAtUtc,
-            summary,
-            previousAmount,
-            newAmount,
-            previousExpiryDate,
-            newExpiryDate,
-            previousStatus,
-            newStatus);
+        AddEvent(
+            GuaranteeEvent.FromConfirmedChange(
+                Id,
+                request.Id,
+                correspondence.Id,
+                eventType,
+                appliedAtUtc,
+                summary,
+                actedByUserId,
+                actedByDisplayName,
+                previousAmount,
+                newAmount,
+                previousExpiryDate,
+                newExpiryDate,
+                previousStatus,
+                newStatus,
+                operationsScenarioTitleResourceKey,
+                operationsLaneResourceKey,
+                operationsMatchConfidenceResourceKey,
+                operationsMatchScore,
+                operationsPolicyResourceKey),
+            request,
+            correspondence);
+    }
 
-        guaranteeEvent.Guarantee = this;
-        guaranteeEvent.GuaranteeRequest = request;
-        guaranteeEvent.GuaranteeCorrespondence = correspondence;
-        Events.Add(guaranteeEvent);
+    internal void RecordRequestSubmittedForApproval(
+        Guid requestId,
+        DateTimeOffset occurredAtUtc,
+        Guid? actorUserId,
+        string? actorDisplayName,
+        string? stageLabel)
+    {
+        var request = FindRequest(requestId);
+        AddEvent(
+            GuaranteeEvent.RequestSubmittedForApproval(
+                Id,
+                request.Id,
+                occurredAtUtc,
+                actorUserId,
+                actorDisplayName,
+                stageLabel),
+            request);
+    }
+
+    internal void RecordApprovalDecision(
+        Guid requestId,
+        GuaranteeEventType eventType,
+        DateTimeOffset occurredAtUtc,
+        Guid? actorUserId,
+        string? actorDisplayName,
+        string? responsibleSignerDisplayName,
+        string? stageLabel,
+        string? approvalPolicyResourceKey,
+        ApprovalLedgerExecutionMode approvalExecutionMode,
+        string? note)
+    {
+        var request = FindRequest(requestId);
+        AddEvent(
+            GuaranteeEvent.ApprovalDecisionRecorded(
+                Id,
+                request.Id,
+                eventType,
+                occurredAtUtc,
+                actorUserId,
+                actorDisplayName,
+                responsibleSignerDisplayName,
+                stageLabel,
+                approvalPolicyResourceKey,
+                approvalExecutionMode,
+                note),
+            request);
     }
 
     private GuaranteeRequest FindRequest(Guid requestId)
@@ -319,6 +669,71 @@ public sealed class Guarantee
     {
         return Correspondence.SingleOrDefault(correspondence => correspondence.Id == correspondenceId)
             ?? throw new InvalidOperationException("The correspondence does not belong to the guarantee.");
+    }
+
+    private GuaranteeCorrespondence FindOrCreateOutgoingRequestLetter(
+        GuaranteeRequest request,
+        string referenceNumber,
+        DateOnly letterDate,
+        string? note,
+        DateTimeOffset recordedAtUtc,
+        Guid? actorUserId,
+        string? actorDisplayName)
+    {
+        var correspondence = request.Correspondence
+            .Where(existing => existing.Direction == GuaranteeCorrespondenceDirection.Outgoing &&
+                               existing.Kind == GuaranteeCorrespondenceKind.RequestLetter)
+            .OrderByDescending(existing => existing.RegisteredAtUtc)
+            .FirstOrDefault();
+
+        if (correspondence is null)
+        {
+            return RegisterCorrespondence(
+                request.Id,
+                GuaranteeCorrespondenceDirection.Outgoing,
+                GuaranteeCorrespondenceKind.RequestLetter,
+                referenceNumber,
+                letterDate,
+                scannedDocumentId: null,
+                note,
+                recordedAtUtc,
+                actorUserId,
+                actorDisplayName);
+        }
+
+        correspondence.EnsureMatchesOutgoingReference(referenceNumber, letterDate);
+        return correspondence;
+    }
+
+    private static void ValidateCorrespondenceRegistration(
+        GuaranteeRequest? request,
+        GuaranteeCorrespondenceDirection direction,
+        GuaranteeCorrespondenceKind kind)
+    {
+        if (request is null)
+        {
+            return;
+        }
+
+        if (direction == GuaranteeCorrespondenceDirection.Outgoing &&
+            kind == GuaranteeCorrespondenceKind.RequestLetter &&
+            request.Status is not GuaranteeRequestStatus.ApprovedForDispatch and not GuaranteeRequestStatus.AwaitingBankResponse)
+        {
+            throw new InvalidOperationException("Only approved or already dispatched requests can register outgoing request letters.");
+        }
+    }
+
+    private void AddEvent(
+        GuaranteeEvent guaranteeEvent,
+        GuaranteeRequest? request = null,
+        GuaranteeCorrespondence? correspondence = null,
+        GuaranteeDocument? document = null)
+    {
+        guaranteeEvent.Guarantee = this;
+        guaranteeEvent.GuaranteeRequest = request;
+        guaranteeEvent.GuaranteeCorrespondence = correspondence;
+        guaranteeEvent.GuaranteeDocument = document;
+        Events.Add(guaranteeEvent);
     }
 
     private void ValidateRequestData(

@@ -1,6 +1,8 @@
 namespace BG.Application.Models.Intake;
 
 public sealed record IntakeWorkspaceSnapshotDto(
+    IntakeActorSummaryDto? ActiveActor,
+    IReadOnlyList<IntakeActorSummaryDto> AvailableActors,
     string PrimaryRoleResourceKey,
     string SaveModeResourceKey,
     string ReviewGateResourceKey,
@@ -10,4 +12,6 @@ public sealed record IntakeWorkspaceSnapshotDto(
     IReadOnlyList<string> QualityGateKeys,
     IReadOnlyList<string> FutureIntegrationKeys,
     IReadOnlyList<IntakeScenarioSnapshotDto> Scenarios,
-    IntakeScenarioSnapshotDto SelectedScenario);
+    IntakeScenarioSnapshotDto SelectedScenario,
+    bool HasEligibleActor,
+    string? ContextNoticeResourceKey);

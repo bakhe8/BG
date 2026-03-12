@@ -1,12 +1,15 @@
 using BG.Application.Contracts.Services;
 using BG.Application.Models.Identity;
 using BG.Web.Localization;
+using BG.Web.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Localization;
 
 namespace BG.Web.Pages.Administration;
 
+[Authorize(Policy = PermissionPolicyNames.RolesManage)]
 public sealed class RolesModel : PageModel
 {
     private readonly IIdentityAdministrationService _identityAdministrationService;

@@ -22,6 +22,20 @@ public sealed class GuaranteeDocumentConfiguration : IEntityTypeConfiguration<Gu
             .HasMaxLength(24)
             .IsRequired();
 
+        builder.Property(document => document.CapturedByDisplayName)
+            .HasMaxLength(256);
+
+        builder.Property(document => document.CaptureChannel)
+            .HasConversion<string>()
+            .HasMaxLength(32)
+            .IsRequired();
+
+        builder.Property(document => document.SourceSystemName)
+            .HasMaxLength(128);
+
+        builder.Property(document => document.SourceReference)
+            .HasMaxLength(128);
+
         builder.Property(document => document.FileName)
             .HasMaxLength(260)
             .IsRequired();
@@ -30,8 +44,26 @@ public sealed class GuaranteeDocumentConfiguration : IEntityTypeConfiguration<Gu
             .HasMaxLength(512)
             .IsRequired();
 
+        builder.Property(document => document.IntakeScenarioKey)
+            .HasMaxLength(64);
+
+        builder.Property(document => document.ExtractionMethod)
+            .HasMaxLength(64);
+
+        builder.Property(document => document.VerifiedDataJson)
+            .HasColumnType("text");
+
         builder.Property(document => document.Notes)
             .HasMaxLength(1000);
+
+        builder.HasOne(document => document.CapturedByUser)
+            .WithMany()
+            .HasForeignKey(document => document.CapturedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(document => document.RequestLinks)
+            .WithOne(link => link.GuaranteeDocument)
+            .HasForeignKey(link => link.GuaranteeDocumentId);
 
         builder.HasIndex(document => new { document.GuaranteeId, document.CapturedAtUtc });
     }

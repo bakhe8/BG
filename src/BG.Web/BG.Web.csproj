@@ -19,6 +19,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+    <UserSecretsId>BG.Web-c0b80b51-8c14-4304-a3db-79ebd28d4d24</UserSecretsId>
   </PropertyGroup>
 
 </Project>

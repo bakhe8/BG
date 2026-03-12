@@ -1,0 +1,586 @@
+using System.Net;
+using BG.Application.Contracts.Services;
+using BG.Application.Intake;
+using BG.Application.Security;
+using BG.Domain.Guarantees;
+using BG.Domain.Identity;
+using BG.Domain.Operations;
+using BG.Domain.Workflow;
+using BG.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace BG.UnitTests.Hosted;
+
+public sealed class HostedFlowTests
+{
+    [Fact]
+    public async Task Protected_workspace_redirects_to_sign_in_and_sign_in_returns_to_requested_page()
+    {
+        await using var factory = new HostedAppFactory();
+        var client = factory.CreateAppClient();
+
+        var protectedResponse = await client.GetAsync("/Requests/Workspace");
+
+        Assert.Equal(HttpStatusCode.Redirect, protectedResponse.StatusCode);
+        Assert.Equal(
+            "/SignIn?returnUrl=%2FRequests%2FWorkspace&shellMessage=WorkspaceShell_SignInRequired",
+            protectedResponse.Headers.Location?.OriginalString);
+
+        var signInResponse = await client.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FRequests%2FWorkspace",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.admin",
+                ["Password"] = "HostedAdmin123!",
+                ["ReturnUrl"] = "/Requests/Workspace"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, signInResponse.StatusCode);
+        Assert.Equal("/Requests/Workspace", signInResponse.Headers.Location?.OriginalString);
+
+        var workspaceResponse = await client.GetAsync("/Requests/Workspace");
+        var workspaceHtml = await workspaceResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, workspaceResponse.StatusCode);
+        Assert.Contains("name=\"Input.GuaranteeNumber\"", workspaceHtml, StringComparison.Ordinal);
+        Assert.Contains("Hosted Admin", workspaceHtml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Signed_in_home_page_shows_operational_dashboard_instead_of_framework_metadata()
+    {
+        await using var factory = new HostedAppFactory();
+        const string guaranteeNumber = "BG-2026-DASH-1001";
+
+        await factory.ExecuteDbContextAsync(async (dbContext, _) =>
+        {
+            var admin = await dbContext.Users
+                .Include(user => user.UserRoles)
+                .ThenInclude(userRole => userRole.Role)
+                .SingleAsync(user => user.Username == "hosted.admin");
+            var adminRole = await dbContext.Roles.SingleAsync(role => role.Name == "System Administrators");
+            var workflowDefinition = await dbContext.RequestWorkflowDefinitions
+                .SingleAsync(definition => definition.RequestType == GuaranteeRequestType.Extend && definition.GuaranteeCategory == null);
+
+            var guarantee = Guarantee.RegisterNew(
+                guaranteeNumber,
+                "National Bank",
+                "KFSHRC",
+                "Main Contractor",
+                GuaranteeCategory.Contract,
+                125000m,
+                "SAR",
+                new DateOnly(2026, 1, 1),
+                DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(12)),
+                DateTimeOffset.UtcNow);
+
+            guarantee.RegisterScannedDocument(
+                GuaranteeDocumentType.BankResponse,
+                "dashboard-response.pdf",
+                "/hosted/dashboard-response.pdf",
+                1,
+                DateTimeOffset.UtcNow,
+                admin.Id,
+                admin.DisplayName,
+                GuaranteeDocumentCaptureChannel.ManualUpload,
+                intakeScenarioKey: IntakeScenarioKeys.ExtensionConfirmation);
+
+            var request = guarantee.CreateRequest(
+                admin.Id,
+                GuaranteeRequestType.Extend,
+                requestedAmount: null,
+                requestedExpiryDate: new DateOnly(2027, 1, 31),
+                notes: "Dashboard visibility test",
+                DateTimeOffset.UtcNow,
+                admin.DisplayName);
+
+            var process = new RequestApprovalProcess(request.Id, workflowDefinition.Id, DateTimeOffset.UtcNow);
+            process.AddStage(
+                adminRole.Id,
+                "WorkflowStage_GuaranteesSupervisor_Title",
+                "WorkflowStage_GuaranteesSupervisor_Summary",
+                titleText: null,
+                summaryText: null,
+                requiresLetterSignature: true);
+            process.Start();
+            request.SubmitForApproval(process);
+
+            await dbContext.Guarantees.AddAsync(guarantee);
+        });
+
+        var client = factory.CreateAppClient();
+        var signInResponse = await client.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2F",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.admin",
+                ["Password"] = "HostedAdmin123!",
+                ["ReturnUrl"] = "/"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, signInResponse.StatusCode);
+        Assert.Equal("/", signInResponse.Headers.Location?.OriginalString);
+
+        var homeResponse = await client.GetAsync("/");
+        var homeHtml = await homeResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, homeResponse.StatusCode);
+        Assert.Contains("dashboard-hero", homeHtml, StringComparison.Ordinal);
+        Assert.Contains(guaranteeNumber, homeHtml, StringComparison.Ordinal);
+        Assert.Contains("dashboard-response.pdf", homeHtml, StringComparison.Ordinal);
+        Assert.DoesNotContain("Architecture decisions", homeHtml, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Operations_queue_loads_open_review_items_for_signed_in_actor()
+    {
+        await using var factory = new HostedAppFactory();
+        const string guaranteeNumber = "BG-2026-OPS-1001";
+
+        await factory.ExecuteDbContextAsync(async (dbContext, _) =>
+        {
+            var guarantee = Guarantee.RegisterNew(
+                guaranteeNumber,
+                "National Bank",
+                "KFSHRC",
+                "Main Contractor",
+                GuaranteeCategory.Contract,
+                80000m,
+                "SAR",
+                new DateOnly(2026, 1, 1),
+                new DateOnly(2026, 12, 31),
+                DateTimeOffset.UtcNow);
+            var document = new GuaranteeDocument(
+                guarantee.Id,
+                GuaranteeDocumentType.BankResponse,
+                GuaranteeDocumentSourceType.Uploaded,
+                "bank-response.pdf",
+                "/hosted/bank-response.pdf",
+                1,
+                DateTimeOffset.UtcNow,
+                captureChannel: GuaranteeDocumentCaptureChannel.ManualUpload,
+                intakeScenarioKey: IntakeScenarioKeys.ExtensionConfirmation,
+                verifiedDataJson: "{}");
+            var reviewItem = new OperationsReviewItem(
+                guarantee.Id,
+                guarantee.GuaranteeNumber,
+                document.Id,
+                guaranteeCorrespondenceId: null,
+                IntakeScenarioKeys.ExtensionConfirmation,
+                OperationsReviewItemCategory.IncomingBankConfirmation,
+                DateTimeOffset.UtcNow);
+
+            await dbContext.Guarantees.AddAsync(guarantee);
+            await dbContext.GuaranteeDocuments.AddAsync(document);
+            await dbContext.OperationsReviewItems.AddAsync(reviewItem);
+        });
+
+        var client = factory.CreateAppClient();
+        var signInResponse = await client.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FOperations%2FQueue",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.admin",
+                ["Password"] = "HostedAdmin123!",
+                ["ReturnUrl"] = "/Operations/Queue"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, signInResponse.StatusCode);
+        Assert.Equal("/Operations/Queue", signInResponse.Headers.Location?.OriginalString);
+
+        var queueResponse = await client.GetAsync("/Operations/Queue");
+        var queueHtml = await queueResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, queueResponse.StatusCode);
+        Assert.Contains(guaranteeNumber, queueHtml, StringComparison.Ordinal);
+        Assert.Contains("bank-response.pdf", queueHtml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Dispatch_workspace_loads_ready_requests_for_signed_in_actor()
+    {
+        await using var factory = new HostedAppFactory();
+        const string guaranteeNumber = "BG-2026-DIS-1001";
+
+        await factory.ExecuteDbContextAsync(async (dbContext, serviceProvider) =>
+        {
+            var dispatcher = await dbContext.Users
+                .Include(user => user.UserRoles)
+                .ThenInclude(userRole => userRole.Role)
+                .ThenInclude(role => role.RolePermissions)
+                .SingleAsync(user => user.Username == "hosted.admin");
+            var dispatchRole = dispatcher.UserRoles
+                .Select(userRole => userRole.Role)
+                .First(role => role.RolePermissions.Any(permission =>
+                    permission.PermissionKey == "dispatch.view" ||
+                    permission.PermissionKey == "dispatch.print"));
+
+            var requester = await SeedLocalUserAsync(
+                dbContext,
+                serviceProvider,
+                "dispatch.requester",
+                "Dispatch Requester",
+                "DispatchRequester123!",
+                ("Dispatch Requester Role", ["requests.view", "requests.create"]));
+
+            var guarantee = Guarantee.RegisterNew(
+                guaranteeNumber,
+                "National Bank",
+                "KFSHRC",
+                "Main Contractor",
+                GuaranteeCategory.Contract,
+                90000m,
+                "SAR",
+                new DateOnly(2026, 1, 1),
+                new DateOnly(2026, 12, 31),
+                DateTimeOffset.UtcNow);
+
+            var request = guarantee.CreateRequest(
+                requester.Id,
+                GuaranteeRequestType.Extend,
+                requestedAmount: null,
+                requestedExpiryDate: new DateOnly(2027, 1, 31),
+                notes: "Dispatch hosted test",
+                DateTimeOffset.UtcNow,
+                requester.DisplayName);
+
+            var workflowDefinition = await dbContext.RequestWorkflowDefinitions
+                .SingleAsync(definition => definition.RequestType == GuaranteeRequestType.Extend && definition.GuaranteeCategory == null);
+
+            var process = new RequestApprovalProcess(request.Id, workflowDefinition.Id, DateTimeOffset.UtcNow);
+            process.AddStage(
+                dispatchRole.Id,
+                "WorkflowStage_GuaranteesSupervisor_Title",
+                "WorkflowStage_GuaranteesSupervisor_Summary",
+                titleText: null,
+                summaryText: null,
+                requiresLetterSignature: true);
+            process.Start();
+            request.SubmitForApproval(process);
+            process.ApproveCurrentStage(dispatcher.Id, DateTimeOffset.UtcNow, note: null);
+            request.MarkApprovedForDispatch();
+
+            await dbContext.Guarantees.AddAsync(guarantee);
+        });
+
+        var client = factory.CreateAppClient();
+        var signInResponse = await client.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FDispatch%2FWorkspace",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.admin",
+                ["Password"] = "HostedAdmin123!",
+                ["ReturnUrl"] = "/Dispatch/Workspace"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, signInResponse.StatusCode);
+        Assert.Equal("/Dispatch/Workspace", signInResponse.Headers.Location?.OriginalString);
+
+        var dispatchResponse = await client.GetAsync("/Dispatch/Workspace");
+        var dispatchHtml = await dispatchResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, dispatchResponse.StatusCode);
+        Assert.Contains(guaranteeNumber, dispatchHtml, StringComparison.Ordinal);
+        Assert.Contains("Dispatch Requester", dispatchHtml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Workflow_administration_enforces_authorization_and_updates_stage_over_http()
+    {
+        await using var factory = new HostedAppFactory();
+        var approverRoleId = Guid.Empty;
+        var definitionId = Guid.Empty;
+        var stageId = Guid.Empty;
+
+        await factory.ExecuteDbContextAsync(async (dbContext, serviceProvider) =>
+        {
+            var requester = await SeedLocalUserAsync(
+                dbContext,
+                serviceProvider,
+                "hosted.requester",
+                "Hosted Requester",
+                "HostedRequester123!",
+                ("Hosted Requester Role", ["requests.view", "requests.create"]));
+
+            var role = await EnsureRoleAsync(
+                dbContext,
+                "Hosted Approval Role",
+                ["approvals.queue.view", "approvals.sign"]);
+
+            var definition = new RequestWorkflowDefinition(
+                "HostedCustomWorkflow",
+                GuaranteeRequestType.Extend,
+                GuaranteeCategory.Contract,
+                "GuaranteeCategory_Contract",
+                "WorkflowTemplate_Extend_Title",
+                "WorkflowTemplate_Extend_Summary",
+                DateTimeOffset.UtcNow);
+            var stage = definition.AddStage(
+                roleId: null,
+                "WorkflowStage_GuaranteesSupervisor_Title",
+                "WorkflowStage_GuaranteesSupervisor_Summary",
+                customTitle: null,
+                customSummary: null,
+                requiresLetterSignature: true,
+                modifiedAtUtc: DateTimeOffset.UtcNow);
+
+            await dbContext.RequestWorkflowDefinitions.AddAsync(definition);
+
+            _ = requester;
+            approverRoleId = role.Id;
+            definitionId = definition.Id;
+            stageId = stage.Id;
+        });
+
+        var requesterClient = factory.CreateAppClient();
+        var requesterSignIn = await requesterClient.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FAdministration%2FWorkflow",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.requester",
+                ["Password"] = "HostedRequester123!",
+                ["ReturnUrl"] = "/Administration/Workflow"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, requesterSignIn.StatusCode);
+
+        var forbiddenResponse = await requesterClient.GetAsync("/Administration/Workflow");
+        Assert.Equal(HttpStatusCode.Redirect, forbiddenResponse.StatusCode);
+        Assert.Equal("/?shellMessage=WorkspaceShell_AccessDenied", forbiddenResponse.Headers.Location?.OriginalString);
+
+        var adminClient = factory.CreateAppClient();
+        var adminSignIn = await adminClient.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FAdministration%2FWorkflow",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.admin",
+                ["Password"] = "HostedAdmin123!",
+                ["ReturnUrl"] = "/Administration/Workflow"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, adminSignIn.StatusCode);
+
+        var updateResponse = await adminClient.PostFormWithAntiforgeryAsync(
+            "/Administration/Workflow",
+            "/Administration/Workflow?handler=UpdateStage",
+            new Dictionary<string, string?>
+            {
+                ["definitionId"] = definitionId.ToString(),
+                ["stageId"] = stageId.ToString(),
+                ["roleId"] = approverRoleId.ToString(),
+                ["customTitle"] = "Hosted Approval Stage",
+                ["customSummary"] = "Configured over HTTP",
+                ["delegationPolicy"] = "DirectSignerRequired"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, updateResponse.StatusCode);
+        Assert.Equal("/Administration/Workflow", updateResponse.Headers.Location?.OriginalString);
+
+        var workflowDefinition = await factory.QueryDbContextAsync(
+            dbContext => dbContext.RequestWorkflowDefinitions
+                .Include(definition => definition.Stages)
+                .SingleAsync(definition => definition.Id == definitionId));
+
+        var updatedStage = Assert.Single(workflowDefinition.Stages);
+        Assert.Equal(approverRoleId, updatedStage.RoleId);
+        Assert.True(workflowDefinition.IsActive);
+        Assert.Equal("Hosted Approval Stage", updatedStage.CustomTitle);
+        Assert.Equal(ApprovalDelegationPolicy.DirectSignerRequired, updatedStage.DelegationPolicy);
+    }
+
+    [Fact]
+    public async Task Request_submission_moves_request_into_approvals_queue_across_signed_in_users()
+    {
+        await using var factory = new HostedAppFactory();
+        Guid requesterId = Guid.Empty;
+        const string guaranteeNumber = "BG-2026-E2E-1001";
+
+        await factory.ExecuteDbContextAsync(async (dbContext, serviceProvider) =>
+        {
+            var requester = await SeedLocalUserAsync(
+                dbContext,
+                serviceProvider,
+                "e2e.requester",
+                "E2E Requester",
+                "E2ERequester123!",
+                ("E2E Requester Role", ["requests.view", "requests.create"]));
+            var approvalRole = await EnsureRoleAsync(
+                dbContext,
+                "E2E Approval Role",
+                ["approvals.queue.view", "approvals.sign"]);
+            var approver = await SeedLocalUserAsync(
+                dbContext,
+                serviceProvider,
+                "e2e.approver",
+                "E2E Approver",
+                "E2EApprover123!",
+                ("E2E Approval Role", ["approvals.queue.view", "approvals.sign"]));
+
+            var guarantee = Guarantee.RegisterNew(
+                guaranteeNumber,
+                "National Bank",
+                "KFSHRC",
+                "Main Contractor",
+                GuaranteeCategory.Contract,
+                150000m,
+                "SAR",
+                new DateOnly(2026, 1, 1),
+                new DateOnly(2026, 12, 31),
+                DateTimeOffset.UtcNow);
+            await dbContext.Guarantees.AddAsync(guarantee);
+
+            var definition = await dbContext.RequestWorkflowDefinitions
+                .Include(item => item.Stages)
+                .SingleAsync(item => item.RequestType == GuaranteeRequestType.Extend && item.GuaranteeCategory == null);
+
+            foreach (var stage in definition.Stages.OrderBy(stage => stage.Sequence))
+            {
+                definition.UpdateStage(stage.Id, approvalRole.Id, customTitle: null, customSummary: null, DateTimeOffset.UtcNow);
+            }
+
+            requesterId = requester.Id;
+        });
+
+        var requesterClient = factory.CreateAppClient();
+        var requesterLogin = await requesterClient.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FRequests%2FWorkspace",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "e2e.requester",
+                ["Password"] = "E2ERequester123!",
+                ["ReturnUrl"] = "/Requests/Workspace"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, requesterLogin.StatusCode);
+
+        var createResponse = await requesterClient.PostFormWithAntiforgeryAsync(
+            "/Requests/Workspace",
+            "/Requests/Workspace",
+            new Dictionary<string, string?>
+            {
+                ["Input.GuaranteeNumber"] = guaranteeNumber,
+                ["Input.RequestType"] = GuaranteeRequestType.Extend.ToString(),
+                ["Input.RequestedExpiryDate"] = "2027-12-31",
+                ["Input.Notes"] = "Hosted flow extension"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, createResponse.StatusCode);
+        Assert.StartsWith("/Requests/Workspace", createResponse.Headers.Location?.OriginalString, StringComparison.Ordinal);
+
+        var requestId = await factory.QueryDbContextAsync(async dbContext =>
+        {
+            return await dbContext.GuaranteeRequests
+                .Where(request => request.RequestedByUserId == requesterId && request.Guarantee.GuaranteeNumber == guaranteeNumber)
+                .Select(request => request.Id)
+                .SingleAsync();
+        });
+
+        var submitResponse = await requesterClient.PostFormWithAntiforgeryAsync(
+            "/Requests/Workspace",
+            "/Requests/Workspace?handler=Submit",
+            new Dictionary<string, string?>
+            {
+                ["requestId"] = requestId.ToString(),
+                ["actorId"] = requesterId.ToString(),
+                ["page"] = "1"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, submitResponse.StatusCode);
+        Assert.StartsWith("/Requests/Workspace", submitResponse.Headers.Location?.OriginalString, StringComparison.Ordinal);
+
+        var approverClient = factory.CreateAppClient();
+        var approverLogin = await approverClient.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FApprovals%2FQueue",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "e2e.approver",
+                ["Password"] = "E2EApprover123!",
+                ["ReturnUrl"] = "/Approvals/Queue"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, approverLogin.StatusCode);
+
+        var approvalsResponse = await approverClient.GetAsync("/Approvals/Queue");
+        var approvalsHtml = await approvalsResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, approvalsResponse.StatusCode);
+        Assert.Contains(guaranteeNumber, approvalsHtml, StringComparison.Ordinal);
+        Assert.Contains("Hosted flow extension", approvalsHtml, StringComparison.Ordinal);
+
+        var requestState = await factory.QueryDbContextAsync(
+            dbContext => dbContext.GuaranteeRequests
+                .Include(request => request.ApprovalProcess)
+                .SingleAsync(request => request.Id == requestId));
+
+        Assert.Equal(GuaranteeRequestStatus.InApproval, requestState.Status);
+        Assert.NotNull(requestState.ApprovalProcess);
+    }
+
+    private static async Task<User> SeedLocalUserAsync(
+        BgDbContext dbContext,
+        IServiceProvider serviceProvider,
+        string username,
+        string displayName,
+        string password,
+        params (string RoleName, string[] PermissionKeys)[] roles)
+    {
+        var roleEntities = new List<Role>();
+
+        foreach (var (roleName, permissionKeys) in roles)
+        {
+            roleEntities.Add(await EnsureRoleAsync(dbContext, roleName, permissionKeys));
+        }
+
+        var user = new User(
+            username,
+            displayName,
+            $"{username}@bg.local",
+            externalId: null,
+            UserSourceType.Local,
+            isActive: true,
+            createdAtUtc: DateTimeOffset.UtcNow);
+        var passwordHasher = serviceProvider.GetRequiredService<ILocalPasswordHasher>();
+        user.SetLocalPassword(passwordHasher.HashPassword(password), DateTimeOffset.UtcNow);
+        user.AssignRoles(roleEntities);
+
+        await dbContext.Users.AddAsync(user);
+        return user;
+    }
+
+    private static async Task<Role> EnsureRoleAsync(BgDbContext dbContext, string name, IReadOnlyCollection<string> permissionKeys)
+    {
+        var normalizedRoleName = Role.NormalizeNameKey(name);
+        var trackedRole = dbContext.Roles.Local.SingleOrDefault(role => role.NormalizedName == normalizedRoleName);
+        if (trackedRole is not null)
+        {
+            return trackedRole;
+        }
+
+        var existingRole = await dbContext.Roles
+            .Include(role => role.RolePermissions)
+            .ThenInclude(rolePermission => rolePermission.Permission)
+            .SingleOrDefaultAsync(role => role.NormalizedName == normalizedRoleName);
+
+        if (existingRole is not null)
+        {
+            return existingRole;
+        }
+
+        var permissions = await dbContext.Permissions
+            .Where(permission => permissionKeys.Contains(permission.Key))
+            .ToArrayAsync();
+
+        var role = new Role(name, $"{name} for hosted tests");
+        role.AssignPermissions(permissions);
+
+        await dbContext.Roles.AddAsync(role);
+        return role;
+    }
+}

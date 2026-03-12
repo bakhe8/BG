@@ -48,6 +48,26 @@ public sealed class GuaranteeCorrespondence
 
     public string? Notes { get; private set; }
 
+    public int PrintCount { get; private set; }
+
+    public GuaranteeOutgoingLetterPrintMode? LastPrintMode { get; private set; }
+
+    public DateTimeOffset? LastPrintedAtUtc { get; private set; }
+
+    public GuaranteeDispatchChannel? DispatchChannel { get; private set; }
+
+    public string? DispatchReference { get; private set; }
+
+    public string? DispatchNote { get; private set; }
+
+    public DateTimeOffset? DispatchedAtUtc { get; private set; }
+
+    public string? DeliveryReference { get; private set; }
+
+    public string? DeliveryNote { get; private set; }
+
+    public DateTimeOffset? DeliveredAtUtc { get; private set; }
+
     public DateTimeOffset RegisteredAtUtc { get; private set; }
 
     public DateTimeOffset? AppliedToGuaranteeAtUtc { get; private set; }
@@ -58,9 +78,108 @@ public sealed class GuaranteeCorrespondence
 
     public GuaranteeDocument? ScannedDocument { get; internal set; }
 
+    internal void EnsureMatchesOutgoingReference(string referenceNumber, DateOnly letterDate)
+    {
+        EnsureOutgoingRequestLetter();
+
+        if (!string.Equals(ReferenceNumber, NormalizeRequired(referenceNumber, nameof(referenceNumber), 64), StringComparison.Ordinal) ||
+            LetterDate != letterDate)
+        {
+            throw new InvalidOperationException("The outgoing letter reference or date does not match the existing correspondence record.");
+        }
+    }
+
+    internal void RecordPrint(GuaranteeOutgoingLetterPrintMode printMode, DateTimeOffset printedAtUtc)
+    {
+        EnsureOutgoingRequestLetter();
+
+        if (!Enum.IsDefined(printMode))
+        {
+            throw new ArgumentOutOfRangeException(nameof(printMode), "Print mode must be valid.");
+        }
+
+        if (DeliveredAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("A delivered outgoing letter cannot be printed again.");
+        }
+
+        PrintCount += 1;
+        LastPrintMode = printMode;
+        LastPrintedAtUtc = printedAtUtc;
+    }
+
+    internal void RecordDispatch(
+        GuaranteeDispatchChannel dispatchChannel,
+        string? dispatchReference,
+        string? dispatchNote,
+        DateTimeOffset dispatchedAtUtc)
+    {
+        EnsureOutgoingRequestLetter();
+
+        if (!Enum.IsDefined(dispatchChannel))
+        {
+            throw new ArgumentOutOfRangeException(nameof(dispatchChannel), "Dispatch channel must be valid.");
+        }
+
+        if (DispatchedAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("The outgoing letter has already been dispatched.");
+        }
+
+        DispatchChannel = dispatchChannel;
+        DispatchReference = NormalizeOptional(dispatchReference, 128);
+        DispatchNote = NormalizeOptional(dispatchNote, 1000);
+        DispatchedAtUtc = dispatchedAtUtc;
+    }
+
+    internal void ConfirmDelivery(
+        string? deliveryReference,
+        string? deliveryNote,
+        DateTimeOffset deliveredAtUtc)
+    {
+        EnsureOutgoingRequestLetter();
+
+        if (!DispatchedAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("The outgoing letter must be dispatched before delivery confirmation.");
+        }
+
+        if (DeliveredAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("The outgoing letter delivery is already confirmed.");
+        }
+
+        if (deliveredAtUtc < DispatchedAtUtc.Value)
+        {
+            throw new InvalidOperationException("Delivery confirmation cannot be earlier than dispatch.");
+        }
+
+        DeliveryReference = NormalizeOptional(deliveryReference, 128);
+        DeliveryNote = NormalizeOptional(deliveryNote, 1000);
+        DeliveredAtUtc = deliveredAtUtc;
+    }
+
     internal void MarkAppliedToGuarantee(DateTimeOffset appliedAtUtc)
     {
         AppliedToGuaranteeAtUtc = appliedAtUtc;
+    }
+
+    internal void LinkToRequest(GuaranteeRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (request.GuaranteeId != GuaranteeId)
+        {
+            throw new InvalidOperationException("The request does not belong to the guarantee.");
+        }
+
+        if (GuaranteeRequestId.HasValue && GuaranteeRequestId.Value != request.Id)
+        {
+            throw new InvalidOperationException("The correspondence is already linked to another request.");
+        }
+
+        GuaranteeRequestId = request.Id;
+        GuaranteeRequest = request;
     }
 
     private static string NormalizeRequired(string value, string paramName, int maxLength)
@@ -92,5 +211,13 @@ public sealed class GuaranteeCorrespondence
         }
 
         return normalized;
+    }
+
+    private void EnsureOutgoingRequestLetter()
+    {
+        if (Direction != GuaranteeCorrespondenceDirection.Outgoing || Kind != GuaranteeCorrespondenceKind.RequestLetter)
+        {
+            throw new InvalidOperationException("Dispatch lifecycle can only be recorded for outgoing request letters.");
+        }
     }
 }

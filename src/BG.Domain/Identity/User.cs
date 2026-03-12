@@ -41,15 +41,23 @@ public sealed class User
 
     public string? ExternalId { get; private set; }
 
+    public string? PasswordHash { get; private set; }
+
     public UserSourceType SourceType { get; private set; }
 
     public bool IsActive { get; private set; }
 
     public DateTimeOffset CreatedAtUtc { get; private set; }
 
+    public DateTimeOffset? PasswordChangedAtUtc { get; private set; }
+
     public DateTimeOffset? LastSyncedAtUtc { get; private set; }
 
     public ICollection<UserRole> UserRoles { get; private set; } = new List<UserRole>();
+
+    public bool HasLocalPassword =>
+        SourceType == UserSourceType.Local &&
+        !string.IsNullOrWhiteSpace(PasswordHash);
 
     public void AssignRoles(IEnumerable<Role> roles)
     {
@@ -72,6 +80,17 @@ public sealed class User
     public static string NormalizeUsernameKey(string username)
     {
         return NormalizeRequired(username, nameof(username), 64).ToUpperInvariant();
+    }
+
+    public void SetLocalPassword(string passwordHash, DateTimeOffset changedAtUtc)
+    {
+        if (SourceType != UserSourceType.Local)
+        {
+            throw new InvalidOperationException("Only local users can store a local password.");
+        }
+
+        PasswordHash = NormalizeRequired(passwordHash, nameof(passwordHash), 512);
+        PasswordChangedAtUtc = changedAtUtc;
     }
 
     private static string NormalizeUsername(string username)

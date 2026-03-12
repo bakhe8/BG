@@ -1,0 +1,38 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.SignInModel
+@{
+    ViewData["Title"] = T["SignIn_PageTitle"];
+}
+
+<section class="section-shell">
+    <div class="section-header">
+        <span class="eyebrow">@T["SignIn_Eyebrow"]</span>
+        <h1>@T["SignIn_Heading"]</h1>
+        <p class="compact-copy">@T["SignIn_Summary"]</p>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ShellMessage))
+    {
+        <div class="notice-banner">@T[Model.ShellMessage]</div>
+    }
+
+    <article class="info-card">
+        <h2>@T["SignIn_FormTitle"]</h2>
+        <form method="post" class="stack-form">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            <label class="form-label" asp-for="Username">@T["UsernameField"]</label>
+            <input asp-for="Username" class="form-control" maxlength="64" autocomplete="username" />
+
+            <label class="form-label" asp-for="Password">@T["PasswordField"]</label>
+            <input asp-for="Password" class="form-control" type="password" maxlength="128" autocomplete="current-password" />
+
+            <button type="submit" class="btn btn-primary action-button">
+                @T["SignIn_SubmitAction"]
+            </button>
+        </form>
+    </article>
+</section>

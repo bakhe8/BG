@@ -8,5 +8,7 @@ public sealed class CreateUserRequest
 
     public string? Email { get; init; }
 
+    public string InitialPassword { get; init; } = string.Empty;
+
     public IReadOnlyCollection<Guid> RoleIds { get; init; } = Array.Empty<Guid>();
 }

@@ -13,6 +13,11 @@
         <p class="compact-copy">@T["UsersPageSummary"]</p>
     </div>
 
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="notice-banner">@Model.StatusMessage</div>
+    }
+
     <div class="admin-grid">
         <article class="info-card">
             <h2>@T["CreateUserTitle"]</h2>
@@ -27,6 +32,9 @@
 
                 <label class="form-label" asp-for="Input.Email">@T["EmailField"]</label>
                 <input asp-for="Input.Email" class="form-control" maxlength="256" />
+
+                <label class="form-label" asp-for="Input.InitialPassword">@T["PasswordField"]</label>
+                <input asp-for="Input.InitialPassword" class="form-control" type="password" maxlength="128" autocomplete="new-password" />
 
                 <fieldset class="selection-block">
                     <legend>@T["RolesField"]</legend>
@@ -92,6 +100,14 @@
                                     <dt>@T["CreatedAtField"]</dt>
                                     <dd>@user.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
                                 </div>
+                                <div>
+                                    <dt>@T["CredentialsField"]</dt>
+                                    <dd>@T[user.HasLocalPassword ? "Credentials_Ready" : "Credentials_Missing"]</dd>
+                                </div>
+                                <div>
+                                    <dt>@T["PasswordUpdatedAtField"]</dt>
+                                    <dd>@(user.PasswordChangedAtUtc.HasValue ? user.PasswordChangedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "-")</dd>
+                                </div>
                             </dl>
 
                             <div class="pill-section">
@@ -110,6 +126,20 @@
                                     </div>
                                 }
                             </div>
+
+                            <form method="post" asp-page-handler="SetPassword" class="stack-form compact-form">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <label class="form-label" for="password-@user.Id">@T["ResetPasswordField"]</label>
+                                <input id="password-@user.Id"
+                                       name="newPassword"
+                                       class="form-control"
+                                       type="password"
+                                       maxlength="128"
+                                       autocomplete="new-password" />
+                                <button type="submit" class="btn btn-outline-primary action-button">
+                                    @T["SavePasswordAction"]
+                                </button>
+                            </form>
                         </section>
                     }
                 </div>

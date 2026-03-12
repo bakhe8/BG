@@ -1,0 +1,414 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Requests.WorkspaceModel
+@{
+    ViewData["Title"] = T["RequestsWorkspace_PageTitle"];
+}
+
+<section class="section-shell">
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="notice-banner is-success">@Model.StatusMessage</div>
+    }
+
+    @if (Model.Snapshot.HasEligibleActor && !string.IsNullOrWhiteSpace(Model.Snapshot.ContextNoticeResourceKey))
+    {
+        <div class="notice-banner is-success">@T[Model.Snapshot.ContextNoticeResourceKey]</div>
+    }
+
+    <div class="section-header">
+        <span class="eyebrow">@T["NavRequests"]</span>
+        <h1>@T["RequestsWorkspace_Heading"]</h1>
+        <p class="compact-copy">@T["RequestsWorkspace_Summary"]</p>
+    </div>
+
+    @if (!Model.Snapshot.HasEligibleActor || Model.Snapshot.ActiveActor is null)
+    {
+        <article class="info-card">
+            <h2>@T["RequestsWorkspace_NoEligibleActor"]</h2>
+            <p class="compact-copy">@T["RequestsWorkspace_NoEligibleActorBody"]</p>
+        </article>
+    }
+    else
+    {
+        <section class="hero-panel intake-hero">
+            <div class="hero-copy">
+                <span class="eyebrow">@T["RequestsWorkspace_PrimaryFlow"]</span>
+                <h2>@Model.Snapshot.ActiveActor.DisplayName</h2>
+                <p>@T["RequestsWorkspace_IsolationSummary"]</p>
+            </div>
+            <div class="hero-metrics">
+                <div class="metric-card">
+                    <span>@T["RequestsWorkspace_MetricActor"]</span>
+                    <strong>@Model.Snapshot.ActiveActor.Username</strong>
+                </div>
+                <div class="metric-card">
+                    <span>@T["RequestsWorkspace_MetricOwned"]</span>
+                    <strong>@Model.Snapshot.OwnedRequestsPage.TotalItemCount</strong>
+                </div>
+                <div class="metric-card">
+                    <span>@T["RequestsWorkspace_MetricWorkflow"]</span>
+                    <strong>@(Model.SelectedWorkflowTemplate?.Stages.Count ?? 0)</strong>
+                </div>
+            </div>
+        </section>
+
+        <article class="info-card full-span">
+            <div class="card-header">
+                <div>
+                    <h2>@T["RequestsWorkspace_ActorContextTitle"]</h2>
+                    <p class="compact-copy">@T["RequestsWorkspace_ActorContextSummary"]</p>
+                </div>
+            </div>
+
+            @if (Model.IsActorContextLocked)
+            {
+                <div class="pill-list">
+                    <span class="pill">@T["WorkspaceShell_CurrentUserScopeNotice"]</span>
+                    <span class="pill">@Model.Snapshot.ActiveActor.DisplayName (@Model.Snapshot.ActiveActor.Username)</span>
+                </div>
+            }
+            else
+            {
+                <form method="get" class="action-row">
+                    <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
+                    <div>
+                        <label class="form-label" for="actor">@T["RequestsWorkspace_ActorField"]</label>
+                        <select id="actor" name="actor" class="form-control">
+                            @foreach (var actor in Model.Snapshot.AvailableActors)
+                            {
+                                <option value="@actor.Id" selected="@(actor.Id == Model.Snapshot.ActiveActor.Id ? "selected" : null)">
+                                    @actor.DisplayName (@actor.Username)
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary action-button">@T["RequestsWorkspace_LoadActorAction"]</button>
+                </form>
+            }
+        </article>
+
+        <div class="baseline-grid">
+            <article class="info-card">
+                <div class="card-header">
+                    <div>
+                        <h2>@T["RequestsWorkspace_CreateTitle"]</h2>
+                        <p class="compact-copy">@T["RequestsWorkspace_CreateSummary"]</p>
+                    </div>
+                </div>
+
+                <form method="post" class="stack-form">
+                    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+                    <input asp-for="Input.RequestedByUserId" type="hidden" />
+                    <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
+
+                    <label class="form-label" asp-for="Input.GuaranteeNumber">@T["RequestsWorkspace_GuaranteeNumberField"]</label>
+                    <input asp-for="Input.GuaranteeNumber" class="form-control" maxlength="64" />
+
+                    <label class="form-label" asp-for="Input.RequestType">@T["RequestsWorkspace_RequestTypeField"]</label>
+                    <select asp-for="Input.RequestType" class="form-control">
+                        @foreach (var option in Model.RequestTypeOptions)
+                        {
+                            <option value="@option.Type">@T[option.ResourceKey]</option>
+                        }
+                    </select>
+
+                    @if (Model.RequiresAmount)
+                    {
+                        <label class="form-label" asp-for="Input.RequestedAmount">@T["RequestsWorkspace_RequestedAmountField"]</label>
+                        <input asp-for="Input.RequestedAmount" class="form-control" inputmode="decimal" />
+                    }
+
+                    @if (Model.RequiresExpiryDate)
+                    {
+                        <label class="form-label" asp-for="Input.RequestedExpiryDate">@T["RequestsWorkspace_RequestedExpiryDateField"]</label>
+                        <input asp-for="Input.RequestedExpiryDate" class="form-control" type="date" />
+                    }
+
+                    <label class="form-label" asp-for="Input.Notes">@T["RequestsWorkspace_NotesField"]</label>
+                    <textarea asp-for="Input.Notes" class="form-control" rows="4"></textarea>
+
+                    <button type="submit" class="btn btn-primary action-button">@T["RequestsWorkspace_CreateAction"]</button>
+                </form>
+            </article>
+
+            <article class="info-card">
+                <div class="card-header">
+                    <div>
+                        <h2>@T["RequestsWorkspace_CurrentWorkflowTitle"]</h2>
+                        <p class="compact-copy">@T["RequestsWorkspace_CurrentWorkflowSummary"]</p>
+                    </div>
+                </div>
+
+                @if (Model.SelectedWorkflowTemplate is null)
+                {
+                    <p class="compact-copy">@T["RequestsWorkspace_NoWorkflowTemplate"]</p>
+                }
+                else
+                {
+                    @if (!string.IsNullOrWhiteSpace(Model.SelectedWorkflowTemplate.GuaranteeCategoryResourceKey))
+                    {
+                        <div class="pill-list">
+                            <span class="pill">@T["RequestsWorkspace_WorkflowCategoryLabel"]</span>
+                            <span class="pill">@T[Model.SelectedWorkflowTemplate.GuaranteeCategoryResourceKey]</span>
+                        </div>
+                    }
+
+                    <div class="workflow-stage-list">
+                        @foreach (var stage in Model.SelectedWorkflowTemplate.Stages)
+                        {
+                            var stageTitle = !string.IsNullOrWhiteSpace(stage.TitleText)
+                                ? stage.TitleText
+                                : T[stage.TitleResourceKey!].Value;
+                            var stageSummary = !string.IsNullOrWhiteSpace(stage.SummaryText)
+                                ? stage.SummaryText
+                                : string.IsNullOrWhiteSpace(stage.SummaryResourceKey)
+                                    ? "-"
+                                    : T[stage.SummaryResourceKey].Value;
+                            <section class="workflow-stage">
+                                <span class="pipeline-index">@stage.Level</span>
+                                <div>
+                                    <strong>@stageTitle</strong>
+                                    <p class="compact-copy">@stageSummary</p>
+                                    @if (stage.RequiresLetterSignature)
+                                    {
+                                        <div class="workflow-signature-meta">
+                                            <span class="pill">@T[stage.CurrentSignatureModeResourceKey]</span>
+                                            <span class="pill">@T[stage.FinalPdfEffectResourceKey]</span>
+                                            @if (!string.IsNullOrWhiteSpace(stage.AssignedRoleName))
+                                            {
+                                                <span class="pill">@stage.AssignedRoleName</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </section>
+                        }
+                    </div>
+                }
+            </article>
+
+            <article class="info-card full-span">
+                <div class="card-header">
+                    <div>
+                        <h2>@T["RequestsWorkspace_MyRequestsTitle"]</h2>
+                        <p class="compact-copy">@T["RequestsWorkspace_MyRequestsSummary"]</p>
+                    </div>
+                </div>
+
+                @if (Model.Snapshot.OwnedRequests.Count == 0)
+                {
+                    <p class="compact-copy">@T["RequestsWorkspace_Empty"]</p>
+                }
+                else
+                {
+                    <div class="stack-list">
+                        @foreach (var request in Model.Snapshot.OwnedRequests)
+                        {
+                            <article class="entity-card">
+                                <div class="entity-header">
+                                    <div>
+                                        <h3>@request.GuaranteeNumber</h3>
+                                        <div class="entity-subtitle">@T[request.RequestTypeResourceKey] · @T[request.GuaranteeCategoryResourceKey]</div>
+                                    </div>
+                                    <span class="status-badge is-active">@T[request.StatusResourceKey]</span>
+                                </div>
+
+                                <dl class="data-pairs">
+                                    <div>
+                                        <dt>@T["CreatedAtField"]</dt>
+                                        <dd>@request.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                                    </div>
+                                    <div>
+                                        <dt>@T["RequestsWorkspace_RequestedAmountField"]</dt>
+                                        <dd>@(string.IsNullOrWhiteSpace(request.RequestedAmount) ? "-" : request.RequestedAmount)</dd>
+                                    </div>
+                                    <div>
+                                        <dt>@T["RequestsWorkspace_RequestedExpiryDateField"]</dt>
+                                        <dd>@(string.IsNullOrWhiteSpace(request.RequestedExpiryDate) ? "-" : request.RequestedExpiryDate)</dd>
+                                    </div>
+                                    <div>
+                                        <dt>@T["RequestsWorkspace_CorrespondenceLabel"]</dt>
+                                        <dd>@request.CorrespondenceCount</dd>
+                                    </div>
+                                    <div>
+                                        <dt>@T["RequestsWorkspace_CurrentStageLabel"]</dt>
+                                        <dd>
+                                            @if (!string.IsNullOrWhiteSpace(request.CurrentStageTitle))
+                                            {
+                                                @request.CurrentStageTitle
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(request.CurrentStageTitleResourceKey))
+                                            {
+                                                @T[request.CurrentStageTitleResourceKey]
+                                            }
+                                            else
+                                            {
+                                                @:-
+                                            }
+                                        </dd>
+                                    </div>
+                                </dl>
+
+                                <div class="pill-section">
+                                    <span class="section-caption">@T["RequestsWorkspace_NotesField"]</span>
+                                    <p class="compact-copy">@(string.IsNullOrWhiteSpace(request.Notes) ? T["RequestsWorkspace_NoNotes"] : request.Notes)</p>
+                                </div>
+
+                                @if (!string.IsNullOrWhiteSpace(request.LastDecisionResourceKey))
+                                {
+                                    <div class="pill-section">
+                                        <span class="section-caption">@T["RequestsWorkspace_LastDecisionLabel"]</span>
+                                        <p class="compact-copy">@T[request.LastDecisionResourceKey]</p>
+                                        @if (!string.IsNullOrWhiteSpace(request.LastDecisionNote))
+                                        {
+                                            <p class="compact-copy">@request.LastDecisionNote</p>
+                                        }
+                                    </div>
+                                }
+
+                                <div class="pill-section">
+                                    <span class="section-caption">@T["RequestsWorkspace_LedgerTitle"]</span>
+
+                                    @if (request.LedgerEntries.Count == 0)
+                                    {
+                                        <p class="compact-copy">@T["RequestsWorkspace_LedgerEmpty"]</p>
+                                    }
+                                    else
+                                    {
+                                        <div class="workflow-stage-list">
+                                            @foreach (var ledgerEntry in request.LedgerEntries)
+                                            {
+                                                <section class="workflow-stage">
+                                                    <span class="pipeline-index">#</span>
+                                                    <div>
+                                                        <strong>@ledgerEntry.OccurredAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</strong>
+                                                        <p class="compact-copy">
+                                                            @T["RequestsWorkspace_LedgerActorLabel"]:
+                                                            @(string.IsNullOrWhiteSpace(ledgerEntry.ActorDisplayName)
+                                                                ? T["RequestsWorkspace_LedgerSystemActor"].Value
+                                                                : ledgerEntry.ActorDisplayName)
+                                                        </p>
+                                                        <p class="compact-copy">@ledgerEntry.Summary</p>
+                                                        @if (!string.IsNullOrWhiteSpace(ledgerEntry.ApprovalStageLabel) ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.ApprovalPolicyResourceKey) ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.ApprovalExecutionModeResourceKey) ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.ApprovalResponsibleSignerDisplayName) ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.DispatchStageResourceKey) ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.DispatchMethodResourceKey) ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.DispatchPolicyResourceKey) ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.OperationsScenarioTitleResourceKey) ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.OperationsLaneResourceKey) ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.OperationsMatchConfidenceResourceKey) ||
+                                                             ledgerEntry.OperationsMatchScore.HasValue ||
+                                                             !string.IsNullOrWhiteSpace(ledgerEntry.OperationsPolicyResourceKey))
+                                                        {
+                                                            <div class="pill-list">
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.ApprovalStageLabel))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerStageLabel"]: @ledgerEntry.ApprovalStageLabel</span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.ApprovalPolicyResourceKey))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerPolicyLabel"]: @T[ledgerEntry.ApprovalPolicyResourceKey]</span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.ApprovalExecutionModeResourceKey))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerExecutionModeLabel"]: @T[ledgerEntry.ApprovalExecutionModeResourceKey]</span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.ApprovalResponsibleSignerDisplayName))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerResponsibleSignerLabel"]: @ledgerEntry.ApprovalResponsibleSignerDisplayName</span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.DispatchStageResourceKey))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerDispatchStageLabel"]: @T[ledgerEntry.DispatchStageResourceKey]</span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.DispatchMethodResourceKey))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerDispatchMethodLabel"]: @T[ledgerEntry.DispatchMethodResourceKey]</span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.DispatchPolicyResourceKey))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerDispatchPolicyLabel"]: @T[ledgerEntry.DispatchPolicyResourceKey]</span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.OperationsScenarioTitleResourceKey))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerOperationsScenarioLabel"]: @T[ledgerEntry.OperationsScenarioTitleResourceKey]</span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.OperationsLaneResourceKey))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerOperationsLaneLabel"]: @T[ledgerEntry.OperationsLaneResourceKey]</span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.OperationsMatchConfidenceResourceKey))
+                                                                {
+                                                                    <span class="pill">
+                                                                        @T["RequestsWorkspace_LedgerOperationsConfidenceLabel"]:
+                                                                        @T[ledgerEntry.OperationsMatchConfidenceResourceKey]
+                                                                        @if (ledgerEntry.OperationsMatchScore.HasValue)
+                                                                        {
+                                                                            @($" ({ledgerEntry.OperationsMatchScore.Value})")
+                                                                        }
+                                                                    </span>
+                                                                }
+                                                                @if (!string.IsNullOrWhiteSpace(ledgerEntry.OperationsPolicyResourceKey))
+                                                                {
+                                                                    <span class="pill">@T["RequestsWorkspace_LedgerOperationsPolicyLabel"]: @T[ledgerEntry.OperationsPolicyResourceKey]</span>
+                                                                }
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </section>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+
+                                @if (request.CanSubmitForApproval)
+                                {
+                                    <form method="post" asp-page-handler="Submit" class="action-row">
+                                        <input type="hidden" name="requestId" value="@request.Id" />
+                                        <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
+                                        <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
+                                        <button type="submit" class="btn btn-outline-primary action-button">
+                                            @T["RequestsWorkspace_SubmitAction"]
+                                        </button>
+                                    </form>
+                                }
+                            </article>
+                        }
+                    </div>
+                }
+
+                @if (Model.Snapshot.OwnedRequestsPage.TotalPageCount > 1)
+                {
+                    var pageInfo = Model.Snapshot.OwnedRequestsPage;
+
+                    <div class="action-row">
+                        <span class="compact-copy">@T["Pagination_PageSummary", pageInfo.PageNumber, pageInfo.TotalPageCount, pageInfo.TotalItemCount]</span>
+                        <div class="action-row">
+                            @if (pageInfo.HasPreviousPage)
+                            {
+                                <a class="btn btn-outline-primary action-button"
+                                   asp-page="/Requests/Workspace"
+                                   asp-all-route-data="Model.BuildPageRoute(pageInfo.PreviousPageNumber)">
+                                    @T["Pagination_Previous"]
+                                </a>
+                            }
+
+                            @if (pageInfo.HasNextPage)
+                            {
+                                <a class="btn btn-outline-primary action-button"
+                                   asp-page="/Requests/Workspace"
+                                   asp-all-route-data="Model.BuildPageRoute(pageInfo.NextPageNumber)">
+                                    @T["Pagination_Next"]
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </article>
+        </div>
+    }
+</section>

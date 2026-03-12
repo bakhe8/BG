@@ -9,11 +9,16 @@ namespace BG.Application.Services;
 
 internal sealed class IdentityAdministrationService : IIdentityAdministrationService
 {
+    private const int MinimumPasswordLength = 12;
     private readonly IIdentityAdministrationRepository _repository;
+    private readonly ILocalPasswordHasher _passwordHasher;
 
-    public IdentityAdministrationService(IIdentityAdministrationRepository repository)
+    public IdentityAdministrationService(
+        IIdentityAdministrationRepository repository,
+        ILocalPasswordHasher passwordHasher)
     {
         _repository = repository;
+        _passwordHasher = passwordHasher;
     }
 
     public async Task<IReadOnlyList<UserSummaryDto>> GetUsersAsync(CancellationToken cancellationToken = default)
@@ -61,6 +66,12 @@ internal sealed class IdentityAdministrationService : IIdentityAdministrationSer
             return OperationResult<UserSummaryDto>.Failure(IdentityErrorCodes.DisplayNameRequired);
         }
 
+        var passwordError = ValidatePassword(command.InitialPassword);
+        if (passwordError is not null)
+        {
+            return OperationResult<UserSummaryDto>.Failure(passwordError);
+        }
+
         var normalizedUsername = User.NormalizeUsernameKey(command.Username);
 
         if (await _repository.UsernameExistsAsync(normalizedUsername, cancellationToken))
@@ -89,9 +100,37 @@ internal sealed class IdentityAdministrationService : IIdentityAdministrationSer
             isActive: true,
             createdAtUtc: DateTimeOffset.UtcNow);
 
+        user.SetLocalPassword(_passwordHasher.HashPassword(command.InitialPassword), DateTimeOffset.UtcNow);
         user.AssignRoles(roles);
 
         await _repository.AddUserAsync(user, cancellationToken);
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return OperationResult<UserSummaryDto>.Success(MapUser(user));
+    }
+
+    public async Task<OperationResult<UserSummaryDto>> SetUserPasswordAsync(
+        SetLocalUserPasswordCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (command.UserId == Guid.Empty)
+        {
+            return OperationResult<UserSummaryDto>.Failure(IdentityErrorCodes.UserNotFound);
+        }
+
+        var passwordError = ValidatePassword(command.NewPassword);
+        if (passwordError is not null)
+        {
+            return OperationResult<UserSummaryDto>.Failure(passwordError);
+        }
+
+        var user = await _repository.GetUserByIdAsync(command.UserId, cancellationToken);
+        if (user is null)
+        {
+            return OperationResult<UserSummaryDto>.Failure(IdentityErrorCodes.UserNotFound);
+        }
+
+        user.SetLocalPassword(_passwordHasher.HashPassword(command.NewPassword), DateTimeOffset.UtcNow);
         await _repository.SaveChangesAsync(cancellationToken);
 
         return OperationResult<UserSummaryDto>.Success(MapUser(user));
@@ -145,6 +184,8 @@ internal sealed class IdentityAdministrationService : IIdentityAdministrationSer
             user.ExternalId,
             user.SourceType.ToString(),
             user.IsActive,
+            user.HasLocalPassword,
+            user.PasswordChangedAtUtc,
             user.CreatedAtUtc,
             user.UserRoles
                 .Select(userRole => userRole.Role.Name)
@@ -162,5 +203,17 @@ internal sealed class IdentityAdministrationService : IIdentityAdministrationSer
                 .Select(rolePermission => rolePermission.Permission.Key)
                 .OrderBy(key => key, StringComparer.OrdinalIgnoreCase)
                 .ToArray());
+    }
+
+    private static string? ValidatePassword(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            return IdentityErrorCodes.PasswordRequired;
+        }
+
+        return password.Length < MinimumPasswordLength
+            ? IdentityErrorCodes.PasswordTooShort
+            : null;
     }
 }

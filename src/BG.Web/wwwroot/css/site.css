@@ -182,6 +182,39 @@ a:hover {
   gap: 1rem;
 }
 
+.dashboard-hero {
+  align-items: start;
+}
+
+.dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.dashboard-attention-line {
+  margin: 0;
+  color: var(--accent-strong);
+  font-weight: 700;
+}
+
+.dashboard-metric-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.dashboard-link-card {
+  display: block;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.dashboard-link-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 42%, white);
+}
+
 .metric-card,
 .info-card {
   padding: 1.25rem;
@@ -305,6 +338,81 @@ a:hover {
   display: grid;
   gap: 1rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.draft-status {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 14rem;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: var(--surface-alt);
+}
+
+.draft-status strong {
+  color: var(--accent-strong);
+}
+
+.intake-form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(17rem, 22rem) minmax(18rem, 1fr) minmax(18rem, 1fr);
+  align-items: start;
+}
+
+.intake-pane {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 94%, white);
+  border: 1px solid color-mix(in srgb, var(--border) 84%, white);
+}
+
+.intake-pane h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.review-pane {
+  align-self: stretch;
+}
+
+.inline-form-grid {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.draft-pairs {
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+}
+
+.notice-banner {
+  padding: 0.95rem 1.1rem;
+  border-radius: 18px;
+  font-weight: 700;
+}
+
+.notice-banner.is-success {
+  background: color-mix(in srgb, var(--accent) 12%, white);
+  color: var(--accent-strong);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, white);
 }
 
 .scope-grid {
@@ -482,6 +590,71 @@ a:hover {
   gap: 0.9rem;
 }
 
+.dashboard-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dashboard-list {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-list-item {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--border) 88%, white);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 94%, white);
+}
+
+.dashboard-item-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.dashboard-item-meta {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.dashboard-empty {
+  margin: 1rem 0 0;
+  color: var(--muted);
+}
+
+.dashboard-mini-metrics {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  margin-top: 1rem;
+}
+
+.dashboard-mini-metric {
+  display: grid;
+  gap: 0.35rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: var(--surface-alt);
+}
+
+.dashboard-mini-metric span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dashboard-mini-metric strong {
+  color: var(--accent-strong);
+  font-size: 1.4rem;
+}
+
 .entity-card {
   display: grid;
   gap: 1rem;
@@ -576,6 +749,70 @@ a:hover {
   font-weight: 700;
 }
 
+.workflow-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+}
+
+.workflow-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 92%, white);
+}
+
+.workflow-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.workflow-card-header h3 {
+  margin: 0;
+  font-size: 1.02rem;
+}
+
+.workflow-stage-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.workflow-stage {
+  display: flex;
+  gap: 0.8rem;
+  align-items: start;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  background: var(--surface-alt);
+}
+
+.workflow-stage strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.workflow-signature-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.65rem;
+}
+
+.inline-form-grid {
+  display: grid;
+  gap: 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: end;
+}
+
+.workflow-admin-actions {
+  margin-top: 0.75rem;
+}
+
 .validation-summary-errors {
   color: #8a2424;
   font-weight: 600;
@@ -596,8 +833,10 @@ a:hover {
 @media (max-width: 991.98px) {
   .hero-panel,
   .baseline-grid,
+  .dashboard-grid,
   .admin-grid,
   .intake-grid,
+  .intake-form-grid,
   .scope-grid,
   .intake-outcome {
     grid-template-columns: 1fr;
@@ -613,11 +852,22 @@ a:hover {
     flex-direction: column;
   }
 
+  .dashboard-item-header,
+  .card-header,
+  .action-row {
+    flex-direction: column;
+    align-items: start;
+  }
+
   .review-row {
     flex-direction: column;
   }
 
   .review-meta {
     justify-items: start;
+  }
+
+  .inline-form-grid {
+    grid-template-columns: 1fr;
   }
 }

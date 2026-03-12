@@ -1,0 +1,26 @@
+namespace BG.Application.Models.Approvals;
+
+public sealed record ApprovalQueueItemDto(
+    Guid RequestId,
+    string GuaranteeNumber,
+    string GuaranteeCategoryResourceKey,
+    string RequestTypeResourceKey,
+    string RequestChannelResourceKey,
+    string StatusResourceKey,
+    string RequesterDisplayName,
+    DateTimeOffset CreatedAtUtc,
+    DateTimeOffset SubmittedAtUtc,
+    string? RequestedAmount,
+    string? RequestedExpiryDate,
+    string? Notes,
+    string? CurrentStageTitleResourceKey,
+    string? CurrentStageTitle,
+    string? CurrentStageRoleName,
+    string? DelegatedByDisplayName,
+    DateTimeOffset? DelegationEndsAtUtc,
+    string? DelegationReason,
+    bool RequiresLetterSignature,
+    ApprovalGovernanceStatusDto Governance,
+    IReadOnlyList<ApprovalPriorSignatureDto> PriorSignatures,
+    IReadOnlyList<ApprovalRequestAttachmentDto> Attachments,
+    IReadOnlyList<ApprovalRequestTimelineEntryDto> TimelineEntries);

@@ -2,6 +2,8 @@ using BG.Application.Contracts.Services;
 using BG.Application.Models.Identity;
 using BG.Web.Contracts.Identity;
 using BG.Web.Localization;
+using BG.Web.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -22,6 +24,7 @@ public sealed class IdentityAdministrationController : ControllerBase
         _localizer = localizer;
     }
 
+    [Authorize(Policy = PermissionPolicyNames.UsersRead)]
     [HttpGet("users")]
     public async Task<ActionResult<IReadOnlyList<UserSummaryDto>>> GetUsers(CancellationToken cancellationToken)
     {
@@ -29,6 +32,7 @@ public sealed class IdentityAdministrationController : ControllerBase
         return Ok(users);
     }
 
+    [Authorize(Policy = PermissionPolicyNames.UsersManage)]
     [HttpPost("users")]
     public async Task<ActionResult<UserSummaryDto>> CreateUser(
         CreateUserRequest request,
@@ -39,6 +43,7 @@ public sealed class IdentityAdministrationController : ControllerBase
                 request.Username,
                 request.DisplayName,
                 request.Email,
+                request.InitialPassword,
                 request.RoleIds),
             cancellationToken);
 
@@ -47,6 +52,23 @@ public sealed class IdentityAdministrationController : ControllerBase
             : BadRequest(CreateProblemDetails(result.ErrorCode!));
     }
 
+    [Authorize(Policy = PermissionPolicyNames.UsersManage)]
+    [HttpPost("users/{userId:guid}/password")]
+    public async Task<ActionResult<UserSummaryDto>> SetUserPassword(
+        Guid userId,
+        SetUserPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _identityAdministrationService.SetUserPasswordAsync(
+            new SetLocalUserPasswordCommand(userId, request.NewPassword),
+            cancellationToken);
+
+        return result.Succeeded
+            ? Ok(result.Value)
+            : BadRequest(CreateProblemDetails(result.ErrorCode!));
+    }
+
+    [Authorize(Policy = PermissionPolicyNames.RolesRead)]
     [HttpGet("roles")]
     public async Task<ActionResult<IReadOnlyList<RoleSummaryDto>>> GetRoles(CancellationToken cancellationToken)
     {
@@ -54,6 +76,7 @@ public sealed class IdentityAdministrationController : ControllerBase
         return Ok(roles);
     }
 
+    [Authorize(Policy = PermissionPolicyNames.RolesManage)]
     [HttpPost("roles")]
     public async Task<ActionResult<RoleSummaryDto>> CreateRole(
         CreateRoleRequest request,
@@ -71,6 +94,7 @@ public sealed class IdentityAdministrationController : ControllerBase
             : BadRequest(CreateProblemDetails(result.ErrorCode!));
     }
 
+    [Authorize(Policy = PermissionPolicyNames.RolesRead)]
     [HttpGet("permissions")]
     public async Task<ActionResult<IReadOnlyList<PermissionDto>>> GetPermissions(CancellationToken cancellationToken)
     {

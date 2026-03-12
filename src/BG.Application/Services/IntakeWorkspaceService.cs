@@ -1,111 +1,98 @@
+using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
+using BG.Application.Intake;
 using BG.Application.Models.Intake;
+using BG.Domain.Identity;
 
 namespace BG.Application.Services;
 
 internal sealed class IntakeWorkspaceService : IIntakeWorkspaceService
 {
-    private static readonly IntakeScenarioSnapshotDto[] Scenarios =
-    [
-        new(
-            "new-guarantee",
-            "IntakeScenario_NewGuarantee_Title",
-            "IntakeScenario_NewGuarantee_Summary",
-            "IntakeScenario_NewGuarantee_SaveOutcome",
-            "IntakeScenario_NewGuarantee_Handoff",
-            [
-                "IntakeField_GuaranteeNumber",
-                "IntakeField_BankName",
-                "IntakeField_Amount",
-                "IntakeField_ExpiryDate",
-                "IntakeField_DocumentType"
-            ],
-            [
-                new("IntakeField_GuaranteeNumber", "BG-2026-0142", 99, true),
-                new("IntakeField_BankName", "Saudi National Bank", 97, true),
-                new("IntakeField_Beneficiary", "King Faisal Specialist Hospital", 96, true),
-                new("IntakeField_Amount", "1,250,000 SAR", 94, true),
-                new("IntakeField_ExpiryDate", "2027-06-30", 92, true)
-            ]),
-        new(
-            "extension-confirmation",
-            "IntakeScenario_Extension_Title",
-            "IntakeScenario_Extension_Summary",
-            "IntakeScenario_Extension_SaveOutcome",
-            "IntakeScenario_Extension_Handoff",
-            [
-                "IntakeField_GuaranteeNumber",
-                "IntakeField_OfficialLetterDate",
-                "IntakeField_NewExpiryDate",
-                "IntakeField_BankReference"
-            ],
-            [
-                new("IntakeField_GuaranteeNumber", "BG-2026-0142", 98, true),
-                new("IntakeField_BankReference", "EXT-44791", 93, true),
-                new("IntakeField_OfficialLetterDate", "2026-03-15", 95, true),
-                new("IntakeField_NewExpiryDate", "2027-12-31", 91, true)
-            ]),
-        new(
-            "release-confirmation",
-            "IntakeScenario_Release_Title",
-            "IntakeScenario_Release_Summary",
-            "IntakeScenario_Release_SaveOutcome",
-            "IntakeScenario_Release_Handoff",
-            [
-                "IntakeField_GuaranteeNumber",
-                "IntakeField_OfficialLetterDate",
-                "IntakeField_BankReference",
-                "IntakeField_DocumentType"
-            ],
-            [
-                new("IntakeField_GuaranteeNumber", "BG-2026-0142", 98, true),
-                new("IntakeField_BankReference", "REL-13210", 92, true),
-                new("IntakeField_OfficialLetterDate", "2026-04-02", 94, true),
-                new("IntakeField_DocumentType", "Bank release confirmation", 99, true)
-            ]),
-        new(
-            "status-verification",
-            "IntakeScenario_Status_Title",
-            "IntakeScenario_Status_Summary",
-            "IntakeScenario_Status_SaveOutcome",
-            "IntakeScenario_Status_Handoff",
-            [
-                "IntakeField_GuaranteeNumber",
-                "IntakeField_OfficialLetterDate",
-                "IntakeField_BankReference",
-                "IntakeField_StatusStatement"
-            ],
-            [
-                new("IntakeField_GuaranteeNumber", "BG-2026-0142", 98, true),
-                new("IntakeField_BankReference", "STAT-8810", 90, true),
-                new("IntakeField_OfficialLetterDate", "2026-04-10", 95, true),
-                new("IntakeField_StatusStatement", "Guarantee remains active without change.", 88, true)
-            ]),
-        new(
-            "supporting-attachment",
-            "IntakeScenario_Attachment_Title",
-            "IntakeScenario_Attachment_Summary",
-            "IntakeScenario_Attachment_SaveOutcome",
-            "IntakeScenario_Attachment_Handoff",
-            [
-                "IntakeField_GuaranteeNumber",
-                "IntakeField_DocumentType",
-                "IntakeField_AttachmentNote"
-            ],
-            [
-                new("IntakeField_GuaranteeNumber", "BG-2026-0142", 98, true),
-                new("IntakeField_DocumentType", "Supporting attachment", 96, true),
-                new("IntakeField_AttachmentNote", "Original signed annex attached.", 85, true)
-            ])
-    ];
+    private readonly IIntakeRepository _repository;
 
-    public IntakeWorkspaceSnapshotDto GetWorkspace(string? scenarioKey = null)
+    public IntakeWorkspaceService(IIntakeRepository repository)
     {
-        var selectedScenario = Scenarios.FirstOrDefault(
+        _repository = repository;
+    }
+
+    public async Task<IntakeWorkspaceSnapshotDto> GetWorkspaceAsync(
+        Guid? intakeActorId = null,
+        string? scenarioKey = null,
+        CancellationToken cancellationToken = default)
+    {
+        var actors = await _repository.ListIntakeActorsAsync(cancellationToken);
+
+        if (actors.Count == 0)
+        {
+            var fallbackScenarios = IntakeScenarioCatalog.GetAll()
+                .Select(MapScenario)
+                .ToArray();
+
+            return new IntakeWorkspaceSnapshotDto(
+                null,
+                [],
+                "IntakeWorkspace_PrimaryRole",
+                "IntakeWorkspace_SaveMode",
+                "IntakeWorkspace_ReviewGate",
+                [
+                    "IntakeAction_Scan",
+                    "IntakeAction_Classify",
+                    "IntakeAction_Verify",
+                    "IntakeAction_Save"
+                ],
+                [
+                    "IntakeExcluded_RequestActions",
+                    "IntakeExcluded_Printing",
+                    "IntakeExcluded_Approvals",
+                    "IntakeExcluded_Dispatch"
+                ],
+                [
+                    "IntakePipeline_ClassifyPage",
+                    "IntakePipeline_DirectPdfText",
+                    "IntakePipeline_ImagePreprocessing",
+                    "IntakePipeline_OcrAndLayout",
+                    "IntakePipeline_PostProcessing",
+                    "IntakePipeline_HumanReview",
+                    "IntakePipeline_SaveAndHandoff"
+                ],
+                [
+                    "IntakeQuality_TextFirst",
+                    "IntakeQuality_Confidence",
+                    "IntakeQuality_SingleSave",
+                    "IntakeQuality_SourceDocument",
+                    "IntakeQuality_BankSpecificRules"
+                ],
+                [
+                    "IntakeFuture_ScanStation",
+                    "IntakeFuture_ScanToFolder",
+                    "IntakeFuture_DeviceApi"
+                ],
+                fallbackScenarios,
+                fallbackScenarios[0],
+                false,
+                "IntakeWorkspace_NoEligibleActor");
+        }
+
+        var activeActor = intakeActorId.HasValue
+            ? actors.FirstOrDefault(actor => actor.Id == intakeActorId.Value)
+            : actors.OrderBy(actor => actor.DisplayName, StringComparer.OrdinalIgnoreCase).First();
+
+        activeActor ??= actors.OrderBy(actor => actor.DisplayName, StringComparer.OrdinalIgnoreCase).First();
+
+        var scenarios = IntakeScenarioCatalog.GetAll()
+            .Select(MapScenario)
+            .ToArray();
+
+        var selectedScenario = scenarios.FirstOrDefault(
                 scenario => string.Equals(scenario.Key, scenarioKey, StringComparison.OrdinalIgnoreCase))
-            ?? Scenarios[0];
+            ?? scenarios[0];
 
         return new IntakeWorkspaceSnapshotDto(
+            MapActor(activeActor),
+            actors
+                .OrderBy(actor => actor.DisplayName, StringComparer.OrdinalIgnoreCase)
+                .Select(MapActor)
+                .ToArray(),
             "IntakeWorkspace_PrimaryRole",
             "IntakeWorkspace_SaveMode",
             "IntakeWorkspace_ReviewGate",
@@ -142,7 +129,31 @@ internal sealed class IntakeWorkspaceService : IIntakeWorkspaceService
                 "IntakeFuture_ScanToFolder",
                 "IntakeFuture_DeviceApi"
             ],
-            Scenarios,
-            selectedScenario);
+            scenarios,
+            selectedScenario,
+            true,
+            "IntakeWorkspace_ActorScopedNotice");
+    }
+
+    private static IntakeScenarioSnapshotDto MapScenario(IntakeScenarioDefinition definition)
+    {
+        return new IntakeScenarioSnapshotDto(
+            definition.Key,
+            definition.TitleResourceKey,
+            definition.SummaryResourceKey,
+            definition.SaveOutcomeResourceKey,
+            definition.HandoffResourceKey,
+            definition.RequiredReviewFieldKeys,
+            definition.SampleFields,
+            definition.RequiresExistingGuarantee,
+            definition.RequiresConfirmedExpiryDate,
+            definition.RequiresConfirmedAmount,
+            definition.RequiresStatusStatement,
+            definition.RequiresAttachmentNote);
+    }
+
+    private static IntakeActorSummaryDto MapActor(User actor)
+    {
+        return new IntakeActorSummaryDto(actor.Id, actor.Username, actor.DisplayName);
     }
 }

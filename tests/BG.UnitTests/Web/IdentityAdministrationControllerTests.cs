@@ -4,6 +4,8 @@ using BG.Application.Models.Identity;
 using BG.Web.Controllers;
 using BG.Web.Contracts.Identity;
 using BG.Web.Localization;
+using BG.Web.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -23,7 +25,8 @@ public sealed class IdentityAdministrationControllerTests
             new CreateUserRequest
             {
                 Username = "admin",
-                DisplayName = "Admin"
+                DisplayName = "Admin",
+                InitialPassword = "initial-password"
             },
             CancellationToken.None);
 
@@ -53,6 +56,26 @@ public sealed class IdentityAdministrationControllerTests
         Assert.Single(permissions);
     }
 
+    [Fact]
+    public void Identity_administration_actions_are_protected_by_expected_policies()
+    {
+        AssertAuthorizePolicy(nameof(IdentityAdministrationController.GetUsers), PermissionPolicyNames.UsersRead);
+        AssertAuthorizePolicy(nameof(IdentityAdministrationController.CreateUser), PermissionPolicyNames.UsersManage);
+        AssertAuthorizePolicy(nameof(IdentityAdministrationController.SetUserPassword), PermissionPolicyNames.UsersManage);
+        AssertAuthorizePolicy(nameof(IdentityAdministrationController.GetRoles), PermissionPolicyNames.RolesRead);
+        AssertAuthorizePolicy(nameof(IdentityAdministrationController.CreateRole), PermissionPolicyNames.RolesManage);
+        AssertAuthorizePolicy(nameof(IdentityAdministrationController.GetPermissions), PermissionPolicyNames.RolesRead);
+    }
+
+    private static void AssertAuthorizePolicy(string methodName, string expectedPolicy)
+    {
+        var method = typeof(IdentityAdministrationController).GetMethod(methodName);
+        Assert.NotNull(method);
+
+        var attribute = Assert.Single(method!.GetCustomAttributes(typeof(AuthorizeAttribute), inherit: true).Cast<AuthorizeAttribute>());
+        Assert.Equal(expectedPolicy, attribute.Policy);
+    }
+
     private sealed class StubIdentityAdministrationService : IIdentityAdministrationService
     {
         private readonly OperationResult<UserSummaryDto> _createUserResult;
@@ -77,6 +100,8 @@ public sealed class IdentityAdministrationControllerTests
                     null,
                     "Local",
                     true,
+                    true,
+                    DateTimeOffset.UtcNow,
                     DateTimeOffset.UtcNow,
                     Array.Empty<string>()));
             _createRoleResult = createRoleResult ?? OperationResult<RoleSummaryDto>.Success(
@@ -102,6 +127,11 @@ public sealed class IdentityAdministrationControllerTests
         }
 
         public Task<OperationResult<UserSummaryDto>> CreateUserAsync(CreateUserCommand command, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(_createUserResult);
+        }
+
+        public Task<OperationResult<UserSummaryDto>> SetUserPasswordAsync(SetLocalUserPasswordCommand command, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_createUserResult);
         }

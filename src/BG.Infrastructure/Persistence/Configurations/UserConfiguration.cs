@@ -30,6 +30,9 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.ExternalId)
             .HasMaxLength(128);
 
+        builder.Property(user => user.PasswordHash)
+            .HasMaxLength(512);
+
         builder.Property(user => user.SourceType)
             .HasConversion<string>()
             .HasMaxLength(32)
@@ -37,6 +40,8 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.CreatedAtUtc)
             .IsRequired();
+
+        builder.Property(user => user.PasswordChangedAtUtc);
 
         builder.HasIndex(user => user.NormalizedUsername)
             .IsUnique();

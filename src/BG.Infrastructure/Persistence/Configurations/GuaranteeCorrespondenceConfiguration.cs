@@ -29,6 +29,26 @@ public sealed class GuaranteeCorrespondenceConfiguration : IEntityTypeConfigurat
         builder.Property(correspondence => correspondence.Notes)
             .HasMaxLength(1000);
 
+        builder.Property(correspondence => correspondence.LastPrintMode)
+            .HasConversion<string>()
+            .HasMaxLength(32);
+
+        builder.Property(correspondence => correspondence.DispatchChannel)
+            .HasConversion<string>()
+            .HasMaxLength(32);
+
+        builder.Property(correspondence => correspondence.DispatchReference)
+            .HasMaxLength(128);
+
+        builder.Property(correspondence => correspondence.DispatchNote)
+            .HasMaxLength(1000);
+
+        builder.Property(correspondence => correspondence.DeliveryReference)
+            .HasMaxLength(128);
+
+        builder.Property(correspondence => correspondence.DeliveryNote)
+            .HasMaxLength(1000);
+
         builder.HasOne(correspondence => correspondence.ScannedDocument)
             .WithMany(document => document.Correspondence)
             .HasForeignKey(correspondence => correspondence.ScannedDocumentId)

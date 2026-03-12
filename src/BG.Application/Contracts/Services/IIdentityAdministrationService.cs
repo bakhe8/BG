@@ -13,5 +13,7 @@ public interface IIdentityAdministrationService
 
     Task<OperationResult<UserSummaryDto>> CreateUserAsync(CreateUserCommand command, CancellationToken cancellationToken = default);
 
+    Task<OperationResult<UserSummaryDto>> SetUserPasswordAsync(SetLocalUserPasswordCommand command, CancellationToken cancellationToken = default);
+
     Task<OperationResult<RoleSummaryDto>> CreateRoleAsync(CreateRoleCommand command, CancellationToken cancellationToken = default);
 }

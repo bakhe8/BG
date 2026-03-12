@@ -1,5 +1,6 @@
 using BG.Application.Contracts.Persistence;
 using BG.Domain.Identity;
+using BG.Domain.Workflow;
 using Microsoft.EntityFrameworkCore;
 
 namespace BG.Infrastructure.Persistence.Repositories;
@@ -34,6 +35,16 @@ internal sealed class IdentityAdministrationRepository : IIdentityAdministration
     public async Task<IReadOnlyList<Permission>> ListPermissionsAsync(CancellationToken cancellationToken = default)
     {
         return await _dbContext.Permissions
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ApprovalDelegation>> ListApprovalDelegationsAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.ApprovalDelegations
+            .Include(delegation => delegation.DelegatorUser)
+            .Include(delegation => delegation.DelegateUser)
+            .Include(delegation => delegation.Role)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
@@ -76,6 +87,35 @@ internal sealed class IdentityAdministrationRepository : IIdentityAdministration
             .ToListAsync(cancellationToken);
     }
 
+    public Task<User?> GetUserByIdAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Users
+            .Include(user => user.UserRoles)
+            .ThenInclude(userRole => userRole.Role)
+            .ThenInclude(role => role.RolePermissions)
+            .SingleOrDefaultAsync(user => user.Id == userId, cancellationToken);
+    }
+
+    public Task<User?> GetUserByNormalizedUsernameAsync(string normalizedUsername, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Users
+            .Include(user => user.UserRoles)
+            .ThenInclude(userRole => userRole.Role)
+            .ThenInclude(role => role.RolePermissions)
+            .SingleOrDefaultAsync(
+                user => user.NormalizedUsername == normalizedUsername,
+                cancellationToken);
+    }
+
+    public Task<ApprovalDelegation?> GetApprovalDelegationByIdAsync(Guid delegationId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.ApprovalDelegations
+            .Include(delegation => delegation.DelegatorUser)
+            .Include(delegation => delegation.DelegateUser)
+            .Include(delegation => delegation.Role)
+            .SingleOrDefaultAsync(delegation => delegation.Id == delegationId, cancellationToken);
+    }
+
     public Task<bool> UsernameExistsAsync(string normalizedUsername, CancellationToken cancellationToken = default)
     {
         return _dbContext.Users.AnyAsync(
@@ -90,6 +130,23 @@ internal sealed class IdentityAdministrationRepository : IIdentityAdministration
             cancellationToken);
     }
 
+    public Task<bool> HasOverlappingApprovalDelegationAsync(
+        Guid delegateUserId,
+        Guid roleId,
+        DateTimeOffset startsAtUtc,
+        DateTimeOffset endsAtUtc,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.ApprovalDelegations.AnyAsync(
+            delegation =>
+                delegation.DelegateUserId == delegateUserId &&
+                delegation.RoleId == roleId &&
+                !delegation.RevokedAtUtc.HasValue &&
+                startsAtUtc <= delegation.EndsAtUtc &&
+                endsAtUtc >= delegation.StartsAtUtc,
+            cancellationToken);
+    }
+
     public Task AddUserAsync(User user, CancellationToken cancellationToken = default)
     {
         return _dbContext.Users.AddAsync(user, cancellationToken).AsTask();
@@ -98,6 +155,11 @@ internal sealed class IdentityAdministrationRepository : IIdentityAdministration
     public Task AddRoleAsync(Role role, CancellationToken cancellationToken = default)
     {
         return _dbContext.Roles.AddAsync(role, cancellationToken).AsTask();
+    }
+
+    public Task AddApprovalDelegationAsync(ApprovalDelegation delegation, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.ApprovalDelegations.AddAsync(delegation, cancellationToken).AsTask();
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)

@@ -9,4 +9,8 @@ public static class IdentityErrorCodes
     public const string DuplicateRoleName = "identity.duplicate_role_name";
     public const string RoleNotFound = "identity.role_not_found";
     public const string PermissionNotFound = "identity.permission_not_found";
+    public const string PasswordRequired = "identity.password_required";
+    public const string PasswordTooShort = "identity.password_too_short";
+    public const string UserNotFound = "identity.user_not_found";
+    public const string InvalidCredentials = "identity.invalid_credentials";
 }

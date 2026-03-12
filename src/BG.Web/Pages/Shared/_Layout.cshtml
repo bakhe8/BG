@@ -1,11 +1,14 @@
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedResource> T
 @inject IUiConfigurationService UiConfiguration
+@inject IWorkspaceShellService WorkspaceShell
 @{
     var currentCulture = UiConfiguration.GetCurrentCulture();
     var currentDirection = UiConfiguration.GetDirection(currentCulture);
     var currentTheme = UiConfiguration.GetCurrentTheme();
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
+    var shell = await WorkspaceShell.GetSnapshotAsync(Context.RequestAborted);
+    var shellMessageKey = Context.Request.Query["shellMessage"].ToString();
 }
 <!DOCTYPE html>
 <html lang="@currentCulture" dir="@currentDirection">
@@ -28,26 +31,37 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1 gap-sm-2">
-                        <li class="nav-item">
-                            <a class="nav-link app-link" asp-area="" asp-page="/Index">@T["NavHome"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link app-link" asp-area="" asp-page="/Intake/Workspace">@T["NavIntake"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link app-link" asp-area="" asp-page="/Administration/Users">@T["NavUsers"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link app-link" asp-area="" asp-page="/Administration/Roles">@T["NavRoles"]</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link app-link" href="/swagger">Swagger</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link app-link" href="/health">Health</a>
-                        </li>
+                        @foreach (var item in shell.NavigationItems)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link app-link" href="@item.PagePath">@T[item.ResourceKey]</a>
+                            </li>
+                        }
                     </ul>
                     <div class="toolbar-group">
+                        <div class="toolbar-block">
+                            <span class="toolbar-label">@T["WorkspaceShell_UserLabel"]</span>
+                            @if (shell.CurrentUser is null)
+                            {
+                                <a class="btn btn-outline-primary action-button" href="/SignIn?returnUrl=@Uri.EscapeDataString(returnUrl)">
+                                    @T["WorkspaceShell_SignInAction"]
+                                </a>
+                            }
+                            else
+                            {
+                                <div class="pill-list">
+                                    <span class="pill">@T["WorkspaceShell_SignedInAsLabel"]</span>
+                                    <span class="pill">@shell.CurrentUser.DisplayName (@shell.CurrentUser.Username)</span>
+                                    @foreach (var roleName in shell.CurrentUser.RoleNames)
+                                    {
+                                        <span class="pill">@roleName</span>
+                                    }
+                                </div>
+                                <form method="post" asp-page="/SignIn" asp-page-handler="SignOut">
+                                    <button type="submit" class="btn btn-outline-primary action-button">@T["WorkspaceShell_SignOutAction"]</button>
+                                </form>
+                            }
+                        </div>
                         <div class="toolbar-block">
                             <span class="toolbar-label">@T["LanguageLabel"]</span>
                             <div class="toolbar-options">
@@ -79,6 +93,12 @@
             </div>
         </nav>
     </header>
+    @if (!string.IsNullOrWhiteSpace(shellMessageKey))
+    {
+        <div class="container-lg">
+            <div class="notice-banner">@T[shellMessageKey]</div>
+        </div>
+    }
     <div class="container-lg">
         <main role="main" class="pb-3">
             @RenderBody()

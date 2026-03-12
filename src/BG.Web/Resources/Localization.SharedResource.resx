@@ -14,6 +14,9 @@
   </resheader>
   <data name="NavHome" xml:space="preserve"><value>Home</value></data>
   <data name="NavIntake" xml:space="preserve"><value>Intake</value></data>
+  <data name="NavRequests" xml:space="preserve"><value>Requests</value></data>
+  <data name="NavApprovals" xml:space="preserve"><value>Approvals</value></data>
+  <data name="NavDispatch" xml:space="preserve"><value>Dispatch</value></data>
   <data name="LanguageLabel" xml:space="preserve"><value>Language</value></data>
   <data name="ThemeLabel" xml:space="preserve"><value>Theme</value></data>
   <data name="Culture_ar" xml:space="preserve"><value>Arabic</value></data>
@@ -21,6 +24,42 @@
   <data name="Theme_emerald" xml:space="preserve"><value>Emerald</value></data>
   <data name="Theme_slate" xml:space="preserve"><value>Slate</value></data>
   <data name="Theme_sand" xml:space="preserve"><value>Sand</value></data>
+  <data name="Home_PageTitle" xml:space="preserve"><value>Operational dashboard</value></data>
+  <data name="Home_AnonymousEyebrow" xml:space="preserve"><value>BG workspace</value></data>
+  <data name="Home_AnonymousHeading" xml:space="preserve"><value>Bank guarantee work starts from queues, not framework details.</value></data>
+  <data name="Home_AnonymousSummary" xml:space="preserve"><value>Sign in to see the real operating picture: approvals waiting for you, requests still in flight, dispatch handoffs, and guarantees nearing expiry.</value></data>
+  <data name="Home_AnonymousAction" xml:space="preserve"><value>Sign in</value></data>
+  <data name="Home_DashboardEyebrow" xml:space="preserve"><value>Operational dashboard</value></data>
+  <data name="Home_DashboardHeading" xml:space="preserve"><value>{0}, start from the real workload</value></data>
+  <data name="Home_DashboardSummary" xml:space="preserve"><value>The home page now surfaces live queues, ownership, handoffs, and guarantee exposure instead of technical framework metadata.</value></data>
+  <data name="Home_DashboardAttentionSummary" xml:space="preserve"><value>{0} approvals are waiting, {1} open requests are still owned by you, and {2} guarantees are nearing expiry.</value></data>
+  <data name="Home_MetricApprovals" xml:space="preserve"><value>Waiting for your approval</value></data>
+  <data name="Home_MetricRequests" xml:space="preserve"><value>My open requests</value></data>
+  <data name="Home_MetricOperations" xml:space="preserve"><value>Operations backlog</value></data>
+  <data name="Home_MetricDispatchReady" xml:space="preserve"><value>Ready for dispatch</value></data>
+  <data name="Home_MetricPendingDelivery" xml:space="preserve"><value>Awaiting delivery</value></data>
+  <data name="Home_MetricExpiring" xml:space="preserve"><value>Near expiry</value></data>
+  <data name="Home_PendingApprovalsTitle" xml:space="preserve"><value>Approval queue for you</value></data>
+  <data name="Home_PendingApprovalsSummary" xml:space="preserve"><value>Only requests currently actionable by your assigned role or active delegation appear here.</value></data>
+  <data name="Home_MyRequestsTitle" xml:space="preserve"><value>My request pipeline</value></data>
+  <data name="Home_MyRequestsSummary" xml:space="preserve"><value>These requests still belong to you and are not finished yet.</value></data>
+  <data name="Home_ExpiringTitle" xml:space="preserve"><value>Guarantees nearing expiry</value></data>
+  <data name="Home_ExpiringSummary" xml:space="preserve"><value>Active guarantees due within the next 30 days.</value></data>
+  <data name="Home_RecentIntakeTitle" xml:space="preserve"><value>Latest intake activity</value></data>
+  <data name="Home_RecentIntakeSummary" xml:space="preserve"><value>The most recent document captures entering BG, with their intake scenario and provenance.</value></data>
+  <data name="Home_HandoffTitle" xml:space="preserve"><value>Handoff pressure</value></data>
+  <data name="Home_HandoffSummary" xml:space="preserve"><value>Cross-role queues that can slow the end-to-end flow if they start to accumulate.</value></data>
+  <data name="Home_EmptyApprovals" xml:space="preserve"><value>No approval items are waiting for you right now.</value></data>
+  <data name="Home_EmptyRequests" xml:space="preserve"><value>You do not own any open requests right now.</value></data>
+  <data name="Home_EmptyExpiring" xml:space="preserve"><value>No active guarantees are nearing expiry in the next 30 days.</value></data>
+  <data name="Home_EmptyIntake" xml:space="preserve"><value>No intake activity has been recorded yet.</value></data>
+  <data name="Home_OperationsBacklogLabel" xml:space="preserve"><value>Open operations items</value></data>
+  <data name="Home_DispatchReadyLabel" xml:space="preserve"><value>Ready for dispatch</value></data>
+  <data name="Home_PendingDeliveryLabel" xml:space="preserve"><value>Awaiting delivery</value></data>
+  <data name="Home_NoOperationalAccessTitle" xml:space="preserve"><value>No operational areas are assigned to this account</value></data>
+  <data name="Home_NoOperationalAccessBody" xml:space="preserve"><value>This account is authenticated successfully, but it does not currently carry any workload permissions.</value></data>
+  <data name="Home_DaysRemainingSuffix" xml:space="preserve"><value>days left</value></data>
+  <data name="Home_CurrentAmountLabel" xml:space="preserve"><value>Current amount</value></data>
   <data name="FooterBaseline" xml:space="preserve"><value>BG internal baseline</value></data>
   <data name="FooterStack" xml:space="preserve"><value>ASP.NET Core 8 + Razor Pages + API + PostgreSQL + IIS</value></data>
   <data name="HomeTitle" xml:space="preserve"><value>Environment Baseline</value></data>
@@ -54,6 +93,7 @@
   <data name="NextStepBody" xml:space="preserve"><value>After this baseline we will start designing the system modules themselves: bank guarantees, batches, permissions, workflow, and bilingual operational screens.</value></data>
   <data name="NavUsers" xml:space="preserve"><value>Users</value></data>
   <data name="NavRoles" xml:space="preserve"><value>Roles</value></data>
+  <data name="NavWorkflowAdmin" xml:space="preserve"><value>Workflow</value></data>
   <data name="UsersPageTitle" xml:space="preserve"><value>User Administration</value></data>
   <data name="UsersPageHeading" xml:space="preserve"><value>Local users</value></data>
   <data name="UsersPageSummary" xml:space="preserve"><value>BG currently manages users locally while keeping the model ready for future hospital identity integration.</value></data>
@@ -63,10 +103,19 @@
   <data name="UsernameField" xml:space="preserve"><value>Username</value></data>
   <data name="DisplayNameField" xml:space="preserve"><value>Display name</value></data>
   <data name="EmailField" xml:space="preserve"><value>Email</value></data>
+  <data name="PasswordField" xml:space="preserve"><value>Password</value></data>
   <data name="RolesField" xml:space="preserve"><value>Roles</value></data>
   <data name="SourceField" xml:space="preserve"><value>Source</value></data>
+  <data name="CredentialsField" xml:space="preserve"><value>Credentials</value></data>
+  <data name="PasswordUpdatedAtField" xml:space="preserve"><value>Password updated</value></data>
   <data name="CreatedAtField" xml:space="preserve"><value>Created at</value></data>
   <data name="SaveUserAction" xml:space="preserve"><value>Create user</value></data>
+  <data name="SavePasswordAction" xml:space="preserve"><value>Save password</value></data>
+  <data name="ResetPasswordField" xml:space="preserve"><value>Reset password</value></data>
+  <data name="Credentials_Ready" xml:space="preserve"><value>Ready</value></data>
+  <data name="Credentials_Missing" xml:space="preserve"><value>Missing</value></data>
+  <data name="UsersPage_UserCreated" xml:space="preserve"><value>User created successfully.</value></data>
+  <data name="UsersPage_PasswordUpdated" xml:space="preserve"><value>Password updated successfully.</value></data>
   <data name="NoRolesAvailable" xml:space="preserve"><value>Create roles first before assigning them to users.</value></data>
   <data name="NoRolesAssigned" xml:space="preserve"><value>No roles assigned.</value></data>
   <data name="RolesPageTitle" xml:space="preserve"><value>Role Administration</value></data>
@@ -93,8 +142,16 @@
   <data name="identity.duplicate_role_name" xml:space="preserve"><value>This role name already exists.</value></data>
   <data name="identity.role_not_found" xml:space="preserve"><value>One or more selected roles were not found.</value></data>
   <data name="identity.permission_not_found" xml:space="preserve"><value>One or more selected permissions were not found.</value></data>
+  <data name="identity.password_required" xml:space="preserve"><value>Password is required.</value></data>
+  <data name="identity.password_too_short" xml:space="preserve"><value>Password must be at least 12 characters.</value></data>
+  <data name="identity.user_not_found" xml:space="preserve"><value>The selected user was not found.</value></data>
+  <data name="identity.invalid_credentials" xml:space="preserve"><value>Invalid username or password.</value></data>
   <data name="PermissionGroup_Dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="PermissionGroup_Intake" xml:space="preserve"><value>Document intake</value></data>
+  <data name="PermissionGroup_Operations" xml:space="preserve"><value>Operations</value></data>
+  <data name="PermissionGroup_Requests" xml:space="preserve"><value>Requests</value></data>
+  <data name="PermissionGroup_Approvals" xml:space="preserve"><value>Approvals</value></data>
+  <data name="PermissionGroup_Workflow" xml:space="preserve"><value>Workflow</value></data>
   <data name="PermissionGroup_Dispatch" xml:space="preserve"><value>Dispatch</value></data>
   <data name="PermissionGroup_Administration" xml:space="preserve"><value>Administration</value></data>
   <data name="PermissionGroup_Guarantees" xml:space="preserve"><value>Guarantees</value></data>
@@ -103,6 +160,14 @@
   <data name="Permission_intake.scan" xml:space="preserve"><value>Scan and attach documents</value></data>
   <data name="Permission_intake.verify" xml:space="preserve"><value>Verify extracted document data</value></data>
   <data name="Permission_intake.finalize" xml:space="preserve"><value>Finalize intake in one save operation</value></data>
+  <data name="Permission_operations.queue.view" xml:space="preserve"><value>View operations review queue</value></data>
+  <data name="Permission_operations.queue.manage" xml:space="preserve"><value>Manage operations review queue</value></data>
+  <data name="Permission_requests.view" xml:space="preserve"><value>View request preparation workspace</value></data>
+  <data name="Permission_requests.create" xml:space="preserve"><value>Create guarantee requests</value></data>
+  <data name="Permission_approvals.queue.view" xml:space="preserve"><value>View approval queue</value></data>
+  <data name="Permission_approvals.sign" xml:space="preserve"><value>Approve, return, or reject requests at the current stage</value></data>
+  <data name="Permission_workflow.view" xml:space="preserve"><value>View approval workflow templates</value></data>
+  <data name="Permission_workflow.manage" xml:space="preserve"><value>Manage approval workflow definitions</value></data>
   <data name="Permission_dispatch.view" xml:space="preserve"><value>View dispatch workspace</value></data>
   <data name="Permission_dispatch.print" xml:space="preserve"><value>Print signed letters</value></data>
   <data name="Permission_dispatch.record" xml:space="preserve"><value>Record bank delivery or sending</value></data>
@@ -136,6 +201,24 @@
   <data name="IntakeWorkspace_PrimaryRole" xml:space="preserve"><value>Document intake specialist</value></data>
   <data name="IntakeWorkspace_SaveMode" xml:space="preserve"><value>One save for document and verified data</value></data>
   <data name="IntakeWorkspace_ReviewGate" xml:space="preserve"><value>Human review before final save</value></data>
+  <data name="IntakeWorkspace_NoEligibleActor" xml:space="preserve"><value>No intake actor is available.</value></data>
+  <data name="IntakeWorkspace_NoEligibleActorBody" xml:space="preserve"><value>Create at least one active user with intake permissions before scanning or saving intake packages.</value></data>
+  <data name="IntakeWorkspace_ActorScopedNotice" xml:space="preserve"><value>The intake workspace is loaded under the selected intake actor. Document capture, verification, and save actions will be attributed to that person.</value></data>
+  <data name="IntakeWorkspace_ActorContextTitle" xml:space="preserve"><value>Intake actor context</value></data>
+  <data name="IntakeWorkspace_ActorContextSummary" xml:space="preserve"><value>Until authentication is connected, choose the acting intake specialist explicitly so the ledger records who captured and verified the document.</value></data>
+  <data name="IntakeWorkspace_ActorField" xml:space="preserve"><value>Intake actor</value></data>
+  <data name="IntakeWorkspace_LoadActorAction" xml:space="preserve"><value>Load intake actor</value></data>
+  <data name="IntakeWorkspace_CaptureProvenanceTitle" xml:space="preserve"><value>Capture provenance</value></data>
+  <data name="IntakeWorkspace_CaptureProvenanceSummary" xml:space="preserve"><value>Record how the document entered BG, which workstation or source produced it, and what external reference can prove that origin later.</value></data>
+  <data name="IntakeWorkspace_CaptureChannelField" xml:space="preserve"><value>Capture channel</value></data>
+  <data name="IntakeWorkspace_SourceSystemNameField" xml:space="preserve"><value>Source system / device</value></data>
+  <data name="IntakeWorkspace_SourceReferenceField" xml:space="preserve"><value>Source reference</value></data>
+  <data name="IntakeWorkspace_ProvenanceHint_ManualUpload" xml:space="preserve"><value>Use manual upload when the operator picked the file directly from a workstation.</value></data>
+  <data name="IntakeWorkspace_ProvenanceHint_ScanStation" xml:space="preserve"><value>Use scan station when the paper was captured from a dedicated scanner or MFP device. Record the device or station name.</value></data>
+  <data name="IntakeWorkspace_ProvenanceHint_OracleImport" xml:space="preserve"><value>Use Oracle import when the document arrived from Oracle or another upstream repository. Record both source system and external document reference.</value></data>
+  <data name="IntakeCaptureChannel_ManualUpload" xml:space="preserve"><value>Manual upload</value></data>
+  <data name="IntakeCaptureChannel_ScanStation" xml:space="preserve"><value>Scan station</value></data>
+  <data name="IntakeCaptureChannel_OracleImport" xml:space="preserve"><value>Oracle import</value></data>
   <data name="IntakeAction_Scan" xml:space="preserve"><value>Scan or upload the paper document</value></data>
   <data name="IntakeAction_Classify" xml:space="preserve"><value>Confirm the document type and intake scenario</value></data>
   <data name="IntakeAction_Verify" xml:space="preserve"><value>Review extracted fields against the printed source</value></data>
@@ -167,6 +250,10 @@
   <data name="IntakeScenario_Extension_Summary" xml:space="preserve"><value>Capture an incoming bank letter confirming that the guarantee expiry date was extended.</value></data>
   <data name="IntakeScenario_Extension_SaveOutcome" xml:space="preserve"><value>The bank response document and its verified extracted data are stored for later operational confirmation handling.</value></data>
   <data name="IntakeScenario_Extension_Handoff" xml:space="preserve"><value>The operational team reviews the saved confirmation and completes the extension process.</value></data>
+  <data name="IntakeScenario_Reduction_Title" xml:space="preserve"><value>Reduction confirmation</value></data>
+  <data name="IntakeScenario_Reduction_Summary" xml:space="preserve"><value>Capture an incoming bank letter confirming that the guarantee amount was reduced.</value></data>
+  <data name="IntakeScenario_Reduction_SaveOutcome" xml:space="preserve"><value>The bank response document and the confirmed reduced amount are stored for operational application.</value></data>
+  <data name="IntakeScenario_Reduction_Handoff" xml:space="preserve"><value>The operational team reviews the saved confirmation and applies the real reduced amount to the guarantee.</value></data>
   <data name="IntakeScenario_Release_Title" xml:space="preserve"><value>Release confirmation</value></data>
   <data name="IntakeScenario_Release_Summary" xml:space="preserve"><value>Capture an incoming bank letter confirming that the guarantee was released.</value></data>
   <data name="IntakeScenario_Release_SaveOutcome" xml:space="preserve"><value>The scanned release confirmation and its verified data are saved as one intake package.</value></data>
@@ -179,9 +266,163 @@
   <data name="IntakeScenario_Attachment_Summary" xml:space="preserve"><value>Attach an additional scanned document related to an existing guarantee.</value></data>
   <data name="IntakeScenario_Attachment_SaveOutcome" xml:space="preserve"><value>The attachment is stored with metadata and linked to the guarantee in one save.</value></data>
   <data name="IntakeScenario_Attachment_Handoff" xml:space="preserve"><value>The attachment becomes available to later operational, approval, or dispatch stages.</value></data>
+  <data name="NavOperationsQueue" xml:space="preserve"><value>Operations Queue</value></data>
+  <data name="OperationsQueue_PageTitle" xml:space="preserve"><value>Operations Review Queue</value></data>
+  <data name="OperationsQueue_Heading" xml:space="preserve"><value>Operations review queue</value></data>
+  <data name="OperationsQueue_Summary" xml:space="preserve"><value>This queue receives every saved intake package and hands it over to the next operational layer without mixing it with request creation or approvals.</value></data>
+  <data name="OperationsQueue_PrimaryFlow" xml:space="preserve"><value>Post-intake handoff</value></data>
+  <data name="OperationsQueue_QueueTitle" xml:space="preserve"><value>Saved intake packages waiting for operational handling</value></data>
+  <data name="OperationsQueue_QueueSummary" xml:space="preserve"><value>Each item represents a scanned guarantee or bank reply that was verified by intake and now waits for the correct operational team.</value></data>
+  <data name="OperationsQueue_MetricOpen" xml:space="preserve"><value>Open items</value></data>
+  <data name="OperationsQueue_MetricPending" xml:space="preserve"><value>Pending review</value></data>
+  <data name="OperationsQueue_MetricTemplates" xml:space="preserve"><value>Workflow templates</value></data>
+  <data name="OperationsQueue_OpenItemsTitle" xml:space="preserve"><value>Open review items</value></data>
+  <data name="OperationsQueue_OpenItemsSummary" xml:space="preserve"><value>These items came from intake and are now visible to the next operational layer only.</value></data>
+  <data name="OperationsQueue_Empty" xml:space="preserve"><value>No operational review items are waiting in the queue.</value></data>
+  <data name="OperationsQueue_CategoryLabel" xml:space="preserve"><value>Queue category</value></data>
+  <data name="OperationsQueue_DocumentLabel" xml:space="preserve"><value>Document</value></data>
+  <data name="OperationsQueue_BankReferenceLabel" xml:space="preserve"><value>Bank reference</value></data>
+  <data name="OperationsQueue_CreatedAtLabel" xml:space="preserve"><value>Captured at</value></data>
+  <data name="OperationsQueue_RecommendedLaneLabel" xml:space="preserve"><value>Recommended lane</value></data>
+  <data name="OperationsQueue_NotAvailable" xml:space="preserve"><value>Not available</value></data>
+  <data name="OperationsQueue_SystemMatchesTitle" xml:space="preserve"><value>System match suggestions</value></data>
+  <data name="OperationsQueue_NoMatchSuggestions" xml:space="preserve"><value>The system could not find a confident request match yet.</value></data>
+  <data name="OperationsQueue_SubmittedToBankLabel" xml:space="preserve"><value>Submitted to bank</value></data>
+  <data name="OperationsQueue_OutgoingReferenceLabel" xml:space="preserve"><value>Outgoing reference</value></data>
+  <data name="OperationsQueue_RequestMatchField" xml:space="preserve"><value>Matched request</value></data>
+  <data name="OperationsQueue_ConfirmedExpiryDateField" xml:space="preserve"><value>Confirmed expiry date</value></data>
+  <data name="OperationsQueue_ConfirmedAmountField" xml:space="preserve"><value>Confirmed amount</value></data>
+  <data name="OperationsQueue_ConfirmationNoteField" xml:space="preserve"><value>Operational note</value></data>
+  <data name="OperationsQueue_ApplyResponseAction" xml:space="preserve"><value>Apply bank response</value></data>
+  <data name="OperationsQueue_ApplySuccess" xml:space="preserve"><value>Bank response was applied successfully for guarantee {0}.</value></data>
+  <data name="OperationsQueue_WorkflowTemplatesTitle" xml:space="preserve"><value>Request workflow templates</value></data>
+  <data name="OperationsQueue_WorkflowTemplatesSummary" xml:space="preserve"><value>Approval paths differ by request type, so each request starts from a dedicated template instead of a single fixed approval chain.</value></data>
+  <data name="OperationsQueue_LevelsSuffix" xml:space="preserve"><value>levels</value></data>
+  <data name="OperationsQueue_NoEligibleActor" xml:space="preserve"><value>No operations actor is available.</value></data>
+  <data name="OperationsQueue_NoEligibleActorBody" xml:space="preserve"><value>Create at least one active user with operations queue permissions before applying bank responses.</value></data>
+  <data name="OperationsQueue_ActorScopedNotice" xml:space="preserve"><value>The operations queue is loaded under the selected operations actor. Applying bank confirmations will be attributed to that person.</value></data>
+  <data name="OperationsQueue_ActorContextTitle" xml:space="preserve"><value>Operations actor context</value></data>
+  <data name="OperationsQueue_ActorContextSummary" xml:space="preserve"><value>Select the acting operations reviewer explicitly so the ledger records who linked and applied the incoming bank response.</value></data>
+  <data name="OperationsQueue_ActorField" xml:space="preserve"><value>Operations actor</value></data>
+  <data name="OperationsQueue_LoadActorAction" xml:space="preserve"><value>Load operations actor</value></data>
+  <data name="OperationsQueue_CaptureLedgerTitle" xml:space="preserve"><value>Capture ledger</value></data>
+  <data name="OperationsQueue_CapturedAtLabel" xml:space="preserve"><value>Captured at</value></data>
+  <data name="OperationsQueue_CapturedByLabel" xml:space="preserve"><value>Captured by</value></data>
+  <data name="OperationsQueue_CaptureChannelLabel" xml:space="preserve"><value>Capture channel</value></data>
+  <data name="OperationsQueue_SourceSystemLabel" xml:space="preserve"><value>Source system</value></data>
+  <data name="OperationsQueue_SourceReferenceLabel" xml:space="preserve"><value>Source reference</value></data>
+  <data name="OperationsMatchConfidence_High" xml:space="preserve"><value>High confidence</value></data>
+  <data name="OperationsMatchConfidence_Medium" xml:space="preserve"><value>Medium confidence</value></data>
+  <data name="OperationsMatchConfidence_Low" xml:space="preserve"><value>Low confidence</value></data>
+  <data name="OperationsMatchReason_RequestTypeAligned" xml:space="preserve"><value>Request type matches the incoming bank response scenario.</value></data>
+  <data name="OperationsMatchReason_WaitingForBankResponse" xml:space="preserve"><value>The request is already waiting for a bank response.</value></data>
+  <data name="OperationsMatchReason_ApprovedForDispatch" xml:space="preserve"><value>The request is at least approved for dispatch.</value></data>
+  <data name="OperationsMatchReason_OnlyOpenCandidate" xml:space="preserve"><value>This is the only open request on the same guarantee that fits this response type.</value></data>
+  <data name="OperationsMatchReason_ResponseAfterDispatch" xml:space="preserve"><value>The bank letter date is after the outgoing dispatch date.</value></data>
+  <data name="OperationsMatchReason_ResponseDateNearDispatch" xml:space="preserve"><value>The response date is close to the dispatch date.</value></data>
+  <data name="OperationsMatchReason_ExpiryDateMatches" xml:space="preserve"><value>The proposed expiry date in the response matches the request.</value></data>
+  <data name="OperationsMatchReason_AmountMatches" xml:space="preserve"><value>The confirmed amount in the response matches the request.</value></data>
+  <data name="OperationsReviewCategory_GuaranteeRegistration" xml:space="preserve"><value>Guarantee registration review</value></data>
+  <data name="OperationsReviewCategory_BankConfirmation" xml:space="preserve"><value>Incoming bank confirmation review</value></data>
+  <data name="OperationsReviewCategory_StatusReply" xml:space="preserve"><value>Incoming status reply review</value></data>
+  <data name="OperationsReviewCategory_SupportingDocumentation" xml:space="preserve"><value>Supporting documentation review</value></data>
+  <data name="OperationsReviewStatus_Pending" xml:space="preserve"><value>Pending</value></data>
+  <data name="OperationsReviewStatus_Routed" xml:space="preserve"><value>Routed</value></data>
+  <data name="OperationsReviewStatus_Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="OperationsReviewLane_RegistrationReview" xml:space="preserve"><value>Guarantee registration review lane</value></data>
+  <data name="OperationsReviewLane_BankConfirmationReview" xml:space="preserve"><value>Bank confirmation processing lane</value></data>
+  <data name="OperationsReviewLane_StatusAssessment" xml:space="preserve"><value>Status assessment lane</value></data>
+  <data name="OperationsReviewLane_DocumentLinking" xml:space="preserve"><value>Supporting document linking lane</value></data>
+  <data name="OperationsReviewScenario_Unknown" xml:space="preserve"><value>Unknown intake scenario</value></data>
+  <data name="WorkflowTemplate_Extend_Title" xml:space="preserve"><value>Extension request signature path</value></data>
+  <data name="WorkflowTemplate_Extend_Summary" xml:space="preserve"><value>Extension requests follow the common four-signature path and stop at the Deputy Director of Financial Affairs.</value></data>
+  <data name="WorkflowTemplate_Reduce_Title" xml:space="preserve"><value>Reduction request signature path</value></data>
+  <data name="WorkflowTemplate_Reduce_Summary" xml:space="preserve"><value>Reduction requests follow the common four-signature path and stop at the Deputy Director of Financial Affairs.</value></data>
+  <data name="WorkflowTemplate_Replacement_Title" xml:space="preserve"><value>Replacement with reduced guarantee signature path</value></data>
+  <data name="WorkflowTemplate_Replacement_Summary" xml:space="preserve"><value>Replacement-with-reduction requests follow the common four-signature path and stop at the Deputy Director of Financial Affairs.</value></data>
+  <data name="WorkflowTemplate_VerifyStatus_Title" xml:space="preserve"><value>Status verification signature path</value></data>
+  <data name="WorkflowTemplate_VerifyStatus_Summary" xml:space="preserve"><value>Status verification letters follow the common four-signature path and stop at the Deputy Director of Financial Affairs.</value></data>
+  <data name="WorkflowTemplate_ReleaseContract_Title" xml:space="preserve"><value>Release request path for contract guarantees</value></data>
+  <data name="WorkflowTemplate_ReleaseContract_Summary" xml:space="preserve"><value>Contract-guarantee releases follow the common four signatures, then three contract-management approvals, then the Executive Vice President.</value></data>
+  <data name="WorkflowTemplate_ReleasePurchaseOrder_Title" xml:space="preserve"><value>Release request path for purchase-order guarantees</value></data>
+  <data name="WorkflowTemplate_ReleasePurchaseOrder_Summary" xml:space="preserve"><value>Purchase-order releases follow the common four signatures, then three procurement approvals, then the Executive Vice President.</value></data>
+  <data name="WorkflowStage_GuaranteesSupervisor_Title" xml:space="preserve"><value>Bank guarantees section supervisor</value></data>
+  <data name="WorkflowStage_GuaranteesSupervisor_Summary" xml:space="preserve"><value>Every outgoing bank letter starts with the supervisor of the bank guarantees section.</value></data>
+  <data name="WorkflowStage_DepartmentManager_Title" xml:space="preserve"><value>Administration manager</value></data>
+  <data name="WorkflowStage_DepartmentManager_Summary" xml:space="preserve"><value>The next signature is always the department or administration manager.</value></data>
+  <data name="WorkflowStage_ProgramDirector_Title" xml:space="preserve"><value>Program director</value></data>
+  <data name="WorkflowStage_ProgramDirector_Summary" xml:space="preserve"><value>The third common signature is the program director.</value></data>
+  <data name="WorkflowStage_DeputyFinancialAffairsDirector_Title" xml:space="preserve"><value>Deputy Director of Financial Affairs</value></data>
+  <data name="WorkflowStage_DeputyFinancialAffairsDirector_Summary" xml:space="preserve"><value>This is the fourth and final common signature for all requests, and the final one for extension, reduction, replacement, and status verification letters.</value></data>
+  <data name="WorkflowStage_ContractsSigner1_Title" xml:space="preserve"><value>Contracts management signer 1</value></data>
+  <data name="WorkflowStage_ContractsSigner1_Summary" xml:space="preserve"><value>Contract-guarantee releases then move to the first contract-management approver.</value></data>
+  <data name="WorkflowStage_ContractsSigner2_Title" xml:space="preserve"><value>Contracts management signer 2</value></data>
+  <data name="WorkflowStage_ContractsSigner2_Summary" xml:space="preserve"><value>The second contracts-management approver signs after the first contract approver.</value></data>
+  <data name="WorkflowStage_ContractsSigner3_Title" xml:space="preserve"><value>Contracts management signer 3</value></data>
+  <data name="WorkflowStage_ContractsSigner3_Summary" xml:space="preserve"><value>The third contracts-management approver completes the contract-side release approvals.</value></data>
+  <data name="WorkflowStage_ProcurementSigner1_Title" xml:space="preserve"><value>Procurement signer 1</value></data>
+  <data name="WorkflowStage_ProcurementSigner1_Summary" xml:space="preserve"><value>Purchase-order releases then move to the first procurement approver.</value></data>
+  <data name="WorkflowStage_ProcurementSigner2_Title" xml:space="preserve"><value>Procurement signer 2</value></data>
+  <data name="WorkflowStage_ProcurementSigner2_Summary" xml:space="preserve"><value>The second procurement approver signs after the first procurement approver.</value></data>
+  <data name="WorkflowStage_ProcurementSigner3_Title" xml:space="preserve"><value>Procurement signer 3</value></data>
+  <data name="WorkflowStage_ProcurementSigner3_Summary" xml:space="preserve"><value>The third procurement approver completes the procurement-side release approvals.</value></data>
+  <data name="WorkflowStage_ExecutiveVicePresident_Title" xml:space="preserve"><value>Hospital Executive Vice President</value></data>
+  <data name="WorkflowStage_ExecutiveVicePresident_Summary" xml:space="preserve"><value>Every release letter ends with the Executive Vice President signature.</value></data>
+  <data name="WorkflowSignatureMode_ButtonStampedPdf" xml:space="preserve"><value>Current mode: button-applied signature on the letter PDF</value></data>
+  <data name="WorkflowSignatureEffect_FinalLetterPdf" xml:space="preserve"><value>Effect: this signature is rendered on the final outgoing letter PDF</value></data>
+  <data name="WorkflowAdmin_PageTitle" xml:space="preserve"><value>Workflow Administration</value></data>
+  <data name="WorkflowAdmin_Heading" xml:space="preserve"><value>Flexible approval and signature sequences</value></data>
+  <data name="WorkflowAdmin_Summary" xml:space="preserve"><value>System administration can increase, decrease, reorder, and assign approval stages per request path without changing code.</value></data>
+  <data name="WorkflowAdmin_NoDefinitionsTitle" xml:space="preserve"><value>No workflow definitions found</value></data>
+  <data name="WorkflowAdmin_NoDefinitionsBody" xml:space="preserve"><value>Run the application initialization once so the default request paths can be seeded.</value></data>
+  <data name="WorkflowAdmin_NoStages" xml:space="preserve"><value>No stages are configured for this workflow yet.</value></data>
+  <data name="WorkflowAdmin_RoleField" xml:space="preserve"><value>Assigned role</value></data>
+  <data name="WorkflowAdmin_DelegationPolicyField" xml:space="preserve"><value>Delegation policy</value></data>
+  <data name="WorkflowAdmin_DelegationPolicyLabel" xml:space="preserve"><value>Delegation</value></data>
+  <data name="WorkflowAdmin_GovernanceTitle" xml:space="preserve"><value>Workflow governance</value></data>
+  <data name="WorkflowAdmin_GovernanceSummary" xml:space="preserve"><value>Configure cross-stage approval controls for this request path, including final-signature delegation and financial thresholds.</value></data>
+  <data name="WorkflowAdmin_FinalSignaturePolicyField" xml:space="preserve"><value>Final signature delegation</value></data>
+  <data name="WorkflowAdmin_FinalSignaturePolicyLabel" xml:space="preserve"><value>Final signature</value></data>
+  <data name="WorkflowAdmin_AmountThresholdField" xml:space="preserve"><value>Direct signer amount threshold</value></data>
+  <data name="WorkflowAdmin_AmountThresholdLabel" xml:space="preserve"><value>Amount threshold</value></data>
+  <data name="WorkflowAdmin_NoAmountThreshold" xml:space="preserve"><value>No threshold</value></data>
+  <data name="WorkflowAdmin_RequiresSignatureField" xml:space="preserve"><value>Requires letter signature</value></data>
+  <data name="WorkflowAdmin_StageSignatureRequiredBadge" xml:space="preserve"><value>Letter signature required</value></data>
+  <data name="WorkflowAdmin_CustomTitleField" xml:space="preserve"><value>Custom stage title</value></data>
+  <data name="WorkflowAdmin_CustomSummaryField" xml:space="preserve"><value>Custom stage summary</value></data>
+  <data name="WorkflowAdmin_SaveStageAction" xml:space="preserve"><value>Save stage</value></data>
+  <data name="WorkflowAdmin_SaveGovernanceAction" xml:space="preserve"><value>Save governance</value></data>
+  <data name="WorkflowAdmin_MoveUpAction" xml:space="preserve"><value>Move up</value></data>
+  <data name="WorkflowAdmin_MoveDownAction" xml:space="preserve"><value>Move down</value></data>
+  <data name="WorkflowAdmin_RemoveStageAction" xml:space="preserve"><value>Remove stage</value></data>
+  <data name="WorkflowAdmin_AddStageTitle" xml:space="preserve"><value>Add stage</value></data>
+  <data name="WorkflowAdmin_AddStageSummary" xml:space="preserve"><value>Add a new approval/signature step to the selected request path.</value></data>
+  <data name="WorkflowAdmin_AddStageAction" xml:space="preserve"><value>Add stage</value></data>
+  <data name="WorkflowAdmin_SelectRole" xml:space="preserve"><value>Select role</value></data>
+  <data name="WorkflowAdmin_UnassignedRole" xml:space="preserve"><value>Unassigned</value></data>
+  <data name="WorkflowAdmin_StatusReady" xml:space="preserve"><value>Ready</value></data>
+  <data name="WorkflowAdmin_StatusNeedsConfiguration" xml:space="preserve"><value>Needs configuration</value></data>
+  <data name="WorkflowAdmin_NoStageSummary" xml:space="preserve"><value>No custom summary is configured for this stage.</value></data>
+  <data name="WorkflowAdmin_AddStageSuccess" xml:space="preserve"><value>The workflow stage was added.</value></data>
+  <data name="WorkflowAdmin_UpdateStageSuccess" xml:space="preserve"><value>The workflow stage was updated.</value></data>
+  <data name="WorkflowAdmin_UpdateGovernanceSuccess" xml:space="preserve"><value>The workflow governance settings were updated.</value></data>
+  <data name="WorkflowAdmin_ReorderStageSuccess" xml:space="preserve"><value>The workflow order was updated.</value></data>
+  <data name="WorkflowAdmin_RemoveStageSuccess" xml:space="preserve"><value>The workflow stage was removed.</value></data>
+  <data name="WorkflowDelegationPolicy_Inherit" xml:space="preserve"><value>Inherit governance default</value></data>
+  <data name="WorkflowDelegationPolicy_AllowDelegation" xml:space="preserve"><value>Allow delegation</value></data>
+  <data name="WorkflowDelegationPolicy_DirectSignerRequired" xml:space="preserve"><value>Direct signer only</value></data>
+  <data name="workflow.definition_not_found" xml:space="preserve"><value>The selected workflow definition was not found.</value></data>
+  <data name="workflow.stage_not_found" xml:space="preserve"><value>The selected workflow stage was not found.</value></data>
+  <data name="workflow.role_required" xml:space="preserve"><value>Every workflow stage must have an assigned role.</value></data>
+  <data name="workflow.role_not_found" xml:space="preserve"><value>The selected role was not found.</value></data>
+  <data name="workflow.stage_already_first" xml:space="preserve"><value>This stage is already the first stage in the workflow.</value></data>
+  <data name="workflow.stage_already_last" xml:space="preserve"><value>This stage is already the last stage in the workflow.</value></data>
+  <data name="workflow.delegation_amount_threshold_invalid" xml:space="preserve"><value>The workflow amount threshold must be a number greater than zero.</value></data>
+  <data name="workflow.definition_requires_stage" xml:space="preserve"><value>A workflow definition must keep at least one stage.</value></data>
   <data name="IntakeField_GuaranteeNumber" xml:space="preserve"><value>Guarantee number</value></data>
   <data name="IntakeField_BankName" xml:space="preserve"><value>Bank name</value></data>
   <data name="IntakeField_Beneficiary" xml:space="preserve"><value>Beneficiary</value></data>
+  <data name="IntakeField_GuaranteeCategory" xml:space="preserve"><value>Guarantee category</value></data>
   <data name="IntakeField_Amount" xml:space="preserve"><value>Amount</value></data>
   <data name="IntakeField_ExpiryDate" xml:space="preserve"><value>Expiry date</value></data>
   <data name="IntakeField_DocumentType" xml:space="preserve"><value>Document type</value></data>
@@ -190,4 +431,376 @@
   <data name="IntakeField_BankReference" xml:space="preserve"><value>Bank reference</value></data>
   <data name="IntakeField_StatusStatement" xml:space="preserve"><value>Status statement</value></data>
   <data name="IntakeField_AttachmentNote" xml:space="preserve"><value>Attachment note</value></data>
+  <data name="IntakeWorkspace_ReviewCardPendingBody" xml:space="preserve"><value>Run extraction first to replace the sample values with the staged document output for review.</value></data>
+  <data name="IntakeWorkspace_SubmissionTitle" xml:space="preserve"><value>Actual intake submission</value></data>
+  <data name="IntakeWorkspace_SubmissionSummary" xml:space="preserve"><value>Upload the scanned document, review the extracted values, and save the document with the verified data in one controlled handoff.</value></data>
+  <data name="IntakeWorkspace_DraftStatusTitle" xml:space="preserve"><value>Draft status</value></data>
+  <data name="IntakeWorkspace_DraftReady" xml:space="preserve"><value>Extraction ready for review</value></data>
+  <data name="IntakeWorkspace_DraftPending" xml:space="preserve"><value>Upload and extract before saving</value></data>
+  <data name="IntakeWorkspace_SourceDocumentTitle" xml:space="preserve"><value>Source document</value></data>
+  <data name="IntakeWorkspace_FileField" xml:space="preserve"><value>Scanned file</value></data>
+  <data name="IntakeWorkspace_FileHint" xml:space="preserve"><value>Accepted formats: PDF, JPG, PNG, and TIFF. A new extract can replace the current draft before final save.</value></data>
+  <data name="IntakeWorkspace_FileNameLabel" xml:space="preserve"><value>File name</value></data>
+  <data name="IntakeWorkspace_PageCountLabel" xml:space="preserve"><value>Page count</value></data>
+  <data name="IntakeWorkspace_ExtractionRouteLabel" xml:space="preserve"><value>Extraction route</value></data>
+  <data name="IntakeWorkspace_NoDraftBody" xml:space="preserve"><value>No staged draft exists yet. Upload the paper document scan, then run extraction to populate the verification fields.</value></data>
+  <data name="IntakeWorkspace_ExtractAction" xml:space="preserve"><value>Extract and review</value></data>
+  <data name="IntakeWorkspace_SaveAction" xml:space="preserve"><value>Save intake package</value></data>
+  <data name="IntakeWorkspace_VerifiedFieldsTitle" xml:space="preserve"><value>Verified fields</value></data>
+  <data name="IntakeWorkspace_SaveSuccess" xml:space="preserve"><value>Intake saved successfully for guarantee {0}.</value></data>
+  <data name="IntakeWorkspace_SelectGuaranteeCategory" xml:space="preserve"><value>Select guarantee category</value></data>
+  <data name="IntakeExtractionRoute_PdfTextFirst" xml:space="preserve"><value>Direct PDF text first, then OCR fallback if needed</value></data>
+  <data name="IntakeExtractionRoute_OcrFallback" xml:space="preserve"><value>Scanned image route with OCR and layout extraction</value></data>
+  <data name="IntakeFieldProvenance_FilenamePattern" xml:space="preserve"><value>Matched from filename pattern</value></data>
+  <data name="IntakeFieldProvenance_DirectPdfText" xml:space="preserve"><value>Derived from direct PDF text extraction</value></data>
+  <data name="IntakeFieldProvenance_OcrFallback" xml:space="preserve"><value>Derived from OCR fallback extraction</value></data>
+  <data name="IntakeFieldProvenance_ScenarioSample" xml:space="preserve"><value>Filled from scenario seed defaults</value></data>
+  <data name="GuaranteeCategory_Contract" xml:space="preserve"><value>Contracts</value></data>
+  <data name="GuaranteeCategory_PurchaseOrder" xml:space="preserve"><value>Purchase Orders</value></data>
+  <data name="IntakeField_Principal" xml:space="preserve"><value>Principal / contractor</value></data>
+  <data name="IntakeField_CurrencyCode" xml:space="preserve"><value>Currency code</value></data>
+  <data name="IntakeField_IssueDate" xml:space="preserve"><value>Issue date</value></data>
+  <data name="intake.scenario_required" xml:space="preserve"><value>Select a valid intake scenario.</value></data>
+  <data name="intake.unsupported_scenario" xml:space="preserve"><value>The selected intake scenario is not supported.</value></data>
+  <data name="intake.file_required" xml:space="preserve"><value>Upload a scanned file before extracting.</value></data>
+  <data name="intake.empty_file" xml:space="preserve"><value>The uploaded file is empty.</value></data>
+  <data name="intake.staged_document_not_found" xml:space="preserve"><value>The staged document draft was not found. Extract the file again before saving.</value></data>
+  <data name="intake.guarantee_number_required" xml:space="preserve"><value>Guarantee number is required.</value></data>
+  <data name="intake.duplicate_guarantee_number" xml:space="preserve"><value>This guarantee number already exists.</value></data>
+  <data name="intake.guarantee_not_found" xml:space="preserve"><value>The guarantee could not be found for this intake record.</value></data>
+  <data name="intake.bank_name_required" xml:space="preserve"><value>Bank name is required for a new guarantee.</value></data>
+  <data name="intake.beneficiary_required" xml:space="preserve"><value>Beneficiary is required for a new guarantee.</value></data>
+  <data name="intake.principal_required" xml:space="preserve"><value>Principal / contractor is required for a new guarantee.</value></data>
+  <data name="intake.guarantee_category_required" xml:space="preserve"><value>Select the guarantee category for the new guarantee.</value></data>
+  <data name="intake.amount_invalid" xml:space="preserve"><value>Enter a valid positive amount.</value></data>
+  <data name="intake.currency_required" xml:space="preserve"><value>Currency code is required.</value></data>
+  <data name="intake.issue_date_required" xml:space="preserve"><value>Issue date is required.</value></data>
+  <data name="intake.expiry_date_required" xml:space="preserve"><value>Expiry date is required.</value></data>
+  <data name="intake.letter_date_required" xml:space="preserve"><value>Official letter date is required.</value></data>
+  <data name="intake.bank_reference_required" xml:space="preserve"><value>Bank reference is required.</value></data>
+  <data name="intake.new_expiry_date_required" xml:space="preserve"><value>New expiry date is required for extension confirmations.</value></data>
+  <data name="intake.status_statement_required" xml:space="preserve"><value>Status statement is required for status verification.</value></data>
+  <data name="intake.attachment_note_required" xml:space="preserve"><value>Attachment note is required for supporting attachments.</value></data>
+  <data name="intake.actor_required" xml:space="preserve"><value>Select the acting intake specialist first.</value></data>
+  <data name="intake.actor_invalid" xml:space="preserve"><value>The selected intake actor is not valid for this workspace.</value></data>
+  <data name="intake.source_system_name_required" xml:space="preserve"><value>Enter the source system or device name for scan-station and imported documents.</value></data>
+  <data name="intake.source_reference_required" xml:space="preserve"><value>Enter the external source reference for imported documents.</value></data>
+  <data name="RequestsWorkspace_PageTitle" xml:space="preserve"><value>Requests Workspace</value></data>
+  <data name="RequestsWorkspace_Heading" xml:space="preserve"><value>Guarantee requests workspace</value></data>
+  <data name="RequestsWorkspace_Summary" xml:space="preserve"><value>This workspace belongs to the request-preparation role only. It creates request records and shows only the active user's own requests and their progress.</value></data>
+  <data name="RequestsWorkspace_PrimaryFlow" xml:space="preserve"><value>Request ownership workspace</value></data>
+  <data name="RequestsWorkspace_MetricActor" xml:space="preserve"><value>Active actor</value></data>
+  <data name="RequestsWorkspace_MetricOwned" xml:space="preserve"><value>Owned requests</value></data>
+  <data name="RequestsWorkspace_MetricWorkflow" xml:space="preserve"><value>Workflow levels</value></data>
+  <data name="RequestsWorkspace_ActorContextTitle" xml:space="preserve"><value>Request actor context</value></data>
+  <data name="RequestsWorkspace_ActorContextSummary" xml:space="preserve"><value>Until authentication is connected, load the workspace through an explicit request-user context. The workspace still isolates the list to the selected owner only.</value></data>
+  <data name="RequestsWorkspace_ActorField" xml:space="preserve"><value>Request actor</value></data>
+  <data name="RequestsWorkspace_LoadActorAction" xml:space="preserve"><value>Load workspace</value></data>
+  <data name="RequestsWorkspace_NoEligibleActor" xml:space="preserve"><value>No eligible request actor is available.</value></data>
+  <data name="RequestsWorkspace_NoEligibleActorBody" xml:space="preserve"><value>Create at least one active user with request permissions before using this workspace.</value></data>
+  <data name="RequestsWorkspace_ActorIsolatedNotice" xml:space="preserve"><value>This workspace is isolated to the selected request actor. Only their own requests and what happens on them are visible here.</value></data>
+  <data name="RequestsWorkspace_IsolationSummary" xml:space="preserve"><value>The request layer sees only the current actor's requests, statuses, and linked correspondence counts. It does not expose other users' work.</value></data>
+  <data name="RequestsWorkspace_CreateTitle" xml:space="preserve"><value>Create guarantee request</value></data>
+  <data name="RequestsWorkspace_CreateSummary" xml:space="preserve"><value>Prepare the business request here. Approval routing and dispatch remain in later roles.</value></data>
+  <data name="RequestsWorkspace_GuaranteeNumberField" xml:space="preserve"><value>Guarantee number</value></data>
+  <data name="RequestsWorkspace_RequestTypeField" xml:space="preserve"><value>Request type</value></data>
+  <data name="RequestsWorkspace_RequestedAmountField" xml:space="preserve"><value>Requested amount</value></data>
+  <data name="RequestsWorkspace_RequestedExpiryDateField" xml:space="preserve"><value>Requested expiry date</value></data>
+  <data name="RequestsWorkspace_NotesField" xml:space="preserve"><value>Business notes</value></data>
+  <data name="RequestsWorkspace_CreateAction" xml:space="preserve"><value>Create request</value></data>
+  <data name="RequestsWorkspace_CurrentWorkflowTitle" xml:space="preserve"><value>Selected workflow path</value></data>
+  <data name="RequestsWorkspace_CurrentWorkflowSummary" xml:space="preserve"><value>Approval levels differ by request type, and every approval stage is treated as a signature stage whose mark appears on the final letter PDF.</value></data>
+  <data name="RequestsWorkspace_NoWorkflowTemplate" xml:space="preserve"><value>No workflow template is available for the selected request type.</value></data>
+  <data name="RequestsWorkspace_WorkflowCategoryLabel" xml:space="preserve"><value>Workflow branch</value></data>
+  <data name="RequestsWorkspace_MyRequestsTitle" xml:space="preserve"><value>Owned requests</value></data>
+  <data name="RequestsWorkspace_MyRequestsSummary" xml:space="preserve"><value>The list below shows only the active actor's requests and their current progress.</value></data>
+  <data name="RequestsWorkspace_Empty" xml:space="preserve"><value>No requests have been created for this actor yet.</value></data>
+  <data name="RequestsWorkspace_CorrespondenceLabel" xml:space="preserve"><value>Linked correspondence</value></data>
+  <data name="RequestsWorkspace_CurrentStageLabel" xml:space="preserve"><value>Current approval stage</value></data>
+  <data name="RequestsWorkspace_LastDecisionLabel" xml:space="preserve"><value>Last workflow decision</value></data>
+  <data name="RequestsWorkspace_LedgerTitle" xml:space="preserve"><value>Request ledger</value></data>
+  <data name="RequestsWorkspace_LedgerEmpty" xml:space="preserve"><value>No ledger entries were recorded for this request yet.</value></data>
+  <data name="RequestsWorkspace_LedgerActorLabel" xml:space="preserve"><value>Actor</value></data>
+  <data name="RequestsWorkspace_LedgerSystemActor" xml:space="preserve"><value>System</value></data>
+  <data name="RequestsWorkspace_LedgerStageLabel" xml:space="preserve"><value>Stage</value></data>
+  <data name="RequestsWorkspace_LedgerPolicyLabel" xml:space="preserve"><value>Policy</value></data>
+  <data name="RequestsWorkspace_LedgerExecutionModeLabel" xml:space="preserve"><value>Execution mode</value></data>
+  <data name="RequestsWorkspace_LedgerResponsibleSignerLabel" xml:space="preserve"><value>Responsible signer</value></data>
+  <data name="RequestsWorkspace_LedgerDispatchStageLabel" xml:space="preserve"><value>Dispatch stage</value></data>
+  <data name="RequestsWorkspace_LedgerDispatchMethodLabel" xml:space="preserve"><value>Dispatch method</value></data>
+  <data name="RequestsWorkspace_LedgerDispatchPolicyLabel" xml:space="preserve"><value>Dispatch policy</value></data>
+  <data name="RequestsWorkspace_LedgerOperationsScenarioLabel" xml:space="preserve"><value>Operations scenario</value></data>
+  <data name="RequestsWorkspace_LedgerOperationsLaneLabel" xml:space="preserve"><value>Operations lane</value></data>
+  <data name="RequestsWorkspace_LedgerOperationsConfidenceLabel" xml:space="preserve"><value>Match confidence</value></data>
+  <data name="RequestsWorkspace_LedgerOperationsPolicyLabel" xml:space="preserve"><value>Operations policy</value></data>
+  <data name="RequestsWorkspace_NoNotes" xml:space="preserve"><value>No notes provided.</value></data>
+  <data name="RequestsWorkspace_CreateSuccess" xml:space="preserve"><value>{0} created successfully for guarantee {1}.</value></data>
+  <data name="RequestsWorkspace_SubmitAction" xml:space="preserve"><value>Submit for approval</value></data>
+  <data name="RequestsWorkspace_SubmitSuccess" xml:space="preserve"><value>The request was sent for approval. Current stage: {0} ({1}).</value></data>
+  <data name="RequestType_Extend" xml:space="preserve"><value>Extension</value></data>
+  <data name="RequestType_Reduce" xml:space="preserve"><value>Reduction</value></data>
+  <data name="RequestType_Release" xml:space="preserve"><value>Release</value></data>
+  <data name="RequestType_ReplaceWithReducedGuarantee" xml:space="preserve"><value>Replacement with reduced guarantee</value></data>
+  <data name="RequestType_VerifyStatus" xml:space="preserve"><value>Status verification</value></data>
+  <data name="RequestChannel_RequestWorkspace" xml:space="preserve"><value>Request workspace</value></data>
+  <data name="RequestChannel_OperationsDesk" xml:space="preserve"><value>Operations desk</value></data>
+  <data name="RequestChannel_OracleImport" xml:space="preserve"><value>Oracle import</value></data>
+  <data name="RequestStatus_Draft" xml:space="preserve"><value>Draft</value></data>
+  <data name="RequestStatus_InApproval" xml:space="preserve"><value>In approval</value></data>
+  <data name="RequestStatus_Returned" xml:space="preserve"><value>Returned for revision</value></data>
+  <data name="RequestStatus_ApprovedForDispatch" xml:space="preserve"><value>Approved for dispatch</value></data>
+  <data name="RequestStatus_SubmittedToBank" xml:space="preserve"><value>Submitted to bank</value></data>
+  <data name="RequestStatus_AwaitingBankResponse" xml:space="preserve"><value>Awaiting bank response</value></data>
+  <data name="RequestStatus_Completed" xml:space="preserve"><value>Completed</value></data>
+  <data name="RequestStatus_Rejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="RequestStatus_Cancelled" xml:space="preserve"><value>Cancelled</value></data>
+  <data name="requests.user_context_required" xml:space="preserve"><value>Select a valid request actor.</value></data>
+  <data name="requests.user_context_invalid" xml:space="preserve"><value>The selected request actor is not valid for this workspace.</value></data>
+  <data name="requests.guarantee_number_required" xml:space="preserve"><value>Guarantee number is required.</value></data>
+  <data name="requests.guarantee_not_found" xml:space="preserve"><value>The guarantee number could not be found.</value></data>
+  <data name="requests.duplicate_open_request" xml:space="preserve"><value>An open request of the same type already exists for this user and guarantee.</value></data>
+  <data name="requests.requested_amount_required" xml:space="preserve"><value>Enter the requested amount for reduction-based requests.</value></data>
+  <data name="requests.requested_expiry_date_required" xml:space="preserve"><value>Enter the requested expiry date for extension requests.</value></data>
+  <data name="requests.request_validation_failed" xml:space="preserve"><value>The request could not be created because the proposed data failed domain validation.</value></data>
+  <data name="ApprovalQueue_PageTitle" xml:space="preserve"><value>Approval Queue</value></data>
+  <data name="ApprovalQueue_Heading" xml:space="preserve"><value>Current approval stage queue</value></data>
+  <data name="ApprovalQueue_Summary" xml:space="preserve"><value>Each approver sees only the requests that reached the current stage assigned to one of their roles.</value></data>
+  <data name="ApprovalQueue_NoEligibleActor" xml:space="preserve"><value>No approver context is available</value></data>
+  <data name="ApprovalQueue_NoEligibleActorBody" xml:space="preserve"><value>Create approver users and assign them roles that both appear in workflow stages and carry approval permissions.</value></data>
+  <data name="ApprovalQueue_ActorScopedNotice" xml:space="preserve"><value>The approval queue is scoped to the selected approver only.</value></data>
+  <data name="ApprovalQueue_ActorContextTitle" xml:space="preserve"><value>Approver context</value></data>
+  <data name="ApprovalQueue_ActorContextSummary" xml:space="preserve"><value>Switch the acting approver to inspect only the requests that reached their current stage.</value></data>
+  <data name="ApprovalQueue_ActorField" xml:space="preserve"><value>Approver</value></data>
+  <data name="ApprovalQueue_LoadActorAction" xml:space="preserve"><value>Load approver</value></data>
+  <data name="ApprovalQueue_ItemsTitle" xml:space="preserve"><value>Requests waiting for signature</value></data>
+  <data name="ApprovalQueue_ItemsSummary" xml:space="preserve"><value>Approve, return, or reject only the requests that are currently assigned to the selected approver's role.</value></data>
+  <data name="ApprovalQueue_Empty" xml:space="preserve"><value>No requests are waiting for this approver right now.</value></data>
+  <data name="ApprovalQueue_RequesterLabel" xml:space="preserve"><value>Requester</value></data>
+  <data name="ApprovalQueue_RequestChannelLabel" xml:space="preserve"><value>Requested via</value></data>
+  <data name="ApprovalQueue_CreatedAtLabel" xml:space="preserve"><value>Requested at</value></data>
+  <data name="ApprovalQueue_SubmittedAtLabel" xml:space="preserve"><value>Submitted for approval</value></data>
+  <data name="ApprovalQueue_CurrentStageLabel" xml:space="preserve"><value>Current stage</value></data>
+  <data name="ApprovalQueue_RoleLabel" xml:space="preserve"><value>Assigned role</value></data>
+  <data name="ApprovalQueue_RequestedAmountLabel" xml:space="preserve"><value>Requested amount</value></data>
+  <data name="ApprovalQueue_RequestedExpiryDateLabel" xml:space="preserve"><value>Requested expiry date</value></data>
+  <data name="ApprovalQueue_RequestNotesTitle" xml:space="preserve"><value>Request notes</value></data>
+  <data name="ApprovalQueue_NoNotes" xml:space="preserve"><value>No notes were provided.</value></data>
+  <data name="ApprovalQueue_AttachmentsTitle" xml:space="preserve"><value>Attached request documents</value></data>
+  <data name="ApprovalQueue_AttachmentsEmpty" xml:space="preserve"><value>No documents were attached to this request.</value></data>
+  <data name="ApprovalQueue_AttachmentLinkedAtLabel" xml:space="preserve"><value>Attached at</value></data>
+  <data name="ApprovalQueue_AttachmentLinkedByLabel" xml:space="preserve"><value>Attached by</value></data>
+  <data name="ApprovalQueue_AttachmentCapturedAtLabel" xml:space="preserve"><value>Captured at</value></data>
+  <data name="ApprovalQueue_AttachmentCapturedByLabel" xml:space="preserve"><value>Captured by</value></data>
+  <data name="ApprovalQueue_AttachmentCaptureChannelLabel" xml:space="preserve"><value>Capture channel</value></data>
+  <data name="ApprovalQueue_AttachmentSourceSystemLabel" xml:space="preserve"><value>Source system</value></data>
+  <data name="ApprovalQueue_AttachmentSourceReferenceLabel" xml:space="preserve"><value>Source reference</value></data>
+  <data name="ApprovalQueue_TimelineTitle" xml:space="preserve"><value>Request timeline</value></data>
+  <data name="ApprovalQueue_TimelineEmpty" xml:space="preserve"><value>No timeline entries are recorded for this request yet.</value></data>
+  <data name="ApprovalQueue_NoteField" xml:space="preserve"><value>Decision note</value></data>
+  <data name="ApprovalQueue_ApproveAction" xml:space="preserve"><value>Approve</value></data>
+  <data name="ApprovalQueue_ReturnAction" xml:space="preserve"><value>Return</value></data>
+  <data name="ApprovalQueue_RejectAction" xml:space="preserve"><value>Reject</value></data>
+  <data name="ApprovalQueue_OpenDossierAction" xml:space="preserve"><value>Open dossier</value></data>
+  <data name="ApprovalQueue_DecisionSuccess" xml:space="preserve"><value>{0} was recorded for guarantee {1}.</value></data>
+  <data name="ApprovalQueue_GovernanceBlockedTitle" xml:space="preserve"><value>Approval governance blocked this action</value></data>
+  <data name="ApprovalQueue_GovernancePolicyLabel" xml:space="preserve"><value>Policy</value></data>
+  <data name="ApprovalQueue_GovernanceBlockedStageLabel" xml:space="preserve"><value>Conflicting stage</value></data>
+  <data name="ApprovalQueue_GovernanceBlockedActorLabel" xml:space="preserve"><value>Previous actor</value></data>
+  <data name="ApprovalQueue_GovernanceBlockedResponsibleSignerLabel" xml:space="preserve"><value>Responsible signer</value></data>
+  <data name="ApprovalQueue_GovernanceBlockedActionHint" xml:space="preserve"><value>An eligible direct role owner or another compliant approver must complete this stage.</value></data>
+  <data name="ApprovalQueue_GovernanceConflictSameActor" xml:space="preserve"><value>The selected approver already signed an earlier stage in this request.</value></data>
+  <data name="ApprovalQueue_GovernanceConflictSameResponsibleSigner" xml:space="preserve"><value>The responsible signer for this action already appears in an earlier stage of the same request.</value></data>
+  <data name="ApprovalQueue_GovernanceConflictStageDirectSignerOnly" xml:space="preserve"><value>This workflow stage is configured to require the direct assigned signer and does not allow delegation.</value></data>
+  <data name="ApprovalQueue_GovernanceConflictFinalSignatureDirectOnly" xml:space="preserve"><value>The final signature stage must be completed directly by the assigned role owner and cannot use delegation.</value></data>
+  <data name="ApprovalQueue_GovernanceConflictAmountThresholdDirectOnly" xml:space="preserve"><value>This request exceeds the direct-signer amount threshold configured for this workflow and cannot be approved through delegation.</value></data>
+  <data name="ApprovalQueue_GovernanceConflictRequestTypeDirectOnly" xml:space="preserve"><value>This request type requires a direct signer on this signature stage and does not allow delegation.</value></data>
+  <data name="ApprovalQueue_PriorSignaturesTitle" xml:space="preserve"><value>Previous signatures</value></data>
+  <data name="ApprovalQueue_PriorSignaturesEmpty" xml:space="preserve"><value>No earlier signatures were recorded for this request yet.</value></data>
+  <data name="ApprovalQueue_PriorSignatureSignedAtLabel" xml:space="preserve"><value>Signed at</value></data>
+  <data name="ApprovalQueue_PriorSignatureActorLabel" xml:space="preserve"><value>Executed by</value></data>
+  <data name="ApprovalQueue_PriorSignatureResponsibleSignerLabel" xml:space="preserve"><value>Signed for</value></data>
+  <data name="ApprovalQueue_PriorSignatureDelegatedBadge" xml:space="preserve"><value>Delegated signature</value></data>
+  <data name="ApprovalDossier_PageTitle" xml:space="preserve"><value>Approval dossier</value></data>
+  <data name="ApprovalDossier_Heading" xml:space="preserve"><value>Approval request dossier</value></data>
+  <data name="ApprovalDossier_Summary" xml:space="preserve"><value>Review the full request file, its attachments, prior signatures, and structured ledger before making a decision.</value></data>
+  <data name="ApprovalDossier_BackToQueueAction" xml:space="preserve"><value>Back to queue</value></data>
+  <data name="ApprovalDossier_UnavailableTitle" xml:space="preserve"><value>Dossier unavailable</value></data>
+  <data name="ApprovalDossier_RequestNotAvailable" xml:space="preserve"><value>This request is no longer available in the active approver context. It may have moved to another stage or no longer belong to this approver.</value></data>
+  <data name="ApprovalDossier_RequestTitle" xml:space="preserve"><value>Request dossier</value></data>
+  <data name="ApprovalDossier_RequestSummary" xml:space="preserve"><value>This view consolidates the request facts, supporting documents, prior signatures, and the full ledger trail.</value></data>
+  <data name="ApprovalDossier_GovernanceTitle" xml:space="preserve"><value>Governance status</value></data>
+  <data name="ApprovalDossier_GovernanceClear" xml:space="preserve"><value>No governance policy is currently blocking this decision for the selected approver.</value></data>
+  <data name="ApprovalGovernancePolicy_SignerSeparation" xml:space="preserve"><value>Signer separation</value></data>
+  <data name="ApprovalGovernancePolicy_StageDirectSignerOnly" xml:space="preserve"><value>Stage requires direct signer</value></data>
+  <data name="ApprovalGovernancePolicy_FinalSignatureDirectOnly" xml:space="preserve"><value>Final signature must be direct</value></data>
+  <data name="ApprovalGovernancePolicy_AmountThresholdDirectOnly" xml:space="preserve"><value>Amount threshold requires direct signer</value></data>
+  <data name="ApprovalGovernancePolicy_RequestTypeDirectOnly" xml:space="preserve"><value>Direct signer required for this request type</value></data>
+  <data name="ApprovalGovernancePolicy_DirectActor" xml:space="preserve"><value>Direct actor decision</value></data>
+  <data name="ApprovalGovernancePolicy_StageDelegationAllowed" xml:space="preserve"><value>Stage-level delegation allowed</value></data>
+  <data name="ApprovalGovernancePolicy_FinalSignatureDelegationAllowed" xml:space="preserve"><value>Final signature delegation allowed</value></data>
+  <data name="ApprovalGovernancePolicy_DefaultDelegationAllowed" xml:space="preserve"><value>Delegation allowed by default policy</value></data>
+  <data name="ApprovalExecutionMode_Direct" xml:space="preserve"><value>Direct</value></data>
+  <data name="ApprovalExecutionMode_Delegated" xml:space="preserve"><value>Delegated</value></data>
+  <data name="ApprovalDecision_Approved" xml:space="preserve"><value>Approval</value></data>
+  <data name="ApprovalDecision_Returned" xml:space="preserve"><value>Return</value></data>
+  <data name="ApprovalDecision_Rejected" xml:space="preserve"><value>Rejection</value></data>
+  <data name="GuaranteeDocumentType_GuaranteeInstrument" xml:space="preserve"><value>Guarantee instrument</value></data>
+  <data name="GuaranteeDocumentType_OutgoingLetter" xml:space="preserve"><value>Outgoing letter</value></data>
+  <data name="GuaranteeDocumentType_BankResponse" xml:space="preserve"><value>Bank response</value></data>
+  <data name="GuaranteeDocumentType_SupportingDocument" xml:space="preserve"><value>Supporting document</value></data>
+  <data name="approvals.approver_context_required" xml:space="preserve"><value>Select the acting approver first.</value></data>
+  <data name="approvals.approver_context_invalid" xml:space="preserve"><value>The selected approver is not valid for the approval queue.</value></data>
+  <data name="approvals.request_not_found" xml:space="preserve"><value>The selected request was not found.</value></data>
+  <data name="approvals.request_not_actionable" xml:space="preserve"><value>This request is not currently assigned to the selected approver.</value></data>
+  <data name="approvals.governance_policy_blocked" xml:space="preserve"><value>This approval action is blocked by approval governance policy on this request.</value></data>
+  <data name="approvals.governance_signer_reuse_blocked" xml:space="preserve"><value>This approval action is blocked by signer-separation governance on this request.</value></data>
+  <data name="DispatchWorkspace_PageTitle" xml:space="preserve"><value>Dispatch Workspace</value></data>
+  <data name="DispatchWorkspace_Heading" xml:space="preserve"><value>Bank dispatch workspace</value></data>
+  <data name="DispatchWorkspace_Summary" xml:space="preserve"><value>Record the outgoing request letter only after approvals finish and the request becomes ready for bank delivery or email dispatch.</value></data>
+  <data name="DispatchWorkspace_NoEligibleActor" xml:space="preserve"><value>No dispatch context is available</value></data>
+  <data name="DispatchWorkspace_NoEligibleActorBody" xml:space="preserve"><value>Create dispatch users and assign dispatch permissions before recording outgoing bank letters.</value></data>
+  <data name="DispatchWorkspace_ActorScopedNotice" xml:space="preserve"><value>The dispatch workspace is loaded under the selected dispatch actor.</value></data>
+  <data name="DispatchWorkspace_ActorContextTitle" xml:space="preserve"><value>Dispatch actor context</value></data>
+  <data name="DispatchWorkspace_ActorContextSummary" xml:space="preserve"><value>Until authentication is connected, load the workspace through an explicit dispatch-user context.</value></data>
+  <data name="DispatchWorkspace_ActorField" xml:space="preserve"><value>Dispatcher</value></data>
+  <data name="DispatchWorkspace_LoadActorAction" xml:space="preserve"><value>Load dispatcher</value></data>
+  <data name="DispatchWorkspace_ItemsTitle" xml:space="preserve"><value>Requests ready for bank dispatch</value></data>
+  <data name="DispatchWorkspace_ItemsSummary" xml:space="preserve"><value>Only requests approved for dispatch appear here. Recording the outgoing reference moves the request into awaiting bank response.</value></data>
+  <data name="DispatchWorkspace_Empty" xml:space="preserve"><value>No approved requests are waiting for dispatch right now.</value></data>
+  <data name="DispatchWorkspace_RequesterLabel" xml:space="preserve"><value>Requester</value></data>
+  <data name="DispatchWorkspace_ReadyAtLabel" xml:space="preserve"><value>Ready for dispatch</value></data>
+  <data name="DispatchWorkspace_ReferenceLabel" xml:space="preserve"><value>Outgoing reference</value></data>
+  <data name="DispatchWorkspace_LetterDateLabel" xml:space="preserve"><value>Letter date</value></data>
+  <data name="DispatchWorkspace_PrintCountLabel" xml:space="preserve"><value>Print count</value></data>
+  <data name="DispatchWorkspace_LastPrintedAtLabel" xml:space="preserve"><value>Last printed at</value></data>
+  <data name="DispatchWorkspace_LastPrintModeLabel" xml:space="preserve"><value>Last print mode</value></data>
+  <data name="DispatchWorkspace_ReferenceField" xml:space="preserve"><value>Outgoing reference number</value></data>
+  <data name="DispatchWorkspace_LetterDateField" xml:space="preserve"><value>Letter date</value></data>
+  <data name="DispatchWorkspace_PrintModeField" xml:space="preserve"><value>Print mode</value></data>
+  <data name="DispatchWorkspace_PrintAction" xml:space="preserve"><value>Record print</value></data>
+  <data name="DispatchWorkspace_ReprintAction" xml:space="preserve"><value>Record reprint</value></data>
+  <data name="DispatchWorkspace_PrintSuccess" xml:space="preserve"><value>Outgoing letter {0} was printed for guarantee {1} (copy {2}).</value></data>
+  <data name="DispatchWorkspace_DispatchChannelField" xml:space="preserve"><value>Dispatch channel</value></data>
+  <data name="DispatchWorkspace_DispatchChannelLabel" xml:space="preserve"><value>Dispatch channel</value></data>
+  <data name="DispatchWorkspace_DispatchReferenceField" xml:space="preserve"><value>Dispatch tracking / reference</value></data>
+  <data name="DispatchWorkspace_NoteField" xml:space="preserve"><value>Dispatch note</value></data>
+  <data name="DispatchWorkspace_DispatchAction" xml:space="preserve"><value>Record dispatch</value></data>
+  <data name="DispatchWorkspace_DispatchSuccess" xml:space="preserve"><value>Outgoing reference {0} was dispatched for guarantee {1}.</value></data>
+  <data name="DispatchWorkspace_PendingDeliveryTitle" xml:space="preserve"><value>Awaiting delivery confirmation</value></data>
+  <data name="DispatchWorkspace_PendingDeliverySummary" xml:space="preserve"><value>These letters already left BG and now need an explicit delivery confirmation to complete the external handoff trace.</value></data>
+  <data name="DispatchWorkspace_PendingDeliveryEmpty" xml:space="preserve"><value>No outgoing letters are waiting for delivery confirmation.</value></data>
+  <data name="DispatchWorkspace_PendingDeliveryBadge" xml:space="preserve"><value>Pending delivery</value></data>
+  <data name="DispatchWorkspace_DispatchedAtLabel" xml:space="preserve"><value>Dispatched at</value></data>
+  <data name="DispatchWorkspace_DeliveryReferenceField" xml:space="preserve"><value>Delivery receipt / reference</value></data>
+  <data name="DispatchWorkspace_DeliveryNoteField" xml:space="preserve"><value>Delivery note</value></data>
+  <data name="DispatchWorkspace_ConfirmDeliveryAction" xml:space="preserve"><value>Confirm delivery</value></data>
+  <data name="DispatchWorkspace_DeliverySuccess" xml:space="preserve"><value>Delivery confirmation for outgoing reference {0} was recorded on guarantee {1}.</value></data>
+  <data name="DispatchPrintMode_WorkstationPrinter" xml:space="preserve"><value>Workstation printer</value></data>
+  <data name="DispatchPrintMode_CentralPrintRoom" xml:space="preserve"><value>Central print room</value></data>
+  <data name="DispatchPrintMode_PdfExport" xml:space="preserve"><value>PDF export</value></data>
+  <data name="DispatchChannel_HandDelivery" xml:space="preserve"><value>Hand delivery</value></data>
+  <data name="DispatchChannel_Courier" xml:space="preserve"><value>Courier</value></data>
+  <data name="DispatchChannel_OfficialEmail" xml:space="preserve"><value>Official bank email</value></data>
+  <data name="DispatchChannel_InternalMail" xml:space="preserve"><value>Internal mail</value></data>
+  <data name="DispatchLedgerStep_Printed" xml:space="preserve"><value>Printed</value></data>
+  <data name="DispatchLedgerStep_Reprinted" xml:space="preserve"><value>Reprinted</value></data>
+  <data name="DispatchLedgerStep_Dispatched" xml:space="preserve"><value>Dispatched</value></data>
+  <data name="DispatchLedgerStep_Delivered" xml:space="preserve"><value>Delivered</value></data>
+  <data name="DispatchLedgerPolicy_PrintRecordedBeforeExternalDispatch" xml:space="preserve"><value>Print must be recorded before external dispatch</value></data>
+  <data name="DispatchLedgerPolicy_BankHandoffRecorded" xml:space="preserve"><value>External bank handoff was recorded</value></data>
+  <data name="DispatchLedgerPolicy_DeliveryConfirmationRecorded" xml:space="preserve"><value>External delivery confirmation was recorded</value></data>
+  <data name="dispatch.dispatcher_context_required" xml:space="preserve"><value>Select the acting dispatcher first.</value></data>
+  <data name="dispatch.dispatcher_context_invalid" xml:space="preserve"><value>The selected dispatcher is not valid for the dispatch workspace.</value></data>
+  <data name="dispatch.print_permission_required" xml:space="preserve"><value>The selected dispatch actor cannot record printing.</value></data>
+  <data name="dispatch.record_permission_required" xml:space="preserve"><value>The selected dispatch actor cannot record external sending or delivery.</value></data>
+  <data name="dispatch.email_permission_required" xml:space="preserve"><value>The selected dispatch actor cannot use official email dispatch.</value></data>
+  <data name="dispatch.request_not_found" xml:space="preserve"><value>The selected request was not found.</value></data>
+  <data name="dispatch.request_not_ready" xml:space="preserve"><value>Only approved requests can be recorded in dispatch.</value></data>
+  <data name="dispatch.reference_number_required" xml:space="preserve"><value>Enter the outgoing reference number.</value></data>
+  <data name="dispatch.letter_date_required" xml:space="preserve"><value>Enter the outgoing letter date.</value></data>
+  <data name="dispatch.print_mode_required" xml:space="preserve"><value>Select how the outgoing letter was printed.</value></data>
+  <data name="dispatch.dispatch_channel_required" xml:space="preserve"><value>Select how the outgoing letter left BG.</value></data>
+  <data name="dispatch.outgoing_letter_not_found" xml:space="preserve"><value>The outgoing letter record was not found for this request.</value></data>
+  <data name="dispatch.delivery_not_pending" xml:space="preserve"><value>This outgoing letter is not waiting for delivery confirmation.</value></data>
+  <data name="dispatch.outgoing_letter_reference_mismatch" xml:space="preserve"><value>The existing outgoing letter uses a different reference or letter date.</value></data>
+  <data name="operations.review_item_not_found" xml:space="preserve"><value>The selected review item was not found.</value></data>
+  <data name="operations.review_item_not_actionable" xml:space="preserve"><value>This review item cannot be applied as a bank response.</value></data>
+  <data name="operations.request_required" xml:space="preserve"><value>Select the request that matches this bank response.</value></data>
+  <data name="operations.request_not_found" xml:space="preserve"><value>The selected request was not found on this guarantee.</value></data>
+  <data name="operations.request_not_compatible" xml:space="preserve"><value>The selected request is not compatible with this bank response.</value></data>
+  <data name="operations.confirmed_expiry_date_required" xml:space="preserve"><value>Enter or confirm the new expiry date before applying the extension response.</value></data>
+  <data name="operations.confirmed_amount_required" xml:space="preserve"><value>Enter or confirm the reduced amount before applying the response.</value></data>
+  <data name="operations.replacement_guarantee_number_required" xml:space="preserve"><value>Enter the replacement guarantee number before applying this response.</value></data>
+  <data name="operations.response_type_not_supported" xml:space="preserve"><value>This bank response type is not supported for operational application yet.</value></data>
+  <data name="operations.actor_required" xml:space="preserve"><value>Select the acting operations reviewer first.</value></data>
+  <data name="operations.actor_invalid" xml:space="preserve"><value>The selected operations actor is not valid for this queue.</value></data>
+  <data name="OperationsLedgerPolicy_MatchedSuggestionApplied" xml:space="preserve"><value>System match suggestion was confirmed and applied</value></data>
+  <data name="OperationsLedgerPolicy_ManualRequestSelectionApplied" xml:space="preserve"><value>Manual request selection was applied by operations</value></data>
+  <data name="NavDelegations" xml:space="preserve"><value>Delegations</value></data>
+  <data name="ApprovalDelegation_PageTitle" xml:space="preserve"><value>Approval Delegations</value></data>
+  <data name="ApprovalDelegation_Heading" xml:space="preserve"><value>Temporary approval delegations</value></data>
+  <data name="ApprovalDelegation_Summary" xml:space="preserve"><value>Temporarily delegate a workflow approval role to another employee during absence, while preserving an explicit on-behalf-of audit trail.</value></data>
+  <data name="ApprovalDelegation_CreateTitle" xml:space="preserve"><value>Create delegation</value></data>
+  <data name="ApprovalDelegation_CreateSummary" xml:space="preserve"><value>Choose the absent role owner, the temporary delegate, the approval role, and the active period.</value></data>
+  <data name="ApprovalDelegation_DelegatorField" xml:space="preserve"><value>Delegator</value></data>
+  <data name="ApprovalDelegation_DelegateField" xml:space="preserve"><value>Delegate</value></data>
+  <data name="ApprovalDelegation_RoleField" xml:space="preserve"><value>Approval role</value></data>
+  <data name="ApprovalDelegation_StartField" xml:space="preserve"><value>Starts at</value></data>
+  <data name="ApprovalDelegation_EndField" xml:space="preserve"><value>Ends at</value></data>
+  <data name="ApprovalDelegation_ReasonField" xml:space="preserve"><value>Reason</value></data>
+  <data name="ApprovalDelegation_CreateAction" xml:space="preserve"><value>Create delegation</value></data>
+  <data name="ApprovalDelegation_ListTitle" xml:space="preserve"><value>Delegation register</value></data>
+  <data name="ApprovalDelegation_ListSummary" xml:space="preserve"><value>Review current, upcoming, expired, and revoked approval delegations in one place.</value></data>
+  <data name="ApprovalDelegation_Empty" xml:space="preserve"><value>No approval delegations were recorded yet.</value></data>
+  <data name="ApprovalDelegation_SelectUser" xml:space="preserve"><value>Select a user</value></data>
+  <data name="ApprovalDelegation_SelectRole" xml:space="preserve"><value>Select a role</value></data>
+  <data name="ApprovalDelegation_CreatedAtLabel" xml:space="preserve"><value>Created at</value></data>
+  <data name="ApprovalDelegation_RevokedAtLabel" xml:space="preserve"><value>Revoked at</value></data>
+  <data name="ApprovalDelegation_RevocationReasonLabel" xml:space="preserve"><value>Revocation reason</value></data>
+  <data name="ApprovalDelegation_RevokeReasonField" xml:space="preserve"><value>Revoke note</value></data>
+  <data name="ApprovalDelegation_RevokeAction" xml:space="preserve"><value>Revoke delegation</value></data>
+  <data name="ApprovalDelegation_CreateSuccess" xml:space="preserve"><value>The approval delegation was recorded.</value></data>
+  <data name="ApprovalDelegation_RevokeSuccess" xml:space="preserve"><value>The approval delegation was revoked.</value></data>
+  <data name="ApprovalDelegation_StatusActive" xml:space="preserve"><value>Active</value></data>
+  <data name="ApprovalDelegation_StatusScheduled" xml:space="preserve"><value>Scheduled</value></data>
+  <data name="ApprovalDelegation_StatusExpired" xml:space="preserve"><value>Expired</value></data>
+  <data name="ApprovalDelegation_StatusRevoked" xml:space="preserve"><value>Revoked</value></data>
+  <data name="ApprovalQueue_DelegatedByLabel" xml:space="preserve"><value>Delegated by</value></data>
+  <data name="ApprovalQueue_DelegationEndsAtLabel" xml:space="preserve"><value>Delegation ends</value></data>
+  <data name="ApprovalQueue_DelegationReasonLabel" xml:space="preserve"><value>Delegation reason</value></data>
+  <data name="approvals.delegation_delegator_required" xml:space="preserve"><value>Select the delegator user first.</value></data>
+  <data name="approvals.delegation_delegate_required" xml:space="preserve"><value>Select the delegate user first.</value></data>
+  <data name="approvals.delegation_role_required" xml:space="preserve"><value>Select the approval role first.</value></data>
+  <data name="approvals.delegation_same_user_not_allowed" xml:space="preserve"><value>The delegator and delegate must be different users.</value></data>
+  <data name="approvals.delegation_user_not_found" xml:space="preserve"><value>One of the selected users is missing or inactive.</value></data>
+  <data name="approvals.delegation_role_not_found" xml:space="preserve"><value>The selected approval role was not found.</value></data>
+  <data name="approvals.delegation_delegator_role_required" xml:space="preserve"><value>The delegator does not currently own the selected approval role.</value></data>
+  <data name="approvals.delegation_invalid_period" xml:space="preserve"><value>Enter a valid delegation period where the end is later than the start.</value></data>
+  <data name="approvals.delegation_overlap" xml:space="preserve"><value>This delegate already has another delegation for the same role during the selected period.</value></data>
+  <data name="approvals.delegation_not_found" xml:space="preserve"><value>The selected approval delegation was not found.</value></data>
+  <data name="approvals.delegation_already_revoked" xml:space="preserve"><value>This approval delegation was already revoked.</value></data>
+  <data name="WorkspaceShell_UserLabel" xml:space="preserve"><value>Signed-in user</value></data>
+  <data name="WorkspaceShell_SelectUser" xml:space="preserve"><value>Select a user</value></data>
+  <data name="WorkspaceShell_LoadUserAction" xml:space="preserve"><value>Load profile</value></data>
+  <data name="WorkspaceShell_CurrentUserScopeNotice" xml:space="preserve"><value>This workspace is locked to your signed-in user session.</value></data>
+  <data name="WorkspaceShell_SelectUserFirst" xml:space="preserve"><value>Sign in first to enter this workspace.</value></data>
+  <data name="WorkspaceShell_AccessDenied" xml:space="preserve"><value>Your signed-in user is not allowed to access that workspace.</value></data>
+  <data name="WorkspaceShell_UserNotFound" xml:space="preserve"><value>That user is no longer available for sign-in.</value></data>
+  <data name="WorkspaceShell_SignedInAsLabel" xml:space="preserve"><value>Signed in as</value></data>
+  <data name="WorkspaceShell_SignInAction" xml:space="preserve"><value>Sign in</value></data>
+  <data name="WorkspaceShell_SignOutAction" xml:space="preserve"><value>Sign out</value></data>
+  <data name="WorkspaceShell_SignInRequired" xml:space="preserve"><value>Sign in to open that workspace.</value></data>
+  <data name="WorkspaceShell_InvalidSignInUser" xml:space="preserve"><value>Select a valid user to sign in.</value></data>
+  <data name="SignIn_PageTitle" xml:space="preserve"><value>Sign in</value></data>
+  <data name="SignIn_Eyebrow" xml:space="preserve"><value>Workspace access</value></data>
+  <data name="SignIn_Heading" xml:space="preserve"><value>Local account sign-in</value></data>
+  <data name="SignIn_Summary" xml:space="preserve"><value>Sign in with your assigned local credentials to lock the interface to your roles and permissions.</value></data>
+  <data name="SignIn_FormTitle" xml:space="preserve"><value>Start secure session</value></data>
+  <data name="SignIn_UserField" xml:space="preserve"><value>User</value></data>
+  <data name="SignIn_SelectUser" xml:space="preserve"><value>Select a user</value></data>
+  <data name="SignIn_NoUsersBody" xml:space="preserve"><value>No active users are available for sign-in.</value></data>
+  <data name="SignIn_SubmitAction" xml:space="preserve"><value>Sign in</value></data>
+  <data name="Pagination_Previous" xml:space="preserve"><value>Previous</value></data>
+  <data name="Pagination_Next" xml:space="preserve"><value>Next</value></data>
+  <data name="Pagination_PageSummary" xml:space="preserve"><value>Page {0} of {1} ({2} items)</value></data>
 </root>

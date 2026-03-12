@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "BG.Web (https)",
+      "type": "dotnet",
+      "request": "launch",
+      "projectPath": "${workspaceFolder}/src/BG.Web/BG.Web.csproj",
+      "launchSettingsProfile": "https"
+    }
+  ]
+}

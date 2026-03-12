@@ -20,9 +20,24 @@ public sealed class PermissionCatalogTests
     {
         var definitions = PermissionCatalog.Definitions;
 
+        Assert.Contains(definitions, definition => definition.Key == "approvals.queue.view" && definition.Area == "Approvals");
+        Assert.Contains(definitions, definition => definition.Key == "approvals.sign" && definition.Area == "Approvals");
         Assert.Contains(definitions, definition => definition.Key == "dispatch.view" && definition.Area == "Dispatch");
         Assert.Contains(definitions, definition => definition.Key == "dispatch.print" && definition.Area == "Dispatch");
         Assert.Contains(definitions, definition => definition.Key == "dispatch.record" && definition.Area == "Dispatch");
         Assert.Contains(definitions, definition => definition.Key == "dispatch.email" && definition.Area == "Dispatch");
+    }
+
+    [Fact]
+    public void PermissionCatalog_includes_operations_and_requests_permissions()
+    {
+        var definitions = PermissionCatalog.Definitions;
+
+        Assert.Contains(definitions, definition => definition.Key == "operations.queue.view" && definition.Area == "Operations");
+        Assert.Contains(definitions, definition => definition.Key == "operations.queue.manage" && definition.Area == "Operations");
+        Assert.Contains(definitions, definition => definition.Key == "requests.view" && definition.Area == "Requests");
+        Assert.Contains(definitions, definition => definition.Key == "requests.create" && definition.Area == "Requests");
+        Assert.Contains(definitions, definition => definition.Key == "workflow.view" && definition.Area == "Workflow");
+        Assert.Contains(definitions, definition => definition.Key == "workflow.manage" && definition.Area == "Workflow");
     }
 }

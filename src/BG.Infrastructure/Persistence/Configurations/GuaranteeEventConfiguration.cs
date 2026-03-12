@@ -21,6 +21,42 @@ public sealed class GuaranteeEventConfiguration : IEntityTypeConfiguration<Guara
             .HasMaxLength(512)
             .IsRequired();
 
+        builder.Property(guaranteeEvent => guaranteeEvent.ActorDisplayName)
+            .HasMaxLength(256);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.ApprovalStageLabel)
+            .HasMaxLength(128);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.ApprovalPolicyResourceKey)
+            .HasMaxLength(128);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.ApprovalResponsibleSignerDisplayName)
+            .HasMaxLength(256);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.ApprovalExecutionMode)
+            .HasMaxLength(32);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.DispatchStageResourceKey)
+            .HasMaxLength(128);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.DispatchMethodResourceKey)
+            .HasMaxLength(128);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.DispatchPolicyResourceKey)
+            .HasMaxLength(128);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.OperationsScenarioTitleResourceKey)
+            .HasMaxLength(128);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.OperationsLaneResourceKey)
+            .HasMaxLength(128);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.OperationsMatchConfidenceResourceKey)
+            .HasMaxLength(128);
+
+        builder.Property(guaranteeEvent => guaranteeEvent.OperationsPolicyResourceKey)
+            .HasMaxLength(128);
+
         builder.Property(guaranteeEvent => guaranteeEvent.PreviousAmount)
             .HasPrecision(18, 2);
 
@@ -41,6 +77,16 @@ public sealed class GuaranteeEventConfiguration : IEntityTypeConfiguration<Guara
         builder.HasOne(guaranteeEvent => guaranteeEvent.GuaranteeCorrespondence)
             .WithMany()
             .HasForeignKey(guaranteeEvent => guaranteeEvent.GuaranteeCorrespondenceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(guaranteeEvent => guaranteeEvent.GuaranteeDocument)
+            .WithMany()
+            .HasForeignKey(guaranteeEvent => guaranteeEvent.GuaranteeDocumentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(guaranteeEvent => guaranteeEvent.ActorUser)
+            .WithMany()
+            .HasForeignKey(guaranteeEvent => guaranteeEvent.ActorUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(guaranteeEvent => new { guaranteeEvent.GuaranteeId, guaranteeEvent.OccurredAtUtc });
