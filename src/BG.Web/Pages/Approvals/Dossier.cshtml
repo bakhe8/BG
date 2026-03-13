@@ -4,6 +4,24 @@
 @model BG.Web.Pages.Approvals.DossierModel
 @{
     ViewData["Title"] = T["ApprovalDossier_PageTitle"];
+
+    string ResolveStageTitle(BG.Application.Models.Approvals.ApprovalQueueItemDto item)
+    {
+        return !string.IsNullOrWhiteSpace(item.CurrentStageTitle)
+            ? item.CurrentStageTitle
+            : string.IsNullOrWhiteSpace(item.CurrentStageTitleResourceKey)
+                ? "-"
+                : T[item.CurrentStageTitleResourceKey].Value;
+    }
+
+    string ResolveConflictingStageTitle(BG.Application.Models.Approvals.ApprovalQueueItemDto item)
+    {
+        return !string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitle)
+            ? item.Governance.ConflictingStageTitle
+            : string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitleResourceKey)
+                ? item.Governance.ConflictingStageRoleName ?? "-"
+                : T[item.Governance.ConflictingStageTitleResourceKey].Value;
+    }
 }
 
 <section class="section-shell">
@@ -83,11 +101,7 @@
         else
         {
             var item = Model.Snapshot.Item;
-            var stageTitle = !string.IsNullOrWhiteSpace(item.CurrentStageTitle)
-                ? item.CurrentStageTitle
-                : string.IsNullOrWhiteSpace(item.CurrentStageTitleResourceKey)
-                    ? "-"
-                    : T[item.CurrentStageTitleResourceKey].Value;
+            var stageTitle = ResolveStageTitle(item);
 
             <article class="info-card full-span">
                 <div class="card-header">
@@ -103,6 +117,11 @@
                         <div class="entity-subtitle">@T[item.RequestTypeResourceKey] · @T[item.GuaranteeCategoryResourceKey]</div>
                     </div>
                     <span class="status-badge is-active">@T[item.StatusResourceKey]</span>
+                </div>
+
+                <div class="notice-banner is-info">
+                    <strong>@T["ApprovalDossier_ActionReminder"]</strong>
+                    <p class="compact-copy">@T["ApprovalDossier_ActionReminderBody"]</p>
                 </div>
 
                 <dl class="data-pairs">
@@ -144,12 +163,33 @@
                             <dt>@T["ApprovalQueue_DelegatedByLabel"]</dt>
                             <dd>@item.DelegatedByDisplayName</dd>
                         </div>
+                    }
+                    @if (item.DelegationEndsAtUtc.HasValue)
+                    {
                         <div>
                             <dt>@T["ApprovalQueue_DelegationEndsAtLabel"]</dt>
-                            <dd>@(item.DelegationEndsAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
+                            <dd>@item.DelegationEndsAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
                         </div>
                     }
                 </dl>
+
+                <div class="surface-stat-grid">
+                    <section class="surface-stat">
+                        <span class="section-caption">@T["ApprovalQueue_PriorSignaturesTitle"]</span>
+                        <strong>@item.PriorSignatures.Count</strong>
+                        <p class="compact-copy">@T["ApprovalDossier_PriorSignaturesSummary"]</p>
+                    </section>
+                    <section class="surface-stat">
+                        <span class="section-caption">@T["ApprovalQueue_AttachmentsTitle"]</span>
+                        <strong>@item.Attachments.Count</strong>
+                        <p class="compact-copy">@T["ApprovalDossier_AttachmentsSummary"]</p>
+                    </section>
+                    <section class="surface-stat">
+                        <span class="section-caption">@T["ApprovalQueue_TimelineTitle"]</span>
+                        <strong>@item.TimelineEntries.Count</strong>
+                        <p class="compact-copy">@T["ApprovalDossier_TimelineSummary"]</p>
+                    </section>
+                </div>
 
                 <div class="pill-section">
                     <span class="section-caption">@T["ApprovalQueue_RequestNotesTitle"]</span>
@@ -168,11 +208,7 @@
                     <span class="section-caption">@T["ApprovalDossier_GovernanceTitle"]</span>
                     @if (item.Governance.IsDecisionBlocked && !string.IsNullOrWhiteSpace(item.Governance.ReasonResourceKey))
                     {
-                        var conflictingStageTitle = !string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitle)
-                            ? item.Governance.ConflictingStageTitle
-                            : string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitleResourceKey)
-                                ? item.Governance.ConflictingStageRoleName
-                                : T[item.Governance.ConflictingStageTitleResourceKey].Value;
+                        var conflictingStageTitle = ResolveConflictingStageTitle(item);
 
                         <div class="notice-banner is-warning">
                             <strong>@T["ApprovalQueue_GovernanceBlockedTitle"]</strong>
@@ -259,6 +295,11 @@
                                         <strong>@attachment.FileName</strong>
                                         <p class="compact-copy">@T[attachment.DocumentTypeResourceKey]</p>
                                         <div class="pill-list">
+                                            @if (attachment.DocumentForm is not null)
+                                            {
+                                                <span class="pill">@T[attachment.DocumentForm.TitleResourceKey]</span>
+                                                <span class="pill">@T[attachment.DocumentForm.BankResourceKey]</span>
+                                            }
                                             <span class="pill">@T["ApprovalQueue_AttachmentLinkedAtLabel"]: @attachment.LinkedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
                                             <span class="pill">@T["ApprovalQueue_AttachmentLinkedByLabel"]: @(string.IsNullOrWhiteSpace(attachment.LinkedByDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : attachment.LinkedByDisplayName)</span>
                                             <span class="pill">@T["ApprovalQueue_AttachmentCapturedAtLabel"]: @attachment.CapturedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>

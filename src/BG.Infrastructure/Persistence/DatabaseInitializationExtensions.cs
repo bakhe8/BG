@@ -74,6 +74,9 @@ public static class DatabaseInitializationExtensions
         }
 
         await SeedBootstrapAdminAsync(dbContext, configuration, passwordHasher, cancellationToken);
+
+        var operationalSeedService = scope.ServiceProvider.GetRequiredService<OperationalSeedService>();
+        await operationalSeedService.SeedAsync(cancellationToken);
     }
 
     private static RequestWorkflowDefinition CreateWorkflowDefinition(BG.Application.Operations.RequestWorkflowTemplateDto template)

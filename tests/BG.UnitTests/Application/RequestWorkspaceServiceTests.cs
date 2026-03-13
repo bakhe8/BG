@@ -1,8 +1,10 @@
 using BG.Application.Common;
 using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
+using BG.Application.Intake;
 using BG.Application.Models.Requests;
 using BG.Application.Operations;
+using BG.Application.ReferenceData;
 using BG.Application.Services;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
@@ -19,7 +21,23 @@ public sealed class RequestWorkspaceServiceTests
         var actorB = CreateRequestActor("request.b", "Request User B");
 
         var guarantee = CreateGuarantee("BG-2026-4101");
-        guarantee.CreateRequest(actorA.Id, GuaranteeRequestType.Extend, null, new DateOnly(2027, 06, 30), "Owned by A", DateTimeOffset.UtcNow, actorA.DisplayName);
+        var instrument = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.GuaranteeInstrument,
+            "bg-2026-4101-snb.pdf",
+            "guarantees/BG-2026-4101/bg-2026-4101-snb.pdf",
+            1,
+            DateTimeOffset.UtcNow.AddMinutes(-10),
+            actorA.Id,
+            actorA.DisplayName,
+            GuaranteeDocumentCaptureChannel.ScanStation,
+            "Scan Station",
+            "batch-req-1",
+            IntakeScenarioKeys.NewGuarantee,
+            "OCR",
+            "{\"documentFormKey\":\"guarantee-instrument-snb\",\"bankName\":\"Saudi National Bank\"}",
+            "Instrument");
+        var requestA = guarantee.CreateRequest(actorA.Id, GuaranteeRequestType.Extend, null, new DateOnly(2027, 06, 30), "Owned by A", DateTimeOffset.UtcNow, actorA.DisplayName);
+        guarantee.AttachDocumentToRequest(requestA.Id, instrument.Id, DateTimeOffset.UtcNow.AddMinutes(-9), actorA.Id, actorA.DisplayName);
         guarantee.CreateRequest(actorB.Id, GuaranteeRequestType.Release, null, null, "Owned by B", DateTimeOffset.UtcNow.AddMinutes(1), actorB.DisplayName);
 
         var service = new RequestWorkspaceService(
@@ -35,7 +53,10 @@ public sealed class RequestWorkspaceServiceTests
         Assert.Single(snapshot.OwnedRequests);
         Assert.Equal("GuaranteeCategory_Contract", snapshot.OwnedRequests[0].GuaranteeCategoryResourceKey);
         Assert.Equal("Owned by A", snapshot.OwnedRequests[0].Notes);
-        Assert.Single(snapshot.OwnedRequests[0].LedgerEntries);
+        Assert.Equal(
+            GuaranteeDocumentFormKeys.GuaranteeInstrumentSnb,
+            snapshot.OwnedRequests[0].PrimaryDocumentForm?.Key);
+        Assert.NotEmpty(snapshot.OwnedRequests[0].LedgerEntries);
         Assert.Equal(actorA.DisplayName, snapshot.OwnedRequests[0].LedgerEntries[0].ActorDisplayName);
         Assert.Equal("RequestsWorkspace_ActorIsolatedNotice", snapshot.ContextNoticeResourceKey);
     }
@@ -242,6 +263,133 @@ public sealed class RequestWorkspaceServiceTests
         Assert.Equal("RequestsWorkspace_NoWorkflowTemplate", result.ErrorCode);
         Assert.Equal(GuaranteeRequestStatus.Draft, request.Status);
         Assert.Null(request.ApprovalProcess);
+    }
+
+    [Fact]
+    public async Task UpdateRequestAsync_revises_returned_request_and_records_ledger()
+    {
+        var actor = CreateRequestActor("request.a", "Request User A");
+        var guarantee = CreateGuarantee("BG-2026-4104-C");
+        var request = guarantee.CreateRequest(
+            actor.Id,
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 6, 30),
+            notes: "Original note",
+            createdAtUtc: DateTimeOffset.UtcNow);
+
+        var process = new RequestApprovalProcess(request.Id, Guid.NewGuid(), DateTimeOffset.UtcNow);
+        process.AddStage(
+            Guid.NewGuid(),
+            null,
+            null,
+            "Guarantees Supervisor",
+            "Stage summary",
+            requiresLetterSignature: true);
+        process.Start();
+        request.SubmitForApproval(process);
+        process.ReturnCurrentStage(actor.Id, DateTimeOffset.UtcNow.AddMinutes(1), "Fix the requested date");
+        request.MarkReturnedFromApproval();
+
+        var repository = new StubRequestWorkspaceRepository([actor], guarantee);
+        var service = new RequestWorkspaceService(
+            repository,
+            new StubWorkflowTemplateService(),
+            new StubWorkflowDefinitionRepository());
+
+        var result = await service.UpdateRequestAsync(
+            new UpdateGuaranteeRequestCommand(
+                actor.Id,
+                request.Id,
+                null,
+                "2027-07-31",
+                "Updated note"));
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(GuaranteeRequestStatus.Returned, request.Status);
+        Assert.Equal(new DateOnly(2027, 7, 31), request.RequestedExpiryDate);
+        Assert.Equal("Updated note", request.Notes);
+        Assert.Contains(
+            guarantee.Events,
+            ledgerEntry => ledgerEntry.EventType == GuaranteeEventType.RequestUpdated &&
+                           ledgerEntry.GuaranteeRequestId == request.Id &&
+                           ledgerEntry.ActorDisplayName == actor.DisplayName);
+        Assert.True(repository.SaveChangesCalled);
+    }
+
+    [Fact]
+    public async Task CancelRequestAsync_cancels_draft_request_and_records_ledger()
+    {
+        var actor = CreateRequestActor("request.a", "Request User A");
+        var guarantee = CreateGuarantee("BG-2026-4104-D");
+        var request = guarantee.CreateRequest(
+            actor.Id,
+            GuaranteeRequestType.Release,
+            requestedAmount: null,
+            requestedExpiryDate: null,
+            notes: "Cancel me",
+            createdAtUtc: DateTimeOffset.UtcNow);
+
+        var repository = new StubRequestWorkspaceRepository([actor], guarantee);
+        var service = new RequestWorkspaceService(
+            repository,
+            new StubWorkflowTemplateService(),
+            new StubWorkflowDefinitionRepository());
+
+        var result = await service.CancelRequestAsync(actor.Id, request.Id);
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(GuaranteeRequestStatus.Cancelled, request.Status);
+        Assert.Contains(
+            guarantee.Events,
+            ledgerEntry => ledgerEntry.EventType == GuaranteeEventType.RequestCancelled &&
+                           ledgerEntry.GuaranteeRequestId == request.Id &&
+                           ledgerEntry.ActorDisplayName == actor.DisplayName);
+        Assert.True(repository.SaveChangesCalled);
+    }
+
+    [Fact]
+    public async Task WithdrawRequestAsync_withdraws_in_approval_request_and_closes_process()
+    {
+        var actor = CreateRequestActor("request.a", "Request User A");
+        var guarantee = CreateGuarantee("BG-2026-4104-E");
+        var request = guarantee.CreateRequest(
+            actor.Id,
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 6, 30),
+            notes: "Withdraw me",
+            createdAtUtc: DateTimeOffset.UtcNow);
+
+        var process = new RequestApprovalProcess(request.Id, Guid.NewGuid(), DateTimeOffset.UtcNow);
+        process.AddStage(
+            Guid.NewGuid(),
+            null,
+            null,
+            "Guarantees Supervisor",
+            "Stage summary",
+            requiresLetterSignature: true);
+        process.Start();
+        request.SubmitForApproval(process);
+
+        var repository = new StubRequestWorkspaceRepository([actor], guarantee);
+        var service = new RequestWorkspaceService(
+            repository,
+            new StubWorkflowTemplateService(),
+            new StubWorkflowDefinitionRepository());
+
+        var result = await service.WithdrawRequestAsync(actor.Id, request.Id);
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(GuaranteeRequestStatus.Cancelled, request.Status);
+        Assert.Equal(RequestApprovalProcessStatus.Cancelled, request.ApprovalProcess!.Status);
+        Assert.Null(request.ApprovalProcess.GetCurrentStage());
+        Assert.Contains(
+            guarantee.Events,
+            ledgerEntry => ledgerEntry.EventType == GuaranteeEventType.RequestWithdrawn &&
+                           ledgerEntry.GuaranteeRequestId == request.Id &&
+                           ledgerEntry.ActorDisplayName == actor.DisplayName);
+        Assert.True(repository.SaveChangesCalled);
     }
 
     [Fact]
@@ -464,6 +612,18 @@ public sealed class RequestWorkspaceServiceTests
                         currentStage?.TitleText,
                         currentStage?.Role?.Name,
                         request.ApprovalProcess?.LastReturnedNote ?? request.ApprovalProcess?.LastRejectedNote,
+                        request.RequestDocuments
+                            .Select(link => link.GuaranteeDocument)
+                            .OrderBy(document => document.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                            .ThenBy(document => document.CapturedAtUtc)
+                            .Select(document => (GuaranteeDocumentType?)document.DocumentType)
+                            .FirstOrDefault(),
+                        request.RequestDocuments
+                            .Select(link => link.GuaranteeDocument)
+                            .OrderBy(document => document.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                            .ThenBy(document => document.CapturedAtUtc)
+                            .Select(document => document.VerifiedDataJson)
+                            .FirstOrDefault(),
                         _guarantee.Events
                             .Where(ledgerEntry => ledgerEntry.GuaranteeRequestId == request.Id)
                             .Select(ledgerEntry => new RequestLedgerEntryReadModel(

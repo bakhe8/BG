@@ -4,6 +4,41 @@
 @model BG.Web.Pages.Approvals.QueueModel
 @{
     ViewData["Title"] = T["ApprovalQueue_PageTitle"];
+
+    string ResolveStageTitle(BG.Application.Models.Approvals.ApprovalQueueItemDto item)
+    {
+        return !string.IsNullOrWhiteSpace(item.CurrentStageTitle)
+            ? item.CurrentStageTitle
+            : string.IsNullOrWhiteSpace(item.CurrentStageTitleResourceKey)
+                ? "-"
+                : T[item.CurrentStageTitleResourceKey].Value;
+    }
+
+    string ResolveConflictingStageTitle(BG.Application.Models.Approvals.ApprovalQueueItemDto item)
+    {
+        return !string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitle)
+            ? item.Governance.ConflictingStageTitle
+            : string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitleResourceKey)
+                ? item.Governance.ConflictingStageRoleName ?? "-"
+                : T[item.Governance.ConflictingStageTitleResourceKey].Value;
+    }
+
+    string ResolveRequestedChange(BG.Application.Models.Approvals.ApprovalQueueItemDto item)
+    {
+        var parts = new System.Collections.Generic.List<string>();
+
+        if (!string.IsNullOrWhiteSpace(item.RequestedAmount))
+        {
+            parts.Add(item.RequestedAmount);
+        }
+
+        if (!string.IsNullOrWhiteSpace(item.RequestedExpiryDate))
+        {
+            parts.Add(item.RequestedExpiryDate);
+        }
+
+        return parts.Count == 0 ? "-" : string.Join(" · ", parts);
+    }
 }
 
 <section class="section-shell">
@@ -17,10 +52,12 @@
         <div class="notice-banner is-success">@T[Model.Snapshot.ContextNoticeResourceKey]</div>
     }
 
-    <div class="section-header">
-        <span class="eyebrow">@T["NavApprovals"]</span>
-        <h1>@T["ApprovalQueue_Heading"]</h1>
-        <p class="compact-copy">@T["ApprovalQueue_Summary"]</p>
+    <div class="section-header approvals-section-header">
+        <div>
+            <span class="eyebrow">@T["NavApprovals"]</span>
+            <h1>@T["ApprovalQueue_Heading"]</h1>
+            <p class="compact-copy">@T["ApprovalQueue_Summary"]</p>
+        </div>
     </div>
 
     @if (!Model.Snapshot.HasEligibleActor || Model.Snapshot.ActiveActor is null)
@@ -32,7 +69,7 @@
     }
     else
     {
-        <article class="info-card full-span">
+        <article class="info-card approval-actor-shell">
             <div class="card-header">
                 <div>
                     <h2>@T["ApprovalQueue_ActorContextTitle"]</h2>
@@ -73,6 +110,9 @@
                     <h2>@T["ApprovalQueue_ItemsTitle"]</h2>
                     <p class="compact-copy">@T["ApprovalQueue_ItemsSummary"]</p>
                 </div>
+                <div class="pill-list">
+                    <span class="pill">@T["Pagination_PageSummary", Model.Snapshot.ItemsPage.PageNumber, Model.Snapshot.ItemsPage.TotalPageCount, Model.Snapshot.ItemsPage.TotalItemCount]</span>
+                </div>
             </div>
 
             @if (Model.Snapshot.Items.Count == 0)
@@ -84,13 +124,10 @@
                 <div class="stack-list">
                     @foreach (var item in Model.Snapshot.Items)
                     {
-                        var stageTitle = !string.IsNullOrWhiteSpace(item.CurrentStageTitle)
-                            ? item.CurrentStageTitle
-                            : string.IsNullOrWhiteSpace(item.CurrentStageTitleResourceKey)
-                                ? "-"
-                                : T[item.CurrentStageTitleResourceKey].Value;
+                        var stageTitle = ResolveStageTitle(item);
+                        var requestedChange = ResolveRequestedChange(item);
 
-                        <article class="entity-card">
+                        <article class="entity-card approval-item-card">
                             <div class="entity-header">
                                 <div>
                                     <h3>@item.GuaranteeNumber</h3>
@@ -99,246 +136,150 @@
                                 <span class="status-badge is-active">@T[item.StatusResourceKey]</span>
                             </div>
 
-                            <dl class="data-pairs">
-                                <div>
-                                    <dt>@T["ApprovalQueue_RequesterLabel"]</dt>
-                                    <dd>@item.RequesterDisplayName</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalQueue_RequestChannelLabel"]</dt>
-                                    <dd>@T[item.RequestChannelResourceKey]</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalQueue_SubmittedAtLabel"]</dt>
-                                    <dd>@item.SubmittedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalQueue_CreatedAtLabel"]</dt>
-                                    <dd>@item.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalQueue_CurrentStageLabel"]</dt>
-                                    <dd>@stageTitle</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalQueue_RoleLabel"]</dt>
-                                    <dd>@(string.IsNullOrWhiteSpace(item.CurrentStageRoleName) ? "-" : item.CurrentStageRoleName)</dd>
-                                </div>
-                                @if (!string.IsNullOrWhiteSpace(item.DelegatedByDisplayName))
-                                {
-                                    <div>
-                                        <dt>@T["ApprovalQueue_DelegatedByLabel"]</dt>
-                                        <dd>@item.DelegatedByDisplayName</dd>
+                            <div class="approval-queue-focus">
+                                <section class="approval-queue-panel">
+                                    <div class="surface-stat-grid approval-queue-facts">
+                                        <section class="surface-stat">
+                                            <span class="section-caption">@T["ApprovalQueue_RequesterLabel"]</span>
+                                            <strong>@item.RequesterDisplayName</strong>
+                                        </section>
+                                        <section class="surface-stat">
+                                            <span class="section-caption">@T["ApprovalQueue_SubmittedAtLabel"]</span>
+                                            <strong>@item.SubmittedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</strong>
+                                        </section>
+                                        <section class="surface-stat">
+                                            <span class="section-caption">@T["ApprovalQueue_CurrentStageLabel"]</span>
+                                            <strong>@stageTitle</strong>
+                                        </section>
+                                        <section class="surface-stat">
+                                            <span class="section-caption">@T["ApprovalQueue_RequestedAmountLabel"]</span>
+                                            <strong>@requestedChange</strong>
+                                        </section>
                                     </div>
-                                    <div>
-                                        <dt>@T["ApprovalQueue_DelegationEndsAtLabel"]</dt>
-                                        <dd>@(item.DelegationEndsAtUtc?.ToLocalTime().ToString("yyyy-MM-dd HH:mm") ?? "-")</dd>
-                                    </div>
-                                }
-                                <div>
-                                    <dt>@T["ApprovalQueue_RequestedAmountLabel"]</dt>
-                                    <dd>@(string.IsNullOrWhiteSpace(item.RequestedAmount) ? "-" : item.RequestedAmount)</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalQueue_RequestedExpiryDateLabel"]</dt>
-                                    <dd>@(string.IsNullOrWhiteSpace(item.RequestedExpiryDate) ? "-" : item.RequestedExpiryDate)</dd>
-                                </div>
-                            </dl>
 
-                            <div class="pill-section">
-                                <span class="section-caption">@T["ApprovalQueue_RequestNotesTitle"]</span>
-                                <p class="compact-copy">@(string.IsNullOrWhiteSpace(item.Notes) ? T["ApprovalQueue_NoNotes"].Value : item.Notes)</p>
-                            </div>
+                                    <section class="support-card">
+                                        <span class="section-caption">@T["ApprovalQueue_WhyHereTitle"]</span>
+                                        <div class="pill-list">
+                                            <span class="pill">@T[item.RequestChannelResourceKey]</span>
+                                            @if (!string.IsNullOrWhiteSpace(item.CurrentStageRoleName))
+                                            {
+                                                <span class="pill">@item.CurrentStageRoleName</span>
+                                            }
+                                            @if (item.RequiresLetterSignature)
+                                            {
+                                                <span class="pill">@T["ApprovalQueue_LetterSignatureRequired"]</span>
+                                            }
+                                            @if (!string.IsNullOrWhiteSpace(item.DelegatedByDisplayName))
+                                            {
+                                                <span class="pill">@T["ApprovalQueue_DelegatedByLabel"]: @item.DelegatedByDisplayName</span>
+                                            }
+                                            @if (item.DelegationEndsAtUtc.HasValue)
+                                            {
+                                                <span class="pill">@T["ApprovalQueue_DelegationEndsAtLabel"]: @item.DelegationEndsAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                                            }
+                                        </div>
+                                    </section>
 
-                            @if (!string.IsNullOrWhiteSpace(item.DelegationReason))
-                            {
-                                <div class="pill-section">
-                                    <span class="section-caption">@T["ApprovalQueue_DelegationReasonLabel"]</span>
-                                    <p class="compact-copy">@item.DelegationReason</p>
-                                </div>
-                            }
+                                    <section class="support-card">
+                                        <span class="section-caption">@T["ApprovalQueue_WhatToConfirmTitle"]</span>
+                                        <p class="compact-copy">@(string.IsNullOrWhiteSpace(item.Notes) ? T["ApprovalQueue_NoNotes"].Value : item.Notes)</p>
+                                        @if (!string.IsNullOrWhiteSpace(item.DelegationReason))
+                                        {
+                                            <p class="compact-copy">@T["ApprovalQueue_DelegationReasonLabel"]: @item.DelegationReason</p>
+                                        }
+                                    </section>
 
-                            @if (item.Governance.IsDecisionBlocked && !string.IsNullOrWhiteSpace(item.Governance.ReasonResourceKey))
-                            {
-                                var conflictingStageTitle = !string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitle)
-                                    ? item.Governance.ConflictingStageTitle
-                                    : string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitleResourceKey)
-                                        ? item.Governance.ConflictingStageRoleName
-                                        : T[item.Governance.ConflictingStageTitleResourceKey].Value;
-
-                                <div class="notice-banner is-warning">
-                                    <strong>@T["ApprovalQueue_GovernanceBlockedTitle"]</strong>
-                                    @if (!string.IsNullOrWhiteSpace(item.Governance.PolicyResourceKey))
+                                    @if (item.Governance.IsDecisionBlocked && !string.IsNullOrWhiteSpace(item.Governance.ReasonResourceKey))
                                     {
-                                        <p class="compact-copy">@T["ApprovalQueue_GovernancePolicyLabel"]: @T[item.Governance.PolicyResourceKey]</p>
+                                        var conflictingStageTitle = ResolveConflictingStageTitle(item);
+
+                                        <div class="notice-banner is-warning">
+                                            <strong>@T["ApprovalQueue_GovernanceBlockedTitle"]</strong>
+                                            @if (!string.IsNullOrWhiteSpace(item.Governance.PolicyResourceKey))
+                                            {
+                                                <p class="compact-copy">@T["ApprovalQueue_GovernancePolicyLabel"]: @T[item.Governance.PolicyResourceKey]</p>
+                                            }
+                                            <p class="compact-copy">@T[item.Governance.ReasonResourceKey]</p>
+                                            <div class="pill-list">
+                                                @if (!string.IsNullOrWhiteSpace(conflictingStageTitle))
+                                                {
+                                                    <span class="pill">@T["ApprovalQueue_GovernanceBlockedStageLabel"]: @conflictingStageTitle</span>
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(item.Governance.ConflictingActorDisplayName))
+                                                {
+                                                    <span class="pill">@T["ApprovalQueue_GovernanceBlockedActorLabel"]: @item.Governance.ConflictingActorDisplayName</span>
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(item.Governance.ConflictingResponsibleSignerDisplayName))
+                                                {
+                                                    <span class="pill">@T["ApprovalQueue_GovernanceBlockedResponsibleSignerLabel"]: @item.Governance.ConflictingResponsibleSignerDisplayName</span>
+                                                }
+                                            </div>
+                                            <p class="compact-copy">@T["ApprovalQueue_GovernanceBlockedActionHint"]</p>
+                                        </div>
                                     }
-                                    <p class="compact-copy">@T[item.Governance.ReasonResourceKey]</p>
-                                    <div class="pill-list">
-                                        @if (!string.IsNullOrWhiteSpace(conflictingStageTitle))
-                                        {
-                                            <span class="pill">@T["ApprovalQueue_GovernanceBlockedStageLabel"]: @conflictingStageTitle</span>
-                                        }
-                                        @if (!string.IsNullOrWhiteSpace(item.Governance.ConflictingActorDisplayName))
-                                        {
-                                            <span class="pill">@T["ApprovalQueue_GovernanceBlockedActorLabel"]: @item.Governance.ConflictingActorDisplayName</span>
-                                        }
-                                        @if (!string.IsNullOrWhiteSpace(item.Governance.ConflictingResponsibleSignerDisplayName))
-                                        {
-                                            <span class="pill">@T["ApprovalQueue_GovernanceBlockedResponsibleSignerLabel"]: @item.Governance.ConflictingResponsibleSignerDisplayName</span>
-                                        }
-                                    </div>
-                                    <p class="compact-copy">@T["ApprovalQueue_GovernanceBlockedActionHint"]</p>
-                                </div>
-                            }
+                                </section>
 
-                            <div class="pill-section">
-                                <span class="section-caption">@T["ApprovalQueue_PriorSignaturesTitle"]</span>
+                                <section class="approval-queue-action-panel">
+                                    <section class="support-card">
+                                        <span class="section-caption">@T["ApprovalQueue_OpenDossierAction"]</span>
+                                        <div class="pill-list">
+                                            <span class="pill">@T["ApprovalQueue_PriorSignaturesTitle"]: @item.PriorSignatures.Count</span>
+                                            <span class="pill">@T["ApprovalQueue_AttachmentsTitle"]: @item.Attachments.Count</span>
+                                            <span class="pill">@T["ApprovalQueue_TimelineTitle"]: @item.TimelineEntries.Count</span>
+                                        </div>
+                                        <div class="action-row">
+                                            <a class="btn btn-outline-primary action-button"
+                                               asp-page="/Approvals/Dossier"
+                                               asp-all-route-data="Model.BuildDossierRoute(item.RequestId)">
+                                                @T["ApprovalQueue_OpenDossierAction"]
+                                            </a>
+                                        </div>
+                                    </section>
 
-                                @if (item.PriorSignatures.Count == 0)
-                                {
-                                    <p class="compact-copy">@T["ApprovalQueue_PriorSignaturesEmpty"]</p>
-                                }
-                                else
-                                {
-                                    <div class="workflow-stage-list">
-                                        @foreach (var signature in item.PriorSignatures)
-                                        {
-                                            var signatureStageTitle = !string.IsNullOrWhiteSpace(signature.StageTitle)
-                                                ? signature.StageTitle
-                                                : string.IsNullOrWhiteSpace(signature.StageTitleResourceKey)
-                                                    ? signature.StageRoleName ?? "-"
-                                                    : T[signature.StageTitleResourceKey].Value;
+                                    <form method="post" class="stack-form approval-decision-form">
+                                        <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
+                                        <input type="hidden" name="requestId" value="@item.RequestId" />
+                                        <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
 
-                                            <section class="workflow-stage">
-                                                <span class="pipeline-index">@signature.Sequence</span>
-                                                <div>
-                                                    <strong>@signatureStageTitle</strong>
-                                                    <div class="pill-list">
-                                                        <span class="pill">@T["ApprovalQueue_PriorSignatureSignedAtLabel"]: @signature.ActedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
-                                                        <span class="pill">@T["ApprovalQueue_PriorSignatureActorLabel"]: @(string.IsNullOrWhiteSpace(signature.ActorDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : signature.ActorDisplayName)</span>
-                                                        <span class="pill">@T["ApprovalQueue_PriorSignatureResponsibleSignerLabel"]: @(string.IsNullOrWhiteSpace(signature.ResponsibleSignerDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : signature.ResponsibleSignerDisplayName)</span>
-                                                        @if (signature.WasDelegated)
-                                                        {
-                                                            <span class="pill">@T["ApprovalQueue_PriorSignatureDelegatedBadge"]</span>
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </section>
-                                        }
-                                    </div>
-                                }
+                                        <label class="form-label" for="note-@item.RequestId">@T["ApprovalQueue_NoteField"]</label>
+                                        <textarea id="note-@item.RequestId"
+                                                  name="note"
+                                                  class="form-control"
+                                                  rows="2"
+                                                  disabled="@item.Governance.IsDecisionBlocked"></textarea>
+
+                                        <div class="action-row">
+                                            <button type="submit"
+                                                    asp-page-handler="Approve"
+                                                    class="btn btn-primary action-button"
+                                                    disabled="@item.Governance.IsDecisionBlocked">
+                                                @T["ApprovalQueue_ApproveAction"]
+                                            </button>
+                                            <button type="submit"
+                                                    asp-page-handler="Return"
+                                                    class="btn btn-outline-primary action-button"
+                                                    disabled="@item.Governance.IsDecisionBlocked">
+                                                @T["ApprovalQueue_ReturnAction"]
+                                            </button>
+                                            <button type="submit"
+                                                    asp-page-handler="Reject"
+                                                    class="btn btn-outline-danger action-button"
+                                                    disabled="@item.Governance.IsDecisionBlocked">
+                                                @T["ApprovalQueue_RejectAction"]
+                                            </button>
+                                        </div>
+                                    </form>
+
+                                    <section class="support-card">
+                                        <span class="section-caption">@T["ApprovalQueue_NextAfterDecisionTitle"]</span>
+                                        <ul class="approval-next-step-list">
+                                            <li>@T["ApprovalQueue_NextAfterApprove"]</li>
+                                            <li>@T["ApprovalQueue_NextAfterReturn"]</li>
+                                            <li>@T["ApprovalQueue_NextAfterReject"]</li>
+                                        </ul>
+                                    </section>
+                                </section>
                             </div>
-
-                            <div class="pill-section">
-                                <span class="section-caption">@T["ApprovalQueue_AttachmentsTitle"]</span>
-
-                                @if (item.Attachments.Count == 0)
-                                {
-                                    <p class="compact-copy">@T["ApprovalQueue_AttachmentsEmpty"]</p>
-                                }
-                                else
-                                {
-                                    <div class="workflow-stage-list">
-                                        @foreach (var attachment in item.Attachments)
-                                        {
-                                            <section class="workflow-stage">
-                                                <span class="pipeline-index">#</span>
-                                                <div>
-                                                    <strong>@attachment.FileName</strong>
-                                                    <p class="compact-copy">@T[attachment.DocumentTypeResourceKey]</p>
-                                                    <div class="pill-list">
-                                                        <span class="pill">@T["ApprovalQueue_AttachmentLinkedAtLabel"]: @attachment.LinkedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
-                                                        <span class="pill">@T["ApprovalQueue_AttachmentLinkedByLabel"]: @(string.IsNullOrWhiteSpace(attachment.LinkedByDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : attachment.LinkedByDisplayName)</span>
-                                                        <span class="pill">@T["ApprovalQueue_AttachmentCapturedAtLabel"]: @attachment.CapturedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
-                                                        <span class="pill">@T["ApprovalQueue_AttachmentCapturedByLabel"]: @(string.IsNullOrWhiteSpace(attachment.CapturedByDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : attachment.CapturedByDisplayName)</span>
-                                                        <span class="pill">@T["ApprovalQueue_AttachmentCaptureChannelLabel"]: @T[attachment.CaptureChannelResourceKey]</span>
-                                                        @if (!string.IsNullOrWhiteSpace(attachment.SourceSystemName))
-                                                        {
-                                                            <span class="pill">@T["ApprovalQueue_AttachmentSourceSystemLabel"]: @attachment.SourceSystemName</span>
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(attachment.SourceReference))
-                                                        {
-                                                            <span class="pill">@T["ApprovalQueue_AttachmentSourceReferenceLabel"]: @attachment.SourceReference</span>
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </section>
-                                        }
-                                    </div>
-                                }
-                            </div>
-
-                            <div class="pill-section">
-                                <span class="section-caption">@T["ApprovalQueue_TimelineTitle"]</span>
-
-                                @if (item.TimelineEntries.Count == 0)
-                                {
-                                    <p class="compact-copy">@T["ApprovalQueue_TimelineEmpty"]</p>
-                                }
-                                else
-                                {
-                                    <div class="workflow-stage-list">
-                                        @foreach (var entry in item.TimelineEntries)
-                                        {
-                                            <section class="workflow-stage">
-                                                <span class="pipeline-index">#</span>
-                                                <div>
-                                                    <strong>@entry.OccurredAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</strong>
-                                                    <p class="compact-copy">
-                                                        @T["RequestsWorkspace_LedgerActorLabel"]:
-                                                        @(string.IsNullOrWhiteSpace(entry.ActorDisplayName)
-                                                            ? T["RequestsWorkspace_LedgerSystemActor"].Value
-                                                            : entry.ActorDisplayName)
-                                                    </p>
-                                                    <p class="compact-copy">@entry.Summary</p>
-                                                </div>
-                                            </section>
-                                        }
-                                    </div>
-                                }
-                            </div>
-
-                            <div class="action-row">
-                                <a class="btn btn-outline-primary action-button"
-                                   asp-page="/Approvals/Dossier"
-                                   asp-all-route-data="Model.BuildDossierRoute(item.RequestId)">
-                                    @T["ApprovalQueue_OpenDossierAction"]
-                                </a>
-                            </div>
-
-                            <form method="post" class="stack-form">
-                                <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
-                                <input type="hidden" name="requestId" value="@item.RequestId" />
-                                <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
-
-                                <label class="form-label" for="note-@item.RequestId">@T["ApprovalQueue_NoteField"]</label>
-                                <textarea id="note-@item.RequestId"
-                                          name="note"
-                                          class="form-control"
-                                          rows="2"
-                                          disabled="@item.Governance.IsDecisionBlocked"></textarea>
-
-                                <div class="action-row">
-                                    <button type="submit"
-                                            asp-page-handler="Approve"
-                                            class="btn btn-primary action-button"
-                                            disabled="@item.Governance.IsDecisionBlocked">
-                                        @T["ApprovalQueue_ApproveAction"]
-                                    </button>
-                                    <button type="submit"
-                                            asp-page-handler="Return"
-                                            class="btn btn-outline-primary action-button"
-                                            disabled="@item.Governance.IsDecisionBlocked">
-                                        @T["ApprovalQueue_ReturnAction"]
-                                    </button>
-                                    <button type="submit"
-                                            asp-page-handler="Reject"
-                                            class="btn btn-outline-danger action-button"
-                                            disabled="@item.Governance.IsDecisionBlocked">
-                                        @T["ApprovalQueue_RejectAction"]
-                                    </button>
-                                </div>
-                            </form>
                         </article>
                     }
                 </div>
@@ -349,26 +290,23 @@
                 var pageInfo = Model.Snapshot.ItemsPage;
 
                 <div class="action-row">
-                    <span class="compact-copy">@T["Pagination_PageSummary", pageInfo.PageNumber, pageInfo.TotalPageCount, pageInfo.TotalItemCount]</span>
-                    <div class="action-row">
-                        @if (pageInfo.HasPreviousPage)
-                        {
-                            <a class="btn btn-outline-primary action-button"
-                               asp-page="/Approvals/Queue"
-                               asp-all-route-data="Model.BuildPageRoute(pageInfo.PreviousPageNumber)">
-                                @T["Pagination_Previous"]
-                            </a>
-                        }
+                    @if (pageInfo.HasPreviousPage)
+                    {
+                        <a class="btn btn-outline-primary action-button"
+                           asp-page="/Approvals/Queue"
+                           asp-all-route-data="Model.BuildPageRoute(pageInfo.PreviousPageNumber)">
+                            @T["Pagination_Previous"]
+                        </a>
+                    }
 
-                        @if (pageInfo.HasNextPage)
-                        {
-                            <a class="btn btn-outline-primary action-button"
-                               asp-page="/Approvals/Queue"
-                               asp-all-route-data="Model.BuildPageRoute(pageInfo.NextPageNumber)">
-                                @T["Pagination_Next"]
-                            </a>
-                        }
-                    </div>
+                    @if (pageInfo.HasNextPage)
+                    {
+                        <a class="btn btn-outline-primary action-button"
+                           asp-page="/Approvals/Queue"
+                           asp-all-route-data="Model.BuildPageRoute(pageInfo.NextPageNumber)">
+                            @T["Pagination_Next"]
+                        </a>
+                    }
                 </div>
             }
         </article>

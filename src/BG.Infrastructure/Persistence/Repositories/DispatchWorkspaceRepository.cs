@@ -120,10 +120,30 @@ internal sealed class DispatchWorkspaceRepository : IDispatchWorkspaceRepository
                 group => group.Key,
                 group => group.OrderByDescending(letter => letter.RegisteredAtUtc).First());
 
+        var sourceDocumentsByRequestId = requestIds.Length == 0
+            ? new Dictionary<Guid, DispatchSourceDocumentProjection>()
+            : (await _dbContext.GuaranteeRequestDocuments
+                    .AsNoTracking()
+                    .Where(link => requestIds.Contains(link.GuaranteeRequestId))
+                    .Select(link => new DispatchSourceDocumentProjection(
+                        link.GuaranteeRequestId,
+                        link.GuaranteeDocument.DocumentType,
+                        link.GuaranteeDocument.VerifiedDataJson,
+                        link.LinkedAtUtc))
+                    .ToListAsync(cancellationToken))
+                .GroupBy(link => link.RequestId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        .OrderBy(link => link.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                        .ThenBy(link => link.LinkedAtUtc)
+                        .First());
+
         var items = pageItems
             .Select(item =>
             {
                 outgoingLettersByRequestId.TryGetValue(item.RequestId, out var outgoingLetter);
+                sourceDocumentsByRequestId.TryGetValue(item.RequestId, out var sourceDocument);
 
                 return new DispatchQueueItemReadModel(
                     item.RequestId,
@@ -136,6 +156,8 @@ internal sealed class DispatchWorkspaceRepository : IDispatchWorkspaceRepository
                     outgoingLetter?.CorrespondenceId,
                     outgoingLetter?.ReferenceNumber,
                     outgoingLetter?.LetterDate,
+                    sourceDocument?.DocumentType,
+                    sourceDocument?.VerifiedDataJson,
                     outgoingLetter?.PrintCount ?? 0,
                     outgoingLetter?.LastPrintedAtUtc,
                     outgoingLetter?.LastPrintMode);
@@ -194,19 +216,50 @@ internal sealed class DispatchWorkspaceRepository : IDispatchWorkspaceRepository
                 .ToListAsync(cancellationToken))
                 .ToArray();
 
+        var requestIds = items
+            .Select(item => item.RequestId)
+            .Distinct()
+            .ToArray();
+
+        var sourceDocumentsByRequestId = requestIds.Length == 0
+            ? new Dictionary<Guid, DispatchSourceDocumentProjection>()
+            : (await _dbContext.GuaranteeRequestDocuments
+                    .AsNoTracking()
+                    .Where(link => requestIds.Contains(link.GuaranteeRequestId))
+                    .Select(link => new DispatchSourceDocumentProjection(
+                        link.GuaranteeRequestId,
+                        link.GuaranteeDocument.DocumentType,
+                        link.GuaranteeDocument.VerifiedDataJson,
+                        link.LinkedAtUtc))
+                    .ToListAsync(cancellationToken))
+                .GroupBy(link => link.RequestId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        .OrderBy(link => link.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                        .ThenBy(link => link.LinkedAtUtc)
+                        .First());
+
         return items
-            .Select(item => new DispatchPendingDeliveryItemReadModel(
-                item.RequestId,
-                item.CorrespondenceId,
-                item.GuaranteeNumber,
-                item.GuaranteeCategory,
-                item.RequestType,
-                item.RequesterDisplayName,
-                item.ReferenceNumber,
-                item.LetterDate,
-                item.DispatchChannel,
-                item.DispatchReference,
-                item.DispatchedAtUtc))
+            .Select(item =>
+            {
+                sourceDocumentsByRequestId.TryGetValue(item.RequestId, out var sourceDocument);
+
+                return new DispatchPendingDeliveryItemReadModel(
+                    item.RequestId,
+                    item.CorrespondenceId,
+                    item.GuaranteeNumber,
+                    item.GuaranteeCategory,
+                    item.RequestType,
+                    item.RequesterDisplayName,
+                    item.ReferenceNumber,
+                    item.LetterDate,
+                    sourceDocument?.DocumentType,
+                    sourceDocument?.VerifiedDataJson,
+                    item.DispatchChannel,
+                    item.DispatchReference,
+                    item.DispatchedAtUtc);
+            })
             .ToArray();
     }
 
@@ -218,6 +271,15 @@ internal sealed class DispatchWorkspaceRepository : IDispatchWorkspaceRepository
             .Include(request => request.Correspondence)
             .Include(request => request.ApprovalProcess!)
             .SingleOrDefaultAsync(request => request.Id == requestId, cancellationToken);
+    }
+
+    public void TrackNewOutgoingCorrespondence(GuaranteeCorrespondence correspondence)
+    {
+        var entry = _dbContext.Entry(correspondence);
+        if (entry.State is EntityState.Detached or EntityState.Unchanged or EntityState.Modified)
+        {
+            entry.State = EntityState.Added;
+        }
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -256,4 +318,10 @@ internal sealed class DispatchWorkspaceRepository : IDispatchWorkspaceRepository
         GuaranteeDispatchChannel DispatchChannel,
         string? DispatchReference,
         DateTimeOffset DispatchedAtUtc);
+
+    private sealed record DispatchSourceDocumentProjection(
+        Guid RequestId,
+        GuaranteeDocumentType DocumentType,
+        string? VerifiedDataJson,
+        DateTimeOffset LinkedAtUtc);
 }

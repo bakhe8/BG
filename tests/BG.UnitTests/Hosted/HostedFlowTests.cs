@@ -44,6 +44,7 @@ public sealed class HostedFlowTests
         var workspaceHtml = await workspaceResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, workspaceResponse.StatusCode);
+        Assert.Contains("requests-workbench-grid", workspaceHtml, StringComparison.Ordinal);
         Assert.Contains("name=\"Input.GuaranteeNumber\"", workspaceHtml, StringComparison.Ordinal);
         Assert.Contains("Hosted Admin", workspaceHtml, StringComparison.Ordinal);
     }
@@ -128,10 +129,36 @@ public sealed class HostedFlowTests
         var homeHtml = await homeResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, homeResponse.StatusCode);
-        Assert.Contains("dashboard-hero", homeHtml, StringComparison.Ordinal);
+        Assert.Contains("home-workspace-grid", homeHtml, StringComparison.Ordinal);
         Assert.Contains(guaranteeNumber, homeHtml, StringComparison.Ordinal);
-        Assert.Contains("dashboard-response.pdf", homeHtml, StringComparison.Ordinal);
         Assert.DoesNotContain("Architecture decisions", homeHtml, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Intake_workspace_loads_minimal_execution_surface_for_signed_in_actor()
+    {
+        await using var factory = new HostedAppFactory();
+        var client = factory.CreateAppClient();
+
+        var signInResponse = await client.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FIntake%2FWorkspace",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.admin",
+                ["Password"] = "HostedAdmin123!",
+                ["ReturnUrl"] = "/Intake/Workspace"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, signInResponse.StatusCode);
+        Assert.Equal("/Intake/Workspace", signInResponse.Headers.Location?.OriginalString);
+
+        var intakeResponse = await client.GetAsync("/Intake/Workspace");
+        var intakeHtml = await intakeResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, intakeResponse.StatusCode);
+        Assert.Contains("intake-surface-grid", intakeHtml, StringComparison.Ordinal);
+        Assert.Contains("name=\"Input.UploadedDocument\"", intakeHtml, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -196,6 +223,7 @@ public sealed class HostedFlowTests
         var queueHtml = await queueResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, queueResponse.StatusCode);
+        Assert.Contains("operations-workbench-grid", queueHtml, StringComparison.Ordinal);
         Assert.Contains(guaranteeNumber, queueHtml, StringComparison.Ordinal);
         Assert.Contains("bank-response.pdf", queueHtml, StringComparison.Ordinal);
     }
@@ -285,6 +313,7 @@ public sealed class HostedFlowTests
         var dispatchHtml = await dispatchResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, dispatchResponse.StatusCode);
+        Assert.Contains("dispatch-workbench-grid", dispatchHtml, StringComparison.Ordinal);
         Assert.Contains(guaranteeNumber, dispatchHtml, StringComparison.Ordinal);
         Assert.Contains("Dispatch Requester", dispatchHtml, StringComparison.Ordinal);
     }
@@ -513,6 +542,7 @@ public sealed class HostedFlowTests
         Assert.Equal(HttpStatusCode.OK, approvalsResponse.StatusCode);
         Assert.Contains(guaranteeNumber, approvalsHtml, StringComparison.Ordinal);
         Assert.Contains("Hosted flow extension", approvalsHtml, StringComparison.Ordinal);
+        Assert.Contains("approval-item-card", approvalsHtml, StringComparison.Ordinal);
 
         var requestState = await factory.QueryDbContextAsync(
             dbContext => dbContext.GuaranteeRequests
@@ -521,6 +551,76 @@ public sealed class HostedFlowTests
 
         Assert.Equal(GuaranteeRequestStatus.InApproval, requestState.Status);
         Assert.NotNull(requestState.ApprovalProcess);
+    }
+
+    [Fact]
+    public async Task Operational_seed_pack_creates_realistic_users_workflows_and_scenarios_idempotently()
+    {
+        await using var factory = new HostedAppFactory(
+            new Dictionary<string, string?>
+            {
+                ["OperationalSeed:Enabled"] = "true",
+                ["OperationalSeed:SharedPassword"] = "SeedUsers123!"
+            });
+
+        await factory.Services.InitializeInfrastructureAsync();
+
+        var seededSnapshot = await factory.QueryDbContextAsync(async dbContext =>
+        {
+            var seededUsernames = await dbContext.Users
+                .Where(user => user.Username.StartsWith("intake.") ||
+                               user.Username.StartsWith("operations.") ||
+                               user.Username.StartsWith("request.") ||
+                               user.Username.StartsWith("dispatch.") ||
+                               user.Username.StartsWith("guarantees.") ||
+                               user.Username.StartsWith("department.") ||
+                               user.Username.StartsWith("program.") ||
+                               user.Username.StartsWith("deputy.") ||
+                               user.Username.StartsWith("contracts.") ||
+                               user.Username.StartsWith("procurement.") ||
+                               user.Username.StartsWith("executive."))
+                .OrderBy(user => user.Username)
+                .Select(user => user.Username)
+                .ToArrayAsync();
+
+            var seededGuarantees = await dbContext.Guarantees
+                .Where(guarantee => guarantee.GuaranteeNumber.StartsWith("BG-SEED-"))
+                .OrderBy(guarantee => guarantee.GuaranteeNumber)
+                .Select(guarantee => guarantee.GuaranteeNumber)
+                .ToArrayAsync();
+
+            var activeWorkflowCount = await dbContext.RequestWorkflowDefinitions
+                .CountAsync(definition => definition.IsActive);
+
+            var workflowStagesWithoutRoleCount = await dbContext.RequestWorkflowStages
+                .CountAsync(stage => stage.RoleId == null);
+
+            var pendingOperationsCount = await dbContext.OperationsReviewItems
+                .CountAsync(item => item.Status != OperationsReviewItemStatus.Completed);
+
+            return new
+            {
+                SeededUsernames = seededUsernames,
+                SeededGuarantees = seededGuarantees,
+                ActiveWorkflowCount = activeWorkflowCount,
+                WorkflowStagesWithoutRoleCount = workflowStagesWithoutRoleCount,
+                PendingOperationsCount = pendingOperationsCount
+            };
+        });
+
+        Assert.Contains("intake.operator", seededSnapshot.SeededUsernames);
+        Assert.Contains("request.owner1", seededSnapshot.SeededUsernames);
+        Assert.Contains("dispatch.officer", seededSnapshot.SeededUsernames);
+        Assert.Contains("executive.vp", seededSnapshot.SeededUsernames);
+
+        Assert.Contains("BG-SEED-CT-0001", seededSnapshot.SeededGuarantees);
+        Assert.Contains("BG-SEED-CT-0004", seededSnapshot.SeededGuarantees);
+        Assert.Contains("BG-SEED-PO-0005", seededSnapshot.SeededGuarantees);
+        Assert.Contains("BG-SEED-CT-0008", seededSnapshot.SeededGuarantees);
+        Assert.Equal(8, seededSnapshot.SeededGuarantees.Length);
+        Assert.True(seededSnapshot.ActiveWorkflowCount > 0);
+        Assert.Equal(0, seededSnapshot.WorkflowStagesWithoutRoleCount);
+        Assert.True(seededSnapshot.PendingOperationsCount >= 2);
     }
 
     private static async Task<User> SeedLocalUserAsync(

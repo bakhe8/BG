@@ -22,6 +22,20 @@ public interface IRequestWorkspaceService
         Guid requestId,
         CancellationToken cancellationToken = default);
 
+    Task<OperationResult<UpdateGuaranteeRequestReceiptDto>> UpdateRequestAsync(
+        UpdateGuaranteeRequestCommand command,
+        CancellationToken cancellationToken = default);
+
+    Task<OperationResult<CancelGuaranteeRequestReceiptDto>> CancelRequestAsync(
+        Guid requestedByUserId,
+        Guid requestId,
+        CancellationToken cancellationToken = default);
+
+    Task<OperationResult<WithdrawGuaranteeRequestReceiptDto>> WithdrawRequestAsync(
+        Guid requestedByUserId,
+        Guid requestId,
+        CancellationToken cancellationToken = default);
+
     Task<OperationResult<CreateGuaranteeRequestReceiptDto>> CreateRequestAsync(
         CreateGuaranteeRequestCommand command,
         CancellationToken cancellationToken = default);

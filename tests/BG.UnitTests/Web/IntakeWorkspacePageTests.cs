@@ -3,6 +3,7 @@ using BG.Application.Common;
 using BG.Application.Contracts.Services;
 using BG.Application.Intake;
 using BG.Application.Models.Intake;
+using BG.Application.ReferenceData;
 using BG.Domain.Guarantees;
 using BG.Web.Localization;
 using BG.Web.Pages.Intake;
@@ -54,7 +55,9 @@ public sealed class IntakeWorkspacePageTests
         Assert.IsType<Microsoft.AspNetCore.Mvc.RazorPages.PageResult>(result);
         Assert.True(model.HasDraft);
         Assert.Equal("token-1", model.Input.StagedDocumentToken);
+        Assert.Equal(GuaranteeDocumentFormKeys.GuaranteeInstrumentSnb, model.Input.DocumentFormKey);
         Assert.Equal("BG-2026-0666", model.Input.GuaranteeNumber);
+        Assert.Contains(model.ReviewFields, field => field.FieldKey == IntakeFieldKeys.GuaranteeNumber && field.IsExpectedByDocumentForm);
     }
 
     [Fact]
@@ -145,7 +148,25 @@ public sealed class IntakeWorkspacePageTests
                     RequiresConfirmedExpiryDate: false,
                     RequiresConfirmedAmount: false,
                     RequiresStatusStatement: false,
-                    RequiresAttachmentNote: false),
+                    RequiresAttachmentNote: false,
+                    DefaultDocumentFormKey: GuaranteeDocumentFormKeys.GuaranteeInstrumentGeneric,
+                    SupportedDocumentForms:
+                    [
+                        new IntakeDocumentFormOptionDto(
+                            GuaranteeDocumentFormKeys.GuaranteeInstrumentGeneric,
+                            "BankProfile_Generic",
+                            "DocumentForm_Instrument_Generic_Title",
+                            "DocumentForm_Instrument_Generic_Summary",
+                            [IntakeFieldKeys.GuaranteeNumber],
+                            ["DocumentFormCue_BankIdentity"]),
+                        new IntakeDocumentFormOptionDto(
+                            GuaranteeDocumentFormKeys.GuaranteeInstrumentSnb,
+                            "BankProfile_SNB",
+                            "DocumentForm_Instrument_SNB_Title",
+                            "DocumentForm_Instrument_SNB_Summary",
+                            [IntakeFieldKeys.GuaranteeNumber, IntakeFieldKeys.BankName],
+                            ["DocumentFormCue_BankIdentity"])
+                    ]),
                 new(
                     IntakeScenarioKeys.ReleaseConfirmation,
                     "IntakeScenario_Release_Title",
@@ -158,7 +179,18 @@ public sealed class IntakeWorkspacePageTests
                     RequiresConfirmedExpiryDate: false,
                     RequiresConfirmedAmount: false,
                     RequiresStatusStatement: false,
-                    RequiresAttachmentNote: false),
+                    RequiresAttachmentNote: false,
+                    DefaultDocumentFormKey: GuaranteeDocumentFormKeys.BankLetterGeneric,
+                    SupportedDocumentForms:
+                    [
+                        new IntakeDocumentFormOptionDto(
+                            GuaranteeDocumentFormKeys.BankLetterGeneric,
+                            "BankProfile_Generic",
+                            "DocumentForm_BankLetter_Generic_Title",
+                            "DocumentForm_BankLetter_Generic_Summary",
+                            [IntakeFieldKeys.GuaranteeNumber, IntakeFieldKeys.BankReference],
+                            ["DocumentFormCue_BankReference"])
+                    ]),
                 new(
                     IntakeScenarioKeys.SupportingAttachment,
                     "IntakeScenario_Attachment_Title",
@@ -171,7 +203,18 @@ public sealed class IntakeWorkspacePageTests
                     RequiresConfirmedExpiryDate: false,
                     RequiresConfirmedAmount: false,
                     RequiresStatusStatement: false,
-                    RequiresAttachmentNote: true)
+                    RequiresAttachmentNote: true,
+                    DefaultDocumentFormKey: GuaranteeDocumentFormKeys.SupportingAttachmentGeneric,
+                    SupportedDocumentForms:
+                    [
+                        new IntakeDocumentFormOptionDto(
+                            GuaranteeDocumentFormKeys.SupportingAttachmentGeneric,
+                            "BankProfile_Generic",
+                            "DocumentForm_Attachment_Generic_Title",
+                            "DocumentForm_Attachment_Generic_Summary",
+                            [IntakeFieldKeys.GuaranteeNumber, IntakeFieldKeys.AttachmentNote],
+                            ["DocumentFormCue_AttachmentPurpose"])
+                    ])
             ];
         }
     }
@@ -191,7 +234,8 @@ public sealed class IntakeWorkspacePageTests
                         [
                             new(IntakeFieldKeys.GuaranteeNumber, IntakeFieldKeys.GuaranteeNumber, "BG-2026-0666", 99, true),
                             new(IntakeFieldKeys.BankName, IntakeFieldKeys.BankName, "Saudi National Bank", 97, true)
-                        ])));
+                        ],
+                        GuaranteeDocumentFormKeys.GuaranteeInstrumentSnb)));
         }
 
         public Task<OperationResult<IntakeSubmissionReceiptDto>> FinalizeAsync(IntakeSubmissionCommand command, CancellationToken cancellationToken = default)

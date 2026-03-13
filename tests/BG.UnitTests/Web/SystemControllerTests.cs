@@ -48,10 +48,11 @@ public sealed class SystemControllerTests
         Assert.Equal("ASP.NET Core 8", response.Framework);
         Assert.Equal("Razor Pages", response.UserInterface);
         Assert.Equal("ar", response.DefaultCulture);
-        Assert.Equal("emerald", response.DefaultTheme);
+        Assert.Equal("kfsh", response.DefaultTheme);
         Assert.Contains("ar", response.SupportedCultures);
         Assert.Contains("en", response.SupportedCultures);
-        Assert.Contains("sand", response.SupportedThemes);
+        Assert.Single(response.SupportedThemes);
+        Assert.Contains("kfsh", response.SupportedThemes);
         Assert.True(response.HospitalApi.IsConfigured);
         Assert.Equal("https://hospital-api.internal/", response.HospitalApi.BaseUrl);
         Assert.Equal("ApiKey", response.HospitalApi.AuthenticationMode);

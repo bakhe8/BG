@@ -3,6 +3,7 @@ namespace BG.Application.Intake;
 internal static class IntakeVerifiedDataKeys
 {
     public const string ScenarioKey = "scenarioKey";
+    public const string DocumentFormKey = "documentFormKey";
     public const string GuaranteeNumber = "guaranteeNumber";
     public const string BankName = "bankName";
     public const string BeneficiaryName = "beneficiaryName";

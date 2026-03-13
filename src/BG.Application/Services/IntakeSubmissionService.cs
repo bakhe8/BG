@@ -5,6 +5,7 @@ using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
 using BG.Application.Intake;
 using BG.Application.Models.Intake;
+using BG.Application.ReferenceData;
 using BG.Domain.Guarantees;
 using BG.Domain.Operations;
 
@@ -88,6 +89,11 @@ internal sealed class IntakeSubmissionService : IIntakeSubmissionService
             return OperationResult<IntakeSubmissionReceiptDto>.Failure(IntakeErrorCodes.UnsupportedScenario);
         }
 
+        if (!GuaranteeDocumentFormCatalog.IsSupportedForScenario(command.ScenarioKey, command.DocumentFormKey))
+        {
+            return OperationResult<IntakeSubmissionReceiptDto>.Failure(IntakeErrorCodes.DocumentFormInvalid);
+        }
+
         if (string.IsNullOrWhiteSpace(command.StagedDocumentToken))
         {
             return OperationResult<IntakeSubmissionReceiptDto>.Failure(IntakeErrorCodes.StagedDocumentNotFound);
@@ -130,12 +136,15 @@ internal sealed class IntakeSubmissionService : IIntakeSubmissionService
         IntakeSubmissionCommand command,
         CancellationToken cancellationToken)
     {
+        var documentForm = GuaranteeDocumentFormCatalog.Find(command.DocumentFormKey)
+            ?? throw new InvalidOperationException($"Unsupported document form '{command.DocumentFormKey}'.");
+
         if (await _repository.GuaranteeNumberExistsAsync(guaranteeNumber, cancellationToken))
         {
             return OperationResult<IntakeSubmissionReceiptDto>.Failure(IntakeErrorCodes.DuplicateGuaranteeNumber);
         }
 
-        var bankName = Normalize(command.BankName);
+        var bankName = Normalize(command.BankName) ?? documentForm.CanonicalBankName;
         var beneficiary = Normalize(command.BeneficiaryName);
         var principal = Normalize(command.PrincipalName);
         var currencyCode = Normalize(command.CurrencyCode)?.ToUpperInvariant();
@@ -242,6 +251,9 @@ internal sealed class IntakeSubmissionService : IIntakeSubmissionService
         IntakeSubmissionCommand command,
         CancellationToken cancellationToken)
     {
+        _ = GuaranteeDocumentFormCatalog.Find(command.DocumentFormKey)
+            ?? throw new InvalidOperationException($"Unsupported document form '{command.DocumentFormKey}'.");
+
         var guarantee = await _repository.GetGuaranteeByNumberAsync(guaranteeNumber, cancellationToken);
 
         if (guarantee is null)
@@ -373,6 +385,7 @@ internal sealed class IntakeSubmissionService : IIntakeSubmissionService
         var payload = new Dictionary<string, string?>(StringComparer.Ordinal)
         {
             [IntakeVerifiedDataKeys.ScenarioKey] = scenarioKey,
+            [IntakeVerifiedDataKeys.DocumentFormKey] = Normalize(command.DocumentFormKey),
             [IntakeVerifiedDataKeys.GuaranteeNumber] = Normalize(command.GuaranteeNumber),
             [IntakeVerifiedDataKeys.BankName] = Normalize(command.BankName),
             [IntakeVerifiedDataKeys.BeneficiaryName] = Normalize(command.BeneficiaryName),

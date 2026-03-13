@@ -2,6 +2,7 @@ using BG.Application.Approvals;
 using BG.Application.Common;
 using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
+using BG.Application.Intake;
 using BG.Application.Models.Approvals;
 using BG.Application.ReferenceData;
 using BG.Domain.Guarantees;
@@ -295,7 +296,11 @@ internal sealed class ApprovalQueueService : IApprovalQueueService
                 link.CapturedByDisplayName,
                 GuaranteeResourceCatalog.GetCaptureChannelResourceKey(link.CaptureChannel),
                 link.SourceSystemName,
-                link.SourceReference))
+                link.SourceReference,
+                GuaranteeDocumentFormCatalog.ToSnapshot(
+                    IntakeVerifiedDataParser.ResolveDocumentForm(
+                        link.DocumentType,
+                        link.VerifiedDataJson))))
             .ToArray();
         var timelineEntries = request.TimelineEntries
             .Select(ledgerEntry => new ApprovalRequestTimelineEntryDto(

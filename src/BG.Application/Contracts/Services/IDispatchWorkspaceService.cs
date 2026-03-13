@@ -21,4 +21,8 @@ public interface IDispatchWorkspaceService
     Task<OperationResult<ConfirmDispatchDeliveryReceiptDto>> ConfirmDeliveryAsync(
         ConfirmDispatchDeliveryCommand command,
         CancellationToken cancellationToken = default);
+
+    Task<OperationResult<ReopenDispatchReceiptDto>> ReopenDispatchAsync(
+        ReopenDispatchCommand command,
+        CancellationToken cancellationToken = default);
 }

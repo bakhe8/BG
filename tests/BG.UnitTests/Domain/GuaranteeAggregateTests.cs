@@ -169,6 +169,48 @@ public sealed class GuaranteeAggregateTests
     }
 
     [Fact]
+    public void Dispatched_letter_can_be_reopened_before_delivery_with_ledger_trace()
+    {
+        var guarantee = CreateGuarantee();
+        var request = guarantee.CreateRequest(
+            RequestsUserId,
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 6, 30),
+            notes: "Dispatch correction",
+            createdAtUtc: DateTimeOffset.UtcNow);
+        ApproveForDispatch(request);
+
+        var correspondence = guarantee.RecordOutgoingDispatch(
+            request.Id,
+            "LTR-777",
+            new DateOnly(2026, 3, 12),
+            GuaranteeDispatchChannel.Courier,
+            "PKG-777",
+            "Sent in error",
+            DateTimeOffset.UtcNow,
+            RequestsUserId,
+            "Dispatch User");
+
+        guarantee.ReopenOutgoingDispatch(
+            request.Id,
+            correspondence.Id,
+            DateTimeOffset.UtcNow.AddMinutes(1),
+            RequestsUserId,
+            "Dispatch User",
+            "Courier handoff was recorded too early.");
+
+        Assert.Equal(GuaranteeRequestStatus.ApprovedForDispatch, request.Status);
+        Assert.Null(request.SubmittedToBankAtUtc);
+        Assert.Null(correspondence.DispatchedAtUtc);
+        Assert.Null(correspondence.DispatchChannel);
+        Assert.Contains(
+            guarantee.Events,
+            guaranteeEvent => guaranteeEvent.EventType == GuaranteeEventType.OutgoingLetterDispatchReopened &&
+                              guaranteeEvent.GuaranteeRequestId == request.Id);
+    }
+
+    [Fact]
     public void Verify_status_response_records_event_without_mutating_amount_or_dates()
     {
         var guarantee = CreateGuarantee();
@@ -240,6 +282,112 @@ public sealed class GuaranteeAggregateTests
             guaranteeEvent => guaranteeEvent.EventType == GuaranteeEventType.RequestDocumentLinked &&
                               guaranteeEvent.GuaranteeRequestId == request.Id &&
                               guaranteeEvent.GuaranteeDocumentId == document.Id);
+    }
+
+    [Fact]
+    public void Returned_request_can_be_revised_with_ledger_trace()
+    {
+        var guarantee = CreateGuarantee();
+        var request = guarantee.CreateRequest(
+            RequestsUserId,
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 6, 30),
+            notes: "Original note",
+            createdAtUtc: DateTimeOffset.UtcNow);
+
+        var process = new RequestApprovalProcess(request.Id, Guid.NewGuid(), DateTimeOffset.UtcNow);
+        process.AddStage(
+            Guid.NewGuid(),
+            null,
+            null,
+            "Approver",
+            "Approval",
+            requiresLetterSignature: true);
+        process.Start();
+        request.SubmitForApproval(process);
+        process.ReturnCurrentStage(RequestsUserId, DateTimeOffset.UtcNow.AddMinutes(1), "Revise it");
+        request.MarkReturnedFromApproval();
+
+        guarantee.ReviseRequest(
+            request.Id,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 7, 15),
+            notes: "Revised note",
+            revisedAtUtc: DateTimeOffset.UtcNow.AddMinutes(2),
+            actorUserId: RequestsUserId,
+            actorDisplayName: "Request User");
+
+        Assert.Equal(GuaranteeRequestStatus.Returned, request.Status);
+        Assert.Equal(new DateOnly(2027, 7, 15), request.RequestedExpiryDate);
+        Assert.Equal("Revised note", request.Notes);
+        Assert.Contains(
+            guarantee.Events,
+            guaranteeEvent => guaranteeEvent.EventType == GuaranteeEventType.RequestUpdated &&
+                              guaranteeEvent.GuaranteeRequestId == request.Id);
+    }
+
+    [Fact]
+    public void Draft_request_can_be_cancelled_with_ledger_trace()
+    {
+        var guarantee = CreateGuarantee();
+        var request = guarantee.CreateRequest(
+            RequestsUserId,
+            GuaranteeRequestType.Release,
+            requestedAmount: null,
+            requestedExpiryDate: null,
+            notes: "Cancel this request",
+            createdAtUtc: DateTimeOffset.UtcNow);
+
+        guarantee.CancelRequest(
+            request.Id,
+            DateTimeOffset.UtcNow.AddMinutes(1),
+            RequestsUserId,
+            "Request User");
+
+        Assert.Equal(GuaranteeRequestStatus.Cancelled, request.Status);
+        Assert.Contains(
+            guarantee.Events,
+            guaranteeEvent => guaranteeEvent.EventType == GuaranteeEventType.RequestCancelled &&
+                              guaranteeEvent.GuaranteeRequestId == request.Id);
+    }
+
+    [Fact]
+    public void In_approval_request_can_be_withdrawn_with_ledger_trace()
+    {
+        var guarantee = CreateGuarantee();
+        var request = guarantee.CreateRequest(
+            RequestsUserId,
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 6, 30),
+            notes: "Withdraw this request",
+            createdAtUtc: DateTimeOffset.UtcNow);
+
+        var process = new RequestApprovalProcess(request.Id, Guid.NewGuid(), DateTimeOffset.UtcNow);
+        process.AddStage(
+            Guid.NewGuid(),
+            null,
+            null,
+            "Approver",
+            "Approval",
+            requiresLetterSignature: true);
+        process.Start();
+        request.SubmitForApproval(process);
+
+        guarantee.WithdrawRequestFromApproval(
+            request.Id,
+            DateTimeOffset.UtcNow.AddMinutes(1),
+            RequestsUserId,
+            "Request User");
+
+        Assert.Equal(GuaranteeRequestStatus.Cancelled, request.Status);
+        Assert.Equal(RequestApprovalProcessStatus.Cancelled, request.ApprovalProcess!.Status);
+        Assert.All(request.ApprovalProcess.Stages, stage => Assert.NotEqual(RequestApprovalStageStatus.Active, stage.Status));
+        Assert.Contains(
+            guarantee.Events,
+            guaranteeEvent => guaranteeEvent.EventType == GuaranteeEventType.RequestWithdrawn &&
+                              guaranteeEvent.GuaranteeRequestId == request.Id);
     }
 
     [Fact]

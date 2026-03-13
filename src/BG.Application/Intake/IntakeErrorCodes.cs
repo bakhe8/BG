@@ -6,6 +6,7 @@ public static class IntakeErrorCodes
     public const string IntakeActorInvalid = "intake.actor_invalid";
     public const string ScenarioRequired = "intake.scenario_required";
     public const string UnsupportedScenario = "intake.unsupported_scenario";
+    public const string DocumentFormInvalid = "intake.document_form_invalid";
     public const string FileRequired = "intake.file_required";
     public const string EmptyFile = "intake.empty_file";
     public const string StagedDocumentNotFound = "intake.staged_document_not_found";

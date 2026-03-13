@@ -3,6 +3,7 @@ using BG.Application.Common;
 using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
 using BG.Application.Dispatch;
+using BG.Application.Intake;
 using BG.Application.Models.Dispatch;
 using BG.Application.ReferenceData;
 using BG.Domain.Guarantees;
@@ -110,16 +111,29 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
             return OperationResult<PrintDispatchLetterReceiptDto>.Failure(DispatchErrorCodes.RequestNotFound);
         }
 
+        var existingOutgoingCorrespondenceIds = request.Correspondence
+            .Where(correspondence =>
+                correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing &&
+                correspondence.Kind == GuaranteeCorrespondenceKind.RequestLetter)
+            .Select(correspondence => correspondence.Id)
+            .ToHashSet();
+
         try
         {
+            var printedAtUtc = DateTimeOffset.UtcNow;
             var correspondence = request.Guarantee.RecordOutgoingLetterPrint(
                 request.Id,
                 referenceNumber,
                 letterDate,
                 command.PrintMode.Value,
-                DateTimeOffset.UtcNow,
+                printedAtUtc,
                 actor.Id,
                 actor.DisplayName);
+
+            if (!existingOutgoingCorrespondenceIds.Contains(correspondence.Id))
+            {
+                _repository.TrackNewOutgoingCorrespondence(correspondence);
+            }
 
             await _repository.SaveChangesAsync(cancellationToken);
 
@@ -195,8 +209,16 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
             return OperationResult<RecordDispatchReceiptDto>.Failure(DispatchErrorCodes.RequestNotReady);
         }
 
+        var existingOutgoingCorrespondenceIds = request.Correspondence
+            .Where(correspondence =>
+                correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing &&
+                correspondence.Kind == GuaranteeCorrespondenceKind.RequestLetter)
+            .Select(correspondence => correspondence.Id)
+            .ToHashSet();
+
         try
         {
+            var dispatchedAtUtc = DateTimeOffset.UtcNow;
             var correspondence = request.Guarantee.RecordOutgoingDispatch(
                 request.Id,
                 referenceNumber,
@@ -204,9 +226,14 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
                 dispatchChannel,
                 command.DispatchReference,
                 command.Note,
-                DateTimeOffset.UtcNow,
+                dispatchedAtUtc,
                 actor.Id,
                 actor.DisplayName);
+
+            if (!existingOutgoingCorrespondenceIds.Contains(correspondence.Id))
+            {
+                _repository.TrackNewOutgoingCorrespondence(correspondence);
+            }
 
             await _repository.SaveChangesAsync(cancellationToken);
 
@@ -293,6 +320,73 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
         }
     }
 
+    public async Task<OperationResult<ReopenDispatchReceiptDto>> ReopenDispatchAsync(
+        ReopenDispatchCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (command.DispatcherUserId == Guid.Empty)
+        {
+            return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.DispatcherContextRequired);
+        }
+
+        var actor = await _repository.GetDispatchActorByIdAsync(command.DispatcherUserId, cancellationToken);
+        if (actor is null)
+        {
+            return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.DispatcherContextInvalid);
+        }
+
+        if (!HasPermission(actor, "dispatch.record") && !HasPermission(actor, "dispatch.email"))
+        {
+            return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.DispatchRecordPermissionRequired);
+        }
+
+        var correctionNote = Normalize(command.CorrectionNote);
+        if (string.IsNullOrWhiteSpace(correctionNote))
+        {
+            return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.ReopenDispatchNoteRequired);
+        }
+
+        var request = await _repository.GetRequestForDispatchAsync(command.RequestId, cancellationToken);
+        if (request is null)
+        {
+            return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.RequestNotFound);
+        }
+
+        if (request.Status != GuaranteeRequestStatus.AwaitingBankResponse)
+        {
+            return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.ReopenDispatchNotAllowed);
+        }
+
+        var correspondence = request.Correspondence.SingleOrDefault(item => item.Id == command.CorrespondenceId);
+        if (correspondence is null)
+        {
+            return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.OutgoingLetterNotFound);
+        }
+
+        try
+        {
+            request.Guarantee.ReopenOutgoingDispatch(
+                request.Id,
+                command.CorrespondenceId,
+                DateTimeOffset.UtcNow,
+                actor.Id,
+                actor.DisplayName,
+                correctionNote);
+
+            await _repository.SaveChangesAsync(cancellationToken);
+
+            return OperationResult<ReopenDispatchReceiptDto>.Success(
+                new ReopenDispatchReceiptDto(
+                    request.Id,
+                    request.Guarantee.GuaranteeNumber,
+                    correspondence.ReferenceNumber));
+        }
+        catch (InvalidOperationException)
+        {
+            return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.ReopenDispatchNotAllowed);
+        }
+    }
+
     private static DispatchActorSummaryDto MapActor(User actor)
     {
         return new DispatchActorSummaryDto(
@@ -317,6 +411,12 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
             request.OutgoingCorrespondenceId,
             request.OutgoingReferenceNumber,
             request.OutgoingLetterDate,
+            request.SourceDocumentType.HasValue
+                ? GuaranteeDocumentFormCatalog.ToSnapshot(
+                    IntakeVerifiedDataParser.ResolveDocumentForm(
+                        request.SourceDocumentType.Value,
+                        request.SourceDocumentVerifiedDataJson))
+                : null,
             request.PrintCount,
             request.LastPrintedAtUtc,
             request.LastPrintMode.HasValue
@@ -335,6 +435,12 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
             item.RequesterDisplayName,
             item.ReferenceNumber,
             item.LetterDate,
+            item.SourceDocumentType.HasValue
+                ? GuaranteeDocumentFormCatalog.ToSnapshot(
+                    IntakeVerifiedDataParser.ResolveDocumentForm(
+                        item.SourceDocumentType.Value,
+                        item.SourceDocumentVerifiedDataJson))
+                : null,
             GuaranteeResourceCatalog.GetDispatchChannelResourceKey(item.DispatchChannel),
             item.DispatchReference,
             item.DispatchedAtUtc);

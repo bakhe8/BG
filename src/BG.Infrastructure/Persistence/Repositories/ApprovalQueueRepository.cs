@@ -128,15 +128,14 @@ internal sealed class ApprovalQueueRepository : IApprovalQueueRepository
         var totalItemCount = await filteredQuery.CountAsync(cancellationToken);
         var pageInfo = RepositoryPaging.CreatePageInfo(pageNumber, pageSize, totalItemCount);
 
-        var projectedQuery = BuildActionableRequestsProjection(filteredQuery);
-
         IReadOnlyList<ApprovalQueueItemReadModel> requests = RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext)
             ? RepositoryPaging.SlicePage(
-                (await projectedQuery.ToListAsync(cancellationToken))
+                (await BuildActionableRequestsProjection(filteredQuery)
+                    .ToListAsync(cancellationToken))
                     .OrderBy(request => request.SubmittedAtUtc),
                 pageInfo)
-            : await projectedQuery
-                .OrderBy(request => request.SubmittedAtUtc)
+            : await BuildActionableRequestsProjection(
+                    filteredQuery.OrderBy(request => request.ApprovalProcess!.SubmittedAtUtc))
                 .Skip((pageInfo.PageNumber - 1) * pageInfo.PageSize)
                 .Take(pageInfo.PageSize)
                 .ToListAsync(cancellationToken);
@@ -298,7 +297,8 @@ internal sealed class ApprovalQueueRepository : IApprovalQueueRepository
                     link.GuaranteeDocument.CapturedByDisplayName,
                     link.GuaranteeDocument.CaptureChannel,
                     link.GuaranteeDocument.SourceSystemName,
-                    link.GuaranteeDocument.SourceReference)
+                    link.GuaranteeDocument.SourceReference,
+                    link.GuaranteeDocument.VerifiedDataJson)
             });
 
         var attachments = RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext)

@@ -9,4 +9,6 @@ public sealed record OperationsReviewRequestCandidateReadModel(
     DateOnly? RequestedExpiryDate,
     decimal? RequestedAmount,
     DateTimeOffset? SubmittedToBankAtUtc,
-    string? LatestOutgoingReferenceNumber);
+    string? LatestOutgoingReferenceNumber,
+    GuaranteeDocumentType? PrimaryDocumentType,
+    string? PrimaryDocumentVerifiedDataJson);

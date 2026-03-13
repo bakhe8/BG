@@ -79,6 +79,7 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
                         item.ScenarioKey,
                         item.Category,
                         item.Status,
+                        item.GuaranteeDocument.DocumentType,
                         item.GuaranteeDocument.FileName,
                         item.GuaranteeCorrespondence != null ? item.GuaranteeCorrespondence.ReferenceNumber : null,
                         item.CreatedAtUtc,
@@ -103,6 +104,7 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
                     item.ScenarioKey,
                     item.Category,
                     item.Status,
+                    item.GuaranteeDocument.DocumentType,
                     item.GuaranteeDocument.FileName,
                     item.GuaranteeCorrespondence != null ? item.GuaranteeCorrespondence.ReferenceNumber : null,
                     item.CreatedAtUtc,
@@ -123,6 +125,7 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
                 item.ScenarioKey,
                 item.Category,
                 item.Status,
+                item.DocumentType,
                 item.FileName,
                 item.BankReference,
                 item.CreatedAtUtc,
@@ -165,6 +168,25 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
             .Select(request => request.RequestId)
             .ToArray();
 
+        var primaryDocumentByRequestId = requestIds.Length == 0
+            ? new Dictionary<Guid, OperationsReviewRequestPrimaryDocumentRow>()
+            : (await _dbContext.GuaranteeRequestDocuments
+                    .AsNoTracking()
+                    .Where(link => requestIds.Contains(link.GuaranteeRequestId))
+                    .Select(link => new OperationsReviewRequestPrimaryDocumentRow(
+                        link.GuaranteeRequestId,
+                        link.GuaranteeDocument.DocumentType,
+                        link.GuaranteeDocument.VerifiedDataJson,
+                        link.LinkedAtUtc))
+                    .ToListAsync(cancellationToken))
+                .GroupBy(link => link.RequestId)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        .OrderBy(link => link.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                        .ThenBy(link => link.LinkedAtUtc)
+                        .First());
+
         var latestOutgoingReferenceByRequestId = (await _dbContext.GuaranteeCorrespondence
                 .AsNoTracking()
                 .Where(correspondence =>
@@ -198,7 +220,9 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
                         entry.RequestedExpiryDate,
                         entry.RequestedAmount,
                         entry.SubmittedToBankAtUtc,
-                        latestOutgoingReferenceByRequestId.GetValueOrDefault(entry.RequestId)))
+                        latestOutgoingReferenceByRequestId.GetValueOrDefault(entry.RequestId),
+                        primaryDocumentByRequestId.GetValueOrDefault(entry.RequestId)?.DocumentType,
+                        primaryDocumentByRequestId.GetValueOrDefault(entry.RequestId)?.VerifiedDataJson))
                     .ToArray());
 
         var hydratedItems = items
@@ -216,6 +240,10 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
     public async Task<OperationsReviewItem?> GetOpenItemByIdAsync(Guid reviewItemId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.OperationsReviewItems
+            .Include(item => item.Guarantee)
+            .ThenInclude(guarantee => guarantee.Requests)
+            .ThenInclude(request => request.RequestDocuments)
+            .ThenInclude(link => link.GuaranteeDocument)
             .Include(item => item.Guarantee)
             .ThenInclude(guarantee => guarantee.Requests)
             .ThenInclude(request => request.Correspondence)
@@ -240,6 +268,7 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
         string ScenarioKey,
         OperationsReviewItemCategory Category,
         OperationsReviewItemStatus Status,
+        GuaranteeDocumentType DocumentType,
         string FileName,
         string? BankReference,
         DateTimeOffset CreatedAtUtc,
@@ -259,4 +288,10 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
         DateOnly? RequestedExpiryDate,
         decimal? RequestedAmount,
         DateTimeOffset? SubmittedToBankAtUtc);
+
+    private sealed record OperationsReviewRequestPrimaryDocumentRow(
+        Guid RequestId,
+        GuaranteeDocumentType DocumentType,
+        string? VerifiedDataJson,
+        DateTimeOffset LinkedAtUtc);
 }

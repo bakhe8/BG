@@ -1,6 +1,7 @@
 using BG.Application.Common;
 using BG.Application.Contracts.Services;
 using BG.Application.Intake;
+using BG.Application.Models.Documents;
 using BG.Application.Operations;
 using BG.Web.Localization;
 using BG.Web.Pages.Operations;
@@ -88,6 +89,35 @@ public sealed class OperationsQueuePageTests
         Assert.Equal(lockedActor.Id, service.LastCommand!.OperationsActorUserId);
     }
 
+    [Fact]
+    public async Task OnPostApplyAsync_returns_page_with_localized_error_when_application_is_blocked()
+    {
+        var actor = new OperationsActorSummaryDto(Guid.NewGuid(), "operations.reviewer", "Operations Reviewer");
+        var service = new StubOperationsReviewQueueService(actor)
+        {
+            NextResult = OperationResult<ApplyBankResponseReceiptDto>.Failure(
+                OperationsReviewErrorCodes.ResponseBankProfileMismatch)
+        };
+        var model = new QueueModel(service, new PassThroughLocalizer());
+
+        var result = await model.OnPostApplyAsync(
+            actor.Id,
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "2027-12-31",
+            null,
+            null,
+            "Applied",
+            null,
+            CancellationToken.None);
+
+        Assert.IsType<PageResult>(result);
+        Assert.False(model.ModelState.IsValid);
+        Assert.Contains(
+            model.ModelState[string.Empty]!.Errors,
+            error => error.ErrorMessage == OperationsReviewErrorCodes.ResponseBankProfileMismatch);
+    }
+
     private static void AttachAuthenticatedUser(PageModel model, Guid userId)
     {
         var httpContext = new DefaultHttpContext();
@@ -114,6 +144,7 @@ public sealed class OperationsQueuePageTests
         }
 
         public ApplyBankResponseCommand? LastCommand { get; private set; }
+        public OperationResult<ApplyBankResponseReceiptDto>? NextResult { get; set; }
 
         public Task<OperationsReviewQueueSnapshotDto> GetSnapshotAsync(
             Guid? operationsActorId,
@@ -141,6 +172,11 @@ public sealed class OperationsQueuePageTests
                             "IntakeCaptureChannel_ScanStation",
                             "Scan Station",
                             "batch-1",
+                            new GuaranteeDocumentFormSnapshotDto(
+                                "guarantee-instrument-snb",
+                                "BankProfile_SNB",
+                                "DocumentForm_Instrument_SNB_Title",
+                                "DocumentForm_Instrument_SNB_Summary"),
                             false,
                             [],
                             null,
@@ -181,6 +217,7 @@ public sealed class OperationsQueuePageTests
         {
             LastCommand = command;
             return Task.FromResult(
+                NextResult ??
                 BG.Application.Common.OperationResult<ApplyBankResponseReceiptDto>.Success(
                     new ApplyBankResponseReceiptDto(command.ReviewItemId, command.RequestId, "BG-2026-2001")));
         }

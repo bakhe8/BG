@@ -35,9 +35,10 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
         }
 
         var responseSignal = ParseResponseSignal(item);
+        var responseDocumentForm = IntakeVerifiedDataParser.ResolveDocumentForm(item.DocumentType, item.VerifiedDataJson);
 
         return compatibleCandidates
-            .Select(request => CreateSuggestion(request, responseSignal, compatibleCandidates.Length == 1))
+            .Select(request => CreateSuggestion(request, responseSignal, responseDocumentForm, compatibleCandidates.Length == 1))
             .OrderByDescending(suggestion => suggestion.Score)
             .ThenByDescending(suggestion => suggestion.SubmittedToBankAtUtc)
             .ToArray();
@@ -52,6 +53,7 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
     private static OperationsReviewMatchSuggestionDto CreateSuggestion(
         OperationsReviewRequestCandidateReadModel request,
         ResponseSignal responseSignal,
+        GuaranteeDocumentFormDefinition? responseDocumentForm,
         bool isOnlyCompatibleCandidate)
     {
         var score = 40;
@@ -59,6 +61,9 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
         {
             "OperationsMatchReason_RequestTypeAligned"
         };
+        var requestDocumentForm = request.PrimaryDocumentType.HasValue
+            ? IntakeVerifiedDataParser.ResolveDocumentForm(request.PrimaryDocumentType.Value, request.PrimaryDocumentVerifiedDataJson)
+            : null;
 
         switch (request.Status)
         {
@@ -123,7 +128,24 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
             reasons.Add("OperationsMatchReason_AmountMatches");
         }
 
-        score = Math.Min(score, 99);
+        if (responseDocumentForm is not null &&
+            requestDocumentForm is not null &&
+            GuaranteeDocumentFormCatalog.IsSpecificBankProfile(responseDocumentForm) &&
+            GuaranteeDocumentFormCatalog.IsSpecificBankProfile(requestDocumentForm))
+        {
+            if (string.Equals(responseDocumentForm.BankResourceKey, requestDocumentForm.BankResourceKey, StringComparison.Ordinal))
+            {
+                score += 15;
+                reasons.Add("OperationsMatchReason_DocumentFormBankAligned");
+            }
+            else
+            {
+                score -= 15;
+                reasons.Add("OperationsMatchReason_DocumentFormBankMismatch");
+            }
+        }
+
+        score = Math.Clamp(score, 0, 99);
 
         return new OperationsReviewMatchSuggestionDto(
             request.RequestId,
@@ -133,7 +155,8 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
             MapConfidence(score),
             request.SubmittedToBankAtUtc,
             request.LatestOutgoingReferenceNumber,
-            reasons);
+            reasons,
+            GuaranteeDocumentFormCatalog.ToSnapshot(requestDocumentForm));
     }
 
     private static ResponseSignal ParseResponseSignal(OperationsReviewQueueItemReadModel item)

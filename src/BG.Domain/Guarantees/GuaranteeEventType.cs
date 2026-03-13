@@ -19,5 +19,9 @@ public enum GuaranteeEventType
     RequestDocumentLinked = 15,
     OutgoingLetterPrinted = 16,
     OutgoingLetterDispatched = 17,
-    OutgoingLetterDelivered = 18
+    OutgoingLetterDelivered = 18,
+    RequestUpdated = 19,
+    RequestCancelled = 20,
+    RequestWithdrawn = 21,
+    OutgoingLetterDispatchReopened = 22
 }

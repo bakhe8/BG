@@ -6,5 +6,6 @@ public enum RequestApprovalStageStatus
     Active = 2,
     Approved = 3,
     Returned = 4,
-    Rejected = 5
+    Rejected = 5,
+    Cancelled = 6
 }

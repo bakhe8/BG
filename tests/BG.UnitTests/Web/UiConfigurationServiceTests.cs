@@ -11,12 +11,12 @@ public sealed class UiConfigurationServiceTests
         var service = CreateService();
 
         Assert.Equal("ar", service.DefaultCulture);
-        Assert.Equal("emerald", service.DefaultTheme);
+        Assert.Equal("kfsh", service.DefaultTheme);
         Assert.Equal("ar", service.NormalizeCulture("ar-SA"));
         Assert.Equal("en", service.NormalizeCulture("en-US"));
         Assert.Equal("ar", service.NormalizeCulture("fr"));
-        Assert.Equal("slate", service.NormalizeTheme("Slate"));
-        Assert.Equal("emerald", service.NormalizeTheme("unknown"));
+        Assert.Equal("kfsh", service.NormalizeTheme("Slate"));
+        Assert.Equal("kfsh", service.NormalizeTheme("unknown"));
         Assert.Equal("rtl", service.GetDirection("ar"));
         Assert.Equal("ltr", service.GetDirection("en"));
     }
@@ -28,7 +28,7 @@ public sealed class UiConfigurationServiceTests
         httpContext.Request.Headers.Cookie = $"{UiConfigurationService.ThemeCookieName}=sand";
         var service = CreateService(httpContext);
 
-        Assert.Equal("sand", service.GetCurrentTheme());
+        Assert.Equal("kfsh", service.GetCurrentTheme());
     }
 
     private static UiConfigurationService CreateService(HttpContext? httpContext = null)

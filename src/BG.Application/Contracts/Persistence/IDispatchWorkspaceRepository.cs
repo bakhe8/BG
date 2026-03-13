@@ -21,5 +21,7 @@ public interface IDispatchWorkspaceRepository
 
     Task<GuaranteeRequest?> GetRequestForDispatchAsync(Guid requestId, CancellationToken cancellationToken = default);
 
+    void TrackNewOutgoingCorrespondence(GuaranteeCorrespondence correspondence);
+
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

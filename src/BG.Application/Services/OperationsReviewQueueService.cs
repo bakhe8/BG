@@ -120,11 +120,17 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
         var itemReadModel = CreateReadModel(item);
         var suggestions = _matchingService.SuggestMatches(itemReadModel);
         var selectedSuggestion = suggestions.FirstOrDefault(suggestion => suggestion.RequestId == request.Id);
+        var selectedCandidate = itemReadModel.CandidateRequests.SingleOrDefault(candidate => candidate.RequestId == request.Id);
 
         var scenario = IntakeScenarioCatalog.Find(item.ScenarioKey);
         if (!IsCompatible(scenario, request.RequestType))
         {
             return OperationResult<ApplyBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.RequestNotCompatible);
+        }
+
+        if (HasBlockingBankProfileMismatch(itemReadModel, selectedCandidate))
+        {
+            return OperationResult<ApplyBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ResponseBankProfileMismatch);
         }
 
         var suggestedValues = ParseSuggestedValues(item.GuaranteeDocument.VerifiedDataJson);
@@ -228,6 +234,10 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             GuaranteeResourceCatalog.GetCaptureChannelResourceKey(item.CaptureChannel),
             item.SourceSystemName,
             item.SourceReference,
+            GuaranteeDocumentFormCatalog.ToSnapshot(
+                IntakeVerifiedDataParser.ResolveDocumentForm(
+                    item.DocumentType,
+                    item.VerifiedDataJson)),
             OperationsReviewMatchingService.SupportsMatching(item),
             suggestions,
             suggestedValues.ConfirmedExpiryDate,
@@ -246,6 +256,7 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             item.ScenarioKey,
             item.Category,
             item.Status,
+            item.GuaranteeDocument.DocumentType,
             item.GuaranteeDocument.FileName,
             item.GuaranteeCorrespondence?.ReferenceNumber,
             item.CreatedAtUtc,
@@ -257,18 +268,29 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             item.GuaranteeDocument.VerifiedDataJson,
             item.GuaranteeCorrespondence?.LetterDate,
             item.Guarantee.Requests
-                .Select(request => new OperationsReviewRequestCandidateReadModel(
-                    request.Id,
-                    request.RequestType,
-                    request.Status,
-                    request.RequestedExpiryDate,
-                    request.RequestedAmount,
-                    request.SubmittedToBankAtUtc,
-                    request.Correspondence
-                        .Where(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)
-                        .OrderByDescending(correspondence => correspondence.RegisteredAtUtc)
-                        .Select(correspondence => correspondence.ReferenceNumber)
-                        .FirstOrDefault()))
+                .Select(request =>
+                {
+                    var primaryDocument = request.RequestDocuments
+                        .OrderBy(link => link.GuaranteeDocument.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                        .ThenBy(link => link.LinkedAtUtc)
+                        .Select(link => link.GuaranteeDocument)
+                        .FirstOrDefault();
+
+                    return new OperationsReviewRequestCandidateReadModel(
+                        request.Id,
+                        request.RequestType,
+                        request.Status,
+                        request.RequestedExpiryDate,
+                        request.RequestedAmount,
+                        request.SubmittedToBankAtUtc,
+                        request.Correspondence
+                            .Where(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)
+                            .OrderByDescending(correspondence => correspondence.RegisteredAtUtc)
+                            .Select(correspondence => correspondence.ReferenceNumber)
+                            .FirstOrDefault(),
+                        primaryDocument?.DocumentType,
+                        primaryDocument?.VerifiedDataJson);
+                })
                 .ToArray());
     }
 
@@ -286,6 +308,23 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
     private static bool IsCompatible(IntakeScenarioDefinition? scenario, GuaranteeRequestType requestType)
     {
         return scenario?.ExpectedRequestType == requestType;
+    }
+
+    private static bool HasBlockingBankProfileMismatch(
+        OperationsReviewQueueItemReadModel item,
+        OperationsReviewRequestCandidateReadModel? candidate)
+    {
+        if (candidate?.PrimaryDocumentType is not { } requestDocumentType)
+        {
+            return false;
+        }
+
+        var responseDocumentForm = IntakeVerifiedDataParser.ResolveDocumentForm(item.DocumentType, item.VerifiedDataJson);
+        var requestDocumentForm = IntakeVerifiedDataParser.ResolveDocumentForm(
+            requestDocumentType,
+            candidate.PrimaryDocumentVerifiedDataJson);
+
+        return GuaranteeDocumentFormCatalog.HasConflictingSpecificBankProfiles(responseDocumentForm, requestDocumentForm);
     }
 
     private static SuggestedConfirmationValues ParseSuggestedValues(string? verifiedDataJson)

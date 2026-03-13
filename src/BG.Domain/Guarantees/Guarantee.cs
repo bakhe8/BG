@@ -226,6 +226,93 @@ public sealed class Guarantee
         return request;
     }
 
+    public void ReviseRequest(
+        Guid requestId,
+        decimal? requestedAmount,
+        DateOnly? requestedExpiryDate,
+        string? notes,
+        DateTimeOffset revisedAtUtc,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null)
+    {
+        var request = FindRequest(requestId);
+
+        if (request.Status is not GuaranteeRequestStatus.Draft and not GuaranteeRequestStatus.Returned)
+        {
+            throw new InvalidOperationException("Only draft or returned requests can be revised.");
+        }
+
+        ValidateRequestData(request.RequestType, requestedAmount, requestedExpiryDate);
+
+        var previousAmount = request.RequestedAmount;
+        var previousExpiryDate = request.RequestedExpiryDate;
+
+        request.Revise(requestedAmount, requestedExpiryDate, notes);
+        LastUpdatedAtUtc = revisedAtUtc;
+
+        AddEvent(
+            GuaranteeEvent.RequestUpdated(
+                Id,
+                request.Id,
+                revisedAtUtc,
+                actorUserId,
+                actorDisplayName,
+                previousAmount,
+                request.RequestedAmount,
+                previousExpiryDate,
+                request.RequestedExpiryDate),
+            request);
+    }
+
+    public void CancelRequest(
+        Guid requestId,
+        DateTimeOffset cancelledAtUtc,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null)
+    {
+        var request = FindRequest(requestId);
+        request.Cancel();
+        LastUpdatedAtUtc = cancelledAtUtc;
+
+        AddEvent(
+            GuaranteeEvent.RequestCancelled(
+                Id,
+                request.Id,
+                cancelledAtUtc,
+                actorUserId,
+                actorDisplayName),
+            request);
+    }
+
+    public void WithdrawRequestFromApproval(
+        Guid requestId,
+        DateTimeOffset withdrawnAtUtc,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null)
+    {
+        var request = FindRequest(requestId);
+
+        if (request.ApprovalProcess is null)
+        {
+            throw new InvalidOperationException("An approval process is required before a request can be withdrawn.");
+        }
+
+        var currentStage = request.ApprovalProcess.GetCurrentStage();
+        request.ApprovalProcess.CancelByOwner(withdrawnAtUtc);
+        request.WithdrawFromApproval();
+        LastUpdatedAtUtc = withdrawnAtUtc;
+
+        AddEvent(
+            GuaranteeEvent.RequestWithdrawn(
+                Id,
+                request.Id,
+                withdrawnAtUtc,
+                actorUserId,
+                actorDisplayName,
+                currentStage?.TitleText ?? currentStage?.TitleResourceKey),
+            request);
+    }
+
     public void AttachDocumentToRequest(
         Guid requestId,
         Guid documentId,
@@ -453,6 +540,44 @@ public sealed class Guarantee
                 deliveryReference,
                 deliveryNote,
                 deliveredAtUtc,
+                actorUserId,
+                actorDisplayName),
+            request,
+            correspondence);
+    }
+
+    public void ReopenOutgoingDispatch(
+        Guid requestId,
+        Guid correspondenceId,
+        DateTimeOffset reopenedAtUtc,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null,
+        string? correctionNote = null)
+    {
+        var request = FindRequest(requestId);
+        var correspondence = FindCorrespondence(correspondenceId);
+
+        if (correspondence.GuaranteeRequestId != request.Id)
+        {
+            throw new InvalidOperationException("The outgoing correspondence does not belong to the request.");
+        }
+
+        var dispatchChannel = correspondence.DispatchChannel;
+        var dispatchReference = correspondence.DispatchReference;
+
+        correspondence.ReopenDispatch();
+        request.ReopenForDispatch();
+        LastUpdatedAtUtc = reopenedAtUtc;
+
+        AddEvent(
+            GuaranteeEvent.OutgoingLetterDispatchReopened(
+                Id,
+                request.Id,
+                correspondence.Id,
+                dispatchChannel,
+                dispatchReference,
+                correctionNote,
+                reopenedAtUtc,
                 actorUserId,
                 actorDisplayName),
             request,

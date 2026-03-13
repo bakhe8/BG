@@ -30,6 +30,9 @@ public sealed class RolesModel : PageModel
 
     public IReadOnlyList<PermissionGroupViewModel> PermissionGroups { get; private set; } = Array.Empty<PermissionGroupViewModel>();
 
+    [TempData]
+    public string? StatusMessage { get; set; }
+
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         await LoadAsync(cancellationToken);
@@ -46,6 +49,7 @@ public sealed class RolesModel : PageModel
 
         if (result.Succeeded)
         {
+            StatusMessage = _localizer["RolesPage_RoleCreated"];
             return RedirectToPage();
         }
 

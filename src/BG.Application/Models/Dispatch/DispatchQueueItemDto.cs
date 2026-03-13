@@ -1,3 +1,5 @@
+using BG.Application.Models.Documents;
+
 namespace BG.Application.Models.Dispatch;
 
 public sealed record DispatchQueueItemDto(
@@ -11,6 +13,7 @@ public sealed record DispatchQueueItemDto(
     Guid? OutgoingCorrespondenceId,
     string? OutgoingReferenceNumber,
     DateOnly? OutgoingLetterDate,
+    GuaranteeDocumentFormSnapshotDto? SourceDocumentForm,
     int PrintCount,
     DateTimeOffset? LastPrintedAtUtc,
     string? LastPrintModeResourceKey);

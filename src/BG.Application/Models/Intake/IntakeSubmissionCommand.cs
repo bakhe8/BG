@@ -6,6 +6,7 @@ public sealed record IntakeSubmissionCommand(
     Guid IntakeActorUserId,
     string ScenarioKey,
     string StagedDocumentToken,
+    string DocumentFormKey,
     string ExtractionRouteResourceKey,
     int PageCount,
     GuaranteeDocumentCaptureChannel CaptureChannel,

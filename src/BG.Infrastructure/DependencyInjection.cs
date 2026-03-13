@@ -39,6 +39,7 @@ public static class DependencyInjection
         services.AddScoped<IWorkflowDefinitionRepository, WorkflowDefinitionRepository>();
         services.AddScoped<IIntakeDocumentStore, LocalIntakeDocumentStore>();
         services.AddSingleton<ILocalPasswordHasher, Pbkdf2LocalPasswordHasher>();
+        services.AddScoped<OperationalSeedService>();
 
         return services;
     }

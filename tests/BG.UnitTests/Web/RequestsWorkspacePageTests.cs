@@ -1,5 +1,6 @@
 using BG.Application.Common;
 using BG.Application.Contracts.Services;
+using BG.Application.Models.Documents;
 using BG.Application.Models.Requests;
 using BG.Application.Operations;
 using BG.Domain.Guarantees;
@@ -74,6 +75,69 @@ public sealed class RequestsWorkspacePageTests
         Assert.Equal(lockedActorId, service.LastSubmittedByUserId);
     }
 
+    [Fact]
+    public async Task OnPostUpdateAsync_redirects_back_to_workspace_for_actor()
+    {
+        var actorId = Guid.NewGuid();
+        var service = new StubRequestWorkspaceService(actorId);
+        var model = new WorkspaceModel(service, new PassThroughLocalizer());
+        var requestId = Guid.NewGuid();
+
+        var result = await model.OnPostUpdateAsync(
+            requestId,
+            actorId,
+            null,
+            "2027-02-28",
+            "Updated note",
+            null,
+            CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal("/Requests/Workspace", redirect.PageName);
+        Assert.Equal(actorId, redirect.RouteValues!["actor"]);
+        Assert.Equal(requestId, service.LastUpdateCommand!.RequestId);
+        Assert.Equal(actorId, service.LastUpdateCommand.RequestedByUserId);
+        Assert.Equal("RequestsWorkspace_UpdateSuccess", model.StatusMessage);
+    }
+
+    [Fact]
+    public async Task OnPostCancelAsync_uses_locked_actor_from_authenticated_session()
+    {
+        var lockedActorId = Guid.NewGuid();
+        var service = new StubRequestWorkspaceService(lockedActorId);
+        var model = new WorkspaceModel(service, new PassThroughLocalizer());
+        AttachAuthenticatedUser(model, lockedActorId);
+        var requestId = Guid.NewGuid();
+
+        var result = await model.OnPostCancelAsync(requestId, Guid.NewGuid(), null, CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal("/Requests/Workspace", redirect.PageName);
+        Assert.True(redirect.RouteValues is null || !redirect.RouteValues.ContainsKey("actor"));
+        Assert.True(model.IsActorContextLocked);
+        Assert.Equal(lockedActorId, service.LastCancelledRequestIdActorId!.Value.ActorId);
+        Assert.Equal(requestId, service.LastCancelledRequestIdActorId.Value.RequestId);
+    }
+
+    [Fact]
+    public async Task OnPostWithdrawAsync_uses_locked_actor_from_authenticated_session()
+    {
+        var lockedActorId = Guid.NewGuid();
+        var service = new StubRequestWorkspaceService(lockedActorId);
+        var model = new WorkspaceModel(service, new PassThroughLocalizer());
+        AttachAuthenticatedUser(model, lockedActorId);
+        var requestId = Guid.NewGuid();
+
+        var result = await model.OnPostWithdrawAsync(requestId, Guid.NewGuid(), null, CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal("/Requests/Workspace", redirect.PageName);
+        Assert.True(redirect.RouteValues is null || !redirect.RouteValues.ContainsKey("actor"));
+        Assert.True(model.IsActorContextLocked);
+        Assert.Equal(lockedActorId, service.LastWithdrawnRequestIdActorId!.Value.ActorId);
+        Assert.Equal(requestId, service.LastWithdrawnRequestIdActorId.Value.RequestId);
+    }
+
     private static void AttachAuthenticatedUser(PageModel model, Guid userId)
     {
         var httpContext = new DefaultHttpContext();
@@ -103,6 +167,12 @@ public sealed class RequestsWorkspacePageTests
 
         public Guid? LastSubmittedByUserId { get; private set; }
 
+        public UpdateGuaranteeRequestCommand? LastUpdateCommand { get; private set; }
+
+        public (Guid ActorId, Guid RequestId)? LastCancelledRequestIdActorId { get; private set; }
+
+        public (Guid ActorId, Guid RequestId)? LastWithdrawnRequestIdActorId { get; private set; }
+
         public Task<RequestWorkspaceSnapshotDto> GetWorkspaceAsync(
             Guid? requestedActorId,
             int pageNumber = 1,
@@ -127,8 +197,18 @@ public sealed class RequestsWorkspacePageTests
                         null,
                         null,
                         true,
+                        true,
+                        true,
+                        false,
+                        false,
+                        true,
                         null,
                         null,
+                        new GuaranteeDocumentFormSnapshotDto(
+                            "guarantee-instrument-snb",
+                            "BankProfile_SNB",
+                            "DocumentForm_Instrument_SNB_Title",
+                            "DocumentForm_Instrument_SNB_Summary"),
                         [
                             new RequestLedgerEntryDto(
                                 Guid.NewGuid(),
@@ -218,6 +298,44 @@ public sealed class RequestsWorkspacePageTests
                         "WorkflowStage_GuaranteesSupervisor_Title",
                         "Guarantees Supervisor",
                         "Guarantees Supervisor")));
+        }
+
+        public Task<OperationResult<UpdateGuaranteeRequestReceiptDto>> UpdateRequestAsync(
+            UpdateGuaranteeRequestCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            LastUpdateCommand = command;
+            return Task.FromResult(
+                OperationResult<UpdateGuaranteeRequestReceiptDto>.Success(
+                    new UpdateGuaranteeRequestReceiptDto(
+                        command.RequestId,
+                        "BG-2026-5001")));
+        }
+
+        public Task<OperationResult<CancelGuaranteeRequestReceiptDto>> CancelRequestAsync(
+            Guid requestedByUserId,
+            Guid requestId,
+            CancellationToken cancellationToken = default)
+        {
+            LastCancelledRequestIdActorId = (requestedByUserId, requestId);
+            return Task.FromResult(
+                OperationResult<CancelGuaranteeRequestReceiptDto>.Success(
+                    new CancelGuaranteeRequestReceiptDto(
+                        requestId,
+                        "BG-2026-5001")));
+        }
+
+        public Task<OperationResult<WithdrawGuaranteeRequestReceiptDto>> WithdrawRequestAsync(
+            Guid requestedByUserId,
+            Guid requestId,
+            CancellationToken cancellationToken = default)
+        {
+            LastWithdrawnRequestIdActorId = (requestedByUserId, requestId);
+            return Task.FromResult(
+                OperationResult<WithdrawGuaranteeRequestReceiptDto>.Success(
+                    new WithdrawGuaranteeRequestReceiptDto(
+                        requestId,
+                        "BG-2026-5001")));
         }
     }
 

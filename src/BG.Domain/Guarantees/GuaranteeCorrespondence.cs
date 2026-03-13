@@ -159,6 +159,31 @@ public sealed class GuaranteeCorrespondence
         DeliveredAtUtc = deliveredAtUtc;
     }
 
+    internal void ReopenDispatch()
+    {
+        EnsureOutgoingRequestLetter();
+
+        if (!DispatchedAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("The outgoing letter has not been dispatched.");
+        }
+
+        if (DeliveredAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("A delivered outgoing letter cannot be reopened.");
+        }
+
+        if (AppliedToGuaranteeAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("A bank-applied outgoing letter cannot be reopened.");
+        }
+
+        DispatchChannel = null;
+        DispatchReference = null;
+        DispatchNote = null;
+        DispatchedAtUtc = null;
+    }
+
     internal void MarkAppliedToGuarantee(DateTimeOffset appliedAtUtc)
     {
         AppliedToGuaranteeAtUtc = appliedAtUtc;

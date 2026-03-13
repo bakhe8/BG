@@ -2,6 +2,7 @@ using System.Globalization;
 using BG.Application.Common;
 using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
+using BG.Application.Intake;
 using BG.Application.Models.Requests;
 using BG.Application.Operations;
 using BG.Application.ReferenceData;
@@ -110,6 +111,178 @@ internal sealed class RequestWorkspaceService : IRequestWorkspaceService
         }
 
         return await _workflowTemplateService.GetTemplateAsync(requestType, guaranteeCategory, cancellationToken);
+    }
+
+    public async Task<OperationResult<UpdateGuaranteeRequestReceiptDto>> UpdateRequestAsync(
+        UpdateGuaranteeRequestCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (command.RequestedByUserId == Guid.Empty)
+        {
+            return OperationResult<UpdateGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.UserContextRequired);
+        }
+
+        var actor = await _repository.GetRequestActorByIdAsync(command.RequestedByUserId, cancellationToken);
+        if (actor is null)
+        {
+            return OperationResult<UpdateGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.UserContextInvalid);
+        }
+
+        var request = await _repository.GetOwnedRequestByIdAsync(command.RequestId, command.RequestedByUserId, cancellationToken);
+        if (request is null)
+        {
+            return OperationResult<UpdateGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.GuaranteeNotFound);
+        }
+
+        if (request.Status is not GuaranteeRequestStatus.Draft and not GuaranteeRequestStatus.Returned)
+        {
+            return OperationResult<UpdateGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.RequestNotEditable);
+        }
+
+        var requestedAmount = ParseRequestedAmount(request.RequestType, command.RequestedAmount, out var amountErrorCode);
+        if (amountErrorCode is not null)
+        {
+            return OperationResult<UpdateGuaranteeRequestReceiptDto>.Failure(amountErrorCode);
+        }
+
+        var requestedExpiryDate = ParseRequestedExpiryDate(request.RequestType, command.RequestedExpiryDate, out var expiryErrorCode);
+        if (expiryErrorCode is not null)
+        {
+            return OperationResult<UpdateGuaranteeRequestReceiptDto>.Failure(expiryErrorCode);
+        }
+
+        var revisedAtUtc = DateTimeOffset.UtcNow;
+
+        try
+        {
+            request.Guarantee.ReviseRequest(
+                request.Id,
+                requestedAmount,
+                requestedExpiryDate,
+                command.Notes,
+                revisedAtUtc,
+                actor.Id,
+                actor.DisplayName);
+        }
+        catch (InvalidOperationException)
+        {
+            return OperationResult<UpdateGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.RequestValidationFailed);
+        }
+
+        _repository.TrackLedgerEvents(
+            request.Guarantee.Events.Where(ledgerEntry =>
+                ledgerEntry.GuaranteeRequestId == request.Id &&
+                ledgerEntry.EventType == GuaranteeEventType.RequestUpdated &&
+                ledgerEntry.OccurredAtUtc == revisedAtUtc));
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return OperationResult<UpdateGuaranteeRequestReceiptDto>.Success(
+            new UpdateGuaranteeRequestReceiptDto(
+                request.Id,
+                request.Guarantee.GuaranteeNumber));
+    }
+
+    public async Task<OperationResult<CancelGuaranteeRequestReceiptDto>> CancelRequestAsync(
+        Guid requestedByUserId,
+        Guid requestId,
+        CancellationToken cancellationToken = default)
+    {
+        if (requestedByUserId == Guid.Empty)
+        {
+            return OperationResult<CancelGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.UserContextRequired);
+        }
+
+        var actor = await _repository.GetRequestActorByIdAsync(requestedByUserId, cancellationToken);
+        if (actor is null)
+        {
+            return OperationResult<CancelGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.UserContextInvalid);
+        }
+
+        var request = await _repository.GetOwnedRequestByIdAsync(requestId, requestedByUserId, cancellationToken);
+        if (request is null)
+        {
+            return OperationResult<CancelGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.GuaranteeNotFound);
+        }
+
+        if (request.Status is not GuaranteeRequestStatus.Draft and not GuaranteeRequestStatus.Returned)
+        {
+            return OperationResult<CancelGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.RequestNotCancellable);
+        }
+
+        var cancelledAtUtc = DateTimeOffset.UtcNow;
+
+        try
+        {
+            request.Guarantee.CancelRequest(request.Id, cancelledAtUtc, actor.Id, actor.DisplayName);
+        }
+        catch (InvalidOperationException)
+        {
+            return OperationResult<CancelGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.RequestNotCancellable);
+        }
+
+        _repository.TrackLedgerEvents(
+            request.Guarantee.Events.Where(ledgerEntry =>
+                ledgerEntry.GuaranteeRequestId == request.Id &&
+                ledgerEntry.EventType == GuaranteeEventType.RequestCancelled &&
+                ledgerEntry.OccurredAtUtc == cancelledAtUtc));
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return OperationResult<CancelGuaranteeRequestReceiptDto>.Success(
+            new CancelGuaranteeRequestReceiptDto(
+                request.Id,
+                request.Guarantee.GuaranteeNumber));
+    }
+
+    public async Task<OperationResult<WithdrawGuaranteeRequestReceiptDto>> WithdrawRequestAsync(
+        Guid requestedByUserId,
+        Guid requestId,
+        CancellationToken cancellationToken = default)
+    {
+        if (requestedByUserId == Guid.Empty)
+        {
+            return OperationResult<WithdrawGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.UserContextRequired);
+        }
+
+        var actor = await _repository.GetRequestActorByIdAsync(requestedByUserId, cancellationToken);
+        if (actor is null)
+        {
+            return OperationResult<WithdrawGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.UserContextInvalid);
+        }
+
+        var request = await _repository.GetOwnedRequestByIdAsync(requestId, requestedByUserId, cancellationToken);
+        if (request is null)
+        {
+            return OperationResult<WithdrawGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.GuaranteeNotFound);
+        }
+
+        if (request.Status != GuaranteeRequestStatus.InApproval ||
+            request.ApprovalProcess?.Status != RequestApprovalProcessStatus.InProgress)
+        {
+            return OperationResult<WithdrawGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.RequestNotWithdrawable);
+        }
+
+        var withdrawnAtUtc = DateTimeOffset.UtcNow;
+
+        try
+        {
+            request.Guarantee.WithdrawRequestFromApproval(request.Id, withdrawnAtUtc, actor.Id, actor.DisplayName);
+        }
+        catch (InvalidOperationException)
+        {
+            return OperationResult<WithdrawGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.RequestNotWithdrawable);
+        }
+
+        _repository.TrackLedgerEvents(
+            request.Guarantee.Events.Where(ledgerEntry =>
+                ledgerEntry.GuaranteeRequestId == request.Id &&
+                ledgerEntry.EventType == GuaranteeEventType.RequestWithdrawn &&
+                ledgerEntry.OccurredAtUtc == withdrawnAtUtc));
+        await _repository.SaveChangesAsync(cancellationToken);
+
+        return OperationResult<WithdrawGuaranteeRequestReceiptDto>.Success(
+            new WithdrawGuaranteeRequestReceiptDto(
+                request.Id,
+                request.Guarantee.GuaranteeNumber));
     }
 
     public async Task<OperationResult<SubmitGuaranteeRequestReceiptDto>> SubmitRequestForApprovalAsync(
@@ -428,8 +601,19 @@ internal sealed class RequestWorkspaceService : IRequestWorkspaceService
             request.CurrentStageTitle,
             request.CurrentStageRoleName,
             request.Status is GuaranteeRequestStatus.Draft or GuaranteeRequestStatus.Returned,
+            request.Status is GuaranteeRequestStatus.Draft or GuaranteeRequestStatus.Returned,
+            request.Status is GuaranteeRequestStatus.Draft or GuaranteeRequestStatus.Returned,
+            request.Status == GuaranteeRequestStatus.InApproval,
+            GuaranteeResourceCatalog.RequiresRequestedAmount(request.RequestType),
+            GuaranteeResourceCatalog.RequiresRequestedExpiryDate(request.RequestType),
             MapLastDecision(request),
             request.LastDecisionNote,
+            GuaranteeDocumentFormCatalog.ToSnapshot(
+                request.PrimaryDocumentType.HasValue
+                    ? IntakeVerifiedDataParser.ResolveDocumentForm(
+                        request.PrimaryDocumentType.Value,
+                        request.PrimaryDocumentVerifiedDataJson)
+                    : null),
             ledgerEntries);
     }
 

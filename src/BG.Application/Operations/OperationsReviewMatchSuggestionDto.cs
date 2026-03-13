@@ -1,3 +1,5 @@
+using BG.Application.Models.Documents;
+
 namespace BG.Application.Operations;
 
 public sealed record OperationsReviewMatchSuggestionDto(
@@ -8,4 +10,5 @@ public sealed record OperationsReviewMatchSuggestionDto(
     string ConfidenceResourceKey,
     DateTimeOffset? SubmittedToBankAtUtc,
     string? OutgoingReferenceNumber,
-    IReadOnlyList<string> ReasonResourceKeys);
+    IReadOnlyList<string> ReasonResourceKeys,
+    GuaranteeDocumentFormSnapshotDto? RequestDocumentForm);

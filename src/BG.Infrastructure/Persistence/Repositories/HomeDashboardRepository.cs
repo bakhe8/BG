@@ -169,28 +169,85 @@ internal sealed class HomeDashboardRepository : IHomeDashboardRepository
         Guid[] actionableRoleIds,
         CancellationToken cancellationToken)
     {
-        var query = BuildPendingApprovalsQuery(actionableRoleIds)
-            .Select(stage => new HomeDashboardApprovalItemDto(
-                stage.ApprovalProcess.GuaranteeRequestId,
-                stage.ApprovalProcess.GuaranteeRequest.Guarantee.GuaranteeNumber,
-                stage.ApprovalProcess.GuaranteeRequest.RequestType,
-                stage.ApprovalProcess.SubmittedAtUtc,
-                stage.TitleResourceKey,
-                stage.TitleText,
-                stage.Role != null ? stage.Role.Name : null));
-
+        PendingApprovalStageRef[] pendingStageRefs;
         if (RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext))
         {
-            return (await query.ToListAsync(cancellationToken))
-                .OrderBy(item => item.SubmittedAtUtc)
+            pendingStageRefs = (await BuildPendingApprovalsQuery(actionableRoleIds)
+                    .Select(stage => new PendingApprovalStageRef(
+                        stage.ApprovalProcess.GuaranteeRequestId,
+                        stage.ApprovalProcess.SubmittedAtUtc,
+                        stage.TitleResourceKey,
+                        stage.TitleText,
+                        stage.RoleId))
+                    .ToListAsync(cancellationToken))
+                .OrderBy(stage => stage.SubmittedAtUtc)
                 .Take(PreviewLimit)
                 .ToArray();
         }
+        else
+        {
+            pendingStageRefs = await BuildPendingApprovalsQuery(actionableRoleIds)
+                .OrderBy(stage => stage.ApprovalProcess.SubmittedAtUtc)
+                .Take(PreviewLimit)
+                .Select(stage => new PendingApprovalStageRef(
+                    stage.ApprovalProcess.GuaranteeRequestId,
+                    stage.ApprovalProcess.SubmittedAtUtc,
+                    stage.TitleResourceKey,
+                    stage.TitleText,
+                    stage.RoleId))
+                .ToArrayAsync(cancellationToken);
+        }
 
-        return await query
-            .OrderBy(item => item.SubmittedAtUtc)
-            .Take(PreviewLimit)
+        if (pendingStageRefs.Length == 0)
+        {
+            return [];
+        }
+
+        var requestIds = pendingStageRefs
+            .Select(item => item.RequestId)
+            .Distinct()
+            .ToArray();
+        var roleIds = pendingStageRefs
+            .Where(item => item.RoleId.HasValue)
+            .Select(item => item.RoleId!.Value)
+            .Distinct()
+            .ToArray();
+
+        var requestDetails = await _dbContext.GuaranteeRequests
+            .AsNoTracking()
+            .Where(request => requestIds.Contains(request.Id))
+            .Select(request => new PendingApprovalRequestRef(
+                request.Id,
+                request.Guarantee.GuaranteeNumber,
+                request.RequestType))
             .ToArrayAsync(cancellationToken);
+
+        var roleLookup = roleIds.Length == 0
+            ? new Dictionary<Guid, string>()
+            : await _dbContext.Roles
+                .AsNoTracking()
+                .Where(role => roleIds.Contains(role.Id))
+                .ToDictionaryAsync(role => role.Id, role => role.Name, cancellationToken);
+
+        var requestLookup = requestDetails.ToDictionary(request => request.RequestId);
+
+        return pendingStageRefs
+            .Where(item => requestLookup.ContainsKey(item.RequestId))
+            .Select(item =>
+            {
+                var request = requestLookup[item.RequestId];
+                return new HomeDashboardApprovalItemDto(
+                    item.RequestId,
+                    request.GuaranteeNumber,
+                    request.RequestType,
+                    item.SubmittedAtUtc,
+                    item.StageTitleResourceKey,
+                    item.StageTitleText,
+                    item.RoleId.HasValue && roleLookup.TryGetValue(item.RoleId.Value, out var roleName)
+                        ? roleName
+                        : null);
+            })
+            .ToArray();
     }
 
     private Task<int> CountOpenRequestsAsync(Guid userId, CancellationToken cancellationToken)
@@ -202,25 +259,30 @@ internal sealed class HomeDashboardRepository : IHomeDashboardRepository
         Guid userId,
         CancellationToken cancellationToken)
     {
-        var query = BuildOpenRequestsQuery(userId)
+        if (RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext))
+        {
+            return (await BuildOpenRequestsQuery(userId)
+                    .Select(request => new HomeDashboardRequestItemDto(
+                        request.Id,
+                        request.Guarantee.GuaranteeNumber,
+                        request.RequestType,
+                        request.Status,
+                        request.CreatedAtUtc))
+                    .ToListAsync(cancellationToken))
+                .OrderByDescending(request => request.CreatedAtUtc)
+                .Take(PreviewLimit)
+                .ToArray();
+        }
+
+        return await BuildOpenRequestsQuery(userId)
+            .OrderByDescending(request => request.CreatedAtUtc)
+            .Take(PreviewLimit)
             .Select(request => new HomeDashboardRequestItemDto(
                 request.Id,
                 request.Guarantee.GuaranteeNumber,
                 request.RequestType,
                 request.Status,
-                request.CreatedAtUtc));
-
-        if (RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext))
-        {
-            return (await query.ToListAsync(cancellationToken))
-                .OrderByDescending(item => item.CreatedAtUtc)
-                .Take(PreviewLimit)
-                .ToArray();
-        }
-
-        return await query
-            .OrderByDescending(item => item.CreatedAtUtc)
-            .Take(PreviewLimit)
+                request.CreatedAtUtc))
             .ToArrayAsync(cancellationToken);
     }
 
@@ -265,8 +327,30 @@ internal sealed class HomeDashboardRepository : IHomeDashboardRepository
     private async Task<IReadOnlyList<HomeDashboardIntakeActivityDto>> ListRecentIntakeActivitiesAsync(
         CancellationToken cancellationToken)
     {
-        var query = _dbContext.GuaranteeDocuments
+        if (RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext))
+        {
+            return (await _dbContext.GuaranteeDocuments
+                    .AsNoTracking()
+                    .Select(document => new HomeDashboardIntakeActivityDto(
+                        document.Id,
+                        document.Guarantee.GuaranteeNumber,
+                        document.FileName,
+                        document.DocumentType,
+                        document.CapturedAtUtc,
+                        document.CapturedByDisplayName,
+                        document.CaptureChannel,
+                        document.IntakeScenarioKey,
+                        "OperationsReviewScenario_Unknown"))
+                    .ToListAsync(cancellationToken))
+                .OrderByDescending(document => document.CapturedAtUtc)
+                .Take(PreviewLimit)
+                .ToArray();
+        }
+
+        return await _dbContext.GuaranteeDocuments
             .AsNoTracking()
+            .OrderByDescending(document => document.CapturedAtUtc)
+            .Take(PreviewLimit)
             .Select(document => new HomeDashboardIntakeActivityDto(
                 document.Id,
                 document.Guarantee.GuaranteeNumber,
@@ -276,19 +360,7 @@ internal sealed class HomeDashboardRepository : IHomeDashboardRepository
                 document.CapturedByDisplayName,
                 document.CaptureChannel,
                 document.IntakeScenarioKey,
-                "OperationsReviewScenario_Unknown"));
-
-        if (RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext))
-        {
-            return (await query.ToListAsync(cancellationToken))
-                .OrderByDescending(item => item.CapturedAtUtc)
-                .Take(PreviewLimit)
-                .ToArray();
-        }
-
-        return await query
-            .OrderByDescending(item => item.CapturedAtUtc)
-            .Take(PreviewLimit)
+                "OperationsReviewScenario_Unknown"))
             .ToArrayAsync(cancellationToken);
     }
 
@@ -325,4 +397,16 @@ internal sealed class HomeDashboardRepository : IHomeDashboardRepository
     }
 
     private sealed record DelegatedRoleRef(Guid RoleId, Guid DelegatorUserId);
+
+    private sealed record PendingApprovalStageRef(
+        Guid RequestId,
+        DateTimeOffset SubmittedAtUtc,
+        string? StageTitleResourceKey,
+        string? StageTitleText,
+        Guid? RoleId);
+
+    private sealed record PendingApprovalRequestRef(
+        Guid RequestId,
+        string GuaranteeNumber,
+        GuaranteeRequestType RequestType);
 }

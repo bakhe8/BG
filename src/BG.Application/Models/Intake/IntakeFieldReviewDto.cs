@@ -6,4 +6,5 @@ public sealed record IntakeFieldReviewDto(
     string Value,
     int ConfidencePercent,
     bool RequiresExplicitReview,
-    string? ProvenanceResourceKey = null);
+    string? ProvenanceResourceKey = null,
+    bool IsExpectedByDocumentForm = false);

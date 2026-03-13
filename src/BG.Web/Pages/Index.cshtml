@@ -5,296 +5,472 @@
 @model IndexModel
 @{
     ViewData["Title"] = T["Home_PageTitle"];
+
+    var workspaceCards = new List<(string Href, string TitleKey, string CountText, string SummaryText)>();
+
+    if (Model.Dashboard.CanViewApprovals)
+    {
+        workspaceCards.Add((
+            "/Approvals/Queue",
+            "NavApprovals",
+            Model.Dashboard.PendingApprovalsCount.ToString("N0", CultureInfo.CurrentUICulture),
+            T["Home_MetricApprovals"].Value));
+    }
+
+    if (Model.Dashboard.CanViewRequests)
+    {
+        workspaceCards.Add((
+            "/Requests/Workspace",
+            "NavRequests",
+            Model.Dashboard.MyOpenRequestsCount.ToString("N0", CultureInfo.CurrentUICulture),
+            T["Home_MetricRequests"].Value));
+    }
+
+    if (Model.Dashboard.CanViewOperations)
+    {
+        workspaceCards.Add((
+            "/Operations/Queue",
+            "NavOperationsQueue",
+            Model.Dashboard.OperationsBacklogCount.ToString("N0", CultureInfo.CurrentUICulture),
+            T["Home_MetricOperations"].Value));
+    }
+
+    if (Model.Dashboard.CanViewDispatch)
+    {
+        workspaceCards.Add((
+            "/Dispatch/Workspace",
+            "NavDispatch",
+            Model.Dashboard.ReadyForDispatchCount.ToString("N0", CultureInfo.CurrentUICulture),
+            T["Home_MetricDispatchReady"].Value));
+    }
+
+    if (Model.Dashboard.CanViewIntake)
+    {
+        workspaceCards.Add((
+            "/Intake/Workspace",
+            "NavIntake",
+            Model.Dashboard.RecentIntakeActivities.Count.ToString("N0", CultureInfo.CurrentUICulture),
+            T["Home_RecentIntakeTitle"].Value));
+    }
+
+    var primaryPanel = Model.Dashboard.CanViewApprovals
+        ? "approvals"
+        : Model.Dashboard.CanViewRequests
+            ? "requests"
+            : (Model.Dashboard.CanViewOperations || Model.Dashboard.CanViewDispatch)
+                ? "handoff"
+                : Model.Dashboard.CanViewIntake
+                    ? "intake"
+                    : Model.Dashboard.CanViewExpiringGuarantees
+                        ? "expiring"
+                        : "none";
+
+    var secondaryPanel = primaryPanel != "requests" && Model.Dashboard.CanViewRequests
+        ? "requests"
+        : primaryPanel != "expiring" && Model.Dashboard.CanViewExpiringGuarantees
+            ? "expiring"
+            : primaryPanel != "intake" && Model.Dashboard.CanViewIntake
+                ? "intake"
+                : primaryPanel != "handoff" && (Model.Dashboard.CanViewOperations || Model.Dashboard.CanViewDispatch)
+                    ? "handoff"
+                    : "none";
 }
 
 @if (!Model.Dashboard.IsAuthenticated)
 {
-    <section class="hero-panel dashboard-hero">
-        <div class="hero-copy">
-            <span class="eyebrow">@T["Home_AnonymousEyebrow"]</span>
-            <h1>@T["Home_AnonymousHeading"]</h1>
-            <p>@T["Home_AnonymousSummary"]</p>
-            <div class="dashboard-actions">
-                <a class="btn btn-primary action-button" href="/SignIn?returnUrl=%2F">
-                    @T["Home_AnonymousAction"]
-                </a>
+    <section class="home-landing">
+        <article class="home-start-card">
+            <div class="home-start-copy">
+                <span class="eyebrow">@T["Home_AnonymousEyebrow"]</span>
+                <h1>@T["Home_AnonymousHeading"]</h1>
+                <p>@T["Home_AnonymousSummary"]</p>
+                <div class="home-start-actions">
+                    <a class="btn btn-primary action-button" href="/SignIn?returnUrl=%2F">
+                        @T["Home_AnonymousAction"]
+                    </a>
+                </div>
             </div>
-        </div>
-        <div class="dashboard-metric-grid">
-            <article class="metric-card dashboard-link-card">
-                <span>@T["Home_MetricApprovals"]</span>
-                <strong>0</strong>
-            </article>
-            <article class="metric-card dashboard-link-card">
-                <span>@T["Home_MetricRequests"]</span>
-                <strong>0</strong>
-            </article>
-            <article class="metric-card dashboard-link-card">
-                <span>@T["Home_MetricExpiring"]</span>
-                <strong>0</strong>
-            </article>
-        </div>
+        </article>
     </section>
 }
 else if (!Model.Dashboard.HasVisibleOperationalAreas)
 {
-    <section class="hero-panel dashboard-hero">
-        <div class="hero-copy">
-            <span class="eyebrow">@T["Home_DashboardEyebrow"]</span>
-            <h1>@T["Home_NoOperationalAccessTitle"]</h1>
-            <p>@T["Home_NoOperationalAccessBody"]</p>
-        </div>
+    <section class="home-landing">
+        <article class="home-start-card">
+            <div class="home-start-copy">
+                <span class="eyebrow">@T["Home_DashboardEyebrow"]</span>
+                <h1>@T["Home_NoOperationalAccessTitle"]</h1>
+                <p>@T["Home_NoOperationalAccessBody"]</p>
+            </div>
+        </article>
     </section>
 }
 else
 {
-    <section class="hero-panel dashboard-hero">
-        <div class="hero-copy">
-            <span class="eyebrow">@T["Home_DashboardEyebrow"]</span>
-            <h1>@string.Format(CultureInfo.CurrentUICulture, T["Home_DashboardHeading"], Model.Dashboard.DisplayName)</h1>
-            <p>@T["Home_DashboardSummary"]</p>
-            <p class="dashboard-attention-line">
-                @string.Format(
-                    CultureInfo.CurrentUICulture,
-                    T["Home_DashboardAttentionSummary"],
-                    Model.Dashboard.PendingApprovalsCount,
-                    Model.Dashboard.MyOpenRequestsCount,
-                    Model.Dashboard.ExpiringGuaranteesCount)
-            </p>
-            <div class="dashboard-actions">
+    <section class="home-landing">
+        <article class="home-start-card">
+            <div class="home-start-copy">
+                <span class="eyebrow">@T["Home_DashboardEyebrow"]</span>
+                <h1>@string.Format(CultureInfo.CurrentUICulture, T["Home_DashboardHeading"], Model.Dashboard.DisplayName)</h1>
+                <p>@T["Home_MinimalSummary"]</p>
+            </div>
+            <div class="home-start-metrics">
                 @if (Model.Dashboard.CanViewApprovals)
                 {
-                    <a class="btn btn-outline-primary action-button" href="/Approvals/Queue">@T["NavApprovals"]</a>
+                    <div class="home-inline-stat">
+                        <span>@T["Home_MetricApprovals"]</span>
+                        <strong>@Model.Dashboard.PendingApprovalsCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                    </div>
                 }
                 @if (Model.Dashboard.CanViewRequests)
                 {
-                    <a class="btn btn-outline-primary action-button" href="/Requests/Workspace">@T["NavRequests"]</a>
+                    <div class="home-inline-stat">
+                        <span>@T["Home_MetricRequests"]</span>
+                        <strong>@Model.Dashboard.MyOpenRequestsCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                    </div>
                 }
                 @if (Model.Dashboard.CanViewOperations)
                 {
-                    <a class="btn btn-outline-primary action-button" href="/Operations/Queue">@T["NavOperationsQueue"]</a>
+                    <div class="home-inline-stat">
+                        <span>@T["Home_MetricOperations"]</span>
+                        <strong>@Model.Dashboard.OperationsBacklogCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                    </div>
                 }
-                @if (Model.Dashboard.CanViewDispatch)
+                @if (Model.Dashboard.CanViewExpiringGuarantees)
                 {
-                    <a class="btn btn-outline-primary action-button" href="/Dispatch/Workspace">@T["NavDispatch"]</a>
-                }
-                @if (Model.Dashboard.CanViewIntake)
-                {
-                    <a class="btn btn-outline-primary action-button" href="/Intake/Workspace">@T["NavIntake"]</a>
+                    <div class="home-inline-stat">
+                        <span>@T["Home_MetricExpiring"]</span>
+                        <strong>@Model.Dashboard.ExpiringGuaranteesCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                    </div>
                 }
             </div>
-        </div>
-        <div class="dashboard-metric-grid">
-            @if (Model.Dashboard.CanViewApprovals)
-            {
-                <a class="metric-card dashboard-link-card" href="/Approvals/Queue">
-                    <span>@T["Home_MetricApprovals"]</span>
-                    <strong>@Model.Dashboard.PendingApprovalsCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
-                </a>
-            }
-            @if (Model.Dashboard.CanViewRequests)
-            {
-                <a class="metric-card dashboard-link-card" href="/Requests/Workspace">
-                    <span>@T["Home_MetricRequests"]</span>
-                    <strong>@Model.Dashboard.MyOpenRequestsCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
-                </a>
-            }
-            @if (Model.Dashboard.CanViewOperations)
-            {
-                <a class="metric-card dashboard-link-card" href="/Operations/Queue">
-                    <span>@T["Home_MetricOperations"]</span>
-                    <strong>@Model.Dashboard.OperationsBacklogCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
-                </a>
-            }
-            @if (Model.Dashboard.CanViewDispatch)
-            {
-                <a class="metric-card dashboard-link-card" href="/Dispatch/Workspace">
-                    <span>@T["Home_MetricDispatchReady"]</span>
-                    <strong>@Model.Dashboard.ReadyForDispatchCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
-                </a>
-                <a class="metric-card dashboard-link-card" href="/Dispatch/Workspace">
-                    <span>@T["Home_MetricPendingDelivery"]</span>
-                    <strong>@Model.Dashboard.PendingDeliveryCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
-                </a>
-            }
-            @if (Model.Dashboard.CanViewExpiringGuarantees)
-            {
-                <article class="metric-card dashboard-link-card">
-                    <span>@T["Home_MetricExpiring"]</span>
-                    <strong>@Model.Dashboard.ExpiringGuaranteesCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
-                </article>
-            }
-        </div>
-    </section>
+        </article>
 
-    <section class="baseline-grid dashboard-grid">
-        @if (Model.Dashboard.CanViewApprovals)
-        {
-            <article class="info-card">
-                <h2>@T["Home_PendingApprovalsTitle"]</h2>
-                <p class="compact-copy">@T["Home_PendingApprovalsSummary"]</p>
-                @if (Model.Dashboard.PendingApprovals.Count == 0)
-                {
-                    <p class="dashboard-empty">@T["Home_EmptyApprovals"]</p>
-                }
-                else
-                {
-                    <ul class="dashboard-list">
-                        @foreach (var item in Model.Dashboard.PendingApprovals)
-                        {
-                            <li class="dashboard-list-item">
-                                <div class="dashboard-item-header">
-                                    <strong>@item.GuaranteeNumber</strong>
-                                    <span class="status-badge is-active">@T[$"RequestType_{item.RequestType}"]</span>
-                                </div>
-                                <div class="dashboard-item-meta">
-                                    @T["ApprovalQueue_CurrentStageLabel"]:
-                                    @(string.IsNullOrWhiteSpace(item.StageTitleText)
-                                        ? T[item.StageTitleResourceKey ?? "ApprovalQueue_CurrentStageLabel"]
-                                        : item.StageTitleText)
-                                </div>
-                                <div class="dashboard-item-meta">
-                                    @T["ApprovalQueue_SubmittedAtLabel"]:
-                                    @item.SubmittedAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentUICulture)
-                                </div>
-                            </li>
-                        }
-                    </ul>
-                }
-            </article>
-        }
-
-        @if (Model.Dashboard.CanViewRequests)
-        {
-            <article class="info-card">
-                <h2>@T["Home_MyRequestsTitle"]</h2>
-                <p class="compact-copy">@T["Home_MyRequestsSummary"]</p>
-                @if (Model.Dashboard.OpenRequests.Count == 0)
-                {
-                    <p class="dashboard-empty">@T["Home_EmptyRequests"]</p>
-                }
-                else
-                {
-                    <ul class="dashboard-list">
-                        @foreach (var item in Model.Dashboard.OpenRequests)
-                        {
-                            <li class="dashboard-list-item">
-                                <div class="dashboard-item-header">
-                                    <strong>@item.GuaranteeNumber</strong>
-                                    <span class="status-badge is-active">@T[$"RequestStatus_{item.Status}"]</span>
-                                </div>
-                                <div class="dashboard-item-meta">@T[$"RequestType_{item.RequestType}"]</div>
-                                <div class="dashboard-item-meta">
-                                    @T["CreatedAtField"]:
-                                    @item.CreatedAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentUICulture)
-                                </div>
-                            </li>
-                        }
-                    </ul>
-                }
-            </article>
-        }
-
-        @if (Model.Dashboard.CanViewExpiringGuarantees)
-        {
-            <article class="info-card">
-                <h2>@T["Home_ExpiringTitle"]</h2>
-                <p class="compact-copy">@T["Home_ExpiringSummary"]</p>
-                @if (Model.Dashboard.ExpiringGuarantees.Count == 0)
-                {
-                    <p class="dashboard-empty">@T["Home_EmptyExpiring"]</p>
-                }
-                else
-                {
-                    <ul class="dashboard-list">
-                        @foreach (var item in Model.Dashboard.ExpiringGuarantees)
-                        {
-                            <li class="dashboard-list-item">
-                                <div class="dashboard-item-header">
-                                    <strong>@item.GuaranteeNumber</strong>
-                                    <span class="status-badge is-inactive">@item.DaysRemaining @T["Home_DaysRemainingSuffix"]</span>
-                                </div>
-                                <div class="dashboard-item-meta">@T[$"GuaranteeCategory_{item.Category}"]</div>
-                                <div class="dashboard-item-meta">
-                                    @T["IntakeField_ExpiryDate"]:
-                                    @item.ExpiryDate.ToString("d", CultureInfo.CurrentUICulture)
-                                </div>
-                                <div class="dashboard-item-meta">
-                                    @T["Home_CurrentAmountLabel"]:
-                                    @item.CurrentAmount.ToString("N2", CultureInfo.CurrentUICulture) @item.CurrencyCode
-                                </div>
-                            </li>
-                        }
-                    </ul>
-                }
-            </article>
-        }
-
-        @if (Model.Dashboard.CanViewIntake)
-        {
-            <article class="info-card">
-                <h2>@T["Home_RecentIntakeTitle"]</h2>
-                <p class="compact-copy">@T["Home_RecentIntakeSummary"]</p>
-                @if (Model.Dashboard.RecentIntakeActivities.Count == 0)
-                {
-                    <p class="dashboard-empty">@T["Home_EmptyIntake"]</p>
-                }
-                else
-                {
-                    <ul class="dashboard-list">
-                        @foreach (var item in Model.Dashboard.RecentIntakeActivities)
-                        {
-                            <li class="dashboard-list-item">
-                                <div class="dashboard-item-header">
-                                    <strong>@item.GuaranteeNumber</strong>
-                                    <span class="status-badge is-active">@T[item.ScenarioTitleResourceKey]</span>
-                                </div>
-                                <div class="dashboard-item-meta">
-                                    @T["OperationsQueue_DocumentLabel"]:
-                                    @item.FileName
-                                </div>
-                                <div class="dashboard-item-meta">
-                                    @T["OperationsQueue_CapturedAtLabel"]:
-                                    @item.CapturedAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentUICulture)
-                                </div>
-                                <div class="dashboard-item-meta">
-                                    @T["OperationsQueue_CapturedByLabel"]:
-                                    @(item.CapturedByDisplayName ?? T["RequestsWorkspace_LedgerSystemActor"])
-                                    · @T[$"IntakeCaptureChannel_{item.CaptureChannel}"]
-                                </div>
-                            </li>
-                        }
-                    </ul>
-                }
-            </article>
-        }
-
-        @if (Model.Dashboard.CanViewOperations || Model.Dashboard.CanViewDispatch)
-        {
-            <article class="info-card full-span">
-                <h2>@T["Home_HandoffTitle"]</h2>
-                <p class="compact-copy">@T["Home_HandoffSummary"]</p>
-                <div class="dashboard-mini-metrics">
-                    @if (Model.Dashboard.CanViewOperations)
-                    {
-                        <div class="dashboard-mini-metric">
-                            <span>@T["Home_OperationsBacklogLabel"]</span>
-                            <strong>@Model.Dashboard.OperationsBacklogCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
-                        </div>
-                    }
-                    @if (Model.Dashboard.CanViewDispatch)
-                    {
-                        <div class="dashboard-mini-metric">
-                            <span>@T["Home_DispatchReadyLabel"]</span>
-                            <strong>@Model.Dashboard.ReadyForDispatchCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
-                        </div>
-                        <div class="dashboard-mini-metric">
-                            <span>@T["Home_PendingDeliveryLabel"]</span>
-                            <strong>@Model.Dashboard.PendingDeliveryCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
-                        </div>
-                    }
+        <section class="info-card">
+            <div class="home-panel-header">
+                <div>
+                    <h2>@T["Home_WorkspacesTitle"]</h2>
+                    <p class="compact-copy">@T["Home_WorkspacesSummary"]</p>
                 </div>
-            </article>
-        }
+            </div>
+            <div class="home-workspace-grid">
+                @foreach (var card in workspaceCards)
+                {
+                    <a class="home-workspace-card" href="@card.Href">
+                        <span class="home-workspace-title">@T[card.TitleKey]</span>
+                        <strong>@card.CountText</strong>
+                        <span class="home-workspace-meta">@card.SummaryText</span>
+                    </a>
+                }
+            </div>
+        </section>
+
+        <section class="home-focus-grid">
+            @switch (primaryPanel)
+            {
+                case "approvals":
+                    <article class="info-card home-panel">
+                        <div class="home-panel-header">
+                            <div>
+                                <h2>@T["Home_PendingApprovalsTitle"]</h2>
+                                <p class="compact-copy">@T["Home_FocusSummary"]</p>
+                            </div>
+                            <a class="btn btn-outline-primary action-button" href="/Approvals/Queue">@T["NavApprovals"]</a>
+                        </div>
+                        @if (Model.Dashboard.PendingApprovals.Count == 0)
+                        {
+                            <p class="dashboard-empty">@T["Home_EmptyApprovals"]</p>
+                        }
+                        else
+                        {
+                            <ul class="home-list">
+                                @foreach (var item in Model.Dashboard.PendingApprovals.Take(4))
+                                {
+                                    <li class="home-list-item">
+                                        <div>
+                                            <strong>@item.GuaranteeNumber</strong>
+                                            <p class="compact-copy">@T[$"RequestType_{item.RequestType}"]</p>
+                                        </div>
+                                        <div class="home-list-meta">
+                                            <span>
+                                                @(string.IsNullOrWhiteSpace(item.StageTitleText)
+                                                    ? T[item.StageTitleResourceKey ?? "ApprovalQueue_CurrentStageLabel"]
+                                                    : item.StageTitleText)
+                                            </span>
+                                            <small>@item.SubmittedAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentUICulture)</small>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </article>
+                    break;
+
+                case "requests":
+                    <article class="info-card home-panel">
+                        <div class="home-panel-header">
+                            <div>
+                                <h2>@T["Home_MyRequestsTitle"]</h2>
+                                <p class="compact-copy">@T["Home_FocusSummary"]</p>
+                            </div>
+                            <a class="btn btn-outline-primary action-button" href="/Requests/Workspace">@T["NavRequests"]</a>
+                        </div>
+                        @if (Model.Dashboard.OpenRequests.Count == 0)
+                        {
+                            <p class="dashboard-empty">@T["Home_EmptyRequests"]</p>
+                        }
+                        else
+                        {
+                            <ul class="home-list">
+                                @foreach (var item in Model.Dashboard.OpenRequests.Take(4))
+                                {
+                                    <li class="home-list-item">
+                                        <div>
+                                            <strong>@item.GuaranteeNumber</strong>
+                                            <p class="compact-copy">@T[$"RequestType_{item.RequestType}"]</p>
+                                        </div>
+                                        <div class="home-list-meta">
+                                            <span>@T[$"RequestStatus_{item.Status}"]</span>
+                                            <small>@item.CreatedAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentUICulture)</small>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </article>
+                    break;
+
+                case "handoff":
+                    <article class="info-card home-panel">
+                        <div class="home-panel-header">
+                            <div>
+                                <h2>@T["Home_HandoffTitle"]</h2>
+                                <p class="compact-copy">@T["Home_FocusSummary"]</p>
+                            </div>
+                        </div>
+                        <div class="home-handoff-grid">
+                            @if (Model.Dashboard.CanViewOperations)
+                            {
+                                <div class="home-handoff-card">
+                                    <span>@T["Home_OperationsBacklogLabel"]</span>
+                                    <strong>@Model.Dashboard.OperationsBacklogCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                                </div>
+                            }
+                            @if (Model.Dashboard.CanViewDispatch)
+                            {
+                                <div class="home-handoff-card">
+                                    <span>@T["Home_DispatchReadyLabel"]</span>
+                                    <strong>@Model.Dashboard.ReadyForDispatchCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                                </div>
+                                <div class="home-handoff-card">
+                                    <span>@T["Home_PendingDeliveryLabel"]</span>
+                                    <strong>@Model.Dashboard.PendingDeliveryCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                                </div>
+                            }
+                        </div>
+                    </article>
+                    break;
+
+                case "intake":
+                    <article class="info-card home-panel">
+                        <div class="home-panel-header">
+                            <div>
+                                <h2>@T["Home_RecentIntakeTitle"]</h2>
+                                <p class="compact-copy">@T["Home_FocusSummary"]</p>
+                            </div>
+                            <a class="btn btn-outline-primary action-button" href="/Intake/Workspace">@T["NavIntake"]</a>
+                        </div>
+                        @if (Model.Dashboard.RecentIntakeActivities.Count == 0)
+                        {
+                            <p class="dashboard-empty">@T["Home_EmptyIntake"]</p>
+                        }
+                        else
+                        {
+                            <ul class="home-list">
+                                @foreach (var item in Model.Dashboard.RecentIntakeActivities.Take(4))
+                                {
+                                    <li class="home-list-item">
+                                        <div>
+                                            <strong>@item.GuaranteeNumber</strong>
+                                            <p class="compact-copy">@T[item.ScenarioTitleResourceKey]</p>
+                                        </div>
+                                        <div class="home-list-meta">
+                                            <span>@item.FileName</span>
+                                            <small>@item.CapturedAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentUICulture)</small>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </article>
+                    break;
+
+                case "expiring":
+                    <article class="info-card home-panel">
+                        <div class="home-panel-header">
+                            <div>
+                                <h2>@T["Home_ExpiringTitle"]</h2>
+                                <p class="compact-copy">@T["Home_FocusSummary"]</p>
+                            </div>
+                        </div>
+                        @if (Model.Dashboard.ExpiringGuarantees.Count == 0)
+                        {
+                            <p class="dashboard-empty">@T["Home_EmptyExpiring"]</p>
+                        }
+                        else
+                        {
+                            <ul class="home-list">
+                                @foreach (var item in Model.Dashboard.ExpiringGuarantees.Take(4))
+                                {
+                                    <li class="home-list-item">
+                                        <div>
+                                            <strong>@item.GuaranteeNumber</strong>
+                                            <p class="compact-copy">@T[$"GuaranteeCategory_{item.Category}"]</p>
+                                        </div>
+                                        <div class="home-list-meta">
+                                            <span>@item.DaysRemaining @T["Home_DaysRemainingSuffix"]</span>
+                                            <small>@item.ExpiryDate.ToString("d", CultureInfo.CurrentUICulture)</small>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </article>
+                    break;
+            }
+
+            @switch (secondaryPanel)
+            {
+                case "requests":
+                    <article class="info-card home-panel">
+                        <div class="home-panel-header">
+                            <div>
+                                <h2>@T["Home_MyRequestsTitle"]</h2>
+                                <p class="compact-copy">@T["Home_SecondarySummary"]</p>
+                            </div>
+                        </div>
+                        @if (Model.Dashboard.OpenRequests.Count == 0)
+                        {
+                            <p class="dashboard-empty">@T["Home_EmptyRequests"]</p>
+                        }
+                        else
+                        {
+                            <ul class="home-list">
+                                @foreach (var item in Model.Dashboard.OpenRequests.Take(4))
+                                {
+                                    <li class="home-list-item">
+                                        <div>
+                                            <strong>@item.GuaranteeNumber</strong>
+                                            <p class="compact-copy">@T[$"RequestType_{item.RequestType}"]</p>
+                                        </div>
+                                        <div class="home-list-meta">
+                                            <span>@T[$"RequestStatus_{item.Status}"]</span>
+                                            <small>@item.CreatedAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentUICulture)</small>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </article>
+                    break;
+
+                case "expiring":
+                    <article class="info-card home-panel">
+                        <div class="home-panel-header">
+                            <div>
+                                <h2>@T["Home_ExpiringTitle"]</h2>
+                                <p class="compact-copy">@T["Home_SecondarySummary"]</p>
+                            </div>
+                        </div>
+                        @if (Model.Dashboard.ExpiringGuarantees.Count == 0)
+                        {
+                            <p class="dashboard-empty">@T["Home_EmptyExpiring"]</p>
+                        }
+                        else
+                        {
+                            <ul class="home-list">
+                                @foreach (var item in Model.Dashboard.ExpiringGuarantees.Take(4))
+                                {
+                                    <li class="home-list-item">
+                                        <div>
+                                            <strong>@item.GuaranteeNumber</strong>
+                                            <p class="compact-copy">@T[$"GuaranteeCategory_{item.Category}"]</p>
+                                        </div>
+                                        <div class="home-list-meta">
+                                            <span>@item.DaysRemaining @T["Home_DaysRemainingSuffix"]</span>
+                                            <small>@item.ExpiryDate.ToString("d", CultureInfo.CurrentUICulture)</small>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </article>
+                    break;
+
+                case "intake":
+                    <article class="info-card home-panel">
+                        <div class="home-panel-header">
+                            <div>
+                                <h2>@T["Home_RecentIntakeTitle"]</h2>
+                                <p class="compact-copy">@T["Home_SecondarySummary"]</p>
+                            </div>
+                        </div>
+                        @if (Model.Dashboard.RecentIntakeActivities.Count == 0)
+                        {
+                            <p class="dashboard-empty">@T["Home_EmptyIntake"]</p>
+                        }
+                        else
+                        {
+                            <ul class="home-list">
+                                @foreach (var item in Model.Dashboard.RecentIntakeActivities.Take(4))
+                                {
+                                    <li class="home-list-item">
+                                        <div>
+                                            <strong>@item.GuaranteeNumber</strong>
+                                            <p class="compact-copy">@T[item.ScenarioTitleResourceKey]</p>
+                                        </div>
+                                        <div class="home-list-meta">
+                                            <span>@item.FileName</span>
+                                            <small>@item.CapturedAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentUICulture)</small>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </article>
+                    break;
+
+                case "handoff":
+                    <article class="info-card home-panel">
+                        <div class="home-panel-header">
+                            <div>
+                                <h2>@T["Home_HandoffTitle"]</h2>
+                                <p class="compact-copy">@T["Home_SecondarySummary"]</p>
+                            </div>
+                        </div>
+                        <div class="home-handoff-grid">
+                            @if (Model.Dashboard.CanViewOperations)
+                            {
+                                <div class="home-handoff-card">
+                                    <span>@T["Home_OperationsBacklogLabel"]</span>
+                                    <strong>@Model.Dashboard.OperationsBacklogCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                                </div>
+                            }
+                            @if (Model.Dashboard.CanViewDispatch)
+                            {
+                                <div class="home-handoff-card">
+                                    <span>@T["Home_DispatchReadyLabel"]</span>
+                                    <strong>@Model.Dashboard.ReadyForDispatchCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                                </div>
+                                <div class="home-handoff-card">
+                                    <span>@T["Home_PendingDeliveryLabel"]</span>
+                                    <strong>@Model.Dashboard.PendingDeliveryCount.ToString("N0", CultureInfo.CurrentUICulture)</strong>
+                                </div>
+                            }
+                        </div>
+                    </article>
+                    break;
+            }
+        </section>
     </section>
 }

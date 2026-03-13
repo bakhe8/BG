@@ -16,4 +16,6 @@ public static class DispatchErrorCodes
     public const string OutgoingLetterNotFound = "dispatch.outgoing_letter_not_found";
     public const string DeliveryNotPending = "dispatch.delivery_not_pending";
     public const string OutgoingLetterReferenceMismatch = "dispatch.outgoing_letter_reference_mismatch";
+    public const string ReopenDispatchNoteRequired = "dispatch.reopen_note_required";
+    public const string ReopenDispatchNotAllowed = "dispatch.reopen_not_allowed";
 }

@@ -88,6 +88,22 @@ public sealed class GuaranteeRequest
         Status = GuaranteeRequestStatus.AwaitingBankResponse;
     }
 
+    internal void ReopenForDispatch()
+    {
+        if (Status != GuaranteeRequestStatus.AwaitingBankResponse)
+        {
+            throw new InvalidOperationException("Only requests waiting for bank response can be reopened for dispatch.");
+        }
+
+        if (CompletedAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("A completed request cannot be reopened for dispatch.");
+        }
+
+        SubmittedToBankAtUtc = null;
+        Status = GuaranteeRequestStatus.ApprovedForDispatch;
+    }
+
     internal void SubmitForApproval(RequestApprovalProcess approvalProcess)
     {
         ArgumentNullException.ThrowIfNull(approvalProcess);
@@ -104,6 +120,38 @@ public sealed class GuaranteeRequest
 
         ApprovalProcess = approvalProcess;
         Status = GuaranteeRequestStatus.InApproval;
+    }
+
+    internal void Revise(decimal? requestedAmount, DateOnly? requestedExpiryDate, string? notes)
+    {
+        if (Status is not GuaranteeRequestStatus.Draft and not GuaranteeRequestStatus.Returned)
+        {
+            throw new InvalidOperationException("Only draft or returned requests can be revised.");
+        }
+
+        RequestedAmount = requestedAmount;
+        RequestedExpiryDate = requestedExpiryDate;
+        Notes = NormalizeOptional(notes, 1000);
+    }
+
+    internal void Cancel()
+    {
+        if (Status is not GuaranteeRequestStatus.Draft and not GuaranteeRequestStatus.Returned)
+        {
+            throw new InvalidOperationException("Only draft or returned requests can be cancelled.");
+        }
+
+        Status = GuaranteeRequestStatus.Cancelled;
+    }
+
+    internal void WithdrawFromApproval()
+    {
+        if (Status != GuaranteeRequestStatus.InApproval)
+        {
+            throw new InvalidOperationException("Only in-approval requests can be withdrawn.");
+        }
+
+        Status = GuaranteeRequestStatus.Cancelled;
     }
 
     internal void MarkReturnedFromApproval()

@@ -221,6 +221,102 @@ public sealed class GuaranteeEvent
             null);
     }
 
+    internal static GuaranteeEvent RequestUpdated(
+        Guid guaranteeId,
+        Guid requestId,
+        DateTimeOffset occurredAtUtc,
+        Guid? actorUserId,
+        string? actorDisplayName,
+        decimal? previousAmount,
+        decimal? newAmount,
+        DateOnly? previousExpiryDate,
+        DateOnly? newExpiryDate)
+    {
+        return new GuaranteeEvent(
+            guaranteeId,
+            requestId,
+            null,
+            null,
+            GuaranteeEventType.RequestUpdated,
+            occurredAtUtc,
+            "Request details revised before approval submission.",
+            actorUserId,
+            actorDisplayName,
+            previousAmount,
+            newAmount,
+            previousExpiryDate,
+            newExpiryDate,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    internal static GuaranteeEvent RequestCancelled(
+        Guid guaranteeId,
+        Guid requestId,
+        DateTimeOffset occurredAtUtc,
+        Guid? actorUserId,
+        string? actorDisplayName)
+    {
+        return new GuaranteeEvent(
+            guaranteeId,
+            requestId,
+            null,
+            null,
+            GuaranteeEventType.RequestCancelled,
+            occurredAtUtc,
+            "Request cancelled by owner before completion.",
+            actorUserId,
+            actorDisplayName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    internal static GuaranteeEvent RequestWithdrawn(
+        Guid guaranteeId,
+        Guid requestId,
+        DateTimeOffset occurredAtUtc,
+        Guid? actorUserId,
+        string? actorDisplayName,
+        string? stageLabel)
+    {
+        var summary = string.IsNullOrWhiteSpace(stageLabel)
+            ? "Request withdrawn by owner while awaiting approval."
+            : $"Request withdrawn by owner while awaiting approval. Active stage: {stageLabel}.";
+
+        return new GuaranteeEvent(
+            guaranteeId,
+            requestId,
+            null,
+            null,
+            GuaranteeEventType.RequestWithdrawn,
+            occurredAtUtc,
+            summary,
+            actorUserId,
+            actorDisplayName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
     internal static GuaranteeEvent ApprovalDecisionRecorded(
         Guid guaranteeId,
         Guid requestId,
@@ -429,6 +525,51 @@ public sealed class GuaranteeEvent
             dispatchStageResourceKey: "DispatchLedgerStep_Delivered",
             dispatchMethodResourceKey: GetDispatchChannelResourceKey(dispatchChannel),
             dispatchPolicyResourceKey: "DispatchLedgerPolicy_DeliveryConfirmationRecorded");
+    }
+
+    internal static GuaranteeEvent OutgoingLetterDispatchReopened(
+        Guid guaranteeId,
+        Guid requestId,
+        Guid correspondenceId,
+        GuaranteeDispatchChannel? dispatchChannel,
+        string? dispatchReference,
+        string? correctionNote,
+        DateTimeOffset occurredAtUtc,
+        Guid? actorUserId,
+        string? actorDisplayName)
+    {
+        var channelFragment = dispatchChannel.HasValue
+            ? $" after {dispatchChannel.Value}"
+            : string.Empty;
+        var referenceSuffix = string.IsNullOrWhiteSpace(dispatchReference)
+            ? string.Empty
+            : $" Tracking: {dispatchReference.Trim()}.";
+        var noteSuffix = string.IsNullOrWhiteSpace(correctionNote)
+            ? string.Empty
+            : $" Note: {correctionNote.Trim()}.";
+
+        return new GuaranteeEvent(
+            guaranteeId,
+            requestId,
+            correspondenceId,
+            null,
+            GuaranteeEventType.OutgoingLetterDispatchReopened,
+            occurredAtUtc,
+            $"Outgoing request letter dispatch reopened{channelFragment}.{referenceSuffix}{noteSuffix}",
+            actorUserId,
+            actorDisplayName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            dispatchStageResourceKey: "DispatchLedgerStep_Reopened",
+            dispatchMethodResourceKey: GetDispatchChannelResourceKey(dispatchChannel),
+            dispatchPolicyResourceKey: "DispatchLedgerPolicy_HandoffCorrectedBeforeDelivery");
     }
 
     internal static GuaranteeEvent DocumentCaptured(

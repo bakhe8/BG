@@ -21,9 +21,16 @@
   <data name="ThemeLabel" xml:space="preserve"><value>الثيم</value></data>
   <data name="Culture_ar" xml:space="preserve"><value>العربية</value></data>
   <data name="Culture_en" xml:space="preserve"><value>English</value></data>
+  <data name="Theme_kfsh" xml:space="preserve"><value>هوية KFSHRC المؤسسية</value></data>
   <data name="Theme_emerald" xml:space="preserve"><value>زمردي</value></data>
   <data name="Theme_slate" xml:space="preserve"><value>رمادي أردوازي</value></data>
   <data name="Theme_sand" xml:space="preserve"><value>رملي</value></data>
+  <data name="AppBrandSubtitle" xml:space="preserve"><value>تشغيل الضمانات الداخلية</value></data>
+  <data name="WorkspaceShell_WorkspacesLabel" xml:space="preserve"><value>مساحات العمل</value></data>
+  <data name="WorkspaceShell_AdminLabel" xml:space="preserve"><value>الإدارة</value></data>
+  <data name="WorkspaceShell_RoleCountSummary" xml:space="preserve"><value>{0} أدوار</value></data>
+  <data name="Shared_Yes" xml:space="preserve"><value>نعم</value></data>
+  <data name="Shared_No" xml:space="preserve"><value>لا</value></data>
   <data name="Home_PageTitle" xml:space="preserve"><value>لوحة التشغيل</value></data>
   <data name="Home_AnonymousEyebrow" xml:space="preserve"><value>بيئة BG</value></data>
   <data name="Home_AnonymousHeading" xml:space="preserve"><value>عمل الضمانات البنكية يبدأ من الطوابير الفعلية لا من تفاصيل الإطار التقني.</value></data>
@@ -32,7 +39,12 @@
   <data name="Home_DashboardEyebrow" xml:space="preserve"><value>لوحة التشغيل</value></data>
   <data name="Home_DashboardHeading" xml:space="preserve"><value>{0}، ابدأ من العبء التشغيلي الحقيقي</value></data>
   <data name="Home_DashboardSummary" xml:space="preserve"><value>تعرض الصفحة الرئيسية الآن الطوابير الحية والملكية والتسليمات والتعرضات التشغيلية للضمانات بدل معلومات الإطار التقني.</value></data>
+  <data name="Home_MinimalSummary" xml:space="preserve"><value>ابدأ من مساحات العمل المسندة لك، ثم افتح الطابور الذي يحتاج إجراء الآن.</value></data>
   <data name="Home_DashboardAttentionSummary" xml:space="preserve"><value>هناك {0} موافقات تنتظر، و{1} طلبات مفتوحة ما زالت مملوكة لك، و{2} ضمانات تقترب من الانتهاء.</value></data>
+  <data name="Home_WorkspacesTitle" xml:space="preserve"><value>مساحات العمل المسندة</value></data>
+  <data name="Home_WorkspacesSummary" xml:space="preserve"><value>تظهر هنا فقط المساحات المخصصة لهذا الحساب.</value></data>
+  <data name="Home_FocusSummary" xml:space="preserve"><value>ابدأ بالمساحة التي تحتاج إجراء أولًا.</value></data>
+  <data name="Home_SecondarySummary" xml:space="preserve"><value>أبق هذه المساحة تحت النظر بعد إنهاء الطابور الحالي.</value></data>
   <data name="Home_MetricApprovals" xml:space="preserve"><value>بانتظار اعتمادك</value></data>
   <data name="Home_MetricRequests" xml:space="preserve"><value>طلباتي المفتوحة</value></data>
   <data name="Home_MetricOperations" xml:space="preserve"><value>عبء التشغيل المفتوح</value></data>
@@ -60,7 +72,7 @@
   <data name="Home_NoOperationalAccessBody" xml:space="preserve"><value>تم التحقق من هذا الحساب بنجاح، لكنه لا يحمل حاليًا أي صلاحيات عبء تشغيلي.</value></data>
   <data name="Home_DaysRemainingSuffix" xml:space="preserve"><value>يومًا متبقيًا</value></data>
   <data name="Home_CurrentAmountLabel" xml:space="preserve"><value>المبلغ الحالي</value></data>
-  <data name="FooterBaseline" xml:space="preserve"><value>الخط الأساسي الداخلي لـ BG</value></data>
+  <data name="FooterBaseline" xml:space="preserve"><value>أنظمة KFSHRC الداخلية · تشغيل ضمانات BG</value></data>
   <data name="FooterStack" xml:space="preserve"><value>ASP.NET Core 8 + Razor Pages + API + PostgreSQL + IIS</value></data>
   <data name="HomeTitle" xml:space="preserve"><value>البيئة الأساسية</value></data>
   <data name="HeroTitle" xml:space="preserve"><value>بيئة نظيفة لتطبيق الضمانات البنكية</value></data>
@@ -75,10 +87,10 @@
   <data name="UserInterfaceLabel" xml:space="preserve"><value>الواجهات:</value></data>
   <data name="ApiLabel" xml:space="preserve"><value>الـ API:</value></data>
   <data name="IntegrationsLabel" xml:space="preserve"><value>التكاملات:</value></data>
-  <data name="LocalizationAndTheme" xml:space="preserve"><value>اللغة والثيم</value></data>
+  <data name="LocalizationAndTheme" xml:space="preserve"><value>اللغة والهوية المؤسسية</value></data>
   <data name="CurrentLanguageLabel" xml:space="preserve"><value>اللغة الحالية:</value></data>
   <data name="CurrentDirectionLabel" xml:space="preserve"><value>الاتجاه الحالي:</value></data>
-  <data name="CurrentThemeLabel" xml:space="preserve"><value>الثيم الحالي:</value></data>
+  <data name="CurrentThemeLabel" xml:space="preserve"><value>الهوية المؤسسية الحالية:</value></data>
   <data name="SupportedLanguagesLabel" xml:space="preserve"><value>اللغات المدعومة:</value></data>
   <data name="HospitalApiReadiness" xml:space="preserve"><value>جاهزية Hospital API</value></data>
   <data name="HospitalApiLabel" xml:space="preserve"><value>Hospital API:</value></data>
@@ -270,6 +282,7 @@
   <data name="OperationsQueue_PageTitle" xml:space="preserve"><value>طابور المراجعة التشغيلية</value></data>
   <data name="OperationsQueue_Heading" xml:space="preserve"><value>طابور المراجعة التشغيلية</value></data>
   <data name="OperationsQueue_Summary" xml:space="preserve"><value>يستقبل هذا الطابور كل حزمة تم حفظها من مرحلة الإدخال، ثم يسلمها إلى الطبقة التشغيلية التالية دون خلطها مع إنشاء الطلبات أو الموافقات.</value></data>
+  <data name="OperationsQueue_ActionSummary" xml:space="preserve"><value>اعمل فقط على العناصر الواردة التي ما زالت تحتاج مطابقة أو تأكيدًا. افتح الأدلة الأعمق فقط عندما يحتاج القرار الحالي إلى تتبع إضافي.</value></data>
   <data name="OperationsQueue_PrimaryFlow" xml:space="preserve"><value>التسليم بعد الإدخال</value></data>
   <data name="OperationsQueue_QueueTitle" xml:space="preserve"><value>حزم الإدخال المحفوظة والمنتظرة للمعالجة التشغيلية</value></data>
   <data name="OperationsQueue_QueueSummary" xml:space="preserve"><value>كل عنصر هنا يمثل ضمانًا ممسوحًا أو ردًا بنكيًا تم التحقق منه في الإدخال، وهو الآن بانتظار الفريق التشغيلي الصحيح.</value></data>
@@ -311,6 +324,10 @@
   <data name="OperationsQueue_CaptureChannelLabel" xml:space="preserve"><value>وسيلة الالتقاط</value></data>
   <data name="OperationsQueue_SourceSystemLabel" xml:space="preserve"><value>النظام المصدر</value></data>
   <data name="OperationsQueue_SourceReferenceLabel" xml:space="preserve"><value>المرجع المصدر</value></data>
+  <data name="OperationsQueue_MatchFormSummary" xml:space="preserve"><value>اختر الطلب الصحيح ثم أكد القيمة الحقيقية وبعدها طبّق رد البنك.</value></data>
+  <data name="OperationsQueue_EvidenceTitle" xml:space="preserve"><value>الأدلة وتتبع الالتقاط</value></data>
+  <data name="OperationsQueue_EvidenceSummary" xml:space="preserve"><value>افتح سياق الالتقاط الكامل وأدلة النظام فقط عندما تحتاج دعماً إضافياً للقرار الحالي.</value></data>
+  <data name="OperationsQueue_NoApplyActionSummary" xml:space="preserve"><value>هذا العنصر لا يحتاج مطابقة طلب من هذا السطح الآن. استمر فقط في متابعة handoff التشغيلي الموجّه له.</value></data>
   <data name="OperationsMatchConfidence_High" xml:space="preserve"><value>ثقة عالية</value></data>
   <data name="OperationsMatchConfidence_Medium" xml:space="preserve"><value>ثقة متوسطة</value></data>
   <data name="OperationsMatchConfidence_Low" xml:space="preserve"><value>ثقة منخفضة</value></data>
@@ -322,6 +339,8 @@
   <data name="OperationsMatchReason_ResponseDateNearDispatch" xml:space="preserve"><value>تاريخ الرد قريب من تاريخ الإرسال.</value></data>
   <data name="OperationsMatchReason_ExpiryDateMatches" xml:space="preserve"><value>تاريخ الانتهاء الوارد في الرد يطابق الطلب.</value></data>
   <data name="OperationsMatchReason_AmountMatches" xml:space="preserve"><value>المبلغ الوارد في الرد يطابق الطلب.</value></data>
+  <data name="OperationsMatchReason_DocumentFormBankAligned" xml:space="preserve"><value>ملف الخطاب البنكي الوارد يطابق عائلة البنك في مستند الطلب الأساسي.</value></data>
+  <data name="OperationsMatchReason_DocumentFormBankMismatch" xml:space="preserve"><value>ملف الخطاب البنكي الوارد يتعارض مع عائلة البنك في مستند الطلب الأساسي.</value></data>
   <data name="OperationsReviewCategory_GuaranteeRegistration" xml:space="preserve"><value>مراجعة تسجيل الضمان</value></data>
   <data name="OperationsReviewCategory_BankConfirmation" xml:space="preserve"><value>مراجعة تأكيد بنكي وارد</value></data>
   <data name="OperationsReviewCategory_StatusReply" xml:space="preserve"><value>مراجعة رد وارد عن الحالة</value></data>
@@ -434,6 +453,7 @@
   <data name="IntakeWorkspace_ReviewCardPendingBody" xml:space="preserve"><value>شغّل الاستخراج أولاً لاستبدال القيم التجريبية بمخرجات المستند المرحلي قبل المراجعة.</value></data>
   <data name="IntakeWorkspace_SubmissionTitle" xml:space="preserve"><value>تنفيذ الإدخال الفعلي</value></data>
   <data name="IntakeWorkspace_SubmissionSummary" xml:space="preserve"><value>ارفع المستند الممسوح، راجع القيم المستخرجة، ثم احفظ المستند مع البيانات المدققة في عملية تسليم واحدة ومضبوطة.</value></data>
+  <data name="IntakeWorkspace_ActionSummary" xml:space="preserve"><value>ارفع المستند، أكد الحقول الحرجة، ثم احفظ حزمة الإدخال.</value></data>
   <data name="IntakeWorkspace_DraftStatusTitle" xml:space="preserve"><value>حالة المسودة</value></data>
   <data name="IntakeWorkspace_DraftReady" xml:space="preserve"><value>الاستخراج جاهز للمراجعة</value></data>
   <data name="IntakeWorkspace_DraftPending" xml:space="preserve"><value>ارفع الملف وشغّل الاستخراج قبل الحفظ</value></data>
@@ -537,6 +557,14 @@
   <data name="RequestsWorkspace_CreateSuccess" xml:space="preserve"><value>تم إنشاء {0} بنجاح للضمان {1}.</value></data>
   <data name="RequestsWorkspace_SubmitAction" xml:space="preserve"><value>إرسال للموافقة</value></data>
   <data name="RequestsWorkspace_SubmitSuccess" xml:space="preserve"><value>تم إرسال الطلب للموافقة. المرحلة الحالية: {0} ({1}).</value></data>
+  <data name="RequestsWorkspace_EditRequestTitle" xml:space="preserve"><value>تعديل الطلب</value></data>
+  <data name="RequestsWorkspace_EditRequestSummary" xml:space="preserve"><value>حدّث الطلب المسود أو المعاد قبل دفعه مرة أخرى للمسار.</value></data>
+  <data name="RequestsWorkspace_UpdateAction" xml:space="preserve"><value>حفظ التعديلات</value></data>
+  <data name="RequestsWorkspace_CancelAction" xml:space="preserve"><value>إلغاء الطلب</value></data>
+  <data name="RequestsWorkspace_WithdrawAction" xml:space="preserve"><value>سحب الطلب من الموافقات</value></data>
+  <data name="RequestsWorkspace_UpdateSuccess" xml:space="preserve"><value>تم تحديث الطلب بنجاح للضمان {0}.</value></data>
+  <data name="RequestsWorkspace_CancelSuccess" xml:space="preserve"><value>تم إلغاء الطلب بنجاح للضمان {0}.</value></data>
+  <data name="RequestsWorkspace_WithdrawSuccess" xml:space="preserve"><value>تم سحب الطلب بنجاح للضمان {0}.</value></data>
   <data name="RequestType_Extend" xml:space="preserve"><value>تمديد</value></data>
   <data name="RequestType_Reduce" xml:space="preserve"><value>تخفيض</value></data>
   <data name="RequestType_Release" xml:space="preserve"><value>إفراج</value></data>
@@ -561,7 +589,10 @@
   <data name="requests.duplicate_open_request" xml:space="preserve"><value>يوجد طلب مفتوح من النوع نفسه لهذا المستخدم وعلى هذا الضمان.</value></data>
   <data name="requests.requested_amount_required" xml:space="preserve"><value>أدخل المبلغ المطلوب لطلبات التخفيض وما في حكمها.</value></data>
   <data name="requests.requested_expiry_date_required" xml:space="preserve"><value>أدخل تاريخ الانتهاء المطلوب لطلبات التمديد.</value></data>
-  <data name="requests.request_validation_failed" xml:space="preserve"><value>تعذر إنشاء الطلب لأن البيانات المقترحة لم تجتز تحقق الدومين.</value></data>
+  <data name="requests.request_not_editable" xml:space="preserve"><value>يمكن تعديل الطلب فقط إذا كان مسودًا أو معادًا.</value></data>
+  <data name="requests.request_not_cancellable" xml:space="preserve"><value>يمكن إلغاء الطلب فقط إذا كان مسودًا أو معادًا.</value></data>
+  <data name="requests.request_not_withdrawable" xml:space="preserve"><value>يمكن سحب الطلب فقط إذا كان ما زال داخل مسار الموافقات.</value></data>
+  <data name="requests.request_validation_failed" xml:space="preserve"><value>تعذرت معالجة الطلب لأن البيانات المقترحة لم تجتز تحقق الدومين.</value></data>
   <data name="ApprovalQueue_PageTitle" xml:space="preserve"><value>طابور الموافقات</value></data>
   <data name="ApprovalQueue_Heading" xml:space="preserve"><value>طابور مرحلة الموافقة الحالية</value></data>
   <data name="ApprovalQueue_Summary" xml:space="preserve"><value>كل موقع أو معتمد يرى فقط الطلبات التي وصلت إلى المرحلة الحالية المرتبطة بأحد أدواره.</value></data>
@@ -657,6 +688,7 @@
   <data name="DispatchWorkspace_PageTitle" xml:space="preserve"><value>مساحة إرسال الخطابات</value></data>
   <data name="DispatchWorkspace_Heading" xml:space="preserve"><value>مساحة إرسال الخطابات إلى البنك</value></data>
   <data name="DispatchWorkspace_Summary" xml:space="preserve"><value>سجّل الخطاب الصادر فقط بعد اكتمال الموافقات ووصول الطلب إلى حالة الجاهزية للتسليم أو الإرسال إلى البنك.</value></data>
+  <data name="DispatchWorkspace_ActionSummary" xml:space="preserve"><value>اعمل فقط على handoff الصادر الحالي: جهّز الخطاب النهائي، أخرجه فعليًا من BG، أو أغلق أثر التسليم الخارجي عندما يكون قد خرج بالفعل.</value></data>
   <data name="DispatchWorkspace_NoEligibleActor" xml:space="preserve"><value>لا يوجد سياق إرسال متاح</value></data>
   <data name="DispatchWorkspace_NoEligibleActorBody" xml:space="preserve"><value>أنشئ مستخدمي الإرسال واربطهم بصلاحيات الإرسال قبل تسجيل الخطابات الصادرة للبنك.</value></data>
   <data name="DispatchWorkspace_ActorScopedNotice" xml:space="preserve"><value>تم تحميل مساحة الإرسال على المستخدم التشغيلي المحدد.</value></data>
@@ -679,6 +711,7 @@
   <data name="DispatchWorkspace_PrintModeField" xml:space="preserve"><value>وسيلة الطباعة</value></data>
   <data name="DispatchWorkspace_PrintAction" xml:space="preserve"><value>تسجيل الطباعة</value></data>
   <data name="DispatchWorkspace_ReprintAction" xml:space="preserve"><value>تسجيل إعادة الطباعة</value></data>
+  <data name="DispatchWorkspace_ReopenAction" xml:space="preserve"><value>إعادة فتح الإرسال</value></data>
   <data name="DispatchWorkspace_PrintSuccess" xml:space="preserve"><value>تم تسجيل طباعة الخطاب {0} للضمان {1} (النسخة {2}).</value></data>
   <data name="DispatchWorkspace_DispatchChannelField" xml:space="preserve"><value>وسيلة الإرسال</value></data>
   <data name="DispatchWorkspace_DispatchChannelLabel" xml:space="preserve"><value>وسيلة الإرسال</value></data>
@@ -695,6 +728,13 @@
   <data name="DispatchWorkspace_DeliveryNoteField" xml:space="preserve"><value>ملاحظة التسليم</value></data>
   <data name="DispatchWorkspace_ConfirmDeliveryAction" xml:space="preserve"><value>تأكيد التسليم</value></data>
   <data name="DispatchWorkspace_DeliverySuccess" xml:space="preserve"><value>تم تسجيل تأكيد تسليم المرجع الصادر {0} على الضمان {1}.</value></data>
+  <data name="DispatchWorkspace_ReopenNoteField" xml:space="preserve"><value>سبب التصحيح</value></data>
+  <data name="DispatchWorkspace_ReopenSuccess" xml:space="preserve"><value>تمت إعادة فتح الإرسال للمرجع الصادر {0} على الضمان {1}.</value></data>
+  <data name="DispatchWorkspace_ReadyActionSummary" xml:space="preserve"><value>جهّز النسخة الصادرة النهائية ثم سجّل اللحظة التي يغادر فيها الخطاب BG فعليًا.</value></data>
+  <data name="DispatchWorkspace_PendingActionSummary" xml:space="preserve"><value>هذا الخطاب غادر BG بالفعل. أغلق handoff بإثبات التسليم أو إعادة طباعة مضبوطة أو تصحيح إعادة الفتح.</value></data>
+  <data name="DispatchWorkspace_NoAvailableActionsSummary" xml:space="preserve"><value>لا توجد إجراءات إرسال متاحة للمستخدم الحالي على هذا السطح.</value></data>
+  <data name="DispatchWorkspace_ReadyEvidenceSummary" xml:space="preserve"><value>افتح دليل الطباعة فقط عندما تحتاج إلى التتبع التفصيلي لهذا العنصر الصادر.</value></data>
+  <data name="DispatchWorkspace_PendingEvidenceSummary" xml:space="preserve"><value>افتح دليل الإرسال فقط عندما يحتاج handoff الحالي إلى تفاصيل تسليم إضافية.</value></data>
   <data name="DispatchPrintMode_WorkstationPrinter" xml:space="preserve"><value>طابعة المكتب</value></data>
   <data name="DispatchPrintMode_CentralPrintRoom" xml:space="preserve"><value>غرفة الطباعة المركزية</value></data>
   <data name="DispatchPrintMode_PdfExport" xml:space="preserve"><value>تصدير PDF</value></data>
@@ -706,9 +746,11 @@
   <data name="DispatchLedgerStep_Reprinted" xml:space="preserve"><value>أعيدت الطباعة</value></data>
   <data name="DispatchLedgerStep_Dispatched" xml:space="preserve"><value>خرج الخطاب</value></data>
   <data name="DispatchLedgerStep_Delivered" xml:space="preserve"><value>اكتمل التسليم</value></data>
+  <data name="DispatchLedgerStep_Reopened" xml:space="preserve"><value>أعيد فتح الإرسال</value></data>
   <data name="DispatchLedgerPolicy_PrintRecordedBeforeExternalDispatch" xml:space="preserve"><value>يجب تسجيل الطباعة قبل الخروج الخارجي</value></data>
   <data name="DispatchLedgerPolicy_BankHandoffRecorded" xml:space="preserve"><value>تم تسجيل تسليم الخطاب إلى مسار البنك الخارجي</value></data>
   <data name="DispatchLedgerPolicy_DeliveryConfirmationRecorded" xml:space="preserve"><value>تم تسجيل تأكيد التسليم الخارجي</value></data>
+  <data name="DispatchLedgerPolicy_HandoffCorrectedBeforeDelivery" xml:space="preserve"><value>تم تصحيح الخروج الخارجي قبل تأكيد التسليم</value></data>
   <data name="dispatch.dispatcher_context_required" xml:space="preserve"><value>اختر مستخدم الإرسال العامل أولًا.</value></data>
   <data name="dispatch.dispatcher_context_invalid" xml:space="preserve"><value>المستخدم المحدد غير صالح لمساحة الإرسال.</value></data>
   <data name="dispatch.print_permission_required" xml:space="preserve"><value>المستخدم المحدد لا يملك صلاحية تسجيل الطباعة.</value></data>
@@ -723,11 +765,14 @@
   <data name="dispatch.outgoing_letter_not_found" xml:space="preserve"><value>سجل الخطاب الصادر غير موجود لهذا الطلب.</value></data>
   <data name="dispatch.delivery_not_pending" xml:space="preserve"><value>هذا الخطاب الصادر ليس بانتظار تأكيد التسليم.</value></data>
   <data name="dispatch.outgoing_letter_reference_mismatch" xml:space="preserve"><value>الخطاب الصادر المسجل يستخدم مرجعًا أو تاريخًا مختلفًا.</value></data>
+  <data name="dispatch.reopen_note_required" xml:space="preserve"><value>أدخل سبب التصحيح قبل إعادة فتح الإرسال.</value></data>
+  <data name="dispatch.reopen_not_allowed" xml:space="preserve"><value>لم يعد ممكنًا إعادة فتح هذا الإرسال.</value></data>
   <data name="operations.review_item_not_found" xml:space="preserve"><value>عنصر المراجعة المحدد غير موجود.</value></data>
   <data name="operations.review_item_not_actionable" xml:space="preserve"><value>هذا العنصر لا يمكن تطبيقه كرد بنك وارد.</value></data>
   <data name="operations.request_required" xml:space="preserve"><value>اختر الطلب المطابق لرد البنك هذا.</value></data>
   <data name="operations.request_not_found" xml:space="preserve"><value>الطلب المحدد غير موجود على هذا الضمان.</value></data>
   <data name="operations.request_not_compatible" xml:space="preserve"><value>الطلب المحدد غير متوافق مع رد البنك هذا.</value></data>
+  <data name="operations.response_bank_profile_mismatch" xml:space="preserve"><value>رد البنك الوارد يتبع عائلة بنك مختلفة عن مستند الطلب الأساسي. راجع نموذج البنك قبل تطبيق هذا الرد.</value></data>
   <data name="operations.confirmed_expiry_date_required" xml:space="preserve"><value>أدخل أو أكد تاريخ الانتهاء الجديد قبل تطبيق رد التمديد.</value></data>
   <data name="operations.confirmed_amount_required" xml:space="preserve"><value>أدخل أو أكد المبلغ المخفض قبل تطبيق الرد.</value></data>
   <data name="operations.replacement_guarantee_number_required" xml:space="preserve"><value>أدخل رقم الضمان البديل قبل تطبيق هذا الرد.</value></data>
@@ -800,7 +845,127 @@
   <data name="SignIn_SelectUser" xml:space="preserve"><value>اختر مستخدمًا</value></data>
   <data name="SignIn_NoUsersBody" xml:space="preserve"><value>لا توجد حسابات نشطة متاحة لتسجيل الدخول.</value></data>
   <data name="SignIn_SubmitAction" xml:space="preserve"><value>تسجيل الدخول</value></data>
+  <data name="ApprovalQueue_WhyHereTitle" xml:space="preserve"><value>لماذا هذا الطلب هنا</value></data>
+  <data name="ApprovalQueue_WhyHereSummary" xml:space="preserve"><value>هذا الطلب ينتظر حاليًا الموقّع المسؤول عن المرحلة النشطة الموضحة أدناه.</value></data>
+  <data name="ApprovalQueue_WhatToConfirmTitle" xml:space="preserve"><value>ما الذي يجب تأكيده الآن</value></data>
+  <data name="ApprovalQueue_NextAfterDecisionTitle" xml:space="preserve"><value>ما الذي يحدث بعد قرارك</value></data>
+  <data name="ApprovalQueue_NextAfterApprove" xml:space="preserve"><value>اعتمد لنقل الطلب إلى المرحلة التالية أو إلى الإرسال إذا كان هذا هو التوقيع الأخير.</value></data>
+  <data name="ApprovalQueue_NextAfterReturn" xml:space="preserve"><value>أعد الطلب لإرساله مرة أخرى إلى صاحبه للتصحيح مع ملاحظتك.</value></data>
+  <data name="ApprovalQueue_NextAfterReject" xml:space="preserve"><value>ارفض لإغلاق الطلب كمرفوض داخل مسار الموافقات.</value></data>
+  <data name="ApprovalQueue_LetterSignatureRequired" xml:space="preserve"><value>توقيع الخطاب مطلوب في هذه المرحلة</value></data>
+  <data name="ApprovalQueue_DossierContextHint" xml:space="preserve"><value>افتح ملف الطلب للأدلة والتتبع الكامل.</value></data>
+  <data name="ApprovalQueue_DossierSummary" xml:space="preserve"><value>ملف الطلب هو المرجع الأساسي للتواقيع السابقة والمرفقات والمسار الزمني الكامل قبل اتخاذ القرار.</value></data>
+  <data name="ApprovalDossier_ActionReminder" xml:space="preserve"><value>استخدم هذه الصفحة للفحص ثم عد إلى الطابور لاتخاذ القرار.</value></data>
+  <data name="ApprovalDossier_ActionReminderBody" xml:space="preserve"><value>يجمع ملف الطلب أدلة الموافقة الكاملة في مكان واحد حتى تبقى شاشة القرار مركزة على الإجراء نفسه.</value></data>
+  <data name="ApprovalDossier_PriorSignaturesSummary" xml:space="preserve"><value>التواقيع التي سُجلت مسبقًا على هذا الطلب.</value></data>
+  <data name="ApprovalDossier_AttachmentsSummary" xml:space="preserve"><value>المستندات المرتبطة بالطلب لتبريره أو دعمه.</value></data>
+  <data name="ApprovalDossier_TimelineSummary" xml:space="preserve"><value>التسلسل الكامل للأحداث التشغيلية والموافقات والإرسال.</value></data>
+  <data name="IntakeWorkspace_CaptureZoneTitle" xml:space="preserve"><value>الخطوة 1: الالتقاط</value></data>
+  <data name="IntakeWorkspace_VerifyZoneTitle" xml:space="preserve"><value>الخطوة 2: تأكيد الحقول الحرجة</value></data>
+  <data name="IntakeWorkspace_ReviewZoneTitle" xml:space="preserve"><value>الخطوة 3: المراجعة والحفظ</value></data>
+  <data name="IntakeWorkspace_RequiredBeforeSaveTitle" xml:space="preserve"><value>المطلوب قبل الحفظ</value></data>
+  <data name="IntakeWorkspace_ProcessingContextTitle" xml:space="preserve"><value>سياق المعالجة</value></data>
+  <data name="IntakeWorkspace_ProcessingContextSummary" xml:space="preserve"><value>افتح نطاق العمل وخط الأنابيب وملاحظات التكامل فقط عندما تحتاج إلى ثقة إضافية.</value></data>
+  <data name="IntakeWorkspace_SupportRailTitle" xml:space="preserve"><value>الدعم والسياق</value></data>
+  <data name="IntakeWorkspace_SupportRailSummary" xml:space="preserve"><value>افتحه فقط عندما تحتاج حالة الإدخال الحالية إلى سياق إضافي.</value></data>
+  <data name="RequestsWorkspace_WorkflowPreviewTitle" xml:space="preserve"><value>معاينة المسار</value></data>
+  <data name="RequestsWorkspace_WorkflowPreviewSummary" xml:space="preserve"><value>هذه المعاينة تؤكد مسار الموافقة الذي سيستخدم بعد الإرسال، وليست ملفًا تشغيليًا كاملًا.</value></data>
+  <data name="RequestsWorkspace_ActionSummary" xml:space="preserve"><value>أنشئ الطلب التالي من العمود الجانبي، ثم تابع فقط الحالة الحالية والخطوة التالية وأي إجراء ما يزال بانتظارك.</value></data>
+  <data name="RequestsWorkspace_RequestedChangeTitle" xml:space="preserve"><value>التغيير المطلوب</value></data>
+  <data name="RequestsWorkspace_NextActionSubmit" xml:space="preserve"><value>أرسل هذا الطلب الآن حتى يدخل سلسلة الموافقات.</value></data>
+  <data name="RequestsWorkspace_NextActionRevise" xml:space="preserve"><value>عدّل الطلب المعاد ثم أرسله مرة أخرى إلى الموافقات.</value></data>
+  <data name="RequestsWorkspace_NextActionWithdraw" xml:space="preserve"><value>اسحب هذا الطلب إذا كان يجب إيقافه قبل أن تستمر المرحلة الحالية من الموافقة.</value></data>
+  <data name="RequestsWorkspace_NextActionAwaitExternal" xml:space="preserve"><value>لا يوجد إجراء مطلوب منك الآن. تابع الطلب حتى يكتمل عبر الإرسال أو رد البنك.</value></data>
+  <data name="RequestsWorkspace_NextActionCompleted" xml:space="preserve"><value>اكتمل هذا الطلب. افتح التتبع التفصيلي فقط إذا احتجت الأثر النهائي الكامل.</value></data>
+  <data name="RequestsWorkspace_NextActionClosed" xml:space="preserve"><value>هذا الطلب مغلق ولا توجد عليه إجراءات إضافية من سطح المالك.</value></data>
+  <data name="RequestsWorkspace_NextActionMonitor" xml:space="preserve"><value>استمر في متابعة هذا الطلب حتى يغيّر handoff التشغيلي التالي حالته.</value></data>
+  <data name="RequestsWorkspace_State_Draft" xml:space="preserve"><value>هذا الطلب ما يزال معك ولم يدخل مسار الموافقات بعد.</value></data>
+  <data name="RequestsWorkspace_State_InApproval" xml:space="preserve"><value>هذا الطلب موجود حاليًا داخل مسار الموافقات وينتظر الموقّع النشط.</value></data>
+  <data name="RequestsWorkspace_State_Returned" xml:space="preserve"><value>أُعيد هذا الطلب للتصحيح قبل أن يستطيع التقدم مرة أخرى.</value></data>
+  <data name="RequestsWorkspace_State_ApprovedForDispatch" xml:space="preserve"><value>أنهى هذا الطلب الموافقات وينتظر الآن معالجة الإرسال.</value></data>
+  <data name="RequestsWorkspace_State_AwaitingBankResponse" xml:space="preserve"><value>غادر هذا الطلب BG بالفعل وينتظر الآن رد البنك.</value></data>
+  <data name="RequestsWorkspace_State_Completed" xml:space="preserve"><value>اكتمل هذا الطلب وتم تطبيق نتيجته المؤكدة.</value></data>
+  <data name="RequestsWorkspace_State_Rejected" xml:space="preserve"><value>رُفض هذا الطلب أثناء الموافقات.</value></data>
+  <data name="RequestsWorkspace_State_Cancelled" xml:space="preserve"><value>أُلغي هذا الطلب ولم يعد نشطًا.</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryTitle" xml:space="preserve"><value>ملخص التتبع</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryHeading" xml:space="preserve"><value>ما الذي يهمك الآن</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryLedger" xml:space="preserve"><value>قيود السجل المسجلة: {0}</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryCorrespondence" xml:space="preserve"><value>المراسلات المرتبطة: {0}</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryStage" xml:space="preserve"><value>المرحلة الحالية: {0}</value></data>
+  <data name="RequestsWorkspace_LedgerSummary" xml:space="preserve"><value>افتح المسار الزمني الكامل فقط عندما تحتاج إلى التتبع التفصيلي.</value></data>
+  <data name="RequestsWorkspace_RequestNotesTitle" xml:space="preserve"><value>ملاحظات الطلب</value></data>
+  <data name="OperationsQueue_WhyHereTitle" xml:space="preserve"><value>لماذا هذا العنصر هنا</value></data>
+  <data name="OperationsQueue_WhyHereSummary" xml:space="preserve"><value>ينتظر عنصر المراجعة هذا التشغيل للتحقق من الرد الوارد وإغلاق handoff الصحيح.</value></data>
+  <data name="OperationsQueue_CompleteNowTitle" xml:space="preserve"><value>ما الذي يغلقه الآن</value></data>
+  <data name="OperationsQueue_CompleteNowStepMatch" xml:space="preserve"><value>اختر الطلب الصحيح بالاعتماد على ترشيحات النظام أو مراجعتك.</value></data>
+  <data name="OperationsQueue_CompleteNowStepConfirm" xml:space="preserve"><value>أكد تاريخ الانتهاء الحقيقي أو المبلغ أو الملاحظة المطلوبة حسب السيناريو.</value></data>
+  <data name="OperationsQueue_CompleteNowStepClose" xml:space="preserve"><value>طبّق رد البنك حتى ينتقل الضمان والطلب إلى حالتهما المؤكدة.</value></data>
+  <data name="DispatchWorkspace_ReadyStateTitle" xml:space="preserve"><value>جاهز للطباعة أو الإرسال</value></data>
+  <data name="DispatchWorkspace_ReadyStateSummary" xml:space="preserve"><value>هذه الطلبات أنهت الموافقات وتحتاج الآن إلى الطباعة أو تسجيل الإرسال أو كليهما.</value></data>
+  <data name="DispatchWorkspace_WhyHereTitle" xml:space="preserve"><value>لماذا هذا العنصر هنا</value></data>
+  <data name="DispatchWorkspace_WhyHereReadySummary" xml:space="preserve"><value>هذا الطلب ينتظر التشغيل في الإرسال لتجهيز الخطاب الصادر وإخراجه فعليًا من BG.</value></data>
+  <data name="DispatchWorkspace_PrintEvidenceTitle" xml:space="preserve"><value>إثبات الطباعة</value></data>
+  <data name="DispatchWorkspace_NextStepTitle" xml:space="preserve"><value>الخطوة التالية</value></data>
+  <data name="DispatchWorkspace_NextStepPrint" xml:space="preserve"><value>اطبع أو أعد الطباعة عند الحاجة إلى نسخة نهائية صادرة.</value></data>
+  <data name="DispatchWorkspace_NextStepDispatch" xml:space="preserve"><value>سجل الإرسال عندما يغادر الخطاب BG فعليًا.</value></data>
+  <data name="DispatchWorkspace_NextStepAwaitBank" xml:space="preserve"><value>بعد الإرسال ينتظر الطلب رد البنك أو تأكيد التسليم.</value></data>
+  <data name="DispatchWorkspace_PendingDeliveryStateTitle" xml:space="preserve"><value>بانتظار تأكيد التسليم</value></data>
+  <data name="DispatchWorkspace_PendingDeliveryStateSummary" xml:space="preserve"><value>هذه الخطابات غادرت BG بالفعل وتحتاج الآن إلى إثبات التسليم أو إعادة طباعة مضبوطة.</value></data>
+  <data name="DispatchWorkspace_WhyHerePendingDeliverySummary" xml:space="preserve"><value>تم إرسال هذه المراسلة وتنتظر الآن إثبات التسليم الخارجي.</value></data>
+  <data name="DispatchWorkspace_DispatchEvidenceTitle" xml:space="preserve"><value>إثبات الإرسال</value></data>
+  <data name="DispatchWorkspace_NextStepDelivery" xml:space="preserve"><value>أكد التسليم عندما يتم التحقق من البريد أو المندوب أو handoff الخارجي.</value></data>
+  <data name="DispatchWorkspace_NextStepReprint" xml:space="preserve"><value>استخدم إعادة الطباعة فقط عندما تكون هناك حاجة إلى نسخة صادرة إضافية مضبوطة.</value></data>
+  <data name="AdminUsers_TaskModelTitle" xml:space="preserve"><value>إدارة المستخدمين</value></data>
+  <data name="AdminUsers_TaskModelSummary" xml:space="preserve"><value>استخدم هذه الصفحة لإنشاء الحسابات المحلية وإسناد الأدوار وصيانة كلمات المرور، وليست تقريرًا تدقيقيًا كاملًا لكل حدث هوية.</value></data>
+  <data name="RolesPage_RoleCreated" xml:space="preserve"><value>تم حفظ الدور بنجاح.</value></data>
+  <data name="AdminRoles_TaskModelTitle" xml:space="preserve"><value>إدارة الأدوار والصلاحيات</value></data>
+  <data name="AdminRoles_TaskModelSummary" xml:space="preserve"><value>استخدم هذه الصفحة لتعريف حزم الصلاحيات التي تتحكم في الوصول إلى المساحات، وافصل مراجعة الصلاحيات عن صيانة المستخدمين.</value></data>
+  <data name="AdminDelegations_TaskModelTitle" xml:space="preserve"><value>إدارة التفويضات</value></data>
+  <data name="AdminDelegations_TaskModelSummary" xml:space="preserve"><value>استخدم هذه الصفحة لإنشاء تغطية موافقات مؤقتة وإلغائها عند انتهاء handoff المؤقت.</value></data>
+  <data name="AdminWorkflow_TaskModelTitle" xml:space="preserve"><value>إدارة المسارات</value></data>
+  <data name="AdminWorkflow_TaskModelSummary" xml:space="preserve"><value>استخدم هذه الصفحة للحفاظ على تعريفات الموافقة قابلة للتنفيذ ومحكومة. التاريخ التشغيلي التفصيلي مكانه في المساحات التشغيلية وليس هنا.</value></data>
+  <data name="WorkflowAdmin_CurrentStagesTitle" xml:space="preserve"><value>المراحل الحالية</value></data>
   <data name="Pagination_Previous" xml:space="preserve"><value>السابق</value></data>
   <data name="Pagination_Next" xml:space="preserve"><value>التالي</value></data>
   <data name="Pagination_PageSummary" xml:space="preserve"><value>الصفحة {0} من {1} ({2} عنصر)</value></data>
+  <data name="intake.document_form_invalid" xml:space="preserve"><value>النموذج البنكي المحدد غير صالح لسيناريو الإدخال الحالي.</value></data>
+  <data name="IntakeWorkspace_DocumentFormTitle" xml:space="preserve"><value>ملف نموذج المستند</value></data>
+  <data name="IntakeWorkspace_DocumentFormSummary" xml:space="preserve"><value>أكد أي نموذج ضمان أو عائلة خطابات بنكية حقيقية يتبعها هذا المستند قبل الحفظ النهائي.</value></data>
+  <data name="IntakeWorkspace_DocumentFormField" xml:space="preserve"><value>نموذج المستند</value></data>
+  <data name="IntakeWorkspace_DetectedFormTitle" xml:space="preserve"><value>النموذج المكتشف</value></data>
+  <data name="IntakeWorkspace_FormExpectedCuesTitle" xml:space="preserve"><value>المؤشرات المتوقعة</value></data>
+  <data name="IntakeWorkspace_FormExpectedFieldsTitle" xml:space="preserve"><value>الحقول المتوقعة</value></data>
+  <data name="IntakeWorkspace_FormExpectedFieldsSummary" xml:space="preserve"><value>الحقول الأساسية التي يفترض أن تظهر في النموذج البنكي المختار.</value></data>
+  <data name="IntakeWorkspace_SupportingReviewTitle" xml:space="preserve"><value>الحقول المستخرجة الداعمة</value></data>
+  <data name="IntakeWorkspace_FormExpectedField" xml:space="preserve"><value>متوقع من النموذج</value></data>
+  <data name="IntakeWorkspace_FormSupplementalField" xml:space="preserve"><value>حقل تكميلي للسيناريو</value></data>
+  <data name="BankProfile_Generic" xml:space="preserve"><value>ملف بنك عام</value></data>
+  <data name="BankProfile_SNB" xml:space="preserve"><value>البنك الأهلي السعودي</value></data>
+  <data name="BankProfile_AlRajhi" xml:space="preserve"><value>مصرف الراجحي</value></data>
+  <data name="BankProfile_Riyad" xml:space="preserve"><value>بنك الرياض</value></data>
+  <data name="DocumentForm_Instrument_Generic_Title" xml:space="preserve"><value>أصل ضمان بنكي عام</value></data>
+  <data name="DocumentForm_Instrument_Generic_Summary" xml:space="preserve"><value>استخدمه عندما يكون أصل الضمان صحيحًا لكنه لا يطابق بعد نموذج بنك محدد مثبت داخل النظام.</value></data>
+  <data name="DocumentForm_Instrument_SNB_Title" xml:space="preserve"><value>أصل ضمان البنك الأهلي السعودي</value></data>
+  <data name="DocumentForm_Instrument_SNB_Summary" xml:space="preserve"><value>أصل ضمان صادر من البنك الأهلي السعودي ضمن عائلة مستنداته المعتمدة.</value></data>
+  <data name="DocumentForm_Instrument_AlRajhi_Title" xml:space="preserve"><value>أصل ضمان مصرف الراجحي</value></data>
+  <data name="DocumentForm_Instrument_AlRajhi_Summary" xml:space="preserve"><value>أصل ضمان صادر من مصرف الراجحي ضمن عائلة مستنداته المعتمدة.</value></data>
+  <data name="DocumentForm_Instrument_Riyad_Title" xml:space="preserve"><value>أصل ضمان بنك الرياض</value></data>
+  <data name="DocumentForm_Instrument_Riyad_Summary" xml:space="preserve"><value>أصل ضمان صادر من بنك الرياض ضمن عائلة مستنداته المعتمدة.</value></data>
+  <data name="DocumentForm_BankLetter_Generic_Title" xml:space="preserve"><value>خطاب وارد عام من البنك</value></data>
+  <data name="DocumentForm_BankLetter_Generic_Summary" xml:space="preserve"><value>استخدمه عندما يكون خطاب التأكيد الوارد صحيحًا لكنه غير مربوط بعد بعائلة ترويسة بنك محددة.</value></data>
+  <data name="DocumentForm_BankLetter_SNB_Title" xml:space="preserve"><value>خطاب وارد من البنك الأهلي السعودي</value></data>
+  <data name="DocumentForm_BankLetter_SNB_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة البنك الأهلي السعودي.</value></data>
+  <data name="DocumentForm_BankLetter_AlRajhi_Title" xml:space="preserve"><value>خطاب وارد من مصرف الراجحي</value></data>
+  <data name="DocumentForm_BankLetter_AlRajhi_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة مصرف الراجحي.</value></data>
+  <data name="DocumentForm_BankLetter_Riyad_Title" xml:space="preserve"><value>خطاب وارد من بنك الرياض</value></data>
+  <data name="DocumentForm_BankLetter_Riyad_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة بنك الرياض.</value></data>
+  <data name="DocumentForm_Attachment_Generic_Title" xml:space="preserve"><value>ملحق أو مستند داعم</value></data>
+  <data name="DocumentForm_Attachment_Generic_Summary" xml:space="preserve"><value>مستندات داعمة أو ملاحق أو أوراق موقعة مرتبطة بضمان قائم.</value></data>
+  <data name="DocumentFormCue_BankIdentity" xml:space="preserve"><value>هوية البنك أو ترويسة الخطاب</value></data>
+  <data name="DocumentFormCue_GuaranteeReference" xml:space="preserve"><value>رقم الضمان أو سطر المرجع</value></data>
+  <data name="DocumentFormCue_AmountCurrency" xml:space="preserve"><value>خانة المبلغ والعملة</value></data>
+  <data name="DocumentFormCue_IssueExpiry" xml:space="preserve"><value>تاريخ الإصدار والانتهاء</value></data>
+  <data name="DocumentFormCue_OfficialLetterDate" xml:space="preserve"><value>تاريخ الخطاب الرسمي</value></data>
+  <data name="DocumentFormCue_BankReference" xml:space="preserve"><value>مرجع البنك</value></data>
+  <data name="DocumentFormCue_AttachmentPurpose" xml:space="preserve"><value>غرض الملحق أو ملاحظة المستند</value></data>
 </root>

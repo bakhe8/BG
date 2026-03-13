@@ -3,6 +3,7 @@ using BG.Domain.Identity;
 using BG.Domain.Operations;
 using BG.Domain.Workflow;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace BG.Infrastructure.Persistence;
 
@@ -69,22 +70,22 @@ public sealed class BgDbContext : DbContext
         foreach (var guaranteeEntry in ChangeTracker.Entries<Guarantee>()
                      .Where(entry => entry.State is not EntityState.Detached and not EntityState.Deleted))
         {
-            TrackAddedEntities(guaranteeEntry.Entity.Requests);
-            TrackAddedEntities(guaranteeEntry.Entity.Documents);
-            TrackAddedEntities(guaranteeEntry.Entity.Correspondence);
-            TrackAddedEntities(guaranteeEntry.Entity.Events);
+            TrackAggregateChildren(guaranteeEntry.Entity.Requests, GuaranteeRequests, request => request.Id);
+            TrackAggregateChildren(guaranteeEntry.Entity.Documents, GuaranteeDocuments, document => document.Id);
+            TrackAggregateChildren(guaranteeEntry.Entity.Correspondence, GuaranteeCorrespondence, correspondence => correspondence.Id);
+            TrackAggregateChildren(guaranteeEntry.Entity.Events, GuaranteeEvents, ledgerEvent => ledgerEvent.Id);
         }
 
         foreach (var requestEntry in ChangeTracker.Entries<GuaranteeRequest>()
                      .Where(entry => entry.State is not EntityState.Detached and not EntityState.Deleted))
         {
-            TrackAddedEntities(requestEntry.Entity.RequestDocuments);
-            TrackAddedEntities(requestEntry.Entity.Correspondence);
+            TrackAggregateChildren(requestEntry.Entity.RequestDocuments, GuaranteeRequestDocuments, link => link.Id);
+            TrackAggregateChildren(requestEntry.Entity.Correspondence, GuaranteeCorrespondence, correspondence => correspondence.Id);
 
             if (requestEntry.Entity.ApprovalProcess is not null)
             {
-                TrackAddedEntity(requestEntry.Entity.ApprovalProcess);
-                TrackAddedEntities(requestEntry.Entity.ApprovalProcess.Stages);
+                TrackAggregateChildren([requestEntry.Entity.ApprovalProcess], RequestApprovalProcesses, process => process.Id);
+                TrackAggregateChildren(requestEntry.Entity.ApprovalProcess.Stages, RequestApprovalStages, stage => stage.Id);
             }
         }
     }
@@ -105,6 +106,57 @@ public sealed class BgDbContext : DbContext
         if (entry.State == EntityState.Detached)
         {
             entry.State = EntityState.Added;
+        }
+    }
+
+    private void TrackAggregateChildren<T>(
+        IEnumerable<T> entities,
+        DbSet<T> dbSet,
+        Expression<Func<T, Guid>> keySelectorExpression)
+        where T : class
+    {
+        var trackedEntries = entities
+            .Select(entity => (Entity: entity, Entry: Entry(entity)))
+            .ToArray();
+
+        foreach (var tracked in trackedEntries.Where(tracked => tracked.Entry.State == EntityState.Detached))
+        {
+            tracked.Entry.State = EntityState.Added;
+        }
+
+        var persistedCandidates = trackedEntries
+            .Where(tracked => tracked.Entry.State is EntityState.Unchanged or EntityState.Modified)
+            .ToArray();
+
+        if (persistedCandidates.Length == 0)
+        {
+            return;
+        }
+
+        var keySelector = keySelectorExpression.Compile();
+        var candidateIds = persistedCandidates
+            .Select(tracked => keySelector(tracked.Entity))
+            .Distinct()
+            .ToArray();
+
+        var parameter = keySelectorExpression.Parameters[0];
+        var containsExpression = Expression.Call(
+            typeof(Enumerable),
+            nameof(Enumerable.Contains),
+            [typeof(Guid)],
+            Expression.Constant(candidateIds),
+            keySelectorExpression.Body);
+        var predicate = Expression.Lambda<Func<T, bool>>(containsExpression, parameter);
+
+        var existingIds = dbSet
+            .AsNoTracking()
+            .Where(predicate)
+            .Select(keySelectorExpression)
+            .ToHashSet();
+
+        foreach (var tracked in persistedCandidates.Where(tracked => !existingIds.Contains(keySelector(tracked.Entity))))
+        {
+            tracked.Entry.State = EntityState.Added;
         }
     }
 }

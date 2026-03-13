@@ -2,6 +2,7 @@ using BG.Application.Common;
 using BG.Application.Contracts.Persistence;
 using BG.Application.Dispatch;
 using BG.Application.Models.Dispatch;
+using BG.Application.ReferenceData;
 using BG.Application.Services;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
@@ -26,6 +27,9 @@ public sealed class DispatchWorkspaceServiceTests
         Assert.Empty(snapshot.PendingDeliveryItems);
         Assert.Equal(fixture.Request.Guarantee.GuaranteeNumber, snapshot.Items[0].GuaranteeNumber);
         Assert.Equal("RequestStatus_ApprovedForDispatch", snapshot.Items[0].StatusResourceKey);
+        Assert.Equal(
+            GuaranteeDocumentFormKeys.GuaranteeInstrumentSnb,
+            snapshot.Items[0].SourceDocumentForm?.Key);
     }
 
     [Fact]
@@ -54,6 +58,7 @@ public sealed class DispatchWorkspaceServiceTests
         Assert.Equal("DispatchLedgerStep_Printed", printEvent.DispatchStageResourceKey);
         Assert.Equal("DispatchPrintMode_WorkstationPrinter", printEvent.DispatchMethodResourceKey);
         Assert.Equal("DispatchLedgerPolicy_PrintRecordedBeforeExternalDispatch", printEvent.DispatchPolicyResourceKey);
+        Assert.True(repository.TrackNewOutgoingCorrespondenceCalled);
         Assert.True(repository.SaveChangesCalled);
     }
 
@@ -86,6 +91,7 @@ public sealed class DispatchWorkspaceServiceTests
         Assert.Equal("DispatchLedgerStep_Dispatched", dispatchEvent.DispatchStageResourceKey);
         Assert.Equal("DispatchChannel_Courier", dispatchEvent.DispatchMethodResourceKey);
         Assert.Equal("DispatchLedgerPolicy_BankHandoffRecorded", dispatchEvent.DispatchPolicyResourceKey);
+        Assert.True(repository.TrackNewOutgoingCorrespondenceCalled);
         Assert.True(repository.SaveChangesCalled);
     }
 
@@ -126,6 +132,75 @@ public sealed class DispatchWorkspaceServiceTests
         Assert.Equal("DispatchChannel_HandDelivery", deliveryEvent.DispatchMethodResourceKey);
         Assert.Equal("DispatchLedgerPolicy_DeliveryConfirmationRecorded", deliveryEvent.DispatchPolicyResourceKey);
         Assert.True(repository.SaveChangesCalled);
+    }
+
+    [Fact]
+    public async Task ReopenDispatchAsync_returns_request_to_ready_for_dispatch_and_records_ledger()
+    {
+        var fixture = DispatchFixture.Create();
+        var repository = new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request);
+        var service = new DispatchWorkspaceService(repository);
+
+        await service.RecordDispatchAsync(
+            new RecordDispatchCommand(
+                fixture.Actor.Id,
+                fixture.Request.Id,
+                "LTR-9003",
+                "2026-03-12",
+                GuaranteeDispatchChannel.Courier,
+                "PKG-3",
+                "Sent too early"));
+
+        var correspondence = Assert.Single(fixture.Request.Correspondence);
+
+        var result = await service.ReopenDispatchAsync(
+            new ReopenDispatchCommand(
+                fixture.Actor.Id,
+                fixture.Request.Id,
+                correspondence.Id,
+                "Courier pickup was cancelled."));
+
+        Assert.True(result.Succeeded, result.ErrorCode);
+        Assert.Equal(GuaranteeRequestStatus.ApprovedForDispatch, fixture.Request.Status);
+        Assert.Null(fixture.Request.SubmittedToBankAtUtc);
+        Assert.Null(correspondence.DispatchedAtUtc);
+        var reopenEvent = Assert.Single(
+            fixture.Request.Guarantee.Events.Where(ledgerEntry =>
+                ledgerEntry.EventType == GuaranteeEventType.OutgoingLetterDispatchReopened &&
+                ledgerEntry.ActorDisplayName == fixture.Actor.DisplayName));
+        Assert.Equal("DispatchLedgerStep_Reopened", reopenEvent.DispatchStageResourceKey);
+        Assert.Equal("DispatchChannel_Courier", reopenEvent.DispatchMethodResourceKey);
+        Assert.Equal("DispatchLedgerPolicy_HandoffCorrectedBeforeDelivery", reopenEvent.DispatchPolicyResourceKey);
+        Assert.True(repository.SaveChangesCalled);
+    }
+
+    [Fact]
+    public async Task ReopenDispatchAsync_requires_correction_note()
+    {
+        var fixture = DispatchFixture.Create();
+        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request));
+
+        await service.RecordDispatchAsync(
+            new RecordDispatchCommand(
+                fixture.Actor.Id,
+                fixture.Request.Id,
+                "LTR-9004",
+                "2026-03-12",
+                GuaranteeDispatchChannel.Courier,
+                "PKG-4",
+                "Sent too early"));
+
+        var correspondence = Assert.Single(fixture.Request.Correspondence);
+
+        var result = await service.ReopenDispatchAsync(
+            new ReopenDispatchCommand(
+                fixture.Actor.Id,
+                fixture.Request.Id,
+                correspondence.Id,
+                " "));
+
+        Assert.False(result.Succeeded);
+        Assert.Equal(DispatchErrorCodes.ReopenDispatchNoteRequired, result.ErrorCode);
     }
 
     [Fact]
@@ -221,6 +296,8 @@ public sealed class DispatchWorkspaceServiceTests
 
         public bool SaveChangesCalled { get; private set; }
 
+        public bool TrackNewOutgoingCorrespondenceCalled { get; private set; }
+
         public Task<IReadOnlyList<User>> ListDispatchActorsAsync(CancellationToken cancellationToken = default)
         {
             return Task.FromResult<IReadOnlyList<User>>([_actor]);
@@ -248,6 +325,18 @@ public sealed class DispatchWorkspaceServiceTests
                     _request.Correspondence.FirstOrDefault(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)?.Id,
                     _request.Correspondence.FirstOrDefault(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)?.ReferenceNumber,
                     _request.Correspondence.FirstOrDefault(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)?.LetterDate,
+                    _request.RequestDocuments
+                        .Select(link => link.GuaranteeDocument)
+                        .OrderBy(document => document.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                        .ThenBy(document => document.CapturedAtUtc)
+                        .Select(document => (GuaranteeDocumentType?)document.DocumentType)
+                        .FirstOrDefault(),
+                    _request.RequestDocuments
+                        .Select(link => link.GuaranteeDocument)
+                        .OrderBy(document => document.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                        .ThenBy(document => document.CapturedAtUtc)
+                        .Select(document => document.VerifiedDataJson)
+                        .FirstOrDefault(),
                     _request.Correspondence.FirstOrDefault(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)?.PrintCount ?? 0,
                     _request.Correspondence.FirstOrDefault(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)?.LastPrintedAtUtc,
                     _request.Correspondence.FirstOrDefault(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)?.LastPrintMode)]
@@ -277,6 +366,18 @@ public sealed class DispatchWorkspaceServiceTests
                     _request.RequestedByUser.DisplayName,
                     correspondence.ReferenceNumber,
                     correspondence.LetterDate,
+                    _request.RequestDocuments
+                        .Select(link => link.GuaranteeDocument)
+                        .OrderBy(document => document.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                        .ThenBy(document => document.CapturedAtUtc)
+                        .Select(document => (GuaranteeDocumentType?)document.DocumentType)
+                        .FirstOrDefault(),
+                    _request.RequestDocuments
+                        .Select(link => link.GuaranteeDocument)
+                        .OrderBy(document => document.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                        .ThenBy(document => document.CapturedAtUtc)
+                        .Select(document => document.VerifiedDataJson)
+                        .FirstOrDefault(),
                     correspondence.DispatchChannel!.Value,
                     correspondence.DispatchReference,
                     correspondence.DispatchedAtUtc!.Value))
@@ -288,6 +389,11 @@ public sealed class DispatchWorkspaceServiceTests
         public Task<GuaranteeRequest?> GetRequestForDispatchAsync(Guid requestId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(requestId == _request.Id ? _request : null);
+        }
+
+        public void TrackNewOutgoingCorrespondence(GuaranteeCorrespondence correspondence)
+        {
+            TrackNewOutgoingCorrespondenceCalled = true;
         }
 
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -336,6 +442,23 @@ public sealed class DispatchWorkspaceServiceTests
                 notes: "Ready for dispatch",
                 createdAtUtc: DateTimeOffset.UtcNow);
             request.RequestedByUser = requester;
+
+            var instrument = guarantee.RegisterScannedDocument(
+                GuaranteeDocumentType.GuaranteeInstrument,
+                "bg-2026-7101-snb.pdf",
+                "guarantees/BG-2026-7101/bg-2026-7101-snb.pdf",
+                1,
+                DateTimeOffset.UtcNow.AddMinutes(-10),
+                requester.Id,
+                requester.DisplayName,
+                GuaranteeDocumentCaptureChannel.ScanStation,
+                "Scan Station",
+                "dispatch-batch-1",
+                "new-guarantee",
+                "OCR",
+                "{\"documentFormKey\":\"guarantee-instrument-snb\",\"bankName\":\"Saudi National Bank\"}",
+                "Instrument");
+            guarantee.AttachDocumentToRequest(request.Id, instrument.Id, DateTimeOffset.UtcNow.AddMinutes(-9), requester.Id, requester.DisplayName);
 
             if (markApprovedForDispatch)
             {

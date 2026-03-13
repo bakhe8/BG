@@ -15,8 +15,13 @@
 
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
-        <div class="notice-banner">@Model.StatusMessage</div>
+        <div class="notice-banner is-success">@Model.StatusMessage</div>
     }
+
+    <div class="notice-banner is-info">
+        <strong>@T["AdminUsers_TaskModelTitle"]</strong>
+        <p class="compact-copy">@T["AdminUsers_TaskModelSummary"]</p>
+    </div>
 
     <div class="admin-grid">
         <article class="info-card">

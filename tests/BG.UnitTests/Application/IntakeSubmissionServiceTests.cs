@@ -2,6 +2,7 @@ using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
 using BG.Application.Intake;
 using BG.Application.Models.Intake;
+using BG.Application.ReferenceData;
 using BG.Application.Services;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
@@ -41,6 +42,7 @@ public sealed class IntakeSubmissionServiceTests
                 actor.Id,
                 "new-guarantee",
                 "token-1",
+                GuaranteeDocumentFormKeys.GuaranteeInstrumentSnb,
                 "IntakeExtractionRoute_PdfTextFirst",
                 2,
                 GuaranteeDocumentCaptureChannel.ScanStation,
@@ -73,6 +75,7 @@ public sealed class IntakeSubmissionServiceTests
         Assert.Equal(GuaranteeDocumentCaptureChannel.ScanStation, document.CaptureChannel);
         Assert.Equal("Fujitsu fi-8170", document.SourceSystemName);
         Assert.Equal("batch-2026-03-12-01", document.SourceReference);
+        Assert.Contains("\"documentFormKey\":\"guarantee-instrument-snb\"", document.VerifiedDataJson);
         Assert.Contains("\"captureChannel\":\"ScanStation\"", document.VerifiedDataJson);
         Assert.Contains("\"sourceSystemName\":\"Fujitsu fi-8170\"", document.VerifiedDataJson);
 
@@ -112,6 +115,7 @@ public sealed class IntakeSubmissionServiceTests
                 actor.Id,
                 "extension-confirmation",
                 "token-1",
+                GuaranteeDocumentFormKeys.BankLetterGeneric,
                 "IntakeExtractionRoute_PdfTextFirst",
                 1,
                 GuaranteeDocumentCaptureChannel.ManualUpload,
@@ -174,6 +178,7 @@ public sealed class IntakeSubmissionServiceTests
                 actor.Id,
                 "reduction-confirmation",
                 "token-1",
+                GuaranteeDocumentFormKeys.BankLetterGeneric,
                 "IntakeExtractionRoute_PdfTextFirst",
                 1,
                 GuaranteeDocumentCaptureChannel.OracleImport,
@@ -224,6 +229,7 @@ public sealed class IntakeSubmissionServiceTests
                 actor.Id,
                 "new-guarantee",
                 "token-1",
+                GuaranteeDocumentFormKeys.GuaranteeInstrumentGeneric,
                 "IntakeExtractionRoute_PdfTextFirst",
                 1,
                 GuaranteeDocumentCaptureChannel.OracleImport,
@@ -246,6 +252,42 @@ public sealed class IntakeSubmissionServiceTests
 
         Assert.False(result.Succeeded);
         Assert.Equal(IntakeErrorCodes.SourceReferenceRequired, result.ErrorCode);
+    }
+
+    [Fact]
+    public async Task FinalizeAsync_rejects_document_form_that_is_not_supported_for_scenario()
+    {
+        var actor = CreateActor();
+        var service = CreateService(new StubIntakeRepository(actor));
+
+        var result = await service.FinalizeAsync(
+            new IntakeSubmissionCommand(
+                actor.Id,
+                "new-guarantee",
+                "token-1",
+                GuaranteeDocumentFormKeys.BankLetterSnb,
+                "IntakeExtractionRoute_PdfTextFirst",
+                1,
+                GuaranteeDocumentCaptureChannel.ManualUpload,
+                null,
+                null,
+                "BG-2026-9002",
+                "Saudi National Bank",
+                "KFSHRC",
+                "Main Contractor",
+                GuaranteeCategory.Contract,
+                "150000",
+                "SAR",
+                "2026-03-11",
+                "2027-03-11",
+                null,
+                null,
+                null,
+                null,
+                null));
+
+        Assert.False(result.Succeeded);
+        Assert.Equal(IntakeErrorCodes.DocumentFormInvalid, result.ErrorCode);
     }
 
     private static IntakeSubmissionService CreateService(

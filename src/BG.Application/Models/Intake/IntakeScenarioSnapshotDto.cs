@@ -12,4 +12,6 @@ public sealed record IntakeScenarioSnapshotDto(
     bool RequiresConfirmedExpiryDate,
     bool RequiresConfirmedAmount,
     bool RequiresStatusStatement,
-    bool RequiresAttachmentNote);
+    bool RequiresAttachmentNote,
+    string DefaultDocumentFormKey,
+    IReadOnlyList<IntakeDocumentFormOptionDto> SupportedDocumentForms);

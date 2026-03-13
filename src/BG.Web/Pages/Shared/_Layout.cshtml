@@ -9,6 +9,25 @@
     var returnUrl = Context.Request.Path + Context.Request.QueryString;
     var shell = await WorkspaceShell.GetSnapshotAsync(Context.RequestAborted);
     var shellMessageKey = Context.Request.Query["shellMessage"].ToString();
+    var currentPath = Context.Request.Path.Value ?? "/";
+    var operationalItems = shell.NavigationItems
+        .Where(item =>
+            !string.Equals(item.PagePath, "/Index", StringComparison.OrdinalIgnoreCase) &&
+            !item.PagePath.StartsWith("/Administration", StringComparison.OrdinalIgnoreCase))
+        .ToArray();
+    var administrationItems = shell.NavigationItems
+        .Where(item => item.PagePath.StartsWith("/Administration", StringComparison.OrdinalIgnoreCase))
+        .ToArray();
+    var activeItem = shell.NavigationItems.FirstOrDefault(item =>
+        string.Equals(item.PagePath, "/Index", StringComparison.OrdinalIgnoreCase)
+            ? string.Equals(currentPath, "/", StringComparison.OrdinalIgnoreCase) || string.Equals(currentPath, "/Index", StringComparison.OrdinalIgnoreCase)
+            : currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase));
+    var primaryRoleSummary = shell.CurrentUser?.RoleNames.Count switch
+    {
+        > 1 => string.Format(T["WorkspaceShell_RoleCountSummary"], shell.CurrentUser.RoleNames.Count),
+        1 => shell.CurrentUser.RoleNames[0],
+        _ => null
+    };
 }
 <!DOCTYPE html>
 <html lang="@currentCulture" dir="@currentDirection">
@@ -18,80 +37,102 @@
     <title>@ViewData["Title"] - BG</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/BG.Web.styles.css" asp-append-version="true" />
 </head>
-<body class="theme-@currentTheme">
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm app-nav mb-4">
-            <div class="container-lg app-nav-shell">
-                <a class="navbar-brand app-brand" asp-area="" asp-page="/Index">BG</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+<body class="theme-@currentTheme" hx-boost="true">
+    <header class="shell-header">
+        <div class="container-lg shell-frame">
+            <div class="shell-topline">
+                <div class="shell-brand-block">
+                    <a class="shell-brand" asp-area="" asp-page="/Index">
+                        <span class="shell-brand-mark">KFSHRC</span>
+                        <span class="shell-brand-divider">/</span>
+                        <span class="shell-brand-text">BG</span>
+                    </a>
+                    <span class="shell-brand-subtitle">@T["AppBrandSubtitle"]</span>
+                </div>
+
+                <button class="navbar-toggler shell-toggle" type="button" data-bs-toggle="collapse" data-bs-target=".shell-collapse" aria-controls="shellNavigation"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1 gap-sm-2">
-                        @foreach (var item in shell.NavigationItems)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link app-link" href="@item.PagePath">@T[item.ResourceKey]</a>
-                            </li>
-                        }
-                    </ul>
-                    <div class="toolbar-group">
-                        <div class="toolbar-block">
-                            <span class="toolbar-label">@T["WorkspaceShell_UserLabel"]</span>
-                            @if (shell.CurrentUser is null)
+
+                <div id="shellNavigation" class="shell-collapse collapse d-sm-flex align-items-start justify-content-between flex-grow-1">
+                    @if (shell.CurrentUser is not null)
+                    {
+                        <div class="shell-session-summary">
+                            <strong>@shell.CurrentUser.DisplayName</strong>
+                            <span>
+                                @if (!string.IsNullOrWhiteSpace(primaryRoleSummary))
+                                {
+                                    @primaryRoleSummary
+                                }
+                                @if (activeItem is not null)
+                                {
+                                    <text> · @T[activeItem.ResourceKey]</text>
+                                }
+                            </span>
+                        </div>
+                    }
+
+                    <div class="shell-actions">
+                        <div class="shell-language">
+                            @foreach (var culture in UiConfiguration.SupportedCultures)
                             {
-                                <a class="btn btn-outline-primary action-button" href="/SignIn?returnUrl=@Uri.EscapeDataString(returnUrl)">
-                                    @T["WorkspaceShell_SignInAction"]
+                                var isActive = culture.Culture == currentCulture;
+                                <a class="toolbar-chip @(isActive ? "active" : null)"
+                                   href="@Url.Action("SetCulture", "UiPreferences", new { culture = culture.Culture, returnUrl })">
+                                    @T[$"Culture_{culture.Culture}"]
                                 </a>
                             }
-                            else
-                            {
-                                <div class="pill-list">
-                                    <span class="pill">@T["WorkspaceShell_SignedInAsLabel"]</span>
-                                    <span class="pill">@shell.CurrentUser.DisplayName (@shell.CurrentUser.Username)</span>
-                                    @foreach (var roleName in shell.CurrentUser.RoleNames)
-                                    {
-                                        <span class="pill">@roleName</span>
-                                    }
-                                </div>
-                                <form method="post" asp-page="/SignIn" asp-page-handler="SignOut">
-                                    <button type="submit" class="btn btn-outline-primary action-button">@T["WorkspaceShell_SignOutAction"]</button>
-                                </form>
-                            }
                         </div>
-                        <div class="toolbar-block">
-                            <span class="toolbar-label">@T["LanguageLabel"]</span>
-                            <div class="toolbar-options">
-                                @foreach (var culture in UiConfiguration.SupportedCultures)
-                                {
-                                    var isActive = culture.Culture == currentCulture;
-                                    <a class="toolbar-chip @(isActive ? "active" : null)"
-                                       href="@Url.Action("SetCulture", "UiPreferences", new { culture = culture.Culture, returnUrl })">
-                                        @T[$"Culture_{culture.Culture}"]
-                                    </a>
-                                }
-                            </div>
-                        </div>
-                        <div class="toolbar-block">
-                            <span class="toolbar-label">@T["ThemeLabel"]</span>
-                            <div class="toolbar-options">
-                                @foreach (var theme in UiConfiguration.SupportedThemes)
-                                {
-                                    var isActive = theme.Key == currentTheme;
-                                    <a class="toolbar-chip @(isActive ? "active" : null)"
-                                       href="@Url.Action("SetTheme", "UiPreferences", new { theme = theme.Key, returnUrl })">
-                                        @T[$"Theme_{theme.Key}"]
-                                    </a>
-                                }
-                            </div>
-                        </div>
+
+                        @if (shell.CurrentUser is null)
+                        {
+                            <a class="btn btn-outline-primary action-button" href="/SignIn?returnUrl=@Uri.EscapeDataString(returnUrl)">
+                                @T["WorkspaceShell_SignInAction"]
+                            </a>
+                        }
+                        else
+                        {
+                            <form method="post" asp-page="/SignIn" asp-page-handler="SignOut">
+                                <button type="submit" class="btn btn-outline-primary action-button">@T["WorkspaceShell_SignOutAction"]</button>
+                            </form>
+                        }
                     </div>
                 </div>
             </div>
-        </nav>
+
+            @if (operationalItems.Length > 0)
+            {
+                <div class="shell-workbar">
+                    <span class="shell-strip-label">@T["WorkspaceShell_WorkspacesLabel"]</span>
+                    <nav class="shell-nav-strip" aria-label="@T["WorkspaceShell_WorkspacesLabel"]">
+                        @foreach (var item in operationalItems)
+                        {
+                            var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
+                            <a class="shell-nav-pill @(isActive ? "active" : null)" href="@item.PagePath">@T[item.ResourceKey]</a>
+                        }
+                    </nav>
+                </div>
+            }
+
+            @if (administrationItems.Length > 0)
+            {
+                <details class="shell-admin-block" @(currentPath.StartsWith("/Administration", StringComparison.OrdinalIgnoreCase) ? "open" : null)>
+                    <summary>
+                        <span>@T["WorkspaceShell_AdminLabel"]</span>
+                        <span class="section-caption">@administrationItems.Length</span>
+                    </summary>
+                    <nav class="shell-admin-links" aria-label="@T["WorkspaceShell_AdminLabel"]">
+                        @foreach (var item in administrationItems)
+                        {
+                            var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
+                            <a class="shell-admin-link @(isActive ? "active" : null)" href="@item.PagePath">@T[item.ResourceKey]</a>
+                        }
+                    </nav>
+                </details>
+            }
+        </div>
     </header>
     @if (!string.IsNullOrWhiteSpace(shellMessageKey))
     {
@@ -108,13 +149,16 @@
     <footer class="footer-shell">
         <div class="container-lg footer-copy">
             <span>@T["FooterBaseline"]</span>
-            <span>@T["FooterStack"]</span>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @* HTMX & Alpine.js for Modern Interactions *@
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

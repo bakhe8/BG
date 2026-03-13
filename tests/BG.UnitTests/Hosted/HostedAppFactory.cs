@@ -14,9 +14,11 @@ internal sealed class HostedAppFactory : WebApplicationFactory<Program>
 {
     private const string HostedPostgreSqlConnectionString = "Host=127.0.0.1;Port=5432;Database=bg_hosted_tests;Username=bg_tests;Password=HostedTests123!";
     private readonly SqliteConnection _connection = new("Data Source=:memory:");
+    private readonly IReadOnlyDictionary<string, string?> _configurationOverrides;
 
-    public HostedAppFactory()
+    public HostedAppFactory(IReadOnlyDictionary<string, string?>? configurationOverrides = null)
     {
+        _configurationOverrides = configurationOverrides ?? new Dictionary<string, string?>();
         _connection.Open();
     }
 
@@ -49,15 +51,21 @@ internal sealed class HostedAppFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Testing");
         builder.ConfigureAppConfiguration((_, configurationBuilder) =>
         {
-            configurationBuilder.AddInMemoryCollection(
-                new Dictionary<string, string?>
-                {
-                    ["ConnectionStrings:PostgreSql"] = HostedPostgreSqlConnectionString,
-                    ["Identity:BootstrapAdmin:Username"] = "hosted.admin",
-                    ["Identity:BootstrapAdmin:DisplayName"] = "Hosted Admin",
-                    ["Identity:BootstrapAdmin:Email"] = "hosted.admin@bg.local",
-                    ["Identity:BootstrapAdmin:Password"] = "HostedAdmin123!"
-                });
+            var values = new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:PostgreSql"] = HostedPostgreSqlConnectionString,
+                ["Identity:BootstrapAdmin:Username"] = "hosted.admin",
+                ["Identity:BootstrapAdmin:DisplayName"] = "Hosted Admin",
+                ["Identity:BootstrapAdmin:Email"] = "hosted.admin@bg.local",
+                ["Identity:BootstrapAdmin:Password"] = "HostedAdmin123!"
+            };
+
+            foreach (var (key, value) in _configurationOverrides)
+            {
+                values[key] = value;
+            }
+
+            configurationBuilder.AddInMemoryCollection(values);
         });
 
         builder.ConfigureServices(services =>

@@ -13,6 +13,8 @@ public sealed record DispatchQueueItemReadModel(
     Guid? OutgoingCorrespondenceId,
     string? OutgoingReferenceNumber,
     DateOnly? OutgoingLetterDate,
+    GuaranteeDocumentType? SourceDocumentType,
+    string? SourceDocumentVerifiedDataJson,
     int PrintCount,
     DateTimeOffset? LastPrintedAtUtc,
     GuaranteeOutgoingLetterPrintMode? LastPrintMode);

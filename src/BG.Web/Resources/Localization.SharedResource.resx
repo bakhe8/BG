@@ -21,9 +21,16 @@
   <data name="ThemeLabel" xml:space="preserve"><value>Theme</value></data>
   <data name="Culture_ar" xml:space="preserve"><value>Arabic</value></data>
   <data name="Culture_en" xml:space="preserve"><value>English</value></data>
+  <data name="Theme_kfsh" xml:space="preserve"><value>KFSHRC institutional</value></data>
   <data name="Theme_emerald" xml:space="preserve"><value>Emerald</value></data>
   <data name="Theme_slate" xml:space="preserve"><value>Slate</value></data>
   <data name="Theme_sand" xml:space="preserve"><value>Sand</value></data>
+  <data name="AppBrandSubtitle" xml:space="preserve"><value>Internal guarantee operations</value></data>
+  <data name="WorkspaceShell_WorkspacesLabel" xml:space="preserve"><value>Workspaces</value></data>
+  <data name="WorkspaceShell_AdminLabel" xml:space="preserve"><value>Administration</value></data>
+  <data name="WorkspaceShell_RoleCountSummary" xml:space="preserve"><value>{0} roles</value></data>
+  <data name="Shared_Yes" xml:space="preserve"><value>Yes</value></data>
+  <data name="Shared_No" xml:space="preserve"><value>No</value></data>
   <data name="Home_PageTitle" xml:space="preserve"><value>Operational dashboard</value></data>
   <data name="Home_AnonymousEyebrow" xml:space="preserve"><value>BG workspace</value></data>
   <data name="Home_AnonymousHeading" xml:space="preserve"><value>Bank guarantee work starts from queues, not framework details.</value></data>
@@ -32,7 +39,12 @@
   <data name="Home_DashboardEyebrow" xml:space="preserve"><value>Operational dashboard</value></data>
   <data name="Home_DashboardHeading" xml:space="preserve"><value>{0}, start from the real workload</value></data>
   <data name="Home_DashboardSummary" xml:space="preserve"><value>The home page now surfaces live queues, ownership, handoffs, and guarantee exposure instead of technical framework metadata.</value></data>
+  <data name="Home_MinimalSummary" xml:space="preserve"><value>Start from your assigned workspaces, then open the queue that needs action now.</value></data>
   <data name="Home_DashboardAttentionSummary" xml:space="preserve"><value>{0} approvals are waiting, {1} open requests are still owned by you, and {2} guarantees are nearing expiry.</value></data>
+  <data name="Home_WorkspacesTitle" xml:space="preserve"><value>Assigned workspaces</value></data>
+  <data name="Home_WorkspacesSummary" xml:space="preserve"><value>Only the areas assigned to this account are shown here.</value></data>
+  <data name="Home_FocusSummary" xml:space="preserve"><value>Open the area that needs action first.</value></data>
+  <data name="Home_SecondarySummary" xml:space="preserve"><value>Keep this area in view after the current queue is cleared.</value></data>
   <data name="Home_MetricApprovals" xml:space="preserve"><value>Waiting for your approval</value></data>
   <data name="Home_MetricRequests" xml:space="preserve"><value>My open requests</value></data>
   <data name="Home_MetricOperations" xml:space="preserve"><value>Operations backlog</value></data>
@@ -60,7 +72,7 @@
   <data name="Home_NoOperationalAccessBody" xml:space="preserve"><value>This account is authenticated successfully, but it does not currently carry any workload permissions.</value></data>
   <data name="Home_DaysRemainingSuffix" xml:space="preserve"><value>days left</value></data>
   <data name="Home_CurrentAmountLabel" xml:space="preserve"><value>Current amount</value></data>
-  <data name="FooterBaseline" xml:space="preserve"><value>BG internal baseline</value></data>
+  <data name="FooterBaseline" xml:space="preserve"><value>KFSHRC internal systems · BG guarantee operations</value></data>
   <data name="FooterStack" xml:space="preserve"><value>ASP.NET Core 8 + Razor Pages + API + PostgreSQL + IIS</value></data>
   <data name="HomeTitle" xml:space="preserve"><value>Environment Baseline</value></data>
   <data name="HeroTitle" xml:space="preserve"><value>Clean baseline for the bank guarantees application</value></data>
@@ -75,10 +87,10 @@
   <data name="UserInterfaceLabel" xml:space="preserve"><value>User interface:</value></data>
   <data name="ApiLabel" xml:space="preserve"><value>API:</value></data>
   <data name="IntegrationsLabel" xml:space="preserve"><value>Integrations:</value></data>
-  <data name="LocalizationAndTheme" xml:space="preserve"><value>Localization and theme</value></data>
+  <data name="LocalizationAndTheme" xml:space="preserve"><value>Localization and institutional shell</value></data>
   <data name="CurrentLanguageLabel" xml:space="preserve"><value>Current language:</value></data>
   <data name="CurrentDirectionLabel" xml:space="preserve"><value>Current direction:</value></data>
-  <data name="CurrentThemeLabel" xml:space="preserve"><value>Current theme:</value></data>
+  <data name="CurrentThemeLabel" xml:space="preserve"><value>Current institutional shell:</value></data>
   <data name="SupportedLanguagesLabel" xml:space="preserve"><value>Supported languages:</value></data>
   <data name="HospitalApiReadiness" xml:space="preserve"><value>Hospital API readiness</value></data>
   <data name="HospitalApiLabel" xml:space="preserve"><value>Hospital API:</value></data>
@@ -270,6 +282,7 @@
   <data name="OperationsQueue_PageTitle" xml:space="preserve"><value>Operations Review Queue</value></data>
   <data name="OperationsQueue_Heading" xml:space="preserve"><value>Operations review queue</value></data>
   <data name="OperationsQueue_Summary" xml:space="preserve"><value>This queue receives every saved intake package and hands it over to the next operational layer without mixing it with request creation or approvals.</value></data>
+  <data name="OperationsQueue_ActionSummary" xml:space="preserve"><value>Work only the incoming bank items that still need matching or confirmation. Open the deeper evidence only when the current decision needs extra trace.</value></data>
   <data name="OperationsQueue_PrimaryFlow" xml:space="preserve"><value>Post-intake handoff</value></data>
   <data name="OperationsQueue_QueueTitle" xml:space="preserve"><value>Saved intake packages waiting for operational handling</value></data>
   <data name="OperationsQueue_QueueSummary" xml:space="preserve"><value>Each item represents a scanned guarantee or bank reply that was verified by intake and now waits for the correct operational team.</value></data>
@@ -311,6 +324,10 @@
   <data name="OperationsQueue_CaptureChannelLabel" xml:space="preserve"><value>Capture channel</value></data>
   <data name="OperationsQueue_SourceSystemLabel" xml:space="preserve"><value>Source system</value></data>
   <data name="OperationsQueue_SourceReferenceLabel" xml:space="preserve"><value>Source reference</value></data>
+  <data name="OperationsQueue_MatchFormSummary" xml:space="preserve"><value>Select the correct request, confirm the real value, then apply the bank response.</value></data>
+  <data name="OperationsQueue_EvidenceTitle" xml:space="preserve"><value>Evidence and capture trace</value></data>
+  <data name="OperationsQueue_EvidenceSummary" xml:space="preserve"><value>Open the full capture context and system evidence only when you need support for the current decision.</value></data>
+  <data name="OperationsQueue_NoApplyActionSummary" xml:space="preserve"><value>This item does not need request matching from this surface right now. Keep following its routed operational handoff.</value></data>
   <data name="OperationsMatchConfidence_High" xml:space="preserve"><value>High confidence</value></data>
   <data name="OperationsMatchConfidence_Medium" xml:space="preserve"><value>Medium confidence</value></data>
   <data name="OperationsMatchConfidence_Low" xml:space="preserve"><value>Low confidence</value></data>
@@ -322,6 +339,8 @@
   <data name="OperationsMatchReason_ResponseDateNearDispatch" xml:space="preserve"><value>The response date is close to the dispatch date.</value></data>
   <data name="OperationsMatchReason_ExpiryDateMatches" xml:space="preserve"><value>The proposed expiry date in the response matches the request.</value></data>
   <data name="OperationsMatchReason_AmountMatches" xml:space="preserve"><value>The confirmed amount in the response matches the request.</value></data>
+  <data name="OperationsMatchReason_DocumentFormBankAligned" xml:space="preserve"><value>The incoming bank letter profile matches the bank family of the request's source document.</value></data>
+  <data name="OperationsMatchReason_DocumentFormBankMismatch" xml:space="preserve"><value>The incoming bank letter profile conflicts with the bank family of the request's source document.</value></data>
   <data name="OperationsReviewCategory_GuaranteeRegistration" xml:space="preserve"><value>Guarantee registration review</value></data>
   <data name="OperationsReviewCategory_BankConfirmation" xml:space="preserve"><value>Incoming bank confirmation review</value></data>
   <data name="OperationsReviewCategory_StatusReply" xml:space="preserve"><value>Incoming status reply review</value></data>
@@ -434,6 +453,7 @@
   <data name="IntakeWorkspace_ReviewCardPendingBody" xml:space="preserve"><value>Run extraction first to replace the sample values with the staged document output for review.</value></data>
   <data name="IntakeWorkspace_SubmissionTitle" xml:space="preserve"><value>Actual intake submission</value></data>
   <data name="IntakeWorkspace_SubmissionSummary" xml:space="preserve"><value>Upload the scanned document, review the extracted values, and save the document with the verified data in one controlled handoff.</value></data>
+  <data name="IntakeWorkspace_ActionSummary" xml:space="preserve"><value>Upload the document, confirm the critical fields, then save the intake package.</value></data>
   <data name="IntakeWorkspace_DraftStatusTitle" xml:space="preserve"><value>Draft status</value></data>
   <data name="IntakeWorkspace_DraftReady" xml:space="preserve"><value>Extraction ready for review</value></data>
   <data name="IntakeWorkspace_DraftPending" xml:space="preserve"><value>Upload and extract before saving</value></data>
@@ -537,6 +557,14 @@
   <data name="RequestsWorkspace_CreateSuccess" xml:space="preserve"><value>{0} created successfully for guarantee {1}.</value></data>
   <data name="RequestsWorkspace_SubmitAction" xml:space="preserve"><value>Submit for approval</value></data>
   <data name="RequestsWorkspace_SubmitSuccess" xml:space="preserve"><value>The request was sent for approval. Current stage: {0} ({1}).</value></data>
+  <data name="RequestsWorkspace_EditRequestTitle" xml:space="preserve"><value>Revise request</value></data>
+  <data name="RequestsWorkspace_EditRequestSummary" xml:space="preserve"><value>Update the draft or returned request before you move it forward again.</value></data>
+  <data name="RequestsWorkspace_UpdateAction" xml:space="preserve"><value>Save changes</value></data>
+  <data name="RequestsWorkspace_CancelAction" xml:space="preserve"><value>Cancel request</value></data>
+  <data name="RequestsWorkspace_WithdrawAction" xml:space="preserve"><value>Withdraw from approval</value></data>
+  <data name="RequestsWorkspace_UpdateSuccess" xml:space="preserve"><value>Request updated successfully for guarantee {0}.</value></data>
+  <data name="RequestsWorkspace_CancelSuccess" xml:space="preserve"><value>Request cancelled successfully for guarantee {0}.</value></data>
+  <data name="RequestsWorkspace_WithdrawSuccess" xml:space="preserve"><value>Request withdrawn successfully for guarantee {0}.</value></data>
   <data name="RequestType_Extend" xml:space="preserve"><value>Extension</value></data>
   <data name="RequestType_Reduce" xml:space="preserve"><value>Reduction</value></data>
   <data name="RequestType_Release" xml:space="preserve"><value>Release</value></data>
@@ -561,7 +589,10 @@
   <data name="requests.duplicate_open_request" xml:space="preserve"><value>An open request of the same type already exists for this user and guarantee.</value></data>
   <data name="requests.requested_amount_required" xml:space="preserve"><value>Enter the requested amount for reduction-based requests.</value></data>
   <data name="requests.requested_expiry_date_required" xml:space="preserve"><value>Enter the requested expiry date for extension requests.</value></data>
-  <data name="requests.request_validation_failed" xml:space="preserve"><value>The request could not be created because the proposed data failed domain validation.</value></data>
+  <data name="requests.request_not_editable" xml:space="preserve"><value>Only draft or returned requests can be revised.</value></data>
+  <data name="requests.request_not_cancellable" xml:space="preserve"><value>Only draft or returned requests can be cancelled.</value></data>
+  <data name="requests.request_not_withdrawable" xml:space="preserve"><value>Only requests that are still in approval can be withdrawn.</value></data>
+  <data name="requests.request_validation_failed" xml:space="preserve"><value>The request could not be processed because the proposed data failed domain validation.</value></data>
   <data name="ApprovalQueue_PageTitle" xml:space="preserve"><value>Approval Queue</value></data>
   <data name="ApprovalQueue_Heading" xml:space="preserve"><value>Current approval stage queue</value></data>
   <data name="ApprovalQueue_Summary" xml:space="preserve"><value>Each approver sees only the requests that reached the current stage assigned to one of their roles.</value></data>
@@ -657,6 +688,7 @@
   <data name="DispatchWorkspace_PageTitle" xml:space="preserve"><value>Dispatch Workspace</value></data>
   <data name="DispatchWorkspace_Heading" xml:space="preserve"><value>Bank dispatch workspace</value></data>
   <data name="DispatchWorkspace_Summary" xml:space="preserve"><value>Record the outgoing request letter only after approvals finish and the request becomes ready for bank delivery or email dispatch.</value></data>
+  <data name="DispatchWorkspace_ActionSummary" xml:space="preserve"><value>Handle only the current outbound handoff: prepare the outgoing letter, release it from BG, or close the external delivery trace when it is already out.</value></data>
   <data name="DispatchWorkspace_NoEligibleActor" xml:space="preserve"><value>No dispatch context is available</value></data>
   <data name="DispatchWorkspace_NoEligibleActorBody" xml:space="preserve"><value>Create dispatch users and assign dispatch permissions before recording outgoing bank letters.</value></data>
   <data name="DispatchWorkspace_ActorScopedNotice" xml:space="preserve"><value>The dispatch workspace is loaded under the selected dispatch actor.</value></data>
@@ -679,6 +711,7 @@
   <data name="DispatchWorkspace_PrintModeField" xml:space="preserve"><value>Print mode</value></data>
   <data name="DispatchWorkspace_PrintAction" xml:space="preserve"><value>Record print</value></data>
   <data name="DispatchWorkspace_ReprintAction" xml:space="preserve"><value>Record reprint</value></data>
+  <data name="DispatchWorkspace_ReopenAction" xml:space="preserve"><value>Reopen dispatch</value></data>
   <data name="DispatchWorkspace_PrintSuccess" xml:space="preserve"><value>Outgoing letter {0} was printed for guarantee {1} (copy {2}).</value></data>
   <data name="DispatchWorkspace_DispatchChannelField" xml:space="preserve"><value>Dispatch channel</value></data>
   <data name="DispatchWorkspace_DispatchChannelLabel" xml:space="preserve"><value>Dispatch channel</value></data>
@@ -695,6 +728,13 @@
   <data name="DispatchWorkspace_DeliveryNoteField" xml:space="preserve"><value>Delivery note</value></data>
   <data name="DispatchWorkspace_ConfirmDeliveryAction" xml:space="preserve"><value>Confirm delivery</value></data>
   <data name="DispatchWorkspace_DeliverySuccess" xml:space="preserve"><value>Delivery confirmation for outgoing reference {0} was recorded on guarantee {1}.</value></data>
+  <data name="DispatchWorkspace_ReopenNoteField" xml:space="preserve"><value>Correction note</value></data>
+  <data name="DispatchWorkspace_ReopenSuccess" xml:space="preserve"><value>Dispatch for outgoing reference {0} was reopened on guarantee {1}.</value></data>
+  <data name="DispatchWorkspace_ReadyActionSummary" xml:space="preserve"><value>Prepare the final outgoing copy, then record the moment it actually leaves BG.</value></data>
+  <data name="DispatchWorkspace_PendingActionSummary" xml:space="preserve"><value>This letter already left BG. Close the handoff with delivery proof, controlled reprint, or a correction reopen.</value></data>
+  <data name="DispatchWorkspace_NoAvailableActionsSummary" xml:space="preserve"><value>No dispatch actions are available for the current actor on this surface.</value></data>
+  <data name="DispatchWorkspace_ReadyEvidenceSummary" xml:space="preserve"><value>Open the print evidence only when you need the detailed outgoing trace for this item.</value></data>
+  <data name="DispatchWorkspace_PendingEvidenceSummary" xml:space="preserve"><value>Open the dispatch evidence only when the current handoff needs more delivery detail.</value></data>
   <data name="DispatchPrintMode_WorkstationPrinter" xml:space="preserve"><value>Workstation printer</value></data>
   <data name="DispatchPrintMode_CentralPrintRoom" xml:space="preserve"><value>Central print room</value></data>
   <data name="DispatchPrintMode_PdfExport" xml:space="preserve"><value>PDF export</value></data>
@@ -706,9 +746,11 @@
   <data name="DispatchLedgerStep_Reprinted" xml:space="preserve"><value>Reprinted</value></data>
   <data name="DispatchLedgerStep_Dispatched" xml:space="preserve"><value>Dispatched</value></data>
   <data name="DispatchLedgerStep_Delivered" xml:space="preserve"><value>Delivered</value></data>
+  <data name="DispatchLedgerStep_Reopened" xml:space="preserve"><value>Dispatch reopened</value></data>
   <data name="DispatchLedgerPolicy_PrintRecordedBeforeExternalDispatch" xml:space="preserve"><value>Print must be recorded before external dispatch</value></data>
   <data name="DispatchLedgerPolicy_BankHandoffRecorded" xml:space="preserve"><value>External bank handoff was recorded</value></data>
   <data name="DispatchLedgerPolicy_DeliveryConfirmationRecorded" xml:space="preserve"><value>External delivery confirmation was recorded</value></data>
+  <data name="DispatchLedgerPolicy_HandoffCorrectedBeforeDelivery" xml:space="preserve"><value>External handoff was corrected before delivery confirmation</value></data>
   <data name="dispatch.dispatcher_context_required" xml:space="preserve"><value>Select the acting dispatcher first.</value></data>
   <data name="dispatch.dispatcher_context_invalid" xml:space="preserve"><value>The selected dispatcher is not valid for the dispatch workspace.</value></data>
   <data name="dispatch.print_permission_required" xml:space="preserve"><value>The selected dispatch actor cannot record printing.</value></data>
@@ -723,11 +765,14 @@
   <data name="dispatch.outgoing_letter_not_found" xml:space="preserve"><value>The outgoing letter record was not found for this request.</value></data>
   <data name="dispatch.delivery_not_pending" xml:space="preserve"><value>This outgoing letter is not waiting for delivery confirmation.</value></data>
   <data name="dispatch.outgoing_letter_reference_mismatch" xml:space="preserve"><value>The existing outgoing letter uses a different reference or letter date.</value></data>
+  <data name="dispatch.reopen_note_required" xml:space="preserve"><value>Enter a correction note before reopening the dispatch.</value></data>
+  <data name="dispatch.reopen_not_allowed" xml:space="preserve"><value>This dispatch can no longer be reopened.</value></data>
   <data name="operations.review_item_not_found" xml:space="preserve"><value>The selected review item was not found.</value></data>
   <data name="operations.review_item_not_actionable" xml:space="preserve"><value>This review item cannot be applied as a bank response.</value></data>
   <data name="operations.request_required" xml:space="preserve"><value>Select the request that matches this bank response.</value></data>
   <data name="operations.request_not_found" xml:space="preserve"><value>The selected request was not found on this guarantee.</value></data>
   <data name="operations.request_not_compatible" xml:space="preserve"><value>The selected request is not compatible with this bank response.</value></data>
+  <data name="operations.response_bank_profile_mismatch" xml:space="preserve"><value>The incoming bank response belongs to a different bank family than the selected request's source document. Review the bank form before applying this response.</value></data>
   <data name="operations.confirmed_expiry_date_required" xml:space="preserve"><value>Enter or confirm the new expiry date before applying the extension response.</value></data>
   <data name="operations.confirmed_amount_required" xml:space="preserve"><value>Enter or confirm the reduced amount before applying the response.</value></data>
   <data name="operations.replacement_guarantee_number_required" xml:space="preserve"><value>Enter the replacement guarantee number before applying this response.</value></data>
@@ -800,7 +845,127 @@
   <data name="SignIn_SelectUser" xml:space="preserve"><value>Select a user</value></data>
   <data name="SignIn_NoUsersBody" xml:space="preserve"><value>No active users are available for sign-in.</value></data>
   <data name="SignIn_SubmitAction" xml:space="preserve"><value>Sign in</value></data>
+  <data name="ApprovalQueue_WhyHereTitle" xml:space="preserve"><value>Why this request is here</value></data>
+  <data name="ApprovalQueue_WhyHereSummary" xml:space="preserve"><value>This request is currently waiting for the signer responsible for the active stage shown below.</value></data>
+  <data name="ApprovalQueue_WhatToConfirmTitle" xml:space="preserve"><value>What to confirm now</value></data>
+  <data name="ApprovalQueue_NextAfterDecisionTitle" xml:space="preserve"><value>What happens after your decision</value></data>
+  <data name="ApprovalQueue_NextAfterApprove" xml:space="preserve"><value>Approve to move the request to the next stage or to dispatch when this is the final signature.</value></data>
+  <data name="ApprovalQueue_NextAfterReturn" xml:space="preserve"><value>Return to send the request back for correction with your note.</value></data>
+  <data name="ApprovalQueue_NextAfterReject" xml:space="preserve"><value>Reject to close the request as declined in the approval flow.</value></data>
+  <data name="ApprovalQueue_LetterSignatureRequired" xml:space="preserve"><value>Letter signature required at this stage</value></data>
+  <data name="ApprovalQueue_DossierContextHint" xml:space="preserve"><value>Open the dossier for evidence and history.</value></data>
+  <data name="ApprovalQueue_DossierSummary" xml:space="preserve"><value>The dossier is the canonical place for prior signatures, attached evidence, and the full timeline before you decide.</value></data>
+  <data name="ApprovalDossier_ActionReminder" xml:space="preserve"><value>Use this page for inspection, then return to the queue to decide.</value></data>
+  <data name="ApprovalDossier_ActionReminderBody" xml:space="preserve"><value>The dossier keeps the full approval evidence in one place so the decision queue stays focused on the action itself.</value></data>
+  <data name="ApprovalDossier_PriorSignaturesSummary" xml:space="preserve"><value>Recorded signatures already taken on this request.</value></data>
+  <data name="ApprovalDossier_AttachmentsSummary" xml:space="preserve"><value>Documents attached to justify or support the request.</value></data>
+  <data name="ApprovalDossier_TimelineSummary" xml:space="preserve"><value>Full sequence of operational, approval, and dispatch events.</value></data>
+  <data name="IntakeWorkspace_CaptureZoneTitle" xml:space="preserve"><value>Step 1: Capture</value></data>
+  <data name="IntakeWorkspace_VerifyZoneTitle" xml:space="preserve"><value>Step 2: Verify critical fields</value></data>
+  <data name="IntakeWorkspace_ReviewZoneTitle" xml:space="preserve"><value>Step 3: Review and save</value></data>
+  <data name="IntakeWorkspace_RequiredBeforeSaveTitle" xml:space="preserve"><value>Required before save</value></data>
+  <data name="IntakeWorkspace_ProcessingContextTitle" xml:space="preserve"><value>Processing context</value></data>
+  <data name="IntakeWorkspace_ProcessingContextSummary" xml:space="preserve"><value>Open the supporting scope, pipeline, and future integration notes only when you need extra confidence.</value></data>
+  <data name="IntakeWorkspace_SupportRailTitle" xml:space="preserve"><value>Support and context</value></data>
+  <data name="IntakeWorkspace_SupportRailSummary" xml:space="preserve"><value>Open only when the current intake item needs more context.</value></data>
+  <data name="RequestsWorkspace_WorkflowPreviewTitle" xml:space="preserve"><value>Workflow preview</value></data>
+  <data name="RequestsWorkspace_WorkflowPreviewSummary" xml:space="preserve"><value>This preview confirms the routing that will be used after submission. It is not the full operational dossier.</value></data>
+  <data name="RequestsWorkspace_ActionSummary" xml:space="preserve"><value>Create the next guarantee request from the side rail, then track only the current state, next step, and any action still waiting on you.</value></data>
+  <data name="RequestsWorkspace_RequestedChangeTitle" xml:space="preserve"><value>Requested change</value></data>
+  <data name="RequestsWorkspace_NextActionSubmit" xml:space="preserve"><value>Submit this request now so it enters the approval chain.</value></data>
+  <data name="RequestsWorkspace_NextActionRevise" xml:space="preserve"><value>Revise the returned request, then send it back into approvals.</value></data>
+  <data name="RequestsWorkspace_NextActionWithdraw" xml:space="preserve"><value>Withdraw this request if it should stop before the current approval stage continues.</value></data>
+  <data name="RequestsWorkspace_NextActionAwaitExternal" xml:space="preserve"><value>No action is required from you right now. Follow the request until dispatch or the bank response completes it.</value></data>
+  <data name="RequestsWorkspace_NextActionCompleted" xml:space="preserve"><value>This request is complete. Open the detailed timeline only if you need the final trace.</value></data>
+  <data name="RequestsWorkspace_NextActionClosed" xml:space="preserve"><value>This request is closed. No further action is available on the owner surface.</value></data>
+  <data name="RequestsWorkspace_NextActionMonitor" xml:space="preserve"><value>Keep following this request until the next operational handoff changes its state.</value></data>
+  <data name="RequestsWorkspace_State_Draft" xml:space="preserve"><value>This request is still with you and has not entered the approval flow yet.</value></data>
+  <data name="RequestsWorkspace_State_InApproval" xml:space="preserve"><value>This request is currently with the approval chain and is waiting for the active signer.</value></data>
+  <data name="RequestsWorkspace_State_Returned" xml:space="preserve"><value>This request was returned for correction before it can move forward again.</value></data>
+  <data name="RequestsWorkspace_State_ApprovedForDispatch" xml:space="preserve"><value>This request finished approvals and is now waiting for dispatch handling.</value></data>
+  <data name="RequestsWorkspace_State_AwaitingBankResponse" xml:space="preserve"><value>This request has already left BG and is now waiting for the bank response.</value></data>
+  <data name="RequestsWorkspace_State_Completed" xml:space="preserve"><value>This request has been completed and its confirmed result was applied.</value></data>
+  <data name="RequestsWorkspace_State_Rejected" xml:space="preserve"><value>This request was rejected during approvals.</value></data>
+  <data name="RequestsWorkspace_State_Cancelled" xml:space="preserve"><value>This request was cancelled and is no longer active.</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryTitle" xml:space="preserve"><value>Tracking summary</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryHeading" xml:space="preserve"><value>What you need to know now</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryLedger" xml:space="preserve"><value>Ledger entries recorded: {0}</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryCorrespondence" xml:space="preserve"><value>Related correspondence items: {0}</value></data>
+  <data name="RequestsWorkspace_TrackingSummaryStage" xml:space="preserve"><value>Current stage: {0}</value></data>
+  <data name="RequestsWorkspace_LedgerSummary" xml:space="preserve"><value>Open the full request timeline only when you need the detailed trace.</value></data>
+  <data name="RequestsWorkspace_RequestNotesTitle" xml:space="preserve"><value>Request notes</value></data>
+  <data name="OperationsQueue_WhyHereTitle" xml:space="preserve"><value>Why this item is here</value></data>
+  <data name="OperationsQueue_WhyHereSummary" xml:space="preserve"><value>This review item is waiting for operations to validate the incoming response and close the correct operational handoff.</value></data>
+  <data name="OperationsQueue_CompleteNowTitle" xml:space="preserve"><value>What completes it now</value></data>
+  <data name="OperationsQueue_CompleteNowStepMatch" xml:space="preserve"><value>Select the correct request using the system suggestions or your review.</value></data>
+  <data name="OperationsQueue_CompleteNowStepConfirm" xml:space="preserve"><value>Confirm the real expiry date, amount, or note required by the scenario.</value></data>
+  <data name="OperationsQueue_CompleteNowStepClose" xml:space="preserve"><value>Apply the bank response so the guarantee and request move to their confirmed state.</value></data>
+  <data name="DispatchWorkspace_ReadyStateTitle" xml:space="preserve"><value>Ready for print or dispatch</value></data>
+  <data name="DispatchWorkspace_ReadyStateSummary" xml:space="preserve"><value>These requests already cleared approvals and now need print, dispatch recording, or both.</value></data>
+  <data name="DispatchWorkspace_WhyHereTitle" xml:space="preserve"><value>Why this item is here</value></data>
+  <data name="DispatchWorkspace_WhyHereReadySummary" xml:space="preserve"><value>This request is waiting for dispatch operations to prepare the outgoing letter and release it from BG.</value></data>
+  <data name="DispatchWorkspace_PrintEvidenceTitle" xml:space="preserve"><value>Print evidence</value></data>
+  <data name="DispatchWorkspace_NextStepTitle" xml:space="preserve"><value>Next step</value></data>
+  <data name="DispatchWorkspace_NextStepPrint" xml:space="preserve"><value>Print or reprint the outgoing letter when a final copy is needed.</value></data>
+  <data name="DispatchWorkspace_NextStepDispatch" xml:space="preserve"><value>Record the dispatch once the letter actually leaves BG.</value></data>
+  <data name="DispatchWorkspace_NextStepAwaitBank" xml:space="preserve"><value>After dispatch, the request waits for the bank response or delivery confirmation.</value></data>
+  <data name="DispatchWorkspace_PendingDeliveryStateTitle" xml:space="preserve"><value>Pending delivery confirmation</value></data>
+  <data name="DispatchWorkspace_PendingDeliveryStateSummary" xml:space="preserve"><value>These letters have already left BG and now need delivery evidence or a controlled reprint.</value></data>
+  <data name="DispatchWorkspace_WhyHerePendingDeliverySummary" xml:space="preserve"><value>This correspondence was dispatched and is waiting for proof of external delivery.</value></data>
+  <data name="DispatchWorkspace_DispatchEvidenceTitle" xml:space="preserve"><value>Dispatch evidence</value></data>
+  <data name="DispatchWorkspace_NextStepDelivery" xml:space="preserve"><value>Confirm delivery when the courier, email trail, or handoff is validated.</value></data>
+  <data name="DispatchWorkspace_NextStepReprint" xml:space="preserve"><value>Use reprint only when another controlled outgoing copy is required.</value></data>
+  <data name="AdminUsers_TaskModelTitle" xml:space="preserve"><value>User administration</value></data>
+  <data name="AdminUsers_TaskModelSummary" xml:space="preserve"><value>Use this page to create local accounts, assign roles, and maintain credentials. It is not an audit report for every identity event.</value></data>
+  <data name="RolesPage_RoleCreated" xml:space="preserve"><value>Role saved successfully.</value></data>
+  <data name="AdminRoles_TaskModelTitle" xml:space="preserve"><value>Role and permission administration</value></data>
+  <data name="AdminRoles_TaskModelSummary" xml:space="preserve"><value>Use this page to define permission bundles that shape workspace access. Keep permission review separate from user maintenance.</value></data>
+  <data name="AdminDelegations_TaskModelTitle" xml:space="preserve"><value>Delegation administration</value></data>
+  <data name="AdminDelegations_TaskModelSummary" xml:space="preserve"><value>Use this page to create temporary approval coverage and to revoke it when the temporary handoff ends.</value></data>
+  <data name="AdminWorkflow_TaskModelTitle" xml:space="preserve"><value>Workflow administration</value></data>
+  <data name="AdminWorkflow_TaskModelSummary" xml:space="preserve"><value>Use this page to keep approval definitions executable and governed. Runtime history belongs in operational surfaces, not here.</value></data>
+  <data name="WorkflowAdmin_CurrentStagesTitle" xml:space="preserve"><value>Current stages</value></data>
   <data name="Pagination_Previous" xml:space="preserve"><value>Previous</value></data>
   <data name="Pagination_Next" xml:space="preserve"><value>Next</value></data>
   <data name="Pagination_PageSummary" xml:space="preserve"><value>Page {0} of {1} ({2} items)</value></data>
+  <data name="intake.document_form_invalid" xml:space="preserve"><value>The selected bank guarantee form is not valid for this intake scenario.</value></data>
+  <data name="IntakeWorkspace_DocumentFormTitle" xml:space="preserve"><value>Document form profile</value></data>
+  <data name="IntakeWorkspace_DocumentFormSummary" xml:space="preserve"><value>Confirm which real bank form or letter family this document follows before final save.</value></data>
+  <data name="IntakeWorkspace_DocumentFormField" xml:space="preserve"><value>Document form</value></data>
+  <data name="IntakeWorkspace_DetectedFormTitle" xml:space="preserve"><value>Detected form</value></data>
+  <data name="IntakeWorkspace_FormExpectedCuesTitle" xml:space="preserve"><value>Expected cues</value></data>
+  <data name="IntakeWorkspace_FormExpectedFieldsTitle" xml:space="preserve"><value>Expected fields</value></data>
+  <data name="IntakeWorkspace_FormExpectedFieldsSummary" xml:space="preserve"><value>Core fields expected from the selected bank form.</value></data>
+  <data name="IntakeWorkspace_SupportingReviewTitle" xml:space="preserve"><value>Supporting extracted fields</value></data>
+  <data name="IntakeWorkspace_FormExpectedField" xml:space="preserve"><value>Form-expected</value></data>
+  <data name="IntakeWorkspace_FormSupplementalField" xml:space="preserve"><value>Scenario supplemental</value></data>
+  <data name="BankProfile_Generic" xml:space="preserve"><value>Generic bank profile</value></data>
+  <data name="BankProfile_SNB" xml:space="preserve"><value>Saudi National Bank</value></data>
+  <data name="BankProfile_AlRajhi" xml:space="preserve"><value>Al Rajhi Bank</value></data>
+  <data name="BankProfile_Riyad" xml:space="preserve"><value>Riyad Bank</value></data>
+  <data name="DocumentForm_Instrument_Generic_Title" xml:space="preserve"><value>Generic guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_Generic_Summary" xml:space="preserve"><value>Use when the guarantee instrument is valid but does not match a pinned bank-specific layout yet.</value></data>
+  <data name="DocumentForm_Instrument_SNB_Title" xml:space="preserve"><value>SNB guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_SNB_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Saudi National Bank document family.</value></data>
+  <data name="DocumentForm_Instrument_AlRajhi_Title" xml:space="preserve"><value>Al Rajhi guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_AlRajhi_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Al Rajhi Bank document family.</value></data>
+  <data name="DocumentForm_Instrument_Riyad_Title" xml:space="preserve"><value>Riyad Bank guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_Riyad_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Riyad Bank document family.</value></data>
+  <data name="DocumentForm_BankLetter_Generic_Title" xml:space="preserve"><value>Generic incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_Generic_Summary" xml:space="preserve"><value>Use when the incoming confirmation letter is valid but not pinned to a specific bank letterhead family.</value></data>
+  <data name="DocumentForm_BankLetter_SNB_Title" xml:space="preserve"><value>SNB incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_SNB_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Saudi National Bank letterhead family.</value></data>
+  <data name="DocumentForm_BankLetter_AlRajhi_Title" xml:space="preserve"><value>Al Rajhi incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_AlRajhi_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Al Rajhi Bank letterhead family.</value></data>
+  <data name="DocumentForm_BankLetter_Riyad_Title" xml:space="preserve"><value>Riyad Bank incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_Riyad_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Riyad Bank letterhead family.</value></data>
+  <data name="DocumentForm_Attachment_Generic_Title" xml:space="preserve"><value>Supporting annex or attachment</value></data>
+  <data name="DocumentForm_Attachment_Generic_Summary" xml:space="preserve"><value>Supporting documents, annexes, or signed attachments linked to an existing guarantee.</value></data>
+  <data name="DocumentFormCue_BankIdentity" xml:space="preserve"><value>Bank identity or letterhead</value></data>
+  <data name="DocumentFormCue_GuaranteeReference" xml:space="preserve"><value>Guarantee number or reference line</value></data>
+  <data name="DocumentFormCue_AmountCurrency" xml:space="preserve"><value>Amount and currency block</value></data>
+  <data name="DocumentFormCue_IssueExpiry" xml:space="preserve"><value>Issue and expiry dates</value></data>
+  <data name="DocumentFormCue_OfficialLetterDate" xml:space="preserve"><value>Official letter date</value></data>
+  <data name="DocumentFormCue_BankReference" xml:space="preserve"><value>Bank reference number</value></data>
+  <data name="DocumentFormCue_AttachmentPurpose" xml:space="preserve"><value>Annex purpose or attachment note</value></data>
 </root>

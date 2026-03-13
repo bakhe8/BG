@@ -17,7 +17,7 @@ public sealed class UiPreferencesControllerTests
 
         var redirect = Assert.IsType<LocalRedirectResult>(result);
         Assert.Equal("/dashboard", redirect.Url);
-        Assert.Contains("bg-theme=slate", httpContext.Response.Headers.SetCookie.ToString());
+        Assert.Contains("bg-theme=kfsh", httpContext.Response.Headers.SetCookie.ToString());
     }
 
     [Fact]

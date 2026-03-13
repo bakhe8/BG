@@ -13,4 +13,5 @@ public sealed record ApprovalRequestAttachmentReadModel(
     string? CapturedByDisplayName,
     GuaranteeDocumentCaptureChannel CaptureChannel,
     string? SourceSystemName,
-    string? SourceReference);
+    string? SourceReference,
+    string? VerifiedDataJson);

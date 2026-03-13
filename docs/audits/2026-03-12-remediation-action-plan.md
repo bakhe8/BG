@@ -12,6 +12,31 @@ Source reports:
 - `docs/audits/2026-03-12-technical-debt-audit.md`
 - `docs/audits/2026-03-12-cognitive-system-audit.md`
 
+## 2026-03-13 Status Refresh
+
+This plan should now be treated as a **historical foundation-closure plan**.
+
+Its three original tracks were created to close structural engineering risks:
+
+- `Sprint 1`: Trust Boundary
+- `Sprint 2`: Integrity and Canonical Truth
+- `Sprint 3`: Runtime Readiness and Scale Posture
+
+Those tracks are now materially addressed and no longer define the immediate
+next execution step for the product.
+
+The active next-step direction has moved to:
+
+- [frontend_reconstruction_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/frontend_reconstruction_plan.md)
+- [2026-03-12-master-program-execution-plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-12-master-program-execution-plan.md)
+- [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
+
+Important update:
+
+- `docs/ui-proposals` is now an essential planning input for frontend work.
+- It should not be treated as optional inspiration outside the main execution
+  plans.
+
 ## Executive Decision
 
 لا نوسّع الـ business features الآن.
@@ -337,9 +362,15 @@ Reason:
 
 ## Immediate Recommendation
 
-Start now with `Sprint 1`.
+This plan no longer defines the immediate next implementation step.
 
-If only one thing is done next, it must be:
-- replacing selectable-user sign-in with real local credentials
+Its purpose now is historical: to document the engineering foundation work that
+had to close before broader product expansion continued.
 
-Because without that, every later ledger, approval, and operational trace remains weaker than the business requires.
+The current next-step reference is:
+
+- [2026-03-12-master-program-execution-plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-12-master-program-execution-plan.md)
+
+The active next move is now:
+
+- `institutional shell and shared surface-zone contract`

@@ -109,6 +109,8 @@ internal sealed class RequestWorkspaceRepository : IRequestWorkspaceRepository
                 CurrentStageTitle: null,
                 CurrentStageRoleName: null,
                 LastDecisionNote: null,
+                PrimaryDocumentType: null,
+                PrimaryDocumentVerifiedDataJson: null,
                 LedgerEntries: Array.Empty<RequestLedgerEntryReadModel>()))
             .ToArray();
 
@@ -160,6 +162,25 @@ internal sealed class RequestWorkspaceRepository : IRequestWorkspaceRepository
             })
             .ToDictionaryAsync(entry => entry.GuaranteeRequestId, entry => entry.Note, cancellationToken);
 
+        var requestDocuments = await _dbContext.GuaranteeRequestDocuments
+            .AsNoTracking()
+            .Where(link => requestIds.Contains(link.GuaranteeRequestId))
+            .Select(link => new RequestPrimaryDocumentRow(
+                link.GuaranteeRequestId,
+                link.GuaranteeDocument.DocumentType,
+                link.GuaranteeDocument.VerifiedDataJson,
+                link.LinkedAtUtc))
+            .ToListAsync(cancellationToken);
+
+        var primaryDocumentByRequestId = requestDocuments
+            .GroupBy(link => link.RequestId)
+            .ToDictionary(
+                group => group.Key,
+                group => group
+                    .OrderBy(link => link.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                    .ThenBy(link => link.LinkedAtUtc)
+                    .First());
+
         var ledgerEntriesQuery = _dbContext.GuaranteeEvents
             .AsNoTracking()
             .Where(ledgerEntry => ledgerEntry.GuaranteeRequestId.HasValue && requestIds.Contains(ledgerEntry.GuaranteeRequestId.Value))
@@ -210,6 +231,8 @@ internal sealed class RequestWorkspaceRepository : IRequestWorkspaceRepository
                 CurrentStageTitle = activeStageByRequestId.GetValueOrDefault(request.Id)?.TitleText,
                 CurrentStageRoleName = activeStageByRequestId.GetValueOrDefault(request.Id)?.RoleName,
                 LastDecisionNote = lastDecisionNoteByRequestId.GetValueOrDefault(request.Id),
+                PrimaryDocumentType = primaryDocumentByRequestId.GetValueOrDefault(request.Id)?.DocumentType,
+                PrimaryDocumentVerifiedDataJson = primaryDocumentByRequestId.GetValueOrDefault(request.Id)?.VerifiedDataJson,
                 LedgerEntries = ledgerByRequestId.GetValueOrDefault(request.Id, [])
             })
             .ToArray();
@@ -278,6 +301,12 @@ internal sealed class RequestWorkspaceRepository : IRequestWorkspaceRepository
         DateOnly? RequestedExpiryDate,
         string? Notes,
         DateTimeOffset CreatedAtUtc);
+
+    private sealed record RequestPrimaryDocumentRow(
+        Guid RequestId,
+        GuaranteeDocumentType DocumentType,
+        string? VerifiedDataJson,
+        DateTimeOffset LinkedAtUtc);
 
     private sealed record ActiveApprovalStageRow(
         Guid RequestId,

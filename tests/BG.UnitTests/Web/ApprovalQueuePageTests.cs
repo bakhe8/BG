@@ -1,6 +1,7 @@
 using BG.Application.Common;
 using BG.Application.Contracts.Services;
 using BG.Application.Models.Approvals;
+using BG.Application.Models.Documents;
 using BG.Web.Localization;
 using BG.Web.Pages.Approvals;
 using BG.Web.UI;
@@ -158,7 +159,12 @@ public sealed class ApprovalQueuePageTests
                                     "Request Owner",
                                     "IntakeCaptureChannel_ManualUpload",
                                     null,
-                                    null)
+                                    null,
+                                    new GuaranteeDocumentFormSnapshotDto(
+                                        "supporting-attachment-generic",
+                                        "BankProfile_Generic",
+                                        "DocumentForm_Attachment_Generic_Title",
+                                        "DocumentForm_Attachment_Generic_Summary"))
                             ],
                             [
                                 new ApprovalRequestTimelineEntryDto(

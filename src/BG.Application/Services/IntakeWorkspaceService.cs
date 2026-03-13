@@ -2,6 +2,7 @@ using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
 using BG.Application.Intake;
 using BG.Application.Models.Intake;
+using BG.Application.ReferenceData;
 using BG.Domain.Identity;
 
 namespace BG.Application.Services;
@@ -137,6 +138,17 @@ internal sealed class IntakeWorkspaceService : IIntakeWorkspaceService
 
     private static IntakeScenarioSnapshotDto MapScenario(IntakeScenarioDefinition definition)
     {
+        var supportedForms = GuaranteeDocumentFormCatalog.GetSupportedForms(definition.Key)
+            .Select(
+                form => new IntakeDocumentFormOptionDto(
+                    form.Key,
+                    form.BankResourceKey,
+                    form.TitleResourceKey,
+                    form.SummaryResourceKey,
+                    form.ExpectedFieldKeys,
+                    form.ExpectedCueResourceKeys))
+            .ToArray();
+
         return new IntakeScenarioSnapshotDto(
             definition.Key,
             definition.TitleResourceKey,
@@ -149,7 +161,9 @@ internal sealed class IntakeWorkspaceService : IIntakeWorkspaceService
             definition.RequiresConfirmedExpiryDate,
             definition.RequiresConfirmedAmount,
             definition.RequiresStatusStatement,
-            definition.RequiresAttachmentNote);
+            definition.RequiresAttachmentNote,
+            GuaranteeDocumentFormCatalog.GetDefaultForm(definition.Key).Key,
+            supportedForms);
     }
 
     private static IntakeActorSummaryDto MapActor(User actor)

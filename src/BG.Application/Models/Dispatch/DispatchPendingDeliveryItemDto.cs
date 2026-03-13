@@ -1,3 +1,5 @@
+using BG.Application.Models.Documents;
+
 namespace BG.Application.Models.Dispatch;
 
 public sealed record DispatchPendingDeliveryItemDto(
@@ -9,6 +11,7 @@ public sealed record DispatchPendingDeliveryItemDto(
     string RequesterDisplayName,
     string ReferenceNumber,
     DateOnly LetterDate,
+    GuaranteeDocumentFormSnapshotDto? SourceDocumentForm,
     string DispatchChannelResourceKey,
     string? DispatchReference,
     DateTimeOffset DispatchedAtUtc);

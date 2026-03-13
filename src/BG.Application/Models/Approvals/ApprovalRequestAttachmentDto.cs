@@ -1,3 +1,5 @@
+using BG.Application.Models.Documents;
+
 namespace BG.Application.Models.Approvals;
 
 public sealed record ApprovalRequestAttachmentDto(
@@ -11,4 +13,5 @@ public sealed record ApprovalRequestAttachmentDto(
     string? CapturedByDisplayName,
     string CaptureChannelResourceKey,
     string? SourceSystemName,
-    string? SourceReference);
+    string? SourceReference,
+    GuaranteeDocumentFormSnapshotDto? DocumentForm);

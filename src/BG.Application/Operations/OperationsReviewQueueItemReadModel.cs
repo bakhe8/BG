@@ -10,6 +10,7 @@ public sealed record OperationsReviewQueueItemReadModel(
     string ScenarioKey,
     OperationsReviewItemCategory Category,
     OperationsReviewItemStatus Status,
+    GuaranteeDocumentType DocumentType,
     string FileName,
     string? BankReference,
     DateTimeOffset CreatedAtUtc,

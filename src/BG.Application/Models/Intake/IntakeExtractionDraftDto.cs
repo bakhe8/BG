@@ -6,4 +6,5 @@ public sealed record IntakeExtractionDraftDto(
     string OriginalFileName,
     int PageCount,
     string ExtractionRouteResourceKey,
-    IReadOnlyList<IntakeFieldReviewDto> Fields);
+    IReadOnlyList<IntakeFieldReviewDto> Fields,
+    string DocumentFormKey);

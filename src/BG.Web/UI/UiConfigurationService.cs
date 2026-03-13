@@ -6,7 +6,7 @@ public sealed class UiConfigurationService : IUiConfigurationService
 {
     public const string ThemeCookieName = "bg-theme";
     public const string DefaultCultureName = "ar";
-    public const string DefaultThemeKey = "emerald";
+    public const string DefaultThemeKey = "kfsh";
 
     private static readonly UiCultureOption[] CultureOptions =
     {
@@ -16,9 +16,7 @@ public sealed class UiConfigurationService : IUiConfigurationService
 
     private static readonly UiThemeOption[] ThemeOptions =
     {
-        new("emerald"),
-        new("slate"),
-        new("sand")
+        new("kfsh")
     };
 
     private readonly IHttpContextAccessor _httpContextAccessor;

@@ -45,12 +45,20 @@ public sealed class WorkspaceModel : PageModel
 
     public IReadOnlyList<IntakeFieldReviewDto> ReviewFields { get; private set; } = Array.Empty<IntakeFieldReviewDto>();
 
+    public IReadOnlyList<IntakeFieldReviewDto> CriticalReviewFields
+        => ReviewFields.Where(IsCriticalReviewField).ToArray();
+
+    public IReadOnlyList<IntakeFieldReviewDto> SupportingReviewFields
+        => ReviewFields.Where(field => !IsCriticalReviewField(field)).ToArray();
+
     [TempData]
     public string? StatusMessage { get; set; }
 
     public bool IsActorContextLocked { get; private set; }
 
     public bool HasDraft => !string.IsNullOrWhiteSpace(Input.StagedDocumentToken);
+
+    public bool CanFinalize => HasDraft && Workspace.HasEligibleActor;
 
     public bool IsNewGuaranteeScenario => !SelectedScenario.RequiresExistingGuarantee;
 
@@ -61,6 +69,17 @@ public sealed class WorkspaceModel : PageModel
     public bool IsStatusScenario => SelectedScenario.RequiresStatusStatement;
 
     public bool IsAttachmentScenario => SelectedScenario.RequiresAttachmentNote;
+
+    public IntakeDocumentFormOptionDto SelectedDocumentForm
+        => ResolveSelectedDocumentForm();
+
+    public int ReviewAttentionCount => ReviewFields.Count(field => field.RequiresExplicitReview || field.ConfidencePercent < 95);
+
+    public int HighConfidenceCount => ReviewFields.Count(field => field.ConfidencePercent >= 95);
+
+    public int ExpectedFormFieldCount => ReviewFields.Count(field => field.IsExpectedByDocumentForm);
+
+    public int SupportingReviewFieldCount => SupportingReviewFields.Count;
 
     public string CaptureChannelHintResourceKey => GuaranteeResourceCatalog.GetCaptureChannelHintResourceKey(Input.CaptureChannel);
 
@@ -77,7 +96,7 @@ public sealed class WorkspaceModel : PageModel
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         await LoadWorkspaceAsync(Actor, Scenario, cancellationToken);
-        ReviewFields = SelectedScenario.SampleFields;
+        ReviewFields = BuildReviewFields();
     }
 
     public async Task<IActionResult> OnPostExtractAsync(CancellationToken cancellationToken)
@@ -151,6 +170,7 @@ public sealed class WorkspaceModel : PageModel
         Workspace = await _intakeWorkspaceService.GetWorkspaceAsync(actorId, scenarioKey, cancellationToken);
         SelectedScenario = Workspace.SelectedScenario;
         Input.ScenarioKey = SelectedScenario.Key;
+        NormalizeDocumentFormSelection();
         if (Workspace.ActiveActor is not null)
         {
             Input.IntakeActorUserId = Workspace.ActiveActor.Id;
@@ -175,6 +195,7 @@ public sealed class WorkspaceModel : PageModel
     {
         Input.ScenarioKey = draft.ScenarioKey;
         Input.StagedDocumentToken = draft.StagedDocumentToken;
+        Input.DocumentFormKey = draft.DocumentFormKey;
         Input.OriginalFileName = draft.OriginalFileName;
         Input.PageCount = draft.PageCount;
         Input.ExtractionRouteResourceKey = draft.ExtractionRouteResourceKey;
@@ -234,9 +255,50 @@ public sealed class WorkspaceModel : PageModel
 
     private IReadOnlyList<IntakeFieldReviewDto> BuildReviewFields()
     {
+        var expectedFieldKeys = SelectedDocumentForm.ExpectedFieldKeys.ToHashSet(StringComparer.Ordinal);
+
         return SelectedScenario.SampleFields
-            .Select(field => field with { Value = ResolveCurrentValue(field.FieldKey) ?? field.Value })
+            .Select(
+                field => field with
+                {
+                    Value = ResolveCurrentValue(field.FieldKey) ?? field.Value,
+                    IsExpectedByDocumentForm = expectedFieldKeys.Contains(field.FieldKey)
+                })
             .ToArray();
+    }
+
+    private void NormalizeDocumentFormSelection()
+    {
+        if (SelectedScenario.SupportedDocumentForms.Count == 0)
+        {
+            Input.DocumentFormKey = string.Empty;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(Input.DocumentFormKey) ||
+            !SelectedScenario.SupportedDocumentForms.Any(
+                form => string.Equals(form.Key, Input.DocumentFormKey, StringComparison.OrdinalIgnoreCase)))
+        {
+            Input.DocumentFormKey = SelectedScenario.DefaultDocumentFormKey;
+        }
+    }
+
+    private IntakeDocumentFormOptionDto ResolveSelectedDocumentForm()
+    {
+        if (SelectedScenario.SupportedDocumentForms.Count == 0)
+        {
+            return new IntakeDocumentFormOptionDto(
+                string.Empty,
+                "BankProfile_Generic",
+                "DocumentForm_Instrument_Generic_Title",
+                "DocumentForm_Instrument_Generic_Summary",
+                [],
+                []);
+        }
+
+        return SelectedScenario.SupportedDocumentForms.FirstOrDefault(
+                   form => string.Equals(form.Key, Input.DocumentFormKey, StringComparison.OrdinalIgnoreCase))
+               ?? SelectedScenario.SupportedDocumentForms[0];
     }
 
     private string? ResolveCurrentValue(string fieldKey)
@@ -261,6 +323,13 @@ public sealed class WorkspaceModel : PageModel
         };
     }
 
+    private static bool IsCriticalReviewField(IntakeFieldReviewDto field)
+    {
+        return field.RequiresExplicitReview
+               || field.ConfidencePercent < 95
+               || field.IsExpectedByDocumentForm;
+    }
+
     public sealed class IntakeSubmissionInput
     {
         public Guid IntakeActorUserId { get; set; }
@@ -270,6 +339,8 @@ public sealed class WorkspaceModel : PageModel
         public IFormFile? UploadedDocument { get; set; }
 
         public string? StagedDocumentToken { get; set; }
+
+        public string DocumentFormKey { get; set; } = GuaranteeDocumentFormKeys.GuaranteeInstrumentGeneric;
 
         public string? OriginalFileName { get; set; }
 
@@ -317,6 +388,7 @@ public sealed class WorkspaceModel : PageModel
                 IntakeActorUserId,
                 ScenarioKey,
                 StagedDocumentToken ?? string.Empty,
+                DocumentFormKey,
                 ExtractionRouteResourceKey ?? string.Empty,
                 PageCount,
                 CaptureChannel,

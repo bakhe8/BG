@@ -3,6 +3,7 @@ using BG.Application.Contracts.Persistence;
 using BG.Application.Models.Approvals;
 using BG.Application.Services;
 using BG.Application.Approvals;
+using BG.Application.ReferenceData;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
 using BG.Domain.Workflow;
@@ -28,6 +29,9 @@ public sealed class ApprovalQueueServiceTests
         Assert.Equal("RequestChannel_RequestWorkspace", snapshot.Items[0].RequestChannelResourceKey);
         Assert.Equal("RequestStatus_InApproval", snapshot.Items[0].StatusResourceKey);
         Assert.NotEmpty(snapshot.Items[0].Attachments);
+        Assert.Equal(
+            GuaranteeDocumentFormKeys.SupportingAttachmentGeneric,
+            snapshot.Items[0].Attachments[0].DocumentForm?.Key);
         Assert.NotEmpty(snapshot.Items[0].TimelineEntries);
     }
 
@@ -444,7 +448,8 @@ public sealed class ApprovalQueueServiceTests
                         link.GuaranteeDocument.CapturedByDisplayName,
                         link.GuaranteeDocument.CaptureChannel,
                         link.GuaranteeDocument.SourceSystemName,
-                        link.GuaranteeDocument.SourceReference))
+                        link.GuaranteeDocument.SourceReference,
+                        link.GuaranteeDocument.VerifiedDataJson))
                     .ToArray(),
                 request.Guarantee.Events
                     .Where(ledgerEntry => ledgerEntry.GuaranteeRequestId == request.Id)
@@ -527,7 +532,7 @@ public sealed class ApprovalQueueServiceTests
                 null,
                 "supporting-attachment",
                 "Manual",
-                null,
+                "{\"documentFormKey\":\"supporting-attachment-generic\"}",
                 "Supporting note");
             guarantee.AttachDocumentToRequest(request.Id, document.Id, DateTimeOffset.UtcNow.AddMinutes(-9), requester.Id, requester.DisplayName);
 

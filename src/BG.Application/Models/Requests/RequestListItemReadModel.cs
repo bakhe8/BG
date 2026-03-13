@@ -17,4 +17,6 @@ public sealed record RequestListItemReadModel(
     string? CurrentStageTitle,
     string? CurrentStageRoleName,
     string? LastDecisionNote,
+    GuaranteeDocumentType? PrimaryDocumentType,
+    string? PrimaryDocumentVerifiedDataJson,
     IReadOnlyList<RequestLedgerEntryReadModel> LedgerEntries);

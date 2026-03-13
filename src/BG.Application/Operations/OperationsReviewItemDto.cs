@@ -1,3 +1,5 @@
+using BG.Application.Models.Documents;
+
 namespace BG.Application.Operations;
 
 public sealed record OperationsReviewItemDto(
@@ -16,6 +18,7 @@ public sealed record OperationsReviewItemDto(
     string CaptureChannelResourceKey,
     string? SourceSystemName,
     string? SourceReference,
+    GuaranteeDocumentFormSnapshotDto? DocumentForm,
     bool SupportsRequestMatching,
     IReadOnlyList<OperationsReviewMatchSuggestionDto> MatchSuggestions,
     string? SuggestedConfirmedExpiryDate,

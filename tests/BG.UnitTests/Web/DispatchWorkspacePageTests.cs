@@ -1,5 +1,6 @@
 using BG.Application.Common;
 using BG.Application.Contracts.Services;
+using BG.Application.Models.Documents;
 using BG.Application.Models.Dispatch;
 using BG.Domain.Guarantees;
 using BG.Web.Localization;
@@ -100,6 +101,30 @@ public sealed class DispatchWorkspacePageTests
         Assert.Equal("DispatchWorkspace_DeliverySuccess", model.StatusMessage);
     }
 
+    [Fact]
+    public async Task OnPostReopenDispatchAsync_uses_locked_actor_from_authenticated_session()
+    {
+        var lockedActorId = Guid.NewGuid();
+        var service = new StubDispatchWorkspaceService(lockedActorId);
+        var model = new WorkspaceModel(service, new PassThroughLocalizer());
+        AttachAuthenticatedUser(model, lockedActorId);
+
+        var result = await model.OnPostReopenDispatchAsync(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            "Recorded too early",
+            null,
+            CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal("/Dispatch/Workspace", redirect.PageName);
+        Assert.True(redirect.RouteValues is null || !redirect.RouteValues.ContainsKey("actor"));
+        Assert.True(model.IsActorContextLocked);
+        Assert.Equal(lockedActorId, service.LastReopenCommand!.DispatcherUserId);
+        Assert.Equal("DispatchWorkspace_ReopenSuccess", model.StatusMessage);
+    }
+
     private static void AttachAuthenticatedUser(PageModel model, Guid userId)
     {
         var httpContext = new DefaultHttpContext();
@@ -131,6 +156,8 @@ public sealed class DispatchWorkspacePageTests
 
         public ConfirmDispatchDeliveryCommand? LastDeliveryCommand { get; private set; }
 
+        public ReopenDispatchCommand? LastReopenCommand { get; private set; }
+
         public Task<DispatchWorkspaceSnapshotDto> GetWorkspaceAsync(
             Guid? dispatcherActorId,
             int pageNumber = 1,
@@ -154,6 +181,11 @@ public sealed class DispatchWorkspacePageTests
                             null,
                             null,
                             null,
+                            new GuaranteeDocumentFormSnapshotDto(
+                                "guarantee-instrument-snb",
+                                "BankProfile_SNB",
+                                "DocumentForm_Instrument_SNB_Title",
+                                "DocumentForm_Instrument_SNB_Summary"),
                             0,
                             null,
                             null)
@@ -192,6 +224,16 @@ public sealed class DispatchWorkspacePageTests
             return Task.FromResult(
                 OperationResult<ConfirmDispatchDeliveryReceiptDto>.Success(
                     new ConfirmDispatchDeliveryReceiptDto(command.RequestId, "BG-2026-7101", "LTR-8001")));
+        }
+
+        public Task<OperationResult<ReopenDispatchReceiptDto>> ReopenDispatchAsync(
+            ReopenDispatchCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            LastReopenCommand = command;
+            return Task.FromResult(
+                OperationResult<ReopenDispatchReceiptDto>.Success(
+                    new ReopenDispatchReceiptDto(command.RequestId, "BG-2026-7101", "LTR-8001")));
         }
     }
 

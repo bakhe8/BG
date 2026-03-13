@@ -203,6 +203,23 @@ public sealed class RequestApprovalProcess
         LastRejectedNote = NormalizeOptional(note, 512);
     }
 
+    public void CancelByOwner(DateTimeOffset cancelledAtUtc)
+    {
+        if (Status != RequestApprovalProcessStatus.InProgress)
+        {
+            throw new InvalidOperationException("Only an in-progress approval process can be cancelled.");
+        }
+
+        foreach (var stage in Stages.Where(stage =>
+                     stage.Status is RequestApprovalStageStatus.Pending or RequestApprovalStageStatus.Active))
+        {
+            stage.Cancel();
+        }
+
+        Status = RequestApprovalProcessStatus.Cancelled;
+        CompletedAtUtc = cancelledAtUtc;
+    }
+
     private RequestApprovalStage GetRequiredCurrentStage()
     {
         return GetCurrentStage()

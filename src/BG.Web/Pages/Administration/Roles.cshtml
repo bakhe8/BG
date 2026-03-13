@@ -13,6 +13,16 @@
         <p class="compact-copy">@T["RolesPageSummary"]</p>
     </div>
 
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="notice-banner is-success">@Model.StatusMessage</div>
+    }
+
+    <div class="notice-banner is-info">
+        <strong>@T["AdminRoles_TaskModelTitle"]</strong>
+        <p class="compact-copy">@T["AdminRoles_TaskModelSummary"]</p>
+    </div>
+
     <div class="admin-grid">
         <article class="info-card">
             <h2>@T["CreateRoleTitle"]</h2>

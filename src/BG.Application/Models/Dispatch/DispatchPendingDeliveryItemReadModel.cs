@@ -11,6 +11,8 @@ public sealed record DispatchPendingDeliveryItemReadModel(
     string RequesterDisplayName,
     string ReferenceNumber,
     DateOnly LetterDate,
+    GuaranteeDocumentType? SourceDocumentType,
+    string? SourceDocumentVerifiedDataJson,
     GuaranteeDispatchChannel DispatchChannel,
     string? DispatchReference,
     DateTimeOffset DispatchedAtUtc);

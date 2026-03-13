@@ -173,6 +173,46 @@ public sealed class WorkspaceModel : PageModel
         return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber);
     }
 
+    public async Task<IActionResult> OnPostReopenDispatchAsync(
+        Guid actorId,
+        Guid requestId,
+        Guid correspondenceId,
+        string? correctionNote,
+        int? page,
+        CancellationToken cancellationToken)
+    {
+        await LoadAsync(actorId, page, cancellationToken);
+
+        if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
+        {
+            ModelState.AddModelError(string.Empty, _localizer["DispatchWorkspace_NoEligibleActor"]);
+            return Page();
+        }
+
+        var effectiveActorId = Snapshot.ActiveActor.Id;
+
+        var result = await _dispatchWorkspaceService.ReopenDispatchAsync(
+            new ReopenDispatchCommand(
+                effectiveActorId,
+                requestId,
+                correspondenceId,
+                correctionNote),
+            cancellationToken);
+
+        if (!result.Succeeded)
+        {
+            ModelState.AddModelError(string.Empty, _localizer[result.ErrorCode!]);
+            return Page();
+        }
+
+        StatusMessage = _localizer[
+            "DispatchWorkspace_ReopenSuccess",
+            result.Value!.ReferenceNumber,
+            result.Value.GuaranteeNumber];
+
+        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber);
+    }
+
     public IDictionary<string, string> BuildPageRoute(int pageNumber)
     {
         var routeValues = new Dictionary<string, string>

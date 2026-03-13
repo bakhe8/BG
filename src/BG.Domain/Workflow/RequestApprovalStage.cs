@@ -149,6 +149,22 @@ public sealed class RequestApprovalStage
         DecisionNote = NormalizeOptional(note, 512);
     }
 
+    internal void Cancel()
+    {
+        if (Status is not RequestApprovalStageStatus.Pending and not RequestApprovalStageStatus.Active)
+        {
+            throw new InvalidOperationException("Only pending or active stages can be cancelled.");
+        }
+
+        Status = RequestApprovalStageStatus.Cancelled;
+        ActedByUserId = null;
+        ActedOnBehalfOfUserId = null;
+        ApprovalDelegationId = null;
+        ActedAtUtc = null;
+        DecisionNote = null;
+        SignatureAppliedAtUtc = null;
+    }
+
     private void EnsureActive()
     {
         if (Status != RequestApprovalStageStatus.Active)
