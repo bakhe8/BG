@@ -27,6 +27,8 @@ public sealed class UiPreferencesController : Controller
             {
                 Expires = DateTimeOffset.UtcNow.AddYears(1),
                 IsEssential = true,
+                HttpOnly = true,
+                Secure = Request.IsHttps,
                 SameSite = SameSiteMode.Lax
             });
 
@@ -46,6 +48,8 @@ public sealed class UiPreferencesController : Controller
             {
                 Expires = DateTimeOffset.UtcNow.AddYears(1),
                 IsEssential = true,
+                HttpOnly = true,
+                Secure = Request.IsHttps,
                 SameSite = SameSiteMode.Lax
             });
 
