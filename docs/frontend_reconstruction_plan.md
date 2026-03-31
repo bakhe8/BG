@@ -2,15 +2,15 @@
 
 This document outlines the strategic reconstruction of the BG application's frontend. It transitions the system from a high-consistency but low-abstraction Razor-based UI to a modern, component-driven, and interactive system.
 
-## Institutional Inspiration Baseline
+## Institutional Direction Baseline
 
 BG is an internal hospital system, not a public marketing product. Because of
-that, the official KFSHRC website is now an approved institutional inspiration
-source for the frontend direction:
+that, the official KFSHRC website is now an approved institutional direction
+source for the frontend:
 
 - Official reference: <https://www.kfshrc.edu.sa/>
 
-This reference should guide:
+This reference must guide:
 
 - institutional visual tone
 - green-led brand discipline
@@ -28,6 +28,64 @@ Operational translation rule:
 
 BG should inherit the institutional shell language of KFSHRC, then compose it
 into role-based operational workspaces, queues, drawers, and dossiers.
+
+## Proposal Library Mandate
+
+The `docs/ui-proposals` folder is not optional inspiration anymore.
+
+It is now a binding reconstruction library.
+
+This means:
+
+- shell, workbench, queue, drawer, and dossier composition must be derived from
+  that library
+- deviations are allowed only when they are caused by role, permission, or
+  workflow-state differences
+- deviations are not allowed merely because a local implementation feels easier
+  or faster
+- any structural difference must be explained before implementation, not after
+
+## 2026-03-13 Reconstruction Status
+
+The current reconstruction pass has now materially completed these phases in
+the live codebase:
+
+- `Phase 1`: institutional shell and surface-zone contract
+- `Phase 2`: surface realignment across the core operational workspaces
+- `Phase 3`: first stable shared primitive extraction
+- `Phase 4`: first CSS modularization layer
+
+Completed surfaces now follow the reconstructed composition model:
+
+- `Intake`
+- `Approvals`
+- `Requests`
+- `Operations`
+- `Dispatch`
+- `Administration`
+
+Completed shared frontend infrastructure now includes:
+
+- shell zones: `Main`, `Support Rail`, `Detail Drawer`, `Dossier`
+- shared surface primitives
+- shared queue/list primitives
+- shared actor-context primitive
+- extracted shell and surface CSS layers
+
+This means the current frontend effort should no longer be treated as an
+open-ended surface reconstruction pass.
+
+The next frontend boundary is now:
+
+- guided operator validation on the reconstructed surfaces
+- targeted role/state refinements where live usage proves the need
+- selective interaction enhancements only where the runtime gain is verified
+
+It is **not**:
+
+- another broad page reshuffle
+- another shell rewrite
+- premature migration to a richer client runtime
 
 ## Stage 1 — Reconstruction Goals
 
@@ -51,6 +109,12 @@ Every frontend decision must satisfy both of these conditions together:
 
 If a proposal improves polish but pushes the system toward a marketing, blog,
 or brochure feeling, it should be rejected.
+
+Additional mandatory rule:
+
+If a proposal or implementation drifts away from the proposal library's shell,
+surface split, drawer, or dossier composition, it should also be rejected even
+if it remains visually polished.
 
 ### Preserve vs Rebuild Matrix
 
@@ -118,13 +182,16 @@ The official KFSHRC site should guide:
 - bilingual discipline
 - visual trust and restraint
 
-The BG proposal library and reconstruction work should guide:
+The BG proposal library should define:
 
 - workbench density
 - queue behavior
 - decision placement
 - document-first layouts
 - dossier composition
+- shell zoning and split behavior
+- left-navigation and active-item relationship
+- what stays primary vs secondary vs on-demand
 
 Therefore the correct frontend target is:
 
@@ -136,6 +203,9 @@ This plan must now be read together with:
 
 - [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
 - [README.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ui-proposals/README.md)
+
+And those two documents are not advisory-only; they are binding execution
+companions.
 
 ---
 
@@ -186,6 +256,10 @@ This means:
 - components are composed according to role and workflow state
 - no component should be extracted into infrastructure until its owning surface
   is stable enough
+- the proposal library is mandatory at the composition level, not optional at
+  the taste level
+- local implementation convenience is not a valid reason to ignore the proposal
+  structure
 
 ### Component Hierarchy & Standardization Plan
 1. **Phase A**: Stabilize role-specific surface contracts before extracting shared primitives.
@@ -280,7 +354,8 @@ We will maintain the current **Design Token** system but refine the relationship
 
 ### Institutional Styling Direction
 
-The official KFSHRC website should be treated as the visual inspiration source
+The official KFSHRC website should be treated as the institutional direction
+source
 for:
 
 - header composure
@@ -387,6 +462,11 @@ We will follow a **"Vertical Slice"** migration to minimize disruption. Existing
   - lightweight drawer refreshes
   - local tab or toggle state
 
+Current status:
+- `Phases 1-4` are materially complete in implementation.
+- `Phase 5` is intentionally deferred until structured operator review confirms
+  the highest-friction interactions.
+
 ---
 
 ## Stage 9 — Prioritization and Execution Order
@@ -410,6 +490,11 @@ We will follow a **"Vertical Slice"** migration to minimize disruption. Existing
 4.  **Step 4**: Modularize CSS and retire duplicate legacy surface code.
 5.  **Step 5**: Add selective interaction enhancement where the gain is proven.
 
+Execution status:
+- `Steps 1-4` are now materially complete.
+- `Step 5` is the next frontend phase boundary, but only after operator-facing
+  review on the reconstructed baseline.
+
 ---
 
 ## Stage 10 — Risk Control
@@ -422,7 +507,7 @@ We will follow a **"Vertical Slice"** migration to minimize disruption. Existing
 | **Breaking Governance** | Critical | 1:1 Integration tests for Approval Actions during reconstruction. |
 | **Partial Refactor Failure** | Medium | Ensure new components can coexist with legacy Bootstrap utility classes. |
 | **Premature Componentization** | High | Do not extract shared components before surface ownership and role visibility are stable. |
-| **Public-Site Mimicry** | High | Use KFSHRC only as institutional inspiration, not as a public-layout template for workbenches. |
+| **Public-Site Mimicry** | High | Use KFSHRC as institutional direction only, not as a public-layout template for workbenches. |
 | **Selective Interaction Overreach** | Medium | Keep PRG and server-rendered fallbacks for every enhanced interaction. |
 
 ### Mitigation Plan
@@ -482,7 +567,7 @@ The BG Frontend Reconstruction Plan is a targeted architectural upgrade designed
 
 The plan now assumes:
 
-- KFSHRC institutional shell language is the official inspiration baseline
+- KFSHRC institutional shell language is the official directional baseline
 - BG workspaces are composed by role and workflow state
 - surfaces are stabilized before broad component extraction
 - client-side enhancement is selective, not the starting point

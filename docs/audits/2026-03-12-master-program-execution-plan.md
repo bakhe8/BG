@@ -20,16 +20,19 @@ This plan must now be read together with:
 - [frontend_reconstruction_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/frontend_reconstruction_plan.md)
 - [README.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ui-proposals/README.md)
 - [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
+- [ocr_implementation_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ocr_implementation_plan.md)
 
-The UI proposal library is now an essential execution input.
+The UI proposal library is now a binding execution input.
 
 It changes the practical meaning of institutional alignment:
 
 - institutional alignment is not only palette or typography
 - it now also includes shell composure, role-based navigation, and component
   composition by task surface
-- the proposal images should be treated as a component vocabulary, not as a set
-  of isolated page mockups
+- the proposal images should be treated as a component vocabulary and mandatory
+  composition baseline, not as a set of isolated page mockups
+- no shell or workspace reshape should be approved if it materially diverges
+  from the proposal family without explicit pre-approval
 
 ## Current Baseline
 
@@ -45,6 +48,16 @@ The following foundations are already materially in place:
 - initial UX diagnostics and `antigravity` review
 - proposal-library baseline in `docs/ui-proposals`
 - component/role visibility matrix
+- institutional shell and surface-zone contract
+- reconstructed operational surfaces across:
+  - `Intake`
+  - `Approvals`
+  - `Requests`
+  - `Operations`
+  - `Dispatch`
+  - `Administration`
+- first stable shared UI primitives
+- first CSS modularization layer for shell and surface primitives
 
 This means the next risk is no longer "missing the basic backbone". The next
 risk is completing the program on top of surfaces, runtime habits, and
@@ -88,6 +101,9 @@ These rules apply to every remaining step.
    vocabulary implied by:
    - `docs/ui-proposals`
    - the component-role visibility matrix
+
+8. No surface cleanup or shell refinement is accepted merely because it feels
+   cleaner locally if it breaks proposal-library composition.
 
 ## Program Order
 
@@ -238,6 +254,21 @@ Scope:
 - external delivery automation
 - richer output generation pipelines
 
+Locked OCR direction inside this priority:
+
+- `PyMuPDF` as the primary PDF text/raster boundary
+- `PDFium` only as a compatibility fallback when PDF handling requires it
+- `OpenCV` for preprocessing
+- `LayoutParser` for layout detection
+- `PaddleOCR` for recognition
+- bank-form-aware post-processing into structured review fields
+
+Important:
+
+- `LayoutParser` is mandatory in the scanned-document path
+- this priority should not implement a vague OCR provider contract; it should
+  implement the above stack behind a replaceable BG integration boundary
+
 Why last:
 - these amplify the system; they should not be used to compensate for unclear
   surfaces or unstable runtime behavior
@@ -281,25 +312,27 @@ following remain true:
 
 ## Immediate Next Step
 
-The next implementation step should now be:
+The current frontend reconstruction pass has crossed its safe boundary.
 
-**institutional shell and shared surface-zone contract**
+The next program step should now be:
+
+**guided validation on the reconstructed workbench baseline, then continue
+Priority 2 and selective frontend enhancement only where live friction is
+verified**
 
 Concretely:
 
-1. stabilize the left navigation + top shell behavior against the KFSHRC
-   institutional direction
-2. define and implement the canonical frontend zones:
-   - `Main`
-   - `Support Rail`
-   - `Detail Drawer`
-   - `Dossier`
-3. use those zones as the new composition baseline for the next reconstructed
-   surfaces
+1. treat the current shell + surface-zone contract as the locked baseline
+2. validate the reconstructed surfaces against real role behavior on seeded
+   operational data
+3. use that validation to prioritize:
+   - `Priority 2`: exception-first internal logic
+   - selective interaction enhancements only where real queue or drawer
+     friction is proven
 
 Why this is next:
 
-- the operational surfaces have already been materially simplified
-- the proposal library now makes the desired composition model explicit
-- proceeding to more component extraction before locking the shell and zone
-  model would create another rework cycle
+- the shell and zone model are no longer the main open risk
+- the core workbench surfaces are now materially aligned
+- broad additional frontend restructuring would create churn before live
+  operator validation

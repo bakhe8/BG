@@ -26,13 +26,16 @@ This backlog must now be read together with:
 - [frontend_reconstruction_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/frontend_reconstruction_plan.md)
 - [README.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ui-proposals/README.md)
 - [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
+- [ocr_implementation_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ocr_implementation_plan.md)
 
 New decision:
 
 - `docs/ui-proposals` is no longer optional inspiration.
-- It is now an essential component-direction source for future UI work.
-- The images must be interpreted as a shared component vocabulary, not as a set
-  of fixed final screens.
+- It is now a binding component-direction source for future UI work.
+- The images must be interpreted as a shared component vocabulary and mandatory
+  composition baseline, not as a set of optional final screens.
+- Any material deviation from the proposal-library structure requires explicit
+  justification before implementation.
 
 This changes the implementation emphasis inside the existing decisions:
 
@@ -43,9 +46,11 @@ This changes the implementation emphasis inside the existing decisions:
 
 Current next-step implication:
 
-- before any further UI or business expansion, the next active frontend move
-  should be the institutional shell and shared surface-zone contract
-  (`Main / Support Rail / Detail Drawer / Dossier`)
+- the institutional shell and shared surface-zone contract are now materially
+  in place
+- the active frontend move is no longer another broad shell/surface rewrite
+- the next frontend step is guided operator validation on the reconstructed
+  role/state surfaces, followed only by targeted refinements
 
 ## Executive Decision
 
@@ -113,6 +118,8 @@ Implementation rule:
 
 Program effect:
 - This is a mandatory guardrail for every surface reshape from now on.
+- This guardrail must be read together with the proposal library, not apart
+  from it.
 
 ### 3. Use Bootstrap because it is used by the hospital official site
 
@@ -214,6 +221,41 @@ Required outcome:
 Program effect:
 - Intake and downstream logic should now be validated against real document
   structures, not only seeded scenario defaults.
+
+2026-03-13 sample-baseline update:
+
+- the first real scanned sample set has now been received and reviewed
+- reference: [initial-bank-form-sample-catalog.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/reference/initial-bank-form-sample-catalog.md)
+- the reviewed files are image-based scans without a usable text layer
+- this confirms `OCR provider` as the correct first external integration
+- the first observed bank families are:
+  - `Riyad Bank`
+  - `BNP Paribas`
+  - `ANB`
+  - `BSF`
+  - `SABB`
+  - `SNB`
+  - `Saudi Investment Bank`
+- the first observed structural classes are:
+  - `original-instrument`
+  - `amendment-letter`
+  - `extension-notice`
+
+Canonical OCR pipeline decision:
+
+- the production OCR path is now fixed as:
+  - `PDF / Scan`
+  - `PyMuPDF text-layer probe`
+  - `PyMuPDF rasterization` with `PDFium` compatibility fallback only where needed
+  - `OpenCV preprocessing`
+  - `LayoutParser` layout detection
+  - `PaddleOCR` recognition
+  - `post-processing`
+  - `structured field candidates`
+  - `human review`
+- `LayoutParser` is not optional in the scanned-document path
+- direct PDF text extraction still has priority whenever a usable text layer exists
+- OCR integration work should implement this stack rather than a generic OCR adapter with unspecified internals
 
 ### 7. Real users trying the system
 
@@ -320,3 +362,21 @@ The most defensible next execution direction is:
 
 This sequence gives the program a better chance of moving forward without
 another broad corrective pass later.
+
+## 2026-03-13 Frontend Phase Closure Note
+
+The current frontend reconstruction pass has now materially completed:
+
+- institutional shell locking
+- role/state surface-zone composition
+- operational surface reconstruction
+- first shared primitive extraction
+- first CSS modularization layer
+
+Therefore this backlog should no longer be read as if the UI still needs a
+foundational shell reset before other work continues.
+
+The next decision gate is:
+
+- validate the reconstructed surfaces with realistic role usage
+- then prioritize only the corrections that live usage proves necessary

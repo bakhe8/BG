@@ -37,6 +37,47 @@ BG should therefore follow this rule:
 
 `shared component system + role-based composition + state-based visibility`
 
+## Binding Rule
+
+The proposal library is now binding, not optional.
+
+This matrix therefore does not merely interpret the proposal folder. It
+operationalizes it.
+
+The consequence is:
+
+- no new shell or workspace composition may diverge materially from the
+  proposal set unless there is a role- or state-based reason
+- no "cleaner local version" may replace the proposal structure on personal
+  judgment alone
+- review of new UI work must include explicit comparison against the proposal
+  family it belongs to
+
+## 2026-03-13 Implementation Status
+
+The matrix is no longer planning-only.
+
+Its core composition model is now materially reflected in the implemented
+frontend through:
+
+- the institutional shell
+- the canonical zones:
+  - `Main`
+  - `Support Rail`
+  - `Detail Drawer`
+  - `Dossier`
+- reconstructed role-specific operational surfaces
+- first shared primitives extracted from those surfaces
+
+This means the matrix should now be used primarily as:
+
+- a drift-prevention contract
+- a validation tool for future UI changes
+- a control surface for targeted refinements
+
+It should not be treated as if the system is still waiting for its first
+composition pass.
+
 ## Canonical Roles
 
 For frontend composition, the system should now be treated as having these
@@ -89,6 +130,8 @@ All components should live in one of these zones:
   - full read-heavy detail surface
 - `Admin editor`
   - configuration or management form surface
+
+These zones are mandatory implementation zones, not descriptive labels only.
 
 ## Component Families
 
@@ -452,8 +495,8 @@ these questions:
 
 ## Final Direction
 
-The UI proposal folder should now be treated as a component source library, not
-as a set of standalone page mockups.
+The UI proposal folder should now be treated as a component source library and
+a mandatory composition baseline, not as a set of standalone page mockups.
 
 The operational direction for BG is therefore:
 

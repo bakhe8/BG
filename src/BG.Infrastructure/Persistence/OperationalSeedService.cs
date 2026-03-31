@@ -19,9 +19,13 @@ namespace BG.Infrastructure.Persistence;
 internal sealed class OperationalSeedService
 {
     private const string OptionsSectionName = "OperationalSeed";
-    private const string DefaultSharedPassword = "SeedUsers123!";
     private const string SharedExtractionRoute = "IntakeExtractionRoute_ManualReview";
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly string[] InsecureSharedPasswords =
+    [
+        "BG-Seed-2026!",
+        "SeedUsers123!"
+    ];
 
     private static readonly SeedRoleDefinition[] SeedRoles =
     [
@@ -39,7 +43,8 @@ internal sealed class OperationalSeedService
         new("Procurement Signer 1", "Seed approval role for first procurement signer.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
         new("Procurement Signer 2", "Seed approval role for second procurement signer.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
         new("Procurement Signer 3", "Seed approval role for third procurement signer.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Executive Vice Presidents", "Seed approval role for executive vice presidents.", ["dashboard.view", "approvals.queue.view", "approvals.sign"])
+        new("Executive Vice Presidents", "Seed approval role for executive vice presidents.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
+        new("System Administrator", "Full system administrator with all permissions.", ["dashboard.view", "intake.view", "intake.scan", "intake.verify", "intake.finalize", "operations.queue.view", "operations.queue.manage", "requests.view", "requests.create", "approvals.queue.view", "approvals.sign", "workflow.view", "workflow.manage", "dispatch.view", "dispatch.print", "dispatch.record", "dispatch.email", "users.view", "users.manage", "delegations.view", "delegations.manage", "roles.view", "roles.manage", "guarantees.view", "guarantees.manage"])
     ];
 
     private static readonly SeedUserDefinition[] SeedUsers =
@@ -59,7 +64,8 @@ internal sealed class OperationalSeedService
         new("procurement.signer1", "Procurement Signer 1", "procurement.signer1@bg.local", ["Procurement Signer 1"]),
         new("procurement.signer2", "Procurement Signer 2", "procurement.signer2@bg.local", ["Procurement Signer 2"]),
         new("procurement.signer3", "Procurement Signer 3", "procurement.signer3@bg.local", ["Procurement Signer 3"]),
-        new("executive.vp", "Executive Vice President", "executive.vp@bg.local", ["Executive Vice Presidents"])
+        new("executive.vp", "Executive Vice President", "executive.vp@bg.local", ["Executive Vice Presidents"]),
+        new("administrator", "System Administrator", "admin@bg.local", ["System Administrator"])
     ];
 
     private static readonly IReadOnlyDictionary<string, string> WorkflowStageRoleNames =
@@ -112,9 +118,18 @@ internal sealed class OperationalSeedService
             return;
         }
 
-        var sharedPassword = string.IsNullOrWhiteSpace(options.SharedPassword)
-            ? DefaultSharedPassword
-            : options.SharedPassword.Trim();
+        if (string.IsNullOrWhiteSpace(options.SharedPassword))
+        {
+            throw new InvalidOperationException(
+                "OperationalSeed:SharedPassword must be configured explicitly when OperationalSeed is enabled.");
+        }
+
+        var sharedPassword = options.SharedPassword.Trim();
+        if (InsecureSharedPasswords.Contains(sharedPassword, StringComparer.Ordinal))
+        {
+            throw new InvalidOperationException(
+                "OperationalSeed:SharedPassword cannot use the retired repository seed passwords. Configure a local secret instead.");
+        }
 
         var permissions = await _dbContext.Permissions
             .OrderBy(permission => permission.Key)

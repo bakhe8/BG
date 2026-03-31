@@ -44,7 +44,7 @@ public sealed class HostedFlowTests
         var workspaceHtml = await workspaceResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, workspaceResponse.StatusCode);
-        Assert.Contains("requests-workbench-grid", workspaceHtml, StringComparison.Ordinal);
+        Assert.Contains("request-workspace-grid", workspaceHtml, StringComparison.Ordinal);
         Assert.Contains("name=\"Input.GuaranteeNumber\"", workspaceHtml, StringComparison.Ordinal);
         Assert.Contains("Hosted Admin", workspaceHtml, StringComparison.Ordinal);
     }
@@ -223,9 +223,311 @@ public sealed class HostedFlowTests
         var queueHtml = await queueResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, queueResponse.StatusCode);
-        Assert.Contains("operations-workbench-grid", queueHtml, StringComparison.Ordinal);
+        Assert.Contains("operations-surface-grid", queueHtml, StringComparison.Ordinal);
         Assert.Contains(guaranteeNumber, queueHtml, StringComparison.Ordinal);
         Assert.Contains("bank-response.pdf", queueHtml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Operations_queue_shows_blocked_apply_reason_when_bank_profile_conflicts()
+    {
+        await using var factory = new HostedAppFactory();
+        const string guaranteeNumber = "BG-2026-OPS-BLOCK-1001";
+        var reviewItemId = Guid.Empty;
+
+        await factory.ExecuteDbContextAsync(async (dbContext, _) =>
+        {
+            var operationsActor = await dbContext.Users
+                .Include(user => user.UserRoles)
+                .ThenInclude(userRole => userRole.Role)
+                .SingleAsync(user => user.Username == "hosted.admin");
+            var workflowDefinition = await dbContext.RequestWorkflowDefinitions
+                .SingleAsync(definition =>
+                    definition.RequestType == GuaranteeRequestType.Extend &&
+                    definition.GuaranteeCategory == null);
+
+            var guarantee = Guarantee.RegisterNew(
+                guaranteeNumber,
+                "National Bank",
+                "KFSHRC",
+                "Main Contractor",
+                GuaranteeCategory.Contract,
+                82000m,
+                "SAR",
+                new DateOnly(2026, 1, 1),
+                new DateOnly(2026, 12, 31),
+                DateTimeOffset.UtcNow);
+
+            var request = guarantee.CreateRequest(
+                operationsActor.Id,
+                GuaranteeRequestType.Extend,
+                requestedAmount: null,
+                requestedExpiryDate: new DateOnly(2027, 11, 30),
+                notes: "Hosted operations blocked flow",
+                DateTimeOffset.UtcNow.AddDays(-10),
+                operationsActor.DisplayName);
+            AttachRequestSourceDocument(
+                guarantee,
+                request,
+                "riyad-instrument.pdf",
+                "guarantee-instrument-riyad",
+                "Riyad Bank");
+            ApproveAndDispatchRequest(
+                request,
+                guarantee,
+                workflowDefinition.Id,
+                operationsActor.UserRoles.Select(userRole => userRole.Role.Id).First(),
+                operationsActor.Id,
+                "LTR-OPS-BLOCK-1",
+                new DateOnly(2026, 3, 11));
+
+            var document = guarantee.RegisterScannedDocument(
+                GuaranteeDocumentType.BankResponse,
+                "blocked-response.pdf",
+                "/hosted/blocked-response.pdf",
+                1,
+                DateTimeOffset.UtcNow,
+                operationsActor.Id,
+                operationsActor.DisplayName,
+                GuaranteeDocumentCaptureChannel.ManualUpload,
+                intakeScenarioKey: IntakeScenarioKeys.ExtensionConfirmation,
+                extractionMethod: "OCR",
+                verifiedDataJson: "{\"documentFormKey\":\"bank-letter-snb\",\"bankName\":\"Saudi National Bank\",\"newExpiryDate\":\"2027-11-30\"}");
+
+            var correspondence = guarantee.RegisterCorrespondence(
+                requestId: null,
+                GuaranteeCorrespondenceDirection.Incoming,
+                GuaranteeCorrespondenceKind.BankConfirmation,
+                "BNK-OPS-BLOCK-1",
+                new DateOnly(2026, 3, 13),
+                document.Id,
+                "Bank extension confirmation",
+                DateTimeOffset.UtcNow);
+
+            var reviewItem = new OperationsReviewItem(
+                guarantee.Id,
+                guarantee.GuaranteeNumber,
+                document.Id,
+                correspondence.Id,
+                IntakeScenarioKeys.ExtensionConfirmation,
+                OperationsReviewItemCategory.IncomingBankConfirmation,
+                DateTimeOffset.UtcNow.AddMinutes(-2));
+
+            await dbContext.Guarantees.AddAsync(guarantee);
+            await dbContext.OperationsReviewItems.AddAsync(reviewItem);
+
+            reviewItemId = reviewItem.Id;
+        });
+
+        var client = factory.CreateAppClient();
+        var signInResponse = await client.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FOperations%2FQueue",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.admin",
+                ["Password"] = "HostedAdmin123!",
+                ["ReturnUrl"] = "/Operations/Queue"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, signInResponse.StatusCode);
+        Assert.Equal("/Operations/Queue", signInResponse.Headers.Location?.OriginalString);
+
+        var queueResponse = await client.GetAsync($"/Operations/Queue?item={reviewItemId}");
+        var queueHtml = await queueResponse.Content.ReadAsStringAsync();
+        var decodedQueueHtml = WebUtility.HtmlDecode(queueHtml);
+
+        Assert.Equal(HttpStatusCode.OK, queueResponse.StatusCode);
+        Assert.Contains("operations-surface-grid", queueHtml, StringComparison.Ordinal);
+        Assert.Contains(guaranteeNumber, queueHtml, StringComparison.Ordinal);
+        Assert.Contains("محجوب", decodedQueueHtml, StringComparison.Ordinal);
+        Assert.Contains("عائلة بنك مختلفة", decodedQueueHtml, StringComparison.Ordinal);
+        Assert.DoesNotContain("تطبيق رد البنك", decodedQueueHtml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Operations_queue_can_reopen_an_applied_bank_response_over_http()
+    {
+        await using var factory = new HostedAppFactory();
+        const string guaranteeNumber = "BG-2026-OPS-REOPEN-1001";
+        var reviewItemId = Guid.Empty;
+        var requestId = Guid.Empty;
+        var correspondenceId = Guid.Empty;
+        var operationsActorId = Guid.Empty;
+        var originalExpiryDate = default(DateOnly);
+
+        await factory.ExecuteDbContextAsync(async (dbContext, _) =>
+        {
+            var operationsActor = await dbContext.Users
+                .Include(user => user.UserRoles)
+                .ThenInclude(userRole => userRole.Role)
+                .SingleAsync(user => user.Username == "hosted.admin");
+            var workflowDefinition = await dbContext.RequestWorkflowDefinitions
+                .SingleAsync(definition =>
+                    definition.RequestType == GuaranteeRequestType.Extend &&
+                    definition.GuaranteeCategory == null);
+
+            operationsActorId = operationsActor.Id;
+
+            var guarantee = Guarantee.RegisterNew(
+                guaranteeNumber,
+                "National Bank",
+                "KFSHRC",
+                "Main Contractor",
+                GuaranteeCategory.Contract,
+                81000m,
+                "SAR",
+                new DateOnly(2026, 1, 1),
+                new DateOnly(2026, 12, 31),
+                DateTimeOffset.UtcNow);
+            originalExpiryDate = guarantee.ExpiryDate;
+
+            var request = guarantee.CreateRequest(
+                operationsActor.Id,
+                GuaranteeRequestType.Extend,
+                requestedAmount: null,
+                requestedExpiryDate: new DateOnly(2027, 10, 31),
+                notes: "Hosted operations reopen flow",
+                DateTimeOffset.UtcNow.AddDays(-10),
+                operationsActor.DisplayName);
+            ApproveAndDispatchRequest(
+                request,
+                guarantee,
+                workflowDefinition.Id,
+                operationsActor.UserRoles.Select(userRole => userRole.Role.Id).First(),
+                operationsActor.Id,
+                "LTR-OPS-REOPEN-1",
+                new DateOnly(2026, 3, 11));
+
+            var document = guarantee.RegisterScannedDocument(
+                GuaranteeDocumentType.BankResponse,
+                "reopen-response.pdf",
+                "/hosted/reopen-response.pdf",
+                1,
+                DateTimeOffset.UtcNow,
+                operationsActor.Id,
+                operationsActor.DisplayName,
+                GuaranteeDocumentCaptureChannel.ManualUpload,
+                intakeScenarioKey: IntakeScenarioKeys.ExtensionConfirmation,
+                extractionMethod: "OCR",
+                verifiedDataJson: "{\"newExpiryDate\":\"2027-10-31\"}");
+
+            var correspondence = guarantee.RegisterCorrespondence(
+                requestId: null,
+                GuaranteeCorrespondenceDirection.Incoming,
+                GuaranteeCorrespondenceKind.BankConfirmation,
+                "BNK-OPS-REOPEN-1",
+                new DateOnly(2026, 3, 13),
+                document.Id,
+                "Bank extension confirmation",
+                DateTimeOffset.UtcNow);
+
+            guarantee.ApplyBankConfirmation(
+                request.Id,
+                correspondence.Id,
+                DateTimeOffset.UtcNow,
+                confirmedExpiryDate: new DateOnly(2027, 10, 31),
+                notes: "Applied before hosted reopen test.",
+                actedByUserId: operationsActor.Id,
+                actedByDisplayName: operationsActor.DisplayName,
+                operationsScenarioTitleResourceKey: "IntakeScenario_Extension_Title",
+                operationsLaneResourceKey: "OperationsReviewLane_BankConfirmationReview",
+                operationsMatchConfidenceResourceKey: "OperationsMatchConfidence_High",
+                operationsMatchScore: 91,
+                operationsPolicyResourceKey: "OperationsLedgerPolicy_MatchedSuggestionApplied");
+
+            var reviewItem = new OperationsReviewItem(
+                guarantee.Id,
+                guarantee.GuaranteeNumber,
+                document.Id,
+                correspondence.Id,
+                IntakeScenarioKeys.ExtensionConfirmation,
+                OperationsReviewItemCategory.IncomingBankConfirmation,
+                DateTimeOffset.UtcNow.AddMinutes(-2));
+            reviewItem.MarkCompleted(DateTimeOffset.UtcNow.AddMinutes(-1));
+
+            await dbContext.Guarantees.AddAsync(guarantee);
+            await dbContext.OperationsReviewItems.AddAsync(reviewItem);
+
+            reviewItemId = reviewItem.Id;
+            requestId = request.Id;
+            correspondenceId = correspondence.Id;
+        });
+
+        var client = factory.CreateAppClient();
+        var signInResponse = await client.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FOperations%2FQueue",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.admin",
+                ["Password"] = "HostedAdmin123!",
+                ["ReturnUrl"] = "/Operations/Queue"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, signInResponse.StatusCode);
+        Assert.Equal("/Operations/Queue", signInResponse.Headers.Location?.OriginalString);
+
+        var queueResponse = await client.GetAsync($"/Operations/Queue?item={reviewItemId}");
+        var queueHtml = await queueResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, queueResponse.StatusCode);
+        Assert.Contains("operations-surface-grid", queueHtml, StringComparison.Ordinal);
+        Assert.Contains(guaranteeNumber, queueHtml, StringComparison.Ordinal);
+        Assert.Contains("name=\"correctionNote\"", queueHtml, StringComparison.Ordinal);
+        Assert.Contains(reviewItemId.ToString(), queueHtml, StringComparison.Ordinal);
+
+        var reopenResponse = await client.PostFormWithAntiforgeryAsync(
+            $"/Operations/Queue?item={reviewItemId}",
+            "/Operations/Queue?handler=ReopenApplied",
+            new Dictionary<string, string?>
+            {
+                ["actorId"] = operationsActorId.ToString(),
+                ["reviewItemId"] = reviewItemId.ToString(),
+                ["correctionNote"] = "Mapped to the wrong request in operations.",
+                ["item"] = reviewItemId.ToString(),
+                ["page"] = "1"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, reopenResponse.StatusCode);
+        Assert.StartsWith("/Operations/Queue", reopenResponse.Headers.Location?.OriginalString, StringComparison.Ordinal);
+
+        var reopenedState = await factory.QueryDbContextAsync(async dbContext =>
+        {
+            var request = await dbContext.GuaranteeRequests
+                .SingleAsync(item => item.Id == requestId);
+            var correspondence = await dbContext.GuaranteeCorrespondence
+                .SingleAsync(item => item.Id == correspondenceId);
+            var reviewItem = await dbContext.OperationsReviewItems
+                .SingleAsync(item => item.Id == reviewItemId);
+            var guarantee = await dbContext.Guarantees
+                .Include(item => item.Events)
+                .SingleAsync(item => item.GuaranteeNumber == guaranteeNumber);
+
+            return new
+            {
+                RequestStatus = request.Status,
+                RequestCompletedAtUtc = request.CompletedAtUtc,
+                request.CompletionCorrespondenceId,
+                CorrespondenceAppliedToGuaranteeAtUtc = correspondence.AppliedToGuaranteeAtUtc,
+                ReviewItemStatus = reviewItem.Status,
+                ReviewItemCompletedAtUtc = reviewItem.CompletedAtUtc,
+                GuaranteeExpiryDate = guarantee.ExpiryDate,
+                HasReopenEvent = guarantee.Events.Any(item =>
+                    item.EventType == GuaranteeEventType.BankConfirmationReopened &&
+                    item.GuaranteeRequestId == requestId &&
+                    item.GuaranteeCorrespondenceId == correspondenceId)
+            };
+        });
+
+        Assert.Equal(GuaranteeRequestStatus.AwaitingBankResponse, reopenedState.RequestStatus);
+        Assert.Null(reopenedState.RequestCompletedAtUtc);
+        Assert.Null(reopenedState.CompletionCorrespondenceId);
+        Assert.Null(reopenedState.CorrespondenceAppliedToGuaranteeAtUtc);
+        Assert.Equal(OperationsReviewItemStatus.Pending, reopenedState.ReviewItemStatus);
+        Assert.Null(reopenedState.ReviewItemCompletedAtUtc);
+        Assert.Equal(originalExpiryDate, reopenedState.GuaranteeExpiryDate);
+        Assert.True(reopenedState.HasReopenEvent);
     }
 
     [Fact]
@@ -313,7 +615,7 @@ public sealed class HostedFlowTests
         var dispatchHtml = await dispatchResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, dispatchResponse.StatusCode);
-        Assert.Contains("dispatch-workbench-grid", dispatchHtml, StringComparison.Ordinal);
+        Assert.Contains("dispatch-surface-grid", dispatchHtml, StringComparison.Ordinal);
         Assert.Contains(guaranteeNumber, dispatchHtml, StringComparison.Ordinal);
         Assert.Contains("Dispatch Requester", dispatchHtml, StringComparison.Ordinal);
     }
@@ -541,8 +843,8 @@ public sealed class HostedFlowTests
 
         Assert.Equal(HttpStatusCode.OK, approvalsResponse.StatusCode);
         Assert.Contains(guaranteeNumber, approvalsHtml, StringComparison.Ordinal);
-        Assert.Contains("Hosted flow extension", approvalsHtml, StringComparison.Ordinal);
-        Assert.Contains("approval-item-card", approvalsHtml, StringComparison.Ordinal);
+        Assert.Contains("approval-surface-grid", approvalsHtml, StringComparison.Ordinal);
+        Assert.Contains($"/Approvals/Dossier/{requestId}", approvalsHtml, StringComparison.Ordinal);
 
         var requestState = await factory.QueryDbContextAsync(
             dbContext => dbContext.GuaranteeRequests
@@ -560,7 +862,7 @@ public sealed class HostedFlowTests
             new Dictionary<string, string?>
             {
                 ["OperationalSeed:Enabled"] = "true",
-                ["OperationalSeed:SharedPassword"] = "SeedUsers123!"
+                ["OperationalSeed:SharedPassword"] = "HostedSeedPassword!2026"
             });
 
         await factory.Services.InitializeInfrastructureAsync();
@@ -682,5 +984,57 @@ public sealed class HostedFlowTests
 
         await dbContext.Roles.AddAsync(role);
         return role;
+    }
+
+    private static void AttachRequestSourceDocument(
+        Guarantee guarantee,
+        GuaranteeRequest request,
+        string fileName,
+        string documentFormKey,
+        string bankName)
+    {
+        var document = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.GuaranteeInstrument,
+            fileName,
+            $"/hosted/{fileName}",
+            1,
+            DateTimeOffset.UtcNow.AddDays(-11),
+            intakeScenarioKey: IntakeScenarioKeys.NewGuarantee,
+            extractionMethod: "OCR",
+            verifiedDataJson: $$"""{"documentFormKey":"{{documentFormKey}}","bankName":"{{bankName}}"}""");
+
+        guarantee.AttachDocumentToRequest(request.Id, document.Id, DateTimeOffset.UtcNow.AddDays(-11));
+    }
+
+    private static void ApproveAndDispatchRequest(
+        GuaranteeRequest request,
+        Guarantee guarantee,
+        Guid workflowDefinitionId,
+        Guid approverRoleId,
+        Guid approverUserId,
+        string outgoingReference,
+        DateOnly outgoingLetterDate)
+    {
+        var process = new RequestApprovalProcess(request.Id, workflowDefinitionId, DateTimeOffset.UtcNow.AddDays(-8));
+        process.AddStage(
+            approverRoleId,
+            "WorkflowStage_GuaranteesSupervisor_Title",
+            "WorkflowStage_GuaranteesSupervisor_Summary",
+            titleText: null,
+            summaryText: null,
+            requiresLetterSignature: true);
+        process.Start();
+        request.SubmitForApproval(process);
+        process.ApproveCurrentStage(approverUserId, DateTimeOffset.UtcNow.AddDays(-7), note: "Approved");
+        request.MarkApprovedForDispatch();
+
+        guarantee.RecordOutgoingDispatch(
+            request.Id,
+            outgoingReference,
+            outgoingLetterDate,
+            GuaranteeDispatchChannel.Courier,
+            "PKG-HOSTED-OPS",
+            "Sent to bank",
+            DateTimeOffset.UtcNow.AddDays(-6));
     }
 }

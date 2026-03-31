@@ -35,6 +35,13 @@ This means the UX correction target is:
 
 `institutional shell + role-specific workbench composition + on-demand dossier depth`
 
+Status update:
+
+- the shell and surface-zone contract are now materially implemented
+- the primary operational surfaces have already been re-composed on that model
+- the current UX phase is no longer broad surface correction
+- it has moved to validation and selective refinement
+
 ## Source Context
 
 Built from the current product state as observed in:
@@ -375,6 +382,20 @@ The UX correction phase is considered successful when:
 - الحوكمة تظل موجودة، لكن لا تزاحم الفعل الأساسي
 - ledger وdossier لا يختفيان، لكن لا يسيطران على كل surface تنفيذية
 - إضافة policy أو metadata جديدة لا تزيد الصفحة تعقيدًا تلقائيًا
+
+## 2026-03-13 Closure Note
+
+Tracks `1-4` are now materially addressed in the implemented frontend
+baseline.
+
+Track `5` remains active as an ongoing guardrail, not as an unfinished big-bang
+reconstruction step.
+
+The next UX move should therefore be:
+
+- validate the reconstructed surfaces with real role scenarios
+- capture friction that still survives the new composition model
+- introduce only targeted corrections from that evidence
 
 ## Final Strategic Note
 

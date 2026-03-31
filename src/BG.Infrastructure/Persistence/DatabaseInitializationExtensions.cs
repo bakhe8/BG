@@ -10,6 +10,11 @@ namespace BG.Infrastructure.Persistence;
 
 public static class DatabaseInitializationExtensions
 {
+    private static readonly string[] InsecureBootstrapPasswords =
+    [
+        "BG-Seed-2026!"
+    ];
+
     public static async Task InitializeInfrastructureAsync(
         this IServiceProvider serviceProvider,
         CancellationToken cancellationToken = default)
@@ -121,6 +126,12 @@ public static class DatabaseInitializationExtensions
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
             return;
+        }
+
+        if (InsecureBootstrapPasswords.Contains(password.Trim(), StringComparer.Ordinal))
+        {
+            throw new InvalidOperationException(
+                "Identity:BootstrapAdmin:Password must be provided through local secrets or environment configuration and cannot use the retired repository seed password.");
         }
 
         var permissions = await dbContext.Permissions
