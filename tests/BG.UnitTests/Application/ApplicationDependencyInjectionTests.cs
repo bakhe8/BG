@@ -1,5 +1,7 @@
 using BG.Application;
 using BG.Application.Contracts.Services;
+using BG.Application.Intake;
+using BG.Application.Models.Intake;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BG.UnitTests.Application;
@@ -88,6 +90,49 @@ public sealed class ApplicationDependencyInjectionTests
     }
 
     [Fact]
+    public async Task AddApplication_wires_custom_ocr_service_through_intake_extraction_engine()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<IOcrDocumentProcessingService>(
+            new StubOcrDocumentProcessingService(
+                new OcrDocumentProcessingResult(
+                    true,
+                    "stub-worker",
+                    "wave2-text-first",
+                    [
+                        new OcrDocumentFieldCandidateDto(
+                            IntakeFieldKeys.GuaranteeNumber,
+                            "BG-2026-3131",
+                            99,
+                            1,
+                            "auto",
+                            "direct-pdf-text")
+                    ],
+                    [],
+                    null,
+                    null)));
+        services.AddApplication();
+
+        using var serviceProvider = services.BuildServiceProvider();
+        var engine = serviceProvider.GetRequiredService<IIntakeExtractionEngine>();
+        var stagedPath = Path.Combine(Path.GetTempPath(), $"bg-di-{Guid.NewGuid():N}.pdf");
+        await File.WriteAllTextAsync(stagedPath, "placeholder");
+
+        try
+        {
+            var draft = await engine.ExtractAsync(
+                IntakeScenarioKeys.ExtensionConfirmation,
+                new StagedIntakeDocumentDto("token-1", "extension-letter.pdf", 128, stagedPath));
+
+            Assert.Contains(draft.Fields, field => field.FieldKey == IntakeFieldKeys.GuaranteeNumber && field.Value == "BG-2026-3131");
+        }
+        finally
+        {
+            File.Delete(stagedPath);
+        }
+    }
+
+    [Fact]
     public void AddApplication_registers_intake_submission_service()
     {
         var services = new ServiceCollection();
@@ -133,5 +178,22 @@ public sealed class ApplicationDependencyInjectionTests
         var descriptor = Assert.Single(services.Where(service => service.ServiceType == typeof(IDispatchWorkspaceService)));
 
         Assert.Equal(ServiceLifetime.Scoped, descriptor.Lifetime);
+    }
+
+    private sealed class StubOcrDocumentProcessingService : IOcrDocumentProcessingService
+    {
+        private readonly OcrDocumentProcessingResult _result;
+
+        public StubOcrDocumentProcessingService(OcrDocumentProcessingResult result)
+        {
+            _result = result;
+        }
+
+        public Task<OcrDocumentProcessingResult> ProcessAsync(
+            OcrDocumentProcessingRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(_result);
+        }
     }
 }

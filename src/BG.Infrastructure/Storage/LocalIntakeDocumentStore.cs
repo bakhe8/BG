@@ -51,7 +51,7 @@ internal sealed class LocalIntakeDocumentStore : IIntakeDocumentStore
             JsonSerializer.Serialize(metadata, JsonOptions),
             cancellationToken);
 
-        return new StagedIntakeDocumentDto(token, sanitizedOriginalFileName, fileInfo.Length);
+        return new StagedIntakeDocumentDto(token, sanitizedOriginalFileName, fileInfo.Length, stagedFilePath);
     }
 
     public async Task<PromotedIntakeDocumentDto> PromoteAsync(

@@ -1,0 +1,25 @@
+{
+  "pipelineVersion": "wave2-text-first",
+  "requiredFields": [
+    {
+      "fieldKey": "IntakeField_GuaranteeNumber",
+      "value": "JLG6701156"
+    },
+    {
+      "fieldKey": "IntakeField_BankName",
+      "value": "Riyad Bank"
+    },
+    {
+      "fieldKey": "IntakeField_BankReference",
+      "value": "RYD-OCR-W1"
+    },
+    {
+      "fieldKey": "IntakeField_OfficialLetterDate",
+      "value": "2025-03-10"
+    },
+    {
+      "fieldKey": "IntakeField_NewExpiryDate",
+      "value": "2026-03-28"
+    }
+  ]
+}

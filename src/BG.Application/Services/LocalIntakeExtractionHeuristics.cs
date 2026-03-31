@@ -84,13 +84,9 @@ internal static partial class LocalIntakeExtractionHeuristics
 
     private static string ResolveBankReference(GuaranteeDocumentFormDefinition documentForm, string fallbackValue)
     {
-        return documentForm.Key switch
-        {
-            GuaranteeDocumentFormKeys.BankLetterSnb => $"SNB-{fallbackValue}",
-            GuaranteeDocumentFormKeys.BankLetterAlRajhi => $"RJH-{fallbackValue}",
-            GuaranteeDocumentFormKeys.BankLetterRiyad => $"RYD-{fallbackValue}",
-            _ => fallbackValue
-        };
+        return string.IsNullOrWhiteSpace(documentForm.ReferencePrefix)
+            ? fallbackValue
+            : $"{documentForm.ReferencePrefix}-{fallbackValue}";
     }
 
     private static string? ExtractGuaranteeNumber(string originalFileName)

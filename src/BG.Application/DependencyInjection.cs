@@ -11,14 +11,27 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddOptions<ApprovalGovernanceOptions>();
+        if (!services.Any(service => service.ServiceType == typeof(IOcrDocumentProcessingService)))
+        {
+            services.AddSingleton<IOcrDocumentProcessingService, NullOcrDocumentProcessingService>();
+        }
         services.AddSingleton<IArchitectureProfileService, ArchitectureProfileService>();
         services.AddScoped<IIntakeWorkspaceService, IntakeWorkspaceService>();
         services.AddSingleton<IIntakeDocumentClassifier, LocalIntakeDocumentClassifier>();
-        services.AddSingleton<IIntakeDirectTextExtractor, LocalIntakeDirectTextExtractor>();
-        services.AddSingleton<IIntakeOcrExtractor, LocalIntakeOcrExtractor>();
+        services.AddSingleton<IIntakeDirectTextExtractor>(
+            serviceProvider => new LocalIntakeDirectTextExtractor(
+                serviceProvider.GetRequiredService<IOcrDocumentProcessingService>()));
+        services.AddSingleton<IIntakeOcrExtractor>(
+            serviceProvider => new LocalIntakeOcrExtractor(
+                serviceProvider.GetRequiredService<IOcrDocumentProcessingService>()));
         services.AddSingleton<IIntakeExtractionConfidenceScorer, LocalIntakeExtractionConfidenceScorer>();
         services.AddSingleton<IIntakeFieldReviewProjector, LocalIntakeFieldReviewProjector>();
-        services.AddSingleton<IIntakeExtractionEngine, LocalIntakeExtractionEngine>();
+        services.AddSingleton<IIntakeExtractionEngine>(
+            serviceProvider => new LocalIntakeExtractionEngine(
+                serviceProvider.GetRequiredService<IIntakeDocumentClassifier>(),
+                serviceProvider.GetRequiredService<IIntakeDirectTextExtractor>(),
+                serviceProvider.GetRequiredService<IIntakeOcrExtractor>(),
+                serviceProvider.GetRequiredService<IIntakeFieldReviewProjector>()));
         services.AddSingleton<IOperationsReviewMatchingService, OperationsReviewMatchingService>();
         services.AddScoped<IIdentityAdministrationService, IdentityAdministrationService>();
         services.AddScoped<ILocalAuthenticationService, LocalAuthenticationService>();

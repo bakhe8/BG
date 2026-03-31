@@ -73,4 +73,36 @@ public sealed class LocalIntakeExtractionEngineTests
         Assert.True(amount.IsExpectedByDocumentForm);
         Assert.Equal("IntakeFieldProvenance_DirectPdfText", amount.ProvenanceResourceKey);
     }
+
+    [Fact]
+    public async Task ExtractAsync_detects_bsf_instrument_family_from_filename()
+    {
+        var engine = new LocalIntakeExtractionEngine();
+
+        var draft = await engine.ExtractAsync(
+            IntakeScenarioKeys.NewGuarantee,
+            new StagedIntakeDocumentDto("token-bsf1", "bsf_BG-2026-0452.pdf", 256));
+
+        Assert.Equal(GuaranteeDocumentFormKeys.GuaranteeInstrumentBsf, draft.DocumentFormKey);
+
+        var bankName = Assert.Single(draft.Fields.Where(field => field.FieldKey == IntakeFieldKeys.BankName));
+        Assert.Equal("Banque Saudi Fransi", bankName.Value);
+        Assert.True(bankName.IsExpectedByDocumentForm);
+    }
+
+    [Fact]
+    public async Task ExtractAsync_detects_sabb_bank_letter_family_and_uses_family_reference_prefix()
+    {
+        var engine = new LocalIntakeExtractionEngine();
+
+        var draft = await engine.ExtractAsync(
+            IntakeScenarioKeys.ExtensionConfirmation,
+            new StagedIntakeDocumentDto("token-sabb1", "sabb-extension-scan.jpg", 256));
+
+        Assert.Equal(GuaranteeDocumentFormKeys.BankLetterSabb, draft.DocumentFormKey);
+
+        var bankReference = Assert.Single(draft.Fields.Where(field => field.FieldKey == IntakeFieldKeys.BankReference));
+        Assert.StartsWith("SABB-", bankReference.Value, StringComparison.Ordinal);
+        Assert.True(bankReference.IsExpectedByDocumentForm);
+    }
 }

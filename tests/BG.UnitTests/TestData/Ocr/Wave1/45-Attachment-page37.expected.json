@@ -1,0 +1,17 @@
+{
+  "pipelineVersion": "wave2-text-first",
+  "requiredFields": [
+    {
+      "fieldKey": "IntakeField_GuaranteeNumber",
+      "value": "MD2129100030"
+    },
+    {
+      "fieldKey": "IntakeField_BankName",
+      "value": "Alinma Bank"
+    },
+    {
+      "fieldKey": "IntakeField_BankReference",
+      "value": "ALN-OCR-W1"
+    }
+  ]
+}

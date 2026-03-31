@@ -1,4 +1,6 @@
 using System.Net.Http.Headers;
+using BG.Application.Contracts.Services;
+using BG.Integrations.Services;
 using BG.Integrations.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +16,9 @@ public static class DependencyInjection
     {
         services.Configure<HospitalApiOptions>(
             configuration.GetSection(HospitalApiOptions.SectionName));
+        services.Configure<LocalOcrOptions>(
+            configuration.GetSection(LocalOcrOptions.SectionName));
+        services.AddSingleton<IOcrDocumentProcessingService, LocalPythonOcrProcessingService>();
 
         services.AddHttpClient("HospitalApi", (serviceProvider, client) =>
         {
