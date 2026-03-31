@@ -1,0 +1,54 @@
+# Production Deployment
+
+This document defines the minimum deployment baseline for running `BG` as a production workload.
+
+## Required Configuration
+
+Do not rely on repository defaults in production. Configure these values through IIS environment variables, machine-level configuration, or your secrets management process.
+
+- `ConnectionStrings:PostgreSql`
+  A real PostgreSQL connection string. Placeholder passwords are rejected at startup.
+- `Storage:DocumentsRoot`
+  Absolute path to the persisted document volume for staged and promoted guarantee files.
+- `DataProtection:KeysPath`
+  Absolute path to persisted ASP.NET Core data-protection keys.
+- `AllowedHosts`
+  Explicit host list. Wildcard `*` is rejected in production.
+
+## Optional Configuration
+
+- `Identity:BootstrapAdmin:*`
+  Only configure for controlled first-run bootstrap or break-glass access.
+- `Ocr:*`
+  Leave `Ocr:Enabled=false` unless the production node has the Python runtime, worker script, and model dependencies installed locally.
+- `HospitalApi:*`
+  Configure when external hospital integration is enabled for the environment.
+
+## Production Guards
+
+When `ASPNETCORE_ENVIRONMENT=Production`, the application now fails fast if any of the following are true:
+
+- `AllowedHosts` is blank or contains `*`
+- `Storage:DocumentsRoot` is not configured
+- `DataProtection:KeysPath` is not configured
+- `OperationalSeed:Enabled=true`
+- `Swagger:Enabled=true`
+- `Ocr:Enabled=true` while the configured Python executable or worker script is missing
+
+## Recommended IIS / Host Baseline
+
+- Terminate TLS before the application and serve only over HTTPS.
+- Preserve `X-Forwarded-For` and `X-Forwarded-Proto`.
+- Persist the documents root and data-protection keys outside the deployment directory.
+- Run database migrations before or during startup only under controlled deployment procedures.
+- Keep OCR worker dependencies on the same host when OCR is enabled.
+
+## Smoke Verification
+
+After deployment, verify:
+
+1. `GET /health` returns `Healthy`.
+2. Sign-in succeeds for the intended production admin path.
+3. `Requests`, `Intake`, `Operations`, `Approvals`, `Dispatch`, and `Administration` load over HTTPS.
+4. Document staging writes to the configured `Storage:DocumentsRoot`.
+5. OCR requests succeed only when the local runtime is actually installed.
