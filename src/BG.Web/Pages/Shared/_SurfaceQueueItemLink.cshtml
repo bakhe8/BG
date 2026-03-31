@@ -1,0 +1,19 @@
+@model BG.Web.UI.SurfaceQueueItemLinkModel
+
+<a class="request-queue-link @(Model.IsActive ? "active" : null)"
+   asp-page="@Model.PagePath"
+   asp-all-route-data="Model.RouteValues">
+    <div class="request-queue-copy">
+        <div class="entity-subtitle">@Model.Subtitle</div>
+        <strong>@Model.Title</strong>
+        <p class="compact-copy">@Model.Summary</p>
+    </div>
+    <div class="request-queue-meta">
+        <span class="status-badge is-active">@Model.Status</span>
+        <span class="section-caption">@Model.MetaPrimary</span>
+        @if (!string.IsNullOrWhiteSpace(Model.MetaSecondary))
+        {
+            <span class="compact-copy">@Model.MetaSecondary</span>
+        }
+    </div>
+</a>

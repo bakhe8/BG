@@ -1,0 +1,73 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Approvals.QueueModel
+
+<article class="bg-card shadow-sm p-4 h-100">
+    <div class="mb-4 pb-3 border-bottom">
+        <label class="section-caption">@T["ApprovalQueue_ItemsTitle"]</label>
+        <p class="small text-secondary mb-0">@T["ApprovalQueue_ItemsSummary"]</p>
+    </div>
+
+    @if (Model.Snapshot.Items.Count == 0)
+    {
+        <div class="text-center py-5 opacity-50">
+            <i class="bi bi-list-check fs-1 d-block mb-2"></i>
+            <p class="small">@T["ApprovalQueue_Empty"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-2 mb-4">
+            @foreach (var item in Model.Snapshot.Items)
+            {
+                var isActive = Model.ActiveItem?.RequestId == item.RequestId;
+                var stageTitle = Model.ResolveStageTitle(item);
+                
+                <a asp-page="/Approvals/Queue" 
+                   asp-all-route-data="Model.BuildSelectionRoute(item.RequestId)"
+                   class="d-block p-3 rounded-4 border text-decoration-none transition-all @(isActive ? "bg-brand-gold-soft border-gold shadow-sm" : "bg-white hover-bg-light")">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="fw-bold @(isActive ? "text-dark" : "text-brand-green")">@item.GuaranteeNumber</span>
+                        <bg-badge variant="@(isActive ? "info" : "secondary")" class="x-small">@T[item.StatusResourceKey]</bg-badge>
+                    </div>
+                    <div class="row g-0 small">
+                        <div class="col-7 text-muted text-truncate">
+                            <i class="bi bi-person me-1"></i>@item.RequesterDisplayName
+                        </div>
+                        <div class="col-5 text-end text-muted">
+                            <i class="bi bi-clock me-1"></i>@item.SubmittedAtUtc.ToLocalTime().ToString("MM-dd HH:mm")
+                        </div>
+                    </div>
+                    @if (isActive)
+                    {
+                        <div class="mt-2 pt-2 border-top border-gold-light x-small text-brand-gold-dark fw-bold">
+                            <i class="bi bi-layers me-1"></i>@stageTitle
+                        </div>
+                    }
+                </a>
+            }
+        </div>
+    }
+
+    @if (Model.Snapshot.ItemsPage.TotalPageCount > 1)
+    {
+        var pageInfo = Model.Snapshot.ItemsPage;
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+            <span class="x-small text-muted">Page @pageInfo.PageNumber of @pageInfo.TotalPageCount</span>
+            <div class="d-flex gap-1">
+                @if (pageInfo.HasPreviousPage)
+                {
+                    <a asp-page="/Approvals/Queue" asp-all-route-data="Model.BuildPageRoute(pageInfo.PreviousPageNumber)" class="btn btn-sm btn-light border rounded-pill px-3 x-small fw-bold">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                }
+                @if (pageInfo.HasNextPage)
+                {
+                    <a asp-page="/Approvals/Queue" asp-all-route-data="Model.BuildPageRoute(pageInfo.NextPageNumber)" class="btn btn-sm btn-light border rounded-pill px-3 x-small fw-bold">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+</article>

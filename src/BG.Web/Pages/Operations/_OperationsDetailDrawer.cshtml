@@ -1,0 +1,115 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Operations.QueueModel
+
+@if (Model.ActiveItem is null)
+{
+    <article class="info-card operations-drawer-card">
+        <h2>@T["OperationsQueue_OpenItemsTitle"]</h2>
+        <p class="compact-copy">@T["OperationsQueue_Empty"]</p>
+    </article>
+}
+else
+{
+    var item = Model.ActiveItem;
+
+    <article class="info-card operations-drawer-card">
+        <div class="card-header">
+            <div>
+                <h2>@T["OperationsQueue_EvidenceTitle"]</h2>
+                <p class="compact-copy">@item.GuaranteeNumber</p>
+            </div>
+        </div>
+
+        <div class="request-drawer-stack">
+            <section class="request-drawer-section">
+                <span class="section-caption">@T["OperationsQueue_CaptureLedgerTitle"]</span>
+                <p class="compact-copy">@item.CapturedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+                <div class="pill-list">
+                    <span class="pill">
+                        @T["OperationsQueue_CapturedByLabel"]:
+                        @(string.IsNullOrWhiteSpace(item.CapturedByDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : item.CapturedByDisplayName)
+                    </span>
+                    <span class="pill">@T["OperationsQueue_CaptureChannelLabel"]: @T[item.CaptureChannelResourceKey]</span>
+                    @if (!string.IsNullOrWhiteSpace(item.SourceSystemName))
+                    {
+                        <span class="pill">@T["OperationsQueue_SourceSystemLabel"]: @item.SourceSystemName</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(item.SourceReference))
+                    {
+                        <span class="pill">@T["OperationsQueue_SourceReferenceLabel"]: @item.SourceReference</span>
+                    }
+                </div>
+            </section>
+
+            @if (item.DocumentForm is not null)
+            {
+                <section class="request-drawer-section">
+                    <span class="section-caption">@T["OperationsQueue_DocumentLabel"]</span>
+                    <div class="pill-list">
+                        <span class="pill">@T[item.DocumentForm.TitleResourceKey]</span>
+                        <span class="pill">@T[item.DocumentForm.BankResourceKey]</span>
+                    </div>
+                </section>
+            }
+        </div>
+    </article>
+
+    <details class="details-panel operations-drawer-card" open>
+        <summary>
+            <span>@T["OperationsQueue_SystemMatchesTitle"]</span>
+            <span class="section-caption">@T["OperationsQueue_EvidenceSummary"]</span>
+        </summary>
+        <div class="details-panel-body">
+            @if (item.MatchSuggestions.Count == 0)
+            {
+                <p class="compact-copy">@T["OperationsQueue_NoMatchSuggestions"]</p>
+            }
+            else
+            {
+                <div class="workflow-stage-list">
+                    @foreach (var suggestion in item.MatchSuggestions)
+                    {
+                        <section class="workflow-stage">
+                            <span class="pipeline-index">@suggestion.Score</span>
+                            <div>
+                                <strong>@T[suggestion.RequestTypeResourceKey]</strong>
+                                <p class="compact-copy">@T[suggestion.StatusResourceKey] · @T[suggestion.ConfidenceResourceKey]</p>
+                                <div class="pill-list">
+                                    @if (suggestion.SubmittedToBankAtUtc.HasValue)
+                                    {
+                                        <span class="pill">
+                                            @T["OperationsQueue_SubmittedToBankLabel"]:
+                                            @suggestion.SubmittedToBankAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd")
+                                        </span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(suggestion.OutgoingReferenceNumber))
+                                    {
+                                        <span class="pill">
+                                            @T["OperationsQueue_OutgoingReferenceLabel"]:
+                                            @suggestion.OutgoingReferenceNumber
+                                        </span>
+                                    }
+                                    @if (suggestion.RequestDocumentForm is not null)
+                                    {
+                                        <span class="pill">@T[suggestion.RequestDocumentForm.TitleResourceKey]</span>
+                                        <span class="pill">@T[suggestion.RequestDocumentForm.BankResourceKey]</span>
+                                    }
+                                    @if (suggestion.IsSelectionBlocked && !string.IsNullOrWhiteSpace(suggestion.BlockingReasonResourceKey))
+                                    {
+                                        <span class="pill is-warning">@T["OperationsQueue_BlockedSuggestionLabel"]</span>
+                                        <span class="pill is-warning">@T[suggestion.BlockingReasonResourceKey]</span>
+                                    }
+                                    @foreach (var reason in suggestion.ReasonResourceKeys)
+                                    {
+                                        <span class="pill">@T[reason]</span>
+                                    }
+                                </div>
+                            </div>
+                        </section>
+                    }
+                </div>
+            }
+        </div>
+    </details>
+}

@@ -1,0 +1,336 @@
+.app-nav {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 90%, white);
+}
+
+.shell-app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(14rem, 15rem) minmax(0, 1fr);
+}
+
+.shell-sidebar {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  padding: 0.9rem 0.8rem;
+  border-inline-end: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, #0c5b45 0%, #0a4b38 54%, #07392c 100%);
+}
+
+.shell-sidebar-frame {
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+}
+
+.shell-stage {
+  min-width: 0;
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+  padding: 0.9rem 1rem 1.4rem;
+}
+
+.shell-toolbar {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+  padding: 0.95rem 1.15rem;
+  border: 1px solid rgba(9, 79, 60, 0.32);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0d5b45 0%, #0b644a 52%, #094f3d 100%);
+  box-shadow: 0 14px 28px rgba(6, 35, 24, 0.14);
+}
+
+.shell-toolbar-copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.shell-toolbar-overline {
+  color: rgba(239, 247, 243, 0.72);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.shell-toolbar-copy h1 {
+  margin: 0;
+  font-size: clamp(1.65rem, 3vw, 2.4rem);
+  line-height: 1.05;
+  color: #fff;
+}
+
+.shell-toolbar-copy p {
+  margin: 0;
+  color: rgba(239, 247, 243, 0.82);
+  font-size: 0.88rem;
+}
+
+.shell-brand-block {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.45rem 0.35rem 0.8rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shell-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+}
+
+.shell-brand:hover {
+  color: #fff;
+}
+
+.shell-brand-mark {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.shell-brand-divider {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.shell-brand-subtitle {
+  color: rgba(239, 247, 243, 0.74);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.shell-sidebar-section {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.shell-section-label {
+  color: rgba(239, 247, 243, 0.66);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.shell-sidebar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.shell-sidebar-caption {
+  color: rgba(239, 247, 243, 0.72);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.shell-toolbar-actions,
+.shell-language,
+.shell-nav-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.shell-toolbar-actions {
+  justify-content: end;
+}
+
+.shell-nav-stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+}
+
+.shell-nav-link {
+  display: flex;
+  align-items: center;
+  min-height: 2.85rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.84);
+  font-weight: 700;
+}
+
+.shell-nav-link.active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.shell-nav-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.workspace-shell {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+.workspace-shell.has-support-rail {
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+}
+
+.workspace-shell.has-detail-drawer:not(.has-support-rail) {
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 20rem);
+}
+
+.workspace-shell.has-support-rail.has-detail-drawer {
+  grid-template-columns: minmax(0, 1fr) minmax(18rem, 20rem) minmax(18rem, 20rem);
+}
+
+.workspace-main,
+.workspace-support-rail,
+.workspace-detail-drawer,
+.workspace-dossier {
+  min-width: 0;
+}
+
+.workspace-support-rail,
+.workspace-detail-drawer,
+.workspace-dossier {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+}
+
+.shell-toolbar-user {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 10rem;
+  color: #fff;
+  text-align: end;
+}
+
+.shell-toolbar-user strong {
+  font-size: 0.95rem;
+}
+
+.shell-toolbar-user span {
+  color: rgba(239, 247, 243, 0.76);
+  font-size: 0.78rem;
+}
+
+.app-nav-shell {
+  gap: 1rem;
+}
+
+.app-brand-lockup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-right: 0;
+  color: var(--accent-strong);
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+}
+
+.app-brand-mark {
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.app-brand-divider {
+  color: color-mix(in srgb, var(--accent) 50%, white);
+}
+
+.app-brand-text {
+  letter-spacing: 0.08em;
+}
+
+.app-brand-subtitle {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.app-link {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 1rem;
+}
+
+.toolbar-block {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.toolbar-label {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.toolbar-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.toolbar-chip {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.toolbar-chip.active {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+  color: #fff;
+}
+
+.shell-toolbar .toolbar-chip {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.shell-toolbar .toolbar-chip.active {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(255, 255, 255, 0.96);
+  color: var(--accent-strong);
+}

@@ -1,0 +1,11 @@
+@model BG.Web.UI.SurfacePanelHeaderModel
+
+<div class="card-header">
+    <div>
+        <h2>@Model.Title</h2>
+        @if (!string.IsNullOrWhiteSpace(Model.Summary))
+        {
+            <p class="compact-copy">@Model.Summary</p>
+        }
+    </div>
+</div>

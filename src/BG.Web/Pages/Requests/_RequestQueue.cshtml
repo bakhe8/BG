@@ -1,0 +1,62 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Requests.WorkspaceModel
+
+<div class="bg-card shadow-sm p-0 overflow-hidden h-100 d-flex flex-column">
+    <div class="p-3 bg-brand-gold-soft border-bottom d-flex justify-content-between align-items-center">
+        <div>
+            <span class="fw-bold text-dark d-block">@T["RequestsWorkspace_MyRequestsTitle"]</span>
+            <span class="x-small text-muted">@T["RequestsWorkspace_MyRequestsSummary"]</span>
+        </div>
+        <bg-badge variant="secondary">@Model.Snapshot.OwnedRequests.Count</bg-badge>
+    </div>
+
+    <div class="flex-grow-1 overflow-auto p-3">
+        @if (Model.Snapshot.OwnedRequests.Count == 0)
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted opacity-25 d-block mb-3"></i>
+                <p class="x-small text-secondary">@T["RequestsWorkspace_Empty"]</p>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-column gap-2">
+                @foreach (var request in Model.Snapshot.OwnedRequests)
+                {
+                    var isActive = Model.ActiveRequest?.Id == request.Id;
+                    var stageTitle = Model.ResolveStageTitle(request);
+                    var requestedChange = Model.ResolveRequestedChange(request);
+                    
+                    <a href="@Url.Page("/Requests/Workspace", Model.BuildSelectionRoute(request.Id))" 
+                       class="text-decoration-none d-block p-3 rounded-4 border transition-all @(isActive ? "bg-brand-gold-soft border-gold shadow-sm" : "bg-white hover-bg-light")">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <span class="small fw-bold @(isActive ? "text-brand-green" : "text-dark")">@request.GuaranteeNumber</span>
+                            <bg-badge variant="@(isActive ? "success" : "light")" class="x-small">@T[request.StatusResourceKey]</bg-badge>
+                        </div>
+                        <div class="x-small text-muted text-truncate mb-2">@T[request.RequestTypeResourceKey] · @stageTitle</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="x-small fw-bold text-dark">@requestedChange</span>
+                            <i class="bi bi-chevron-right x-small text-muted"></i>
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+
+    @if (Model.Snapshot.OwnedRequestsPage.TotalPageCount > 1)
+    {
+        var pageInfo = Model.Snapshot.OwnedRequestsPage;
+        <div class="p-3 bg-light border-top d-flex justify-content-between">
+            <a class="btn btn-sm btn-white border rounded-pill px-3 @(pageInfo.HasPreviousPage ? "" : "disabled")" 
+               href="@Url.Page("/Requests/Workspace", Model.BuildPageRoute(pageInfo.PreviousPageNumber))">
+                <i class="bi bi-chevron-left me-1"></i>@T["Pagination_Previous"]
+            </a>
+            <a class="btn btn-sm btn-white border rounded-pill px-3 @(pageInfo.HasNextPage ? "" : "disabled")" 
+               href="@Url.Page("/Requests/Workspace", Model.BuildPageRoute(pageInfo.NextPageNumber))">
+                @T["Pagination_Next"]<i class="bi bi-chevron-right ms-1"></i>
+            </a>
+        </div>
+    }
+</div>

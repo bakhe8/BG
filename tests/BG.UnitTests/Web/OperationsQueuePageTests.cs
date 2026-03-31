@@ -52,6 +52,7 @@ public sealed class OperationsQueuePageTests
             null,
             "Applied",
             null,
+            null,
             CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
@@ -79,6 +80,7 @@ public sealed class OperationsQueuePageTests
             null,
             null,
             "Applied",
+            null,
             null,
             CancellationToken.None);
 
@@ -109,6 +111,7 @@ public sealed class OperationsQueuePageTests
             null,
             "Applied",
             null,
+            null,
             CancellationToken.None);
 
         Assert.IsType<PageResult>(result);
@@ -116,6 +119,47 @@ public sealed class OperationsQueuePageTests
         Assert.Contains(
             model.ModelState[string.Empty]!.Errors,
             error => error.ErrorMessage == OperationsReviewErrorCodes.ResponseBankProfileMismatch);
+    }
+
+    [Fact]
+    public async Task OnGetAsync_marks_apply_as_blocked_when_all_suggestions_are_blocked()
+    {
+        var actor = new OperationsActorSummaryDto(Guid.NewGuid(), "operations.reviewer", "Operations Reviewer");
+        var service = new StubOperationsReviewQueueService(actor, createBlockedSuggestion: true);
+        var model = new QueueModel(service, new PassThroughLocalizer());
+
+        await model.OnGetAsync(CancellationToken.None);
+
+        Assert.NotNull(model.ActiveItem);
+        Assert.True(model.IsApplyBlocked(model.ActiveItem!));
+        Assert.Equal(
+            OperationsReviewErrorCodes.ResponseBankProfileMismatch,
+            model.ResolveApplyBlockedReasonResourceKey(model.ActiveItem!));
+        Assert.Contains("OperationsQueue_BlockedSuggestionLabel", model.ResolveSuggestionOptionLabel(model.ActiveItem!.MatchSuggestions[0]));
+    }
+
+    [Fact]
+    public async Task OnPostReopenAppliedAsync_redirects_after_successful_reopen()
+    {
+        var actor = new OperationsActorSummaryDto(Guid.NewGuid(), "operations.reviewer", "Operations Reviewer");
+        var service = new StubOperationsReviewQueueService(actor);
+        var model = new QueueModel(service, new PassThroughLocalizer());
+        var reviewItemId = Guid.NewGuid();
+
+        var result = await model.OnPostReopenAppliedAsync(
+            actor.Id,
+            reviewItemId,
+            "Correction note",
+            null,
+            null,
+            CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal("/Operations/Queue", redirect.PageName);
+        Assert.Equal(actor.Id, redirect.RouteValues!["actor"]);
+        Assert.Equal(actor.Id, service.LastReopenCommand!.OperationsActorUserId);
+        Assert.Equal(reviewItemId, service.LastReopenCommand.ReviewItemId);
+        Assert.Equal("OperationsQueue_ReopenSuccess", model.StatusMessage);
     }
 
     private static void AttachAuthenticatedUser(PageModel model, Guid userId)
@@ -137,14 +181,18 @@ public sealed class OperationsQueuePageTests
     private sealed class StubOperationsReviewQueueService : IOperationsReviewQueueService
     {
         private readonly OperationsActorSummaryDto _actor;
+        private readonly bool _createBlockedSuggestion;
 
-        public StubOperationsReviewQueueService(OperationsActorSummaryDto actor)
+        public StubOperationsReviewQueueService(OperationsActorSummaryDto actor, bool createBlockedSuggestion = false)
         {
             _actor = actor;
+            _createBlockedSuggestion = createBlockedSuggestion;
         }
 
         public ApplyBankResponseCommand? LastCommand { get; private set; }
+        public ReopenAppliedBankResponseCommand? LastReopenCommand { get; private set; }
         public OperationResult<ApplyBankResponseReceiptDto>? NextResult { get; set; }
+        public OperationResult<ReopenAppliedBankResponseReceiptDto>? NextReopenResult { get; set; }
 
         public Task<OperationsReviewQueueSnapshotDto> GetSnapshotAsync(
             Guid? operationsActorId,
@@ -177,14 +225,35 @@ public sealed class OperationsQueuePageTests
                                 "BankProfile_SNB",
                                 "DocumentForm_Instrument_SNB_Title",
                                 "DocumentForm_Instrument_SNB_Summary"),
-                            false,
-                            [],
+                            true,
+                            _createBlockedSuggestion
+                                ? [
+                                    new OperationsReviewMatchSuggestionDto(
+                                        Guid.NewGuid(),
+                                        "RequestType_Extend",
+                                        "RequestStatus_AwaitingBankResponse",
+                                        84,
+                                        "OperationsMatchConfidence_Medium",
+                                        DateTimeOffset.UtcNow.AddDays(-1),
+                                        "LTR-2001",
+                                        ["OperationsMatchReason_DocumentFormBankMismatch"],
+                                        new GuaranteeDocumentFormSnapshotDto(
+                                            "guarantee-instrument-riyad",
+                                            "BankProfile_Riyad",
+                                            "DocumentForm_Instrument_Riyad_Title",
+                                            "DocumentForm_Instrument_Riyad_Summary"),
+                                        true,
+                                        OperationsReviewErrorCodes.ResponseBankProfileMismatch)
+                                ]
+                                : [],
                             null,
                             null,
                             null,
                             false,
-                            false)
+                            false,
+                            null)
                     ],
+                    [],
                     new PageInfoDto(pageNumber, 10, 1),
                     [
                         new RequestWorkflowTemplateDto(
@@ -211,6 +280,13 @@ public sealed class OperationsQueuePageTests
                     "OperationsQueue_ActorScopedNotice"));
         }
 
+        public Task<OperationsReviewItemDto?> GetCompletedItemAsync(
+            Guid reviewItemId,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<OperationsReviewItemDto?>(null);
+        }
+
         public Task<BG.Application.Common.OperationResult<ApplyBankResponseReceiptDto>> ApplyBankResponseAsync(
             ApplyBankResponseCommand command,
             CancellationToken cancellationToken = default)
@@ -220,6 +296,17 @@ public sealed class OperationsQueuePageTests
                 NextResult ??
                 BG.Application.Common.OperationResult<ApplyBankResponseReceiptDto>.Success(
                     new ApplyBankResponseReceiptDto(command.ReviewItemId, command.RequestId, "BG-2026-2001")));
+        }
+
+        public Task<OperationResult<ReopenAppliedBankResponseReceiptDto>> ReopenAppliedBankResponseAsync(
+            ReopenAppliedBankResponseCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            LastReopenCommand = command;
+            return Task.FromResult(
+                NextReopenResult ??
+                OperationResult<ReopenAppliedBankResponseReceiptDto>.Success(
+                    new ReopenAppliedBankResponseReceiptDto(command.ReviewItemId, Guid.NewGuid(), "BG-2026-2001")));
         }
     }
 

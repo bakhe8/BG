@@ -35,7 +35,7 @@ public sealed class ApprovalQueuePageTests
         var service = new StubApprovalQueueService(actorId);
         var model = new QueueModel(service, new PassThroughLocalizer());
 
-        var result = await model.OnPostApproveAsync(actorId, Guid.NewGuid(), "Approved", null, CancellationToken.None);
+        var result = await model.OnPostApproveAsync(actorId, Guid.NewGuid(), "Approved", null, null, CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
         Assert.Equal("/Approvals/Queue", redirect.PageName);
@@ -52,7 +52,7 @@ public sealed class ApprovalQueuePageTests
         var model = new QueueModel(service, new PassThroughLocalizer());
         AttachAuthenticatedUser(model, lockedActorId);
 
-        var result = await model.OnPostApproveAsync(Guid.NewGuid(), Guid.NewGuid(), "Approved", null, CancellationToken.None);
+        var result = await model.OnPostApproveAsync(Guid.NewGuid(), Guid.NewGuid(), "Approved", null, null, CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
         Assert.Equal("/Approvals/Queue", redirect.PageName);
@@ -71,7 +71,7 @@ public sealed class ApprovalQueuePageTests
         };
         var model = new QueueModel(service, new PassThroughLocalizer());
 
-        var result = await model.OnPostApproveAsync(actorId, Guid.NewGuid(), "Approved", null, CancellationToken.None);
+        var result = await model.OnPostApproveAsync(actorId, Guid.NewGuid(), "Approved", null, null, CancellationToken.None);
 
         Assert.IsType<PageResult>(result);
         Assert.Null(model.StatusMessage);

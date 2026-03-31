@@ -1,0 +1,82 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Intake.WorkspaceModel
+
+<!-- ANTIGRAVITY_SYNC_CHECK_123 -->
+<bg-section title="@T[Model.SelectedScenario.TitleResourceKey]" icon="bi bi-file-earmark-text">
+    
+    <div class="mb-4">
+        <p class="text-secondary mb-3">@T[Model.SelectedScenario.SummaryResourceKey]</p>
+        <bg-badge variant="@(Model.HasDraft ? "success" : "warning")">
+            <i class="bi @(Model.HasDraft ? "bi-check-circle" : "bi-clock-history") me-2"></i>
+            @T[Model.HasDraft ? "IntakeWorkspace_DraftReady" : "IntakeWorkspace_DraftPending"]
+        </bg-badge>
+    </div>
+
+    @* Scenario Overview Card *@
+    <div class="bg-card">
+        <label class="section-caption">@T["IntakeWorkspace_Summary"]</label>
+        <div class="row g-4">
+            <div class="col-6">
+                <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_DetectedFormTitle"]</span>
+                <strong class="text-dark d-block">@T[Model.SelectedDocumentForm.TitleResourceKey]</strong>
+            </div>
+            <div class="col-6 border-start ps-4">
+                <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_HandoffTitle"]</span>
+                <strong class="text-dark d-block">@T[Model.SelectedScenario.SaveOutcomeResourceKey]</strong>
+            </div>
+        </div>
+    </div>
+
+    @* Capture Zone Card *@
+    <div class="bg-card">
+        <label class="section-caption">@T["IntakeWorkspace_CaptureZoneTitle"]</label>
+        <div class="mb-4 text-center p-4 border-2 border-dashed rounded-4 bg-white">
+            <i class="bi bi-cloud-arrow-up-fill fs-1 text-muted d-block mb-3 opacity-50"></i>
+            <label class="form-label fw-bold d-block mb-3" asp-for="Input.UploadedDocument">@T["IntakeWorkspace_FileField"]</label>
+            <input asp-for="Input.UploadedDocument" class="form-control mb-2" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff" />
+            <p class="x-small text-muted mt-2 mb-0">@T["IntakeWorkspace_FileHint"]</p>
+        </div>
+    </div>
+
+    @if (Model.HasDraft)
+    {
+        @* Source Document Trace Card *@
+        <div class="bg-card">
+            <label class="section-caption">@T["IntakeWorkspace_SourceDocumentTitle"]</label>
+            <div class="row g-3">
+                <div class="col-12">
+                    <div class="p-3 bg-white border rounded-3">
+                        <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_FileNameLabel"]</span>
+                        <span class="fw-bold text-truncate d-block">@Model.Input.OriginalFileName</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 bg-white border rounded-3">
+                        <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_PageCountLabel"]</span>
+                        <span class="fw-bold">@Model.Input.PageCount</span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-3 bg-white border rounded-3">
+                        <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_ExtractionRouteLabel"]</span>
+                        <span class="fw-bold">@T[Model.Input.ExtractionRouteResourceKey ?? "IntakeExtractionRoute_PdfTextFirst"]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-light border shadow-none rounded-4 p-3 mb-4 d-flex align-items-center">
+            <i class="bi bi-info-circle-fill text-muted fs-4 me-3"></i>
+            <span class="small">@T["IntakeWorkspace_NoDraftBody"]</span>
+        </div>
+    }
+
+    <div class="mt-4 pt-4 border-top d-flex justify-content-end">
+        <bg-button variant="primary" asp-page-handler="Extract" type="submit">
+            <i class="bi bi-cpu-fill me-2"></i>@T["IntakeWorkspace_ExtractAction"]
+        </bg-button>
+    </div>
+</bg-section>

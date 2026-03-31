@@ -1,0 +1,19 @@
+@model BG.Web.UI.SurfaceStatStripModel
+@{
+    var classes = string.IsNullOrWhiteSpace(Model.CssClass)
+        ? "surface-command-strip"
+        : $"surface-command-strip {Model.CssClass}";
+}
+<div class="@classes">
+    @foreach (var item in Model.Items)
+    {
+        <section class="surface-stat">
+            <span class="section-caption">@item.Label</span>
+            <strong>@item.Value</strong>
+            @if (!string.IsNullOrWhiteSpace(item.Summary))
+            {
+                <p class="compact-copy">@item.Summary</p>
+            }
+        </section>
+    }
+</div>

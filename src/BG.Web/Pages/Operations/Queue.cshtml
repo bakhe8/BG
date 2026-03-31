@@ -4,26 +4,33 @@
 @model BG.Web.Pages.Operations.QueueModel
 @{
     ViewData["Title"] = T["OperationsQueue_PageTitle"];
-
-    string ResolveActionSummary(BG.Application.Operations.OperationsReviewItemDto item)
-    {
-        if (!item.SupportsRequestMatching)
+    var headerPills = Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null
+        ? new[]
         {
-            return T["OperationsQueue_NoApplyActionSummary"].Value;
+            Model.Snapshot.ActiveActor.DisplayName,
+            T["Pagination_PageSummary", Model.Snapshot.ItemsPage.PageNumber, Model.Snapshot.ItemsPage.TotalPageCount, Model.Snapshot.ItemsPage.TotalItemCount].Value
         }
-
-        return item.MatchSuggestions.Count == 0
-            ? T["OperationsQueue_NoMatchSuggestions"].Value
-            : T["OperationsQueue_MatchFormSummary"].Value;
-    }
-
-    string ResolveSuggestionOptionLabel(BG.Application.Operations.OperationsReviewMatchSuggestionDto suggestion)
-    {
-        return $"{T[suggestion.RequestTypeResourceKey].Value} - {T[suggestion.StatusResourceKey].Value} ({suggestion.Score})";
-    }
+        : Array.Empty<string>();
+    var headerModel = new SurfaceHeaderModel(
+        T["NavOperationsQueue"].Value,
+        T["OperationsQueue_Heading"].Value,
+        T["OperationsQueue_ActionSummary"].Value,
+        headerPills,
+        "is-split");
+    var statStripModel = new SurfaceStatStripModel(
+        new[]
+        {
+            new SurfaceStatItem(T["OperationsQueue_MetricOpen"].Value, Model.Snapshot.OpenItemsCount),
+            new SurfaceStatItem(T["OperationsQueue_MetricPending"].Value, Model.Snapshot.PendingItemsCount),
+            new SurfaceStatItem(T["OperationsReviewStatus_Routed"].Value, Model.Snapshot.RoutedItemsCount),
+            new SurfaceStatItem(T["OperationsQueue_OpenItemsTitle"].Value, Model.Snapshot.ItemsPage.TotalItemCount)
+        });
+    var noEligibleActorModel = new SurfaceMessageCardModel(
+        T["OperationsQueue_NoEligibleActor"].Value,
+        T["OperationsQueue_NoEligibleActorBody"].Value);
 }
 
-<section class="section-shell">
+<section class="section-shell operations-surface">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
         <div class="notice-banner is-success">@Model.StatusMessage</div>
@@ -36,396 +43,32 @@
         <div class="notice-banner is-success">@T[Model.Snapshot.ContextNoticeResourceKey]</div>
     }
 
-    <div class="section-header operations-section-header">
-        <div>
-            <span class="eyebrow">@T["NavOperationsQueue"]</span>
-            <h1>@T["OperationsQueue_Heading"]</h1>
-            <p class="compact-copy">@T["OperationsQueue_ActionSummary"]</p>
-        </div>
-    </div>
+    <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
 
     @if (!Model.Snapshot.HasEligibleActor || Model.Snapshot.ActiveActor is null)
     {
-        <article class="info-card">
-            <h2>@T["OperationsQueue_NoEligibleActor"]</h2>
-            <p class="compact-copy">@T["OperationsQueue_NoEligibleActorBody"]</p>
-        </article>
+        <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="noEligibleActorModel" />
     }
     else
     {
-        <div class="operations-workbench-grid">
-            <div class="operations-main-column">
-                <article class="info-card operations-actor-shell">
-                    <div class="requests-focus-banner-copy">
-                        <span class="eyebrow">@T["OperationsQueue_PrimaryFlow"]</span>
-                        <h2>@Model.Snapshot.ActiveActor.DisplayName</h2>
-                        <p class="compact-copy">@T["OperationsQueue_QueueSummary"]</p>
-                    </div>
-                    <div class="dashboard-mini-metrics">
-                        <div class="dashboard-mini-metric">
-                            <span>@T["OperationsQueue_MetricOpen"]</span>
-                            <strong>@Model.Snapshot.OpenItemsCount</strong>
-                        </div>
-                        <div class="dashboard-mini-metric">
-                            <span>@T["OperationsQueue_MetricPending"]</span>
-                            <strong>@Model.Snapshot.PendingItemsCount</strong>
-                        </div>
-                        <div class="dashboard-mini-metric">
-                            <span>@T["OperationsReviewStatus_Routed"]</span>
-                            <strong>@Model.Snapshot.RoutedItemsCount</strong>
-                        </div>
-                        <div class="dashboard-mini-metric">
-                            <span>@T["OperationsQueue_OpenItemsTitle"]</span>
-                            <strong>@Model.Snapshot.ItemsPage.TotalItemCount</strong>
-                        </div>
-                    </div>
-                </article>
+        <partial name="/Pages/Shared/_SurfaceStatStrip.cshtml" model="statStripModel" />
 
-                <article class="info-card full-span">
-                    <div class="card-header">
-                        <div>
-                            <h2>@T["OperationsQueue_OpenItemsTitle"]</h2>
-                            <p class="compact-copy">@T["OperationsQueue_OpenItemsSummary"]</p>
-                        </div>
-                        <div class="pill-list">
-                            <span class="pill">@T["Pagination_PageSummary", Model.Snapshot.ItemsPage.PageNumber, Model.Snapshot.ItemsPage.TotalPageCount, Model.Snapshot.ItemsPage.TotalItemCount]</span>
-                        </div>
-                    </div>
-
-                    @if (Model.Snapshot.Items.Count == 0)
-                    {
-                        <p class="compact-copy">@T["OperationsQueue_Empty"]</p>
-                    }
-                    else
-                    {
-                        <div class="stack-list">
-                            @foreach (var item in Model.Snapshot.Items)
-                            {
-                                var primarySuggestion = item.MatchSuggestions.FirstOrDefault();
-
-                                <article class="entity-card operations-item-card">
-                                    <div class="entity-header">
-                                        <div>
-                                            <h3>@item.GuaranteeNumber</h3>
-                                            <div class="entity-subtitle">@T[item.ScenarioTitleResourceKey]</div>
-                                        </div>
-                                        <span class="status-badge is-active">@T[item.StatusResourceKey]</span>
-                                    </div>
-
-                                    <div class="surface-stat-grid operations-summary-facts">
-                                        <section class="surface-stat">
-                                            <span class="section-caption">@T["OperationsQueue_RecommendedLaneLabel"]</span>
-                                            <strong>@T[item.RecommendedLaneResourceKey]</strong>
-                                        </section>
-                                        <section class="surface-stat">
-                                            <span class="section-caption">@T["OperationsQueue_DocumentLabel"]</span>
-                                            <strong>@item.FileName</strong>
-                                        </section>
-                                        <section class="surface-stat">
-                                            <span class="section-caption">@T["OperationsQueue_CreatedAtLabel"]</span>
-                                            <strong>@item.CapturedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</strong>
-                                        </section>
-                                        <section class="surface-stat">
-                                            <span class="section-caption">@T["OperationsQueue_BankReferenceLabel"]</span>
-                                            <strong>@(string.IsNullOrWhiteSpace(item.BankReference) ? T["OperationsQueue_NotAvailable"].Value : item.BankReference)</strong>
-                                        </section>
-                                    </div>
-
-                                    <div class="handoff-surface-grid">
-                                        <section class="handoff-surface-panel">
-                                            <div class="pill-section">
-                                                <span class="section-caption">@T["OperationsQueue_WhyHereTitle"]</span>
-                                                <p class="compact-copy">@T["OperationsQueue_WhyHereSummary"]</p>
-                                                <div class="pill-list">
-                                                    <span class="pill">@T[item.CategoryResourceKey]</span>
-                                                    <span class="pill">@T[item.RecommendedLaneResourceKey]</span>
-                                                    @if (item.DocumentForm is not null)
-                                                    {
-                                                        <span class="pill">@T[item.DocumentForm.TitleResourceKey]</span>
-                                                        <span class="pill">@T[item.DocumentForm.BankResourceKey]</span>
-                                                    }
-                                                </div>
-                                            </div>
-
-                                            <div class="pill-section">
-                                                <span class="section-caption">@T["OperationsQueue_CompleteNowTitle"]</span>
-                                                <p class="compact-copy">@ResolveActionSummary(item)</p>
-
-                                                @if (item.SupportsRequestMatching)
-                                                {
-                                                    <ul class="approval-next-step-list">
-                                                        <li>@T["OperationsQueue_CompleteNowStepMatch"]</li>
-                                                        <li>@T["OperationsQueue_CompleteNowStepConfirm"]</li>
-                                                        <li>@T["OperationsQueue_CompleteNowStepClose"]</li>
-                                                    </ul>
-                                                }
-                                            </div>
-                                        </section>
-
-                                        <section class="handoff-surface-panel">
-                                            @if (!item.SupportsRequestMatching)
-                                            {
-                                                <div class="notice-banner is-info">
-                                                    <strong>@T["OperationsQueue_CompleteNowTitle"]</strong>
-                                                    <p class="compact-copy">@T["OperationsQueue_NoApplyActionSummary"]</p>
-                                                </div>
-                                            }
-                                            else if (item.MatchSuggestions.Count == 0)
-                                            {
-                                                <div class="notice-banner is-warning">
-                                                    <strong>@T["OperationsQueue_SystemMatchesTitle"]</strong>
-                                                    <p class="compact-copy">@T["OperationsQueue_NoMatchSuggestions"]</p>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <div class="pill-section">
-                                                    <span class="section-caption">@T["OperationsQueue_SystemMatchesTitle"]</span>
-                                                    @if (primarySuggestion is not null)
-                                                    {
-                                                        <p class="compact-copy">
-                                                            @T[primarySuggestion.RequestTypeResourceKey] · @T[primarySuggestion.StatusResourceKey] · @T[primarySuggestion.ConfidenceResourceKey]
-                                                        </p>
-                                                    }
-                                                </div>
-
-                                                <form method="post" asp-page-handler="Apply" class="stack-form operations-apply-form">
-                                                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
-                                                    <input type="hidden" name="reviewItemId" value="@item.Id" />
-                                                    <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
-
-                                                    <label class="form-label" for="request-@item.Id">@T["OperationsQueue_RequestMatchField"]</label>
-                                                    <select id="request-@item.Id" name="requestId" class="form-control">
-                                                        @foreach (var suggestion in item.MatchSuggestions)
-                                                        {
-                                                            <option value="@suggestion.RequestId">@ResolveSuggestionOptionLabel(suggestion)</option>
-                                                        }
-                                                    </select>
-
-                                                    @if (item.RequiresConfirmedExpiryDate)
-                                                    {
-                                                        <label class="form-label" for="expiry-@item.Id">@T["OperationsQueue_ConfirmedExpiryDateField"]</label>
-                                                        <input id="expiry-@item.Id"
-                                                               name="confirmedExpiryDate"
-                                                               class="form-control"
-                                                               type="date"
-                                                               value="@item.SuggestedConfirmedExpiryDate" />
-                                                    }
-
-                                                    @if (item.RequiresConfirmedAmount)
-                                                    {
-                                                        <label class="form-label" for="amount-@item.Id">@T["OperationsQueue_ConfirmedAmountField"]</label>
-                                                        <input id="amount-@item.Id"
-                                                               name="confirmedAmount"
-                                                               class="form-control"
-                                                               inputmode="decimal"
-                                                               value="@item.SuggestedConfirmedAmount" />
-                                                    }
-
-                                                    <label class="form-label" for="note-@item.Id">@T["OperationsQueue_ConfirmationNoteField"]</label>
-                                                    <textarea id="note-@item.Id"
-                                                              name="note"
-                                                              class="form-control"
-                                                              rows="3">@item.SuggestedStatusStatement</textarea>
-
-                                                    <div class="action-row">
-                                                        <button type="submit" class="btn btn-primary action-button">
-                                                            @T["OperationsQueue_ApplyResponseAction"]
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            }
-                                        </section>
-                                    </div>
-
-                                    <details class="details-panel">
-                                        <summary>
-                                            <span>@T["OperationsQueue_EvidenceTitle"]</span>
-                                            <span class="section-caption">@T["OperationsQueue_EvidenceSummary"]</span>
-                                        </summary>
-                                        <div class="details-panel-body">
-                                            <div class="support-grid">
-                                                <section class="support-card">
-                                                    <span class="section-caption">@T["OperationsQueue_CaptureLedgerTitle"]</span>
-                                                    <p class="compact-copy">@item.CapturedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
-                                                    <div class="pill-list">
-                                                        <span class="pill">
-                                                            @T["OperationsQueue_CapturedByLabel"]:
-                                                            @(string.IsNullOrWhiteSpace(item.CapturedByDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : item.CapturedByDisplayName)
-                                                        </span>
-                                                        <span class="pill">@T["OperationsQueue_CaptureChannelLabel"]: @T[item.CaptureChannelResourceKey]</span>
-                                                        @if (!string.IsNullOrWhiteSpace(item.SourceSystemName))
-                                                        {
-                                                            <span class="pill">@T["OperationsQueue_SourceSystemLabel"]: @item.SourceSystemName</span>
-                                                        }
-                                                        @if (!string.IsNullOrWhiteSpace(item.SourceReference))
-                                                        {
-                                                            <span class="pill">@T["OperationsQueue_SourceReferenceLabel"]: @item.SourceReference</span>
-                                                        }
-                                                    </div>
-                                                </section>
-
-                                                @if (item.MatchSuggestions.Count > 0)
-                                                {
-                                                    <section class="support-card">
-                                                        <span class="section-caption">@T["OperationsQueue_SystemMatchesTitle"]</span>
-                                                        <div class="workflow-stage-list">
-                                                            @foreach (var suggestion in item.MatchSuggestions)
-                                                            {
-                                                                <section class="workflow-stage">
-                                                                    <span class="pipeline-index">@suggestion.Score</span>
-                                                                    <div>
-                                                                        <strong>@T[suggestion.RequestTypeResourceKey]</strong>
-                                                                        <p class="compact-copy">@T[suggestion.StatusResourceKey] · @T[suggestion.ConfidenceResourceKey]</p>
-                                                                        <div class="pill-list">
-                                                                            @if (suggestion.SubmittedToBankAtUtc.HasValue)
-                                                                            {
-                                                                                <span class="pill">
-                                                                                    @T["OperationsQueue_SubmittedToBankLabel"]:
-                                                                                    @suggestion.SubmittedToBankAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd")
-                                                                                </span>
-                                                                            }
-                                                                            @if (!string.IsNullOrWhiteSpace(suggestion.OutgoingReferenceNumber))
-                                                                            {
-                                                                                <span class="pill">
-                                                                                    @T["OperationsQueue_OutgoingReferenceLabel"]:
-                                                                                    @suggestion.OutgoingReferenceNumber
-                                                                                </span>
-                                                                            }
-                                                                            @if (suggestion.RequestDocumentForm is not null)
-                                                                            {
-                                                                                <span class="pill">@T[suggestion.RequestDocumentForm.TitleResourceKey]</span>
-                                                                                <span class="pill">@T[suggestion.RequestDocumentForm.BankResourceKey]</span>
-                                                                            }
-                                                                            @foreach (var reason in suggestion.ReasonResourceKeys)
-                                                                            {
-                                                                                <span class="pill">@T[reason]</span>
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                </section>
-                                                            }
-                                                        </div>
-                                                    </section>
-                                                }
-                                            </div>
-                                        </div>
-                                    </details>
-                                </article>
-                            }
-                        </div>
-                    }
-
-                    @if (Model.Snapshot.ItemsPage.TotalPageCount > 1)
-                    {
-                        var pageInfo = Model.Snapshot.ItemsPage;
-
-                        <div class="action-row">
-                            @if (pageInfo.HasPreviousPage)
-                            {
-                                <a class="btn btn-outline-primary action-button"
-                                   asp-page="/Operations/Queue"
-                                   asp-all-route-data="Model.BuildPageRoute(pageInfo.PreviousPageNumber)">
-                                    @T["Pagination_Previous"]
-                                </a>
-                            }
-
-                            @if (pageInfo.HasNextPage)
-                            {
-                                <a class="btn btn-outline-primary action-button"
-                                   asp-page="/Operations/Queue"
-                                   asp-all-route-data="Model.BuildPageRoute(pageInfo.NextPageNumber)">
-                                    @T["Pagination_Next"]
-                                </a>
-                            }
-                        </div>
-                    }
-                </article>
-            </div>
-
-            <aside class="operations-support-column">
-                <article class="info-card">
-                    <div class="card-header">
-                        <div>
-                            <h2>@T["OperationsQueue_ActorContextTitle"]</h2>
-                            <p class="compact-copy">@T["OperationsQueue_ActorContextSummary"]</p>
-                        </div>
-                    </div>
-
-                    @if (Model.IsActorContextLocked)
-                    {
-                        <div class="pill-list">
-                            <span class="pill">@T["WorkspaceShell_CurrentUserScopeNotice"]</span>
-                            <span class="pill">@Model.Snapshot.ActiveActor.DisplayName (@Model.Snapshot.ActiveActor.Username)</span>
-                        </div>
-                    }
-                    else
-                    {
-                        <form method="get" class="stack-form">
-                            <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
-                            <div>
-                                <label class="form-label" for="actor">@T["OperationsQueue_ActorField"]</label>
-                                <select id="actor" name="actor" class="form-control">
-                                    @foreach (var actor in Model.Snapshot.AvailableActors)
-                                    {
-                                        <option value="@actor.Id" selected="@(actor.Id == Model.Snapshot.ActiveActor.Id ? "selected" : null)">
-                                            @actor.DisplayName (@actor.Username)
-                                        </option>
-                                    }
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-outline-primary action-button">@T["OperationsQueue_LoadActorAction"]</button>
-                        </form>
-                    }
-                </article>
-
-                <details class="details-panel">
-                    <summary>
-                        <span>@T["OperationsQueue_WorkflowTemplatesTitle"]</span>
-                        <span class="section-caption">@T["OperationsQueue_WorkflowTemplatesSummary"]</span>
-                    </summary>
-                    <div class="details-panel-body">
-                        <div class="workflow-grid">
-                            @foreach (var template in Model.Snapshot.WorkflowTemplates)
-                            {
-                                <article class="workflow-card">
-                                    <div class="workflow-card-header">
-                                        <h3>@T[template.TitleResourceKey]</h3>
-                                        <span class="pill">@template.Stages.Count @T["OperationsQueue_LevelsSuffix"]</span>
-                                    </div>
-                                    <p class="compact-copy">@T[template.SummaryResourceKey]</p>
-                                    <div class="workflow-stage-list">
-                                        @foreach (var stage in template.Stages)
-                                        {
-                                            var stageTitle = !string.IsNullOrWhiteSpace(stage.TitleText)
-                                                ? stage.TitleText
-                                                : T[stage.TitleResourceKey!].Value;
-                                            var stageSummary = !string.IsNullOrWhiteSpace(stage.SummaryText)
-                                                ? stage.SummaryText
-                                                : string.IsNullOrWhiteSpace(stage.SummaryResourceKey)
-                                                    ? T["OperationsQueue_NotAvailable"].Value
-                                                    : T[stage.SummaryResourceKey].Value;
-                                            <section class="workflow-stage">
-                                                <span class="pipeline-index">@stage.Level</span>
-                                                <div>
-                                                    <strong>@stageTitle</strong>
-                                                    <p class="compact-copy">@stageSummary</p>
-                                                    @if (!string.IsNullOrWhiteSpace(stage.AssignedRoleName))
-                                                    {
-                                                        <div class="workflow-signature-meta">
-                                                            <span class="pill">@stage.AssignedRoleName</span>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            </section>
-                                        }
-                                    </div>
-                                </article>
-                            }
-                        </div>
-                    </div>
-                </details>
-            </aside>
+        <div class="operations-surface-grid">
+            <partial name="_OperationsQueueList" model="Model" />
+            <partial name="_OperationsActivePanel" model="Model" />
         </div>
     }
 </section>
+
+@section SupportRail
+{
+    @if (Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null)
+    {
+        <partial name="_OperationsSupportRail" model="Model" />
+    }
+}
+
+@section DetailDrawer
+{
+    <partial name="_OperationsDetailDrawer" model="Model" />
+}

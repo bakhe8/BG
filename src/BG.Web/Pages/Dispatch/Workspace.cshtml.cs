@@ -32,7 +32,14 @@ public sealed class WorkspaceModel : PageModel
     [FromQuery(Name = "page")]
     public int? PageNumber { get; set; }
 
+    [FromQuery(Name = "request")]
+    public Guid? SelectedRequestId { get; set; }
+
     public DispatchWorkspaceSnapshotDto Snapshot { get; private set; } = default!;
+
+    public DispatchQueueItemDto? ActiveReadyItem { get; private set; }
+
+    public DispatchPendingDeliveryItemDto? ActivePendingDeliveryItem { get; private set; }
 
     [TempData]
     public string? StatusMessage { get; set; }
@@ -51,7 +58,7 @@ public sealed class WorkspaceModel : PageModel
 
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
-        await LoadAsync(Actor, PageNumber, cancellationToken);
+        await LoadAsync(Actor, PageNumber, SelectedRequestId, cancellationToken);
     }
 
     public async Task<IActionResult> OnPostPrintAsync(
@@ -61,9 +68,10 @@ public sealed class WorkspaceModel : PageModel
         string? letterDate,
         GuaranteeOutgoingLetterPrintMode? printMode,
         int? page,
+        Guid? request,
         CancellationToken cancellationToken)
     {
-        await LoadAsync(actorId, page, cancellationToken);
+        await LoadAsync(actorId, page, request ?? requestId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -89,7 +97,7 @@ public sealed class WorkspaceModel : PageModel
             result.Value.GuaranteeNumber,
             result.Value.PrintCount];
 
-        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber);
+        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber, requestId);
     }
 
     public async Task<IActionResult> OnPostDispatchAsync(
@@ -101,9 +109,10 @@ public sealed class WorkspaceModel : PageModel
         string? dispatchReference,
         string? note,
         int? page,
+        Guid? request,
         CancellationToken cancellationToken)
     {
-        await LoadAsync(actorId, page, cancellationToken);
+        await LoadAsync(actorId, page, request ?? requestId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -128,7 +137,7 @@ public sealed class WorkspaceModel : PageModel
             result.Value!.ReferenceNumber,
             result.Value.GuaranteeNumber];
 
-        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber);
+        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber, requestId);
     }
 
     public async Task<IActionResult> OnPostConfirmDeliveryAsync(
@@ -138,9 +147,10 @@ public sealed class WorkspaceModel : PageModel
         string? deliveryReference,
         string? deliveryNote,
         int? page,
+        Guid? request,
         CancellationToken cancellationToken)
     {
-        await LoadAsync(actorId, page, cancellationToken);
+        await LoadAsync(actorId, page, request ?? requestId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -170,7 +180,7 @@ public sealed class WorkspaceModel : PageModel
             result.Value!.ReferenceNumber,
             result.Value.GuaranteeNumber];
 
-        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber);
+        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber, requestId);
     }
 
     public async Task<IActionResult> OnPostReopenDispatchAsync(
@@ -179,9 +189,10 @@ public sealed class WorkspaceModel : PageModel
         Guid correspondenceId,
         string? correctionNote,
         int? page,
+        Guid? request,
         CancellationToken cancellationToken)
     {
-        await LoadAsync(actorId, page, cancellationToken);
+        await LoadAsync(actorId, page, request ?? requestId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -210,7 +221,7 @@ public sealed class WorkspaceModel : PageModel
             result.Value!.ReferenceNumber,
             result.Value.GuaranteeNumber];
 
-        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber);
+        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber, requestId);
     }
 
     public IDictionary<string, string> BuildPageRoute(int pageNumber)
@@ -228,10 +239,58 @@ public sealed class WorkspaceModel : PageModel
         return routeValues;
     }
 
-    private async Task LoadAsync(Guid? actorId, int? pageNumber, CancellationToken cancellationToken)
+    public IDictionary<string, string> BuildSelectionRoute(Guid requestId, int? pageNumber = null)
+    {
+        var routeValues = BuildPageRoute(pageNumber ?? Snapshot.ItemsPage.PageNumber);
+        routeValues["request"] = requestId.ToString();
+        return routeValues;
+    }
+
+    private async Task LoadAsync(Guid? actorId, int? pageNumber, Guid? selectedRequestId, CancellationToken cancellationToken)
     {
         actorId = ResolveActor(actorId);
         Snapshot = await _dispatchWorkspaceService.GetWorkspaceAsync(actorId, pageNumber ?? 1, cancellationToken);
+        ResolveActiveSelection(selectedRequestId);
+    }
+
+    private void ResolveActiveSelection(Guid? selectedRequestId)
+    {
+        ActiveReadyItem = null;
+        ActivePendingDeliveryItem = null;
+
+        if (selectedRequestId.HasValue)
+        {
+            ActiveReadyItem = Snapshot.Items.FirstOrDefault(item => item.RequestId == selectedRequestId.Value);
+            ActivePendingDeliveryItem = Snapshot.PendingDeliveryItems.FirstOrDefault(item => item.RequestId == selectedRequestId.Value);
+        }
+
+        if (ActiveReadyItem is not null)
+        {
+            SelectedRequestId = ActiveReadyItem.RequestId;
+            return;
+        }
+
+        if (ActivePendingDeliveryItem is not null)
+        {
+            SelectedRequestId = ActivePendingDeliveryItem.RequestId;
+            return;
+        }
+
+        if (Snapshot.Items.Count > 0)
+        {
+            ActiveReadyItem = Snapshot.Items[0];
+            SelectedRequestId = ActiveReadyItem.RequestId;
+            return;
+        }
+
+        if (Snapshot.PendingDeliveryItems.Count > 0)
+        {
+            ActivePendingDeliveryItem = Snapshot.PendingDeliveryItems[0];
+            SelectedRequestId = ActivePendingDeliveryItem.RequestId;
+            return;
+        }
+
+        SelectedRequestId = null;
     }
 
     private Guid? ResolveActor(Guid? actorId)
@@ -241,11 +300,11 @@ public sealed class WorkspaceModel : PageModel
         return lockedActorId ?? actorId;
     }
 
-    private RedirectToPageResult RedirectToSelf(Guid actorId, int pageNumber)
+    private RedirectToPageResult RedirectToSelf(Guid actorId, int pageNumber, Guid? selectedRequestId = null)
     {
         return IsActorContextLocked
-            ? RedirectToPage("/Dispatch/Workspace", new { page = pageNumber })
-            : RedirectToPage("/Dispatch/Workspace", new { actor = actorId, page = pageNumber });
+            ? RedirectToPage("/Dispatch/Workspace", new { page = pageNumber, request = selectedRequestId })
+            : RedirectToPage("/Dispatch/Workspace", new { actor = actorId, page = pageNumber, request = selectedRequestId });
     }
 
     public IReadOnlyList<DispatchChannelOptionViewModel> GetAvailableDispatchChannelOptions()
@@ -265,6 +324,45 @@ public sealed class WorkspaceModel : PageModel
         return DispatchChannelOptions
             .Where(option => option.Channel != GuaranteeDispatchChannel.OfficialEmail)
             .ToArray();
+    }
+
+    public IReadOnlyList<string> GetMissingDispatchPermissionResourceKeys()
+    {
+        if (Snapshot.ActiveActor is null)
+        {
+            return
+            [
+                "Permission_dispatch.print",
+                "Permission_dispatch.record",
+                "Permission_dispatch.email"
+            ];
+        }
+
+        var missingPermissions = new List<string>();
+
+        if (!Snapshot.ActiveActor.CanPrint)
+        {
+            missingPermissions.Add("Permission_dispatch.print");
+        }
+
+        if (!Snapshot.ActiveActor.CanRecord)
+        {
+            missingPermissions.Add("Permission_dispatch.record");
+        }
+
+        if (!Snapshot.ActiveActor.CanEmail)
+        {
+            missingPermissions.Add("Permission_dispatch.email");
+        }
+
+        return missingPermissions;
+    }
+
+    public string ResolveNoActionReasonResourceKey(bool isPendingDelivery)
+    {
+        return isPendingDelivery
+            ? "DispatchWorkspace_NoAvailablePendingActionsReason"
+            : "DispatchWorkspace_NoAvailableReadyActionsReason";
     }
 
     public sealed record DispatchPrintModeOptionViewModel(GuaranteeOutgoingLetterPrintMode Mode, string ResourceKey);

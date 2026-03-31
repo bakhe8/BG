@@ -43,6 +43,7 @@ public sealed class DispatchWorkspacePageTests
             "2026-03-12",
             GuaranteeOutgoingLetterPrintMode.WorkstationPrinter,
             null,
+            null,
             CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
@@ -69,6 +70,7 @@ public sealed class DispatchWorkspacePageTests
             "PKG-1",
             "Sent",
             null,
+            null,
             CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
@@ -91,6 +93,7 @@ public sealed class DispatchWorkspacePageTests
             Guid.NewGuid(),
             "REC-1",
             "Delivered",
+            null,
             null,
             CancellationToken.None);
 
@@ -115,6 +118,7 @@ public sealed class DispatchWorkspacePageTests
             Guid.NewGuid(),
             "Recorded too early",
             null,
+            null,
             CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
@@ -123,6 +127,29 @@ public sealed class DispatchWorkspacePageTests
         Assert.True(model.IsActorContextLocked);
         Assert.Equal(lockedActorId, service.LastReopenCommand!.DispatcherUserId);
         Assert.Equal("DispatchWorkspace_ReopenSuccess", model.StatusMessage);
+    }
+
+    [Fact]
+    public async Task GetMissingDispatchPermissionResourceKeys_returns_missing_permissions_for_limited_actor()
+    {
+        var actorId = Guid.NewGuid();
+        var model = new WorkspaceModel(
+            new StubDispatchWorkspaceService(actorId, canPrint: false, canRecord: false, canEmail: false),
+            new PassThroughLocalizer());
+
+        await model.OnGetAsync(CancellationToken.None);
+
+        var missingPermissions = model.GetMissingDispatchPermissionResourceKeys();
+
+        Assert.Equal(
+            [
+                "Permission_dispatch.print",
+                "Permission_dispatch.record",
+                "Permission_dispatch.email"
+            ],
+            missingPermissions);
+        Assert.Equal("DispatchWorkspace_NoAvailableReadyActionsReason", model.ResolveNoActionReasonResourceKey(isPendingDelivery: false));
+        Assert.Equal("DispatchWorkspace_NoAvailablePendingActionsReason", model.ResolveNoActionReasonResourceKey(isPendingDelivery: true));
     }
 
     private static void AttachAuthenticatedUser(PageModel model, Guid userId)
@@ -145,10 +172,17 @@ public sealed class DispatchWorkspacePageTests
     {
         private readonly Guid _actorId;
 
-        public StubDispatchWorkspaceService(Guid actorId)
+        public StubDispatchWorkspaceService(Guid actorId, bool canPrint = true, bool canRecord = true, bool canEmail = false)
         {
             _actorId = actorId;
+            _canPrint = canPrint;
+            _canRecord = canRecord;
+            _canEmail = canEmail;
         }
+
+        private readonly bool _canPrint;
+        private readonly bool _canRecord;
+        private readonly bool _canEmail;
 
         public PrintDispatchLetterCommand? LastPrintCommand { get; private set; }
 
@@ -163,7 +197,7 @@ public sealed class DispatchWorkspacePageTests
             int pageNumber = 1,
             CancellationToken cancellationToken = default)
         {
-            var actor = new DispatchActorSummaryDto(_actorId, "dispatch.one", "Dispatch One", true, true, false);
+            var actor = new DispatchActorSummaryDto(_actorId, "dispatch.one", "Dispatch One", _canPrint, _canRecord, _canEmail);
 
             return Task.FromResult(
                 new DispatchWorkspaceSnapshotDto(

@@ -732,7 +732,10 @@
   <data name="DispatchWorkspace_ReopenSuccess" xml:space="preserve"><value>Dispatch for outgoing reference {0} was reopened on guarantee {1}.</value></data>
   <data name="DispatchWorkspace_ReadyActionSummary" xml:space="preserve"><value>Prepare the final outgoing copy, then record the moment it actually leaves BG.</value></data>
   <data name="DispatchWorkspace_PendingActionSummary" xml:space="preserve"><value>This letter already left BG. Close the handoff with delivery proof, controlled reprint, or a correction reopen.</value></data>
+  <data name="DispatchWorkspace_NoAvailableActionsTitle" xml:space="preserve"><value>Why no dispatch action is available</value></data>
   <data name="DispatchWorkspace_NoAvailableActionsSummary" xml:space="preserve"><value>No dispatch actions are available for the current actor on this surface.</value></data>
+  <data name="DispatchWorkspace_NoAvailableReadyActionsReason" xml:space="preserve"><value>This actor can view the ready-for-dispatch surface but cannot print or record the outgoing handoff for this item.</value></data>
+  <data name="DispatchWorkspace_NoAvailablePendingActionsReason" xml:space="preserve"><value>This actor can view the pending-delivery surface but cannot confirm delivery, reprint, or reopen the outgoing handoff for this letter.</value></data>
   <data name="DispatchWorkspace_ReadyEvidenceSummary" xml:space="preserve"><value>Open the print evidence only when you need the detailed outgoing trace for this item.</value></data>
   <data name="DispatchWorkspace_PendingEvidenceSummary" xml:space="preserve"><value>Open the dispatch evidence only when the current handoff needs more delivery detail.</value></data>
   <data name="DispatchPrintMode_WorkstationPrinter" xml:space="preserve"><value>Workstation printer</value></data>
@@ -779,8 +782,11 @@
   <data name="operations.response_type_not_supported" xml:space="preserve"><value>This bank response type is not supported for operational application yet.</value></data>
   <data name="operations.actor_required" xml:space="preserve"><value>Select the acting operations reviewer first.</value></data>
   <data name="operations.actor_invalid" xml:space="preserve"><value>The selected operations actor is not valid for this queue.</value></data>
+  <data name="operations.reopen_correction_note_required" xml:space="preserve"><value>Enter a correction note before reopening the applied bank response.</value></data>
+  <data name="operations.reopen_applied_response_not_allowed" xml:space="preserve"><value>This applied bank response can no longer be reopened for correction.</value></data>
   <data name="OperationsLedgerPolicy_MatchedSuggestionApplied" xml:space="preserve"><value>System match suggestion was confirmed and applied</value></data>
   <data name="OperationsLedgerPolicy_ManualRequestSelectionApplied" xml:space="preserve"><value>Manual request selection was applied by operations</value></data>
+  <data name="OperationsLedgerPolicy_AppliedResponseReopened" xml:space="preserve"><value>Applied bank response was reopened for correction</value></data>
   <data name="NavDelegations" xml:space="preserve"><value>Delegations</value></data>
   <data name="ApprovalDelegation_PageTitle" xml:space="preserve"><value>Approval Delegations</value></data>
   <data name="ApprovalDelegation_Heading" xml:space="preserve"><value>Temporary approval delegations</value></data>
@@ -879,6 +885,13 @@
   <data name="RequestsWorkspace_NextActionCompleted" xml:space="preserve"><value>This request is complete. Open the detailed timeline only if you need the final trace.</value></data>
   <data name="RequestsWorkspace_NextActionClosed" xml:space="preserve"><value>This request is closed. No further action is available on the owner surface.</value></data>
   <data name="RequestsWorkspace_NextActionMonitor" xml:space="preserve"><value>Keep following this request until the next operational handoff changes its state.</value></data>
+  <data name="RequestsWorkspace_NoAvailableOwnerActionTitle" xml:space="preserve"><value>Why no owner action is available</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_InApproval" xml:space="preserve"><value>This request is currently inside approvals. You can monitor it here, or withdraw it before the current approval path continues.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_ApprovedForDispatch" xml:space="preserve"><value>This request already finished approvals and moved to dispatch. The owner surface stays read-only until the next handoff changes its state.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_AwaitingBankResponse" xml:space="preserve"><value>This request already left BG. The owner surface stays read-only until operations records the bank response.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_Completed" xml:space="preserve"><value>This request is complete. No owner action is available unless you only need the final trace.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_Rejected" xml:space="preserve"><value>This request was rejected in approvals and is now closed on the owner surface.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_Cancelled" xml:space="preserve"><value>This request was cancelled before completion and no further owner action is allowed.</value></data>
   <data name="RequestsWorkspace_State_Draft" xml:space="preserve"><value>This request is still with you and has not entered the approval flow yet.</value></data>
   <data name="RequestsWorkspace_State_InApproval" xml:space="preserve"><value>This request is currently with the approval chain and is waiting for the active signer.</value></data>
   <data name="RequestsWorkspace_State_Returned" xml:space="preserve"><value>This request was returned for correction before it can move forward again.</value></data>
@@ -900,6 +913,15 @@
   <data name="OperationsQueue_CompleteNowStepMatch" xml:space="preserve"><value>Select the correct request using the system suggestions or your review.</value></data>
   <data name="OperationsQueue_CompleteNowStepConfirm" xml:space="preserve"><value>Confirm the real expiry date, amount, or note required by the scenario.</value></data>
   <data name="OperationsQueue_CompleteNowStepClose" xml:space="preserve"><value>Apply the bank response so the guarantee and request move to their confirmed state.</value></data>
+  <data name="OperationsQueue_CompletedAtLabel" xml:space="preserve"><value>Completed at</value></data>
+  <data name="OperationsQueue_ReopenAction" xml:space="preserve"><value>Reopen applied response</value></data>
+  <data name="OperationsQueue_ReopenActionSummary" xml:space="preserve"><value>Use this only to reverse the last applied bank response so operations can correct the request match or confirmed values.</value></data>
+  <data name="OperationsQueue_ReopenNoteField" xml:space="preserve"><value>Correction note</value></data>
+  <data name="OperationsQueue_ReopenSuccess" xml:space="preserve"><value>The applied bank response on guarantee {0} was reopened for correction.</value></data>
+  <data name="OperationsQueue_ApplyBlockedTitle" xml:space="preserve"><value>Why this response cannot be applied yet</value></data>
+  <data name="OperationsQueue_BlockedSuggestionLabel" xml:space="preserve"><value>Blocked</value></data>
+  <data name="OperationsQueue_RecentCompletedTitle" xml:space="preserve"><value>Recently completed items</value></data>
+  <data name="OperationsQueue_RecentCompletedSummary" xml:space="preserve"><value>Open one of these only when you need to correct the last applied bank response.</value></data>
   <data name="DispatchWorkspace_ReadyStateTitle" xml:space="preserve"><value>Ready for print or dispatch</value></data>
   <data name="DispatchWorkspace_ReadyStateSummary" xml:space="preserve"><value>These requests already cleared approvals and now need print, dispatch recording, or both.</value></data>
   <data name="DispatchWorkspace_WhyHereTitle" xml:space="preserve"><value>Why this item is here</value></data>
@@ -942,23 +964,53 @@
   <data name="BankProfile_Generic" xml:space="preserve"><value>Generic bank profile</value></data>
   <data name="BankProfile_SNB" xml:space="preserve"><value>Saudi National Bank</value></data>
   <data name="BankProfile_AlRajhi" xml:space="preserve"><value>Al Rajhi Bank</value></data>
+  <data name="BankProfile_Alinma" xml:space="preserve"><value>Alinma Bank</value></data>
   <data name="BankProfile_Riyad" xml:space="preserve"><value>Riyad Bank</value></data>
+  <data name="BankProfile_BnpParibas" xml:space="preserve"><value>BNP Paribas</value></data>
+  <data name="BankProfile_ANB" xml:space="preserve"><value>Arab National Bank</value></data>
+  <data name="BankProfile_BSF" xml:space="preserve"><value>Banque Saudi Fransi</value></data>
+  <data name="BankProfile_SABB" xml:space="preserve"><value>SABB</value></data>
+  <data name="BankProfile_Saib" xml:space="preserve"><value>Saudi Investment Bank</value></data>
   <data name="DocumentForm_Instrument_Generic_Title" xml:space="preserve"><value>Generic guarantee instrument</value></data>
   <data name="DocumentForm_Instrument_Generic_Summary" xml:space="preserve"><value>Use when the guarantee instrument is valid but does not match a pinned bank-specific layout yet.</value></data>
   <data name="DocumentForm_Instrument_SNB_Title" xml:space="preserve"><value>SNB guarantee instrument</value></data>
   <data name="DocumentForm_Instrument_SNB_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Saudi National Bank document family.</value></data>
   <data name="DocumentForm_Instrument_AlRajhi_Title" xml:space="preserve"><value>Al Rajhi guarantee instrument</value></data>
   <data name="DocumentForm_Instrument_AlRajhi_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Al Rajhi Bank document family.</value></data>
+  <data name="DocumentForm_Instrument_Alinma_Title" xml:space="preserve"><value>Alinma Bank guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_Alinma_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Alinma Bank document family.</value></data>
   <data name="DocumentForm_Instrument_Riyad_Title" xml:space="preserve"><value>Riyad Bank guarantee instrument</value></data>
   <data name="DocumentForm_Instrument_Riyad_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Riyad Bank document family.</value></data>
+  <data name="DocumentForm_Instrument_BnpParibas_Title" xml:space="preserve"><value>BNP Paribas guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_BnpParibas_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the BNP Paribas document family.</value></data>
+  <data name="DocumentForm_Instrument_ANB_Title" xml:space="preserve"><value>ANB guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_ANB_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Arab National Bank document family.</value></data>
+  <data name="DocumentForm_Instrument_BSF_Title" xml:space="preserve"><value>BSF guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_BSF_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Banque Saudi Fransi document family.</value></data>
+  <data name="DocumentForm_Instrument_SABB_Title" xml:space="preserve"><value>SABB guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_SABB_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the SABB document family.</value></data>
+  <data name="DocumentForm_Instrument_Saib_Title" xml:space="preserve"><value>Saudi Investment Bank guarantee instrument</value></data>
+  <data name="DocumentForm_Instrument_Saib_Summary" xml:space="preserve"><value>Bank-issued guarantee instrument following the Saudi Investment Bank document family.</value></data>
   <data name="DocumentForm_BankLetter_Generic_Title" xml:space="preserve"><value>Generic incoming bank letter</value></data>
   <data name="DocumentForm_BankLetter_Generic_Summary" xml:space="preserve"><value>Use when the incoming confirmation letter is valid but not pinned to a specific bank letterhead family.</value></data>
   <data name="DocumentForm_BankLetter_SNB_Title" xml:space="preserve"><value>SNB incoming bank letter</value></data>
   <data name="DocumentForm_BankLetter_SNB_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Saudi National Bank letterhead family.</value></data>
   <data name="DocumentForm_BankLetter_AlRajhi_Title" xml:space="preserve"><value>Al Rajhi incoming bank letter</value></data>
   <data name="DocumentForm_BankLetter_AlRajhi_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Al Rajhi Bank letterhead family.</value></data>
+  <data name="DocumentForm_BankLetter_Alinma_Title" xml:space="preserve"><value>Alinma incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_Alinma_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Alinma Bank letterhead family.</value></data>
   <data name="DocumentForm_BankLetter_Riyad_Title" xml:space="preserve"><value>Riyad Bank incoming bank letter</value></data>
   <data name="DocumentForm_BankLetter_Riyad_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Riyad Bank letterhead family.</value></data>
+  <data name="DocumentForm_BankLetter_BnpParibas_Title" xml:space="preserve"><value>BNP Paribas incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_BnpParibas_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the BNP Paribas letterhead family.</value></data>
+  <data name="DocumentForm_BankLetter_ANB_Title" xml:space="preserve"><value>ANB incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_ANB_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Arab National Bank letterhead family.</value></data>
+  <data name="DocumentForm_BankLetter_BSF_Title" xml:space="preserve"><value>BSF incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_BSF_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Banque Saudi Fransi letterhead family.</value></data>
+  <data name="DocumentForm_BankLetter_SABB_Title" xml:space="preserve"><value>SABB incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_SABB_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the SABB letterhead family.</value></data>
+  <data name="DocumentForm_BankLetter_Saib_Title" xml:space="preserve"><value>Saudi Investment Bank incoming bank letter</value></data>
+  <data name="DocumentForm_BankLetter_Saib_Summary" xml:space="preserve"><value>Incoming bank confirmation letter on the Saudi Investment Bank letterhead family.</value></data>
   <data name="DocumentForm_Attachment_Generic_Title" xml:space="preserve"><value>Supporting annex or attachment</value></data>
   <data name="DocumentForm_Attachment_Generic_Summary" xml:space="preserve"><value>Supporting documents, annexes, or signed attachments linked to an existing guarantee.</value></data>
   <data name="DocumentFormCue_BankIdentity" xml:space="preserve"><value>Bank identity or letterhead</value></data>

@@ -3,6 +3,26 @@
 @inject IUiConfigurationService UiConfiguration
 @inject IWorkspaceShellService WorkspaceShell
 @{
+    string BuildInitials(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "BG";
+        }
+
+        var initials = new List<char>(2);
+        foreach (var part in value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            initials.Add(char.ToUpperInvariant(part[0]));
+            if (initials.Count == 2)
+            {
+                break;
+            }
+        }
+
+        return initials.Count == 0 ? "BG" : new string(initials.ToArray());
+    }
+
     var currentCulture = UiConfiguration.GetCurrentCulture();
     var currentDirection = UiConfiguration.GetDirection(currentCulture);
     var currentTheme = UiConfiguration.GetCurrentTheme();
@@ -28,6 +48,8 @@
         1 => shell.CurrentUser.RoleNames[0],
         _ => null
     };
+    var brandInitials = "KF";
+    var currentUserInitials = shell.CurrentUser is null ? null : BuildInitials(shell.CurrentUser.DisplayName);
 }
 <!DOCTYPE html>
 <html lang="@currentCulture" dir="@currentDirection">
@@ -36,129 +58,177 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - BG</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/workspace-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/surface-primitives.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/bg-components.css" asp-append-version="true" />
 </head>
 <body class="theme-@currentTheme" hx-boost="true">
-    <header class="shell-header">
-        <div class="container-lg shell-frame">
-            <div class="shell-topline">
-                <div class="shell-brand-block">
-                    <a class="shell-brand" asp-area="" asp-page="/Index">
-                        <span class="shell-brand-mark">KFSHRC</span>
-                        <span class="shell-brand-divider">/</span>
-                        <span class="shell-brand-text">BG</span>
+    @{
+        var hasSupportRail = IsSectionDefined("SupportRail");
+        var hasDetailDrawer = IsSectionDefined("DetailDrawer");
+        var hasDossier = IsSectionDefined("Dossier");
+        var stageTitle = activeItem is not null ? T[activeItem.ResourceKey].Value : "BG";
+        var stageSummary = shell.CurrentUser is null
+            ? T["WorkspaceShell_SignInAction"].Value
+            : !string.IsNullOrWhiteSpace(primaryRoleSummary)
+                ? primaryRoleSummary
+                : shell.CurrentUser.DisplayName;
+    }
+    <div class="shell-app">
+        <aside class="shell-sidebar bg-shell-sidebar">
+            <div class="shell-sidebar-frame">
+                <div class="shell-brand-block p-4 border-bottom border-white border-opacity-10 mb-3">
+                    <a class="shell-brand d-flex align-items-center gap-2 text-decoration-none" asp-area="" asp-page="/Index">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-white"
+                              style="width: 32px; height: 32px; background: linear-gradient(135deg, #0f6a4d 0%, #c5a02d 100%);"
+                              aria-hidden="true">
+                            @brandInitials
+                        </span>
+                        <div class="d-flex flex-column">
+                            <span class="fw-bold text-white small">KFSHRC</span>
+                            <span class="x-small text-white opacity-50">@T["AppBrandSubtitle"]</span>
+                        </div>
                     </a>
-                    <span class="shell-brand-subtitle">@T["AppBrandSubtitle"]</span>
                 </div>
 
-                <button class="navbar-toggler shell-toggle" type="button" data-bs-toggle="collapse" data-bs-target=".shell-collapse" aria-controls="shellNavigation"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div id="shellNavigation" class="shell-collapse collapse d-sm-flex align-items-start justify-content-between flex-grow-1">
-                    @if (shell.CurrentUser is not null)
-                    {
-                        <div class="shell-session-summary">
-                            <strong>@shell.CurrentUser.DisplayName</strong>
-                            <span>
-                                @if (!string.IsNullOrWhiteSpace(primaryRoleSummary))
-                                {
-                                    @primaryRoleSummary
-                                }
-                                @if (activeItem is not null)
-                                {
-                                    <text> · @T[activeItem.ResourceKey]</text>
-                                }
-                            </span>
-                        </div>
-                    }
-
-                    <div class="shell-actions">
-                        <div class="shell-language">
-                            @foreach (var culture in UiConfiguration.SupportedCultures)
+                @if (operationalItems.Length > 0)
+                {
+                    <section class="shell-sidebar-section px-3">
+                        <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_WorkspacesLabel"]">
+                            @foreach (var item in operationalItems)
                             {
-                                var isActive = culture.Culture == currentCulture;
-                                <a class="toolbar-chip @(isActive ? "active" : null)"
-                                   href="@Url.Action("SetCulture", "UiPreferences", new { culture = culture.Culture, returnUrl })">
-                                    @T[$"Culture_{culture.Culture}"]
+                                var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
+                                <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
+                                    <i class="bi bi-circle-fill x-small"></i>
+                                    <span class="small fw-bold">@T[item.ResourceKey]</span>
                                 </a>
                             }
-                        </div>
+                        </nav>
+                    </section>
+                }
 
-                        @if (shell.CurrentUser is null)
-                        {
-                            <a class="btn btn-outline-primary action-button" href="/SignIn?returnUrl=@Uri.EscapeDataString(returnUrl)">
-                                @T["WorkspaceShell_SignInAction"]
-                            </a>
-                        }
-                        else
-                        {
-                            <form method="post" asp-page="/SignIn" asp-page-handler="SignOut">
-                                <button type="submit" class="btn btn-outline-primary action-button">@T["WorkspaceShell_SignOutAction"]</button>
-                            </form>
-                        }
+                @if (administrationItems.Length > 0)
+                {
+                    <section class="shell-sidebar-section px-3 mt-4">
+                        <div class="px-3 mb-2 d-flex justify-content-between align-items-center">
+                            <span class="x-small fw-bold text-white opacity-25 text-uppercase letter-spacing-1">@T["WorkspaceShell_AdminLabel"]</span>
+                        </div>
+                        <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_AdminLabel"]">
+                            @foreach (var item in administrationItems)
+                            {
+                                var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
+                                <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
+                                    <i class="bi bi-gear x-small"></i>
+                                    <span class="small fw-bold">@T[item.ResourceKey]</span>
+                                </a>
+                            }
+                        </nav>
+                    </section>
+                }
+            </div>
+        </aside>
+
+        <div class="shell-stage bg-shell-content d-flex flex-column p-0">
+            <header class="bg-shell-topbar d-flex justify-content-between align-items-center px-4 py-3 sticky-top shadow-sm">
+                <div class="d-flex align-items-center gap-3">
+                    <button class="btn btn-light d-lg-none rounded-circle p-2"><i class="bi bi-list"></i></button>
+                    <div>
+                        <h5 class="fw-bold m-0 text-dark">@stageTitle</h5>
+                        <div class="x-small text-muted">@stageSummary</div>
                     </div>
                 </div>
-            </div>
 
-            @if (operationalItems.Length > 0)
-            {
-                <div class="shell-workbar">
-                    <span class="shell-strip-label">@T["WorkspaceShell_WorkspacesLabel"]</span>
-                    <nav class="shell-nav-strip" aria-label="@T["WorkspaceShell_WorkspacesLabel"]">
-                        @foreach (var item in operationalItems)
+                <div class="d-flex align-items-center gap-4">
+                    <div class="d-flex bg-light rounded-pill p-1">
+                        @foreach (var culture in UiConfiguration.SupportedCultures)
                         {
-                            var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
-                            <a class="shell-nav-pill @(isActive ? "active" : null)" href="@item.PagePath">@T[item.ResourceKey]</a>
+                            var isActive = culture.Culture == currentCulture;
+                            <a class="btn btn-sm rounded-pill px-3 @(isActive ? "bg-brand-green text-white shadow-sm" : "text-muted")"
+                               href="@Url.Action("SetCulture", "UiPreferences", new { culture = culture.Culture, returnUrl })">
+                                @T[$"Culture_{culture.Culture}"]
+                            </a>
                         }
-                    </nav>
+                    </div>
+
+                    @if (shell.CurrentUser is not null)
+                    {
+                        <div class="d-flex align-items-center gap-3 border-start ps-4">
+                            <div class="text-end d-none d-md-block">
+                                <div class="small fw-bold text-dark">@shell.CurrentUser.DisplayName</div>
+                                <div class="x-small text-muted">@shell.CurrentUser.Username</div>
+                            </div>
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle border bg-light fw-bold text-brand-green"
+                                  style="width: 40px; height: 40px;"
+                                  aria-label="@shell.CurrentUser.DisplayName">
+                                @currentUserInitials
+                            </span>
+                            
+                            <form method="post" asp-page="/SignIn" asp-page-handler="SignOut">
+                                <button type="submit" class="btn btn-light rounded-circle shadow-none border-0" title="@T["WorkspaceShell_SignOutAction"]">
+                                    <i class="bi bi-box-arrow-right text-danger"></i>
+                                </button>
+                            </form>
+                        </div>
+                    }
                 </div>
-            }
+            </header>
 
-            @if (administrationItems.Length > 0)
-            {
-                <details class="shell-admin-block" @(currentPath.StartsWith("/Administration", StringComparison.OrdinalIgnoreCase) ? "open" : null)>
-                    <summary>
-                        <span>@T["WorkspaceShell_AdminLabel"]</span>
-                        <span class="section-caption">@administrationItems.Length</span>
-                    </summary>
-                    <nav class="shell-admin-links" aria-label="@T["WorkspaceShell_AdminLabel"]">
-                        @foreach (var item in administrationItems)
-                        {
-                            var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
-                            <a class="shell-admin-link @(isActive ? "active" : null)" href="@item.PagePath">@T[item.ResourceKey]</a>
-                        }
-                    </nav>
-                </details>
-            }
+            <main role="main" class="flex-grow-1 p-4">
+                @if (!string.IsNullOrWhiteSpace(shellMessageKey))
+                {
+                    <div class="alert alert-info border-0 rounded-4 shadow-sm mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>@T[shellMessageKey]
+                    </div>
+                }
+
+                <div class="workspace-shell @(hasSupportRail ? "has-support-rail" : null) @(hasDetailDrawer ? "has-detail-drawer" : null)">
+                    <div class="workspace-main">
+                        @RenderBody()
+                    </div>
+
+                    @if (hasSupportRail)
+                    {
+                        <aside class="workspace-support-rail">
+                            @await RenderSectionAsync("SupportRail", required: false)
+                        </aside>
+                    }
+
+                    @if (hasDetailDrawer)
+                    {
+                        <aside class="workspace-detail-drawer">
+                            @await RenderSectionAsync("DetailDrawer", required: false)
+                        </aside>
+                    }
+                </div>
+
+                @if (hasDossier)
+                {
+                    <section class="workspace-dossier mt-4">
+                        @await RenderSectionAsync("Dossier", required: false)
+                    </section>
+                }
+            </main>
+
+            <footer class="p-4 border-top bg-white mt-auto">
+                <div class="d-flex justify-content-between align-items-center x-small text-muted">
+                    <span>@T["FooterBaseline"]</span>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-decoration-none text-muted">Help Center</a>
+                        <a href="#" class="text-decoration-none text-muted">Privacy Policy</a>
+                    </div>
+                </div>
+            </footer>
         </div>
-    </header>
-    @if (!string.IsNullOrWhiteSpace(shellMessageKey))
-    {
-        <div class="container-lg">
-            <div class="notice-banner">@T[shellMessageKey]</div>
-        </div>
-    }
-    <div class="container-lg">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
     </div>
-
-    <footer class="footer-shell">
-        <div class="container-lg footer-copy">
-            <span>@T["FooterBaseline"]</span>
-        </div>
-    </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    @* HTMX & Alpine.js for Modern Interactions *@
-    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    @* HTMX & Alpine.js for Modern Interactions (Local) *@
+    <script src="~/lib/htmx/htmx.min.js"></script>
+    <script src="~/lib/alpinejs/alpine.min.js" defer></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

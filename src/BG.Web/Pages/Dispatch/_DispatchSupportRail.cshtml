@@ -1,0 +1,48 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Dispatch.WorkspaceModel
+@{
+    var lockedPills = new List<string>();
+    if (Model.IsActorContextLocked)
+    {
+        lockedPills.Add(T["WorkspaceShell_CurrentUserScopeNotice"].Value);
+        lockedPills.Add($"{Model.Snapshot.ActiveActor!.DisplayName} ({Model.Snapshot.ActiveActor.Username})");
+        if (Model.Snapshot.ActiveActor.CanPrint)
+        {
+            lockedPills.Add(T["Permission_dispatch.print"].Value);
+        }
+        if (Model.Snapshot.ActiveActor.CanRecord)
+        {
+            lockedPills.Add(T["Permission_dispatch.record"].Value);
+        }
+        if (Model.Snapshot.ActiveActor.CanEmail)
+        {
+            lockedPills.Add(T["Permission_dispatch.email"].Value);
+        }
+    }
+
+    var actorContextModel = new ActorContextPanelModel(
+        T["DispatchWorkspace_ActorContextTitle"].Value,
+        T["DispatchWorkspace_ActorContextSummary"].Value,
+        Model.IsActorContextLocked ? ActorContextPanelMode.LockedPills : ActorContextPanelMode.SelectorForm,
+        "dispatch-rail-card")
+    {
+        Pills = lockedPills,
+        FormAction = Url.Page("/Dispatch/Workspace"),
+        ActorFieldLabel = T["DispatchWorkspace_ActorField"].Value,
+        SubmitLabel = T["DispatchWorkspace_LoadActorAction"].Value,
+        HiddenFields = new SurfaceHiddenFieldModel[]
+        {
+            new("page", Model.Snapshot.ItemsPage.PageNumber.ToString()),
+            new("request", Model.SelectedRequestId?.ToString())
+        },
+        Options = Model.Snapshot.AvailableActors
+            .Select(actor => new ActorContextOptionModel(
+                actor.Id.ToString(),
+                $"{actor.DisplayName} ({actor.Username})",
+                actor.Id == Model.Snapshot.ActiveActor!.Id))
+            .ToArray()
+    };
+}
+
+<partial name="/Pages/Shared/_ActorContextPanel.cshtml" model="actorContextModel" />

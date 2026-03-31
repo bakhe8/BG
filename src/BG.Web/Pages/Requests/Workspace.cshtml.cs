@@ -33,12 +33,17 @@ public sealed class WorkspaceModel : PageModel
     [FromQuery(Name = "page")]
     public int? PageNumber { get; set; }
 
+    [FromQuery(Name = "request")]
+    public Guid? SelectedRequestId { get; set; }
+
     [BindProperty]
     public CreateRequestInput Input { get; set; } = new();
 
     public RequestWorkspaceSnapshotDto Snapshot { get; private set; } = default!;
 
     public RequestWorkflowTemplateDto? SelectedWorkflowTemplate { get; private set; }
+
+    public RequestSummaryDto? ActiveRequest { get; private set; }
 
     public IReadOnlyList<RequestTypeOptionViewModel> RequestTypeOptions { get; private set; } = Array.Empty<RequestTypeOptionViewModel>();
 
@@ -53,12 +58,12 @@ public sealed class WorkspaceModel : PageModel
 
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
-        await LoadAsync(Actor, PageNumber, cancellationToken);
+        await LoadAsync(Actor, PageNumber, SelectedRequestId, cancellationToken);
     }
 
-    public async Task<IActionResult> OnPostAsync(int? page, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnPostAsync(int? page, Guid? request, CancellationToken cancellationToken)
     {
-        await LoadAsync(Input.RequestedByUserId == Guid.Empty ? Actor : Input.RequestedByUserId, page, cancellationToken);
+        await LoadAsync(Input.RequestedByUserId == Guid.Empty ? Actor : Input.RequestedByUserId, page, request, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -89,12 +94,12 @@ public sealed class WorkspaceModel : PageModel
             _localizer[result.Value!.RequestTypeResourceKey],
             result.Value.GuaranteeNumber];
 
-        return RedirectToSelf(Input.RequestedByUserId, pageNumber: 1);
+        return RedirectToSelf(Input.RequestedByUserId, pageNumber: 1, selectedRequestId: result.Value.RequestId);
     }
 
-    public async Task<IActionResult> OnPostSubmitAsync(Guid requestId, Guid actorId, int? page, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnPostSubmitAsync(Guid requestId, Guid actorId, int? page, Guid? request, CancellationToken cancellationToken)
     {
-        await LoadAsync(actorId, page, cancellationToken);
+        await LoadAsync(actorId, page, request ?? requestId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -123,7 +128,7 @@ public sealed class WorkspaceModel : PageModel
             currentStageLabel,
             result.Value.CurrentStageRoleName ?? "-"];
 
-        return RedirectToSelf(effectiveActorId, Snapshot.OwnedRequestsPage.PageNumber);
+        return RedirectToSelf(effectiveActorId, Snapshot.OwnedRequestsPage.PageNumber, requestId);
     }
 
     public async Task<IActionResult> OnPostUpdateAsync(
@@ -133,9 +138,10 @@ public sealed class WorkspaceModel : PageModel
         string? requestedExpiryDate,
         string? notes,
         int? page,
+        Guid? request,
         CancellationToken cancellationToken)
     {
-        await LoadAsync(actorId, page, cancellationToken);
+        await LoadAsync(actorId, page, request ?? requestId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -160,16 +166,17 @@ public sealed class WorkspaceModel : PageModel
         }
 
         StatusMessage = _localizer["RequestsWorkspace_UpdateSuccess", result.Value!.GuaranteeNumber];
-        return RedirectToSelf(effectiveActorId, Snapshot.OwnedRequestsPage.PageNumber);
+        return RedirectToSelf(effectiveActorId, Snapshot.OwnedRequestsPage.PageNumber, requestId);
     }
 
     public async Task<IActionResult> OnPostCancelAsync(
         Guid requestId,
         Guid actorId,
         int? page,
+        Guid? request,
         CancellationToken cancellationToken)
     {
-        await LoadAsync(actorId, page, cancellationToken);
+        await LoadAsync(actorId, page, request ?? requestId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -187,16 +194,17 @@ public sealed class WorkspaceModel : PageModel
         }
 
         StatusMessage = _localizer["RequestsWorkspace_CancelSuccess", result.Value!.GuaranteeNumber];
-        return RedirectToSelf(effectiveActorId, Snapshot.OwnedRequestsPage.PageNumber);
+        return RedirectToSelf(effectiveActorId, Snapshot.OwnedRequestsPage.PageNumber, requestId);
     }
 
     public async Task<IActionResult> OnPostWithdrawAsync(
         Guid requestId,
         Guid actorId,
         int? page,
+        Guid? request,
         CancellationToken cancellationToken)
     {
-        await LoadAsync(actorId, page, cancellationToken);
+        await LoadAsync(actorId, page, request ?? requestId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -214,7 +222,7 @@ public sealed class WorkspaceModel : PageModel
         }
 
         StatusMessage = _localizer["RequestsWorkspace_WithdrawSuccess", result.Value!.GuaranteeNumber];
-        return RedirectToSelf(effectiveActorId, Snapshot.OwnedRequestsPage.PageNumber);
+        return RedirectToSelf(effectiveActorId, Snapshot.OwnedRequestsPage.PageNumber, requestId);
     }
 
     public IDictionary<string, string> BuildPageRoute(int pageNumber)
@@ -232,11 +240,117 @@ public sealed class WorkspaceModel : PageModel
         return routeValues;
     }
 
-    private async Task LoadAsync(Guid? actorId, int? pageNumber, CancellationToken cancellationToken)
+    public IDictionary<string, string> BuildSelectionRoute(Guid requestId, int? pageNumber = null)
+    {
+        var routeValues = BuildPageRoute(pageNumber ?? Snapshot.OwnedRequestsPage.PageNumber);
+        routeValues["request"] = requestId.ToString();
+        return routeValues;
+    }
+
+    public string ResolveStageTitle(RequestSummaryDto request)
+    {
+        if (!string.IsNullOrWhiteSpace(request.CurrentStageTitle))
+        {
+            return request.CurrentStageTitle;
+        }
+
+        return string.IsNullOrWhiteSpace(request.CurrentStageTitleResourceKey)
+            ? "-"
+            : _localizer[request.CurrentStageTitleResourceKey].Value;
+    }
+
+    public string ResolveStateSummaryResourceKey(string statusResourceKey)
+    {
+        return statusResourceKey switch
+        {
+            "RequestStatus_Draft" => "RequestsWorkspace_State_Draft",
+            "RequestStatus_InApproval" => "RequestsWorkspace_State_InApproval",
+            "RequestStatus_Returned" => "RequestsWorkspace_State_Returned",
+            "RequestStatus_ApprovedForDispatch" => "RequestsWorkspace_State_ApprovedForDispatch",
+            "RequestStatus_SubmittedToBank" => "RequestsWorkspace_State_AwaitingBankResponse",
+            "RequestStatus_AwaitingBankResponse" => "RequestsWorkspace_State_AwaitingBankResponse",
+            "RequestStatus_Completed" => "RequestsWorkspace_State_Completed",
+            "RequestStatus_Rejected" => "RequestsWorkspace_State_Rejected",
+            "RequestStatus_Cancelled" => "RequestsWorkspace_State_Cancelled",
+            _ => "RequestsWorkspace_State_Draft"
+        };
+    }
+
+    public string ResolveNextActionResourceKey(RequestSummaryDto request)
+    {
+        if (request.CanSubmitForApproval)
+        {
+            return "RequestsWorkspace_NextActionSubmit";
+        }
+
+        if (request.CanRevise)
+        {
+            return "RequestsWorkspace_NextActionRevise";
+        }
+
+        if (request.CanWithdraw)
+        {
+            return "RequestsWorkspace_NextActionWithdraw";
+        }
+
+        return request.StatusResourceKey switch
+        {
+            "RequestStatus_ApprovedForDispatch" or "RequestStatus_SubmittedToBank" or "RequestStatus_AwaitingBankResponse"
+                => "RequestsWorkspace_NextActionAwaitExternal",
+            "RequestStatus_Completed" => "RequestsWorkspace_NextActionCompleted",
+            "RequestStatus_Rejected" or "RequestStatus_Cancelled" => "RequestsWorkspace_NextActionClosed",
+            _ => "RequestsWorkspace_NextActionMonitor"
+        };
+    }
+
+    public string ResolveRequestedChange(RequestSummaryDto request)
+    {
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(request.RequestedAmount))
+        {
+            parts.Add(request.RequestedAmount);
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.RequestedExpiryDate))
+        {
+            parts.Add(request.RequestedExpiryDate);
+        }
+
+        return parts.Count == 0 ? "-" : string.Join(" · ", parts);
+    }
+
+    public bool HasOwnerAction(RequestSummaryDto request)
+    {
+        return request.CanSubmitForApproval || request.CanRevise || request.CanCancel || request.CanWithdraw;
+    }
+
+    public string? ResolveNoOwnerActionReasonResourceKey(RequestSummaryDto request)
+    {
+        if (HasOwnerAction(request))
+        {
+            return null;
+        }
+
+        return request.StatusResourceKey switch
+        {
+            "RequestStatus_InApproval" => "RequestsWorkspace_NoOwnerAction_InApproval",
+            "RequestStatus_ApprovedForDispatch" => "RequestsWorkspace_NoOwnerAction_ApprovedForDispatch",
+            "RequestStatus_SubmittedToBank" or "RequestStatus_AwaitingBankResponse" => "RequestsWorkspace_NoOwnerAction_AwaitingBankResponse",
+            "RequestStatus_Completed" => "RequestsWorkspace_NoOwnerAction_Completed",
+            "RequestStatus_Rejected" => "RequestsWorkspace_NoOwnerAction_Rejected",
+            "RequestStatus_Cancelled" => "RequestsWorkspace_NoOwnerAction_Cancelled",
+            _ => "RequestsWorkspace_NextActionMonitor"
+        };
+    }
+
+    private async Task LoadAsync(Guid? actorId, int? pageNumber, Guid? selectedRequestId, CancellationToken cancellationToken)
     {
         actorId = ResolveActor(actorId);
         Snapshot = await _requestWorkspaceService.GetWorkspaceAsync(actorId, pageNumber ?? 1, cancellationToken);
         RequestTypeOptions = BuildRequestTypeOptions();
+        ActiveRequest = ResolveActiveRequest(selectedRequestId);
+        SelectedRequestId = ActiveRequest?.Id;
 
         if (Snapshot.ActiveActor is not null)
         {
@@ -249,6 +363,25 @@ public sealed class WorkspaceModel : PageModel
             cancellationToken);
     }
 
+    private RequestSummaryDto? ResolveActiveRequest(Guid? selectedRequestId)
+    {
+        if (Snapshot.OwnedRequests.Count == 0)
+        {
+            return null;
+        }
+
+        if (selectedRequestId.HasValue)
+        {
+            var selectedRequest = Snapshot.OwnedRequests.FirstOrDefault(request => request.Id == selectedRequestId.Value);
+            if (selectedRequest is not null)
+            {
+                return selectedRequest;
+            }
+        }
+
+        return Snapshot.OwnedRequests[0];
+    }
+
     private Guid? ResolveActor(Guid? actorId)
     {
         var lockedActorId = WorkspaceActorContext.TryGetLockedActorUserId(HttpContext);
@@ -256,11 +389,11 @@ public sealed class WorkspaceModel : PageModel
         return lockedActorId ?? actorId;
     }
 
-    private RedirectToPageResult RedirectToSelf(Guid actorId, int pageNumber)
+    private RedirectToPageResult RedirectToSelf(Guid actorId, int pageNumber, Guid? selectedRequestId = null)
     {
         return IsActorContextLocked
-            ? RedirectToPage("/Requests/Workspace", new { page = pageNumber })
-            : RedirectToPage("/Requests/Workspace", new { actor = actorId, page = pageNumber });
+            ? RedirectToPage("/Requests/Workspace", new { page = pageNumber, request = selectedRequestId })
+            : RedirectToPage("/Requests/Workspace", new { actor = actorId, page = pageNumber, request = selectedRequestId });
     }
 
     private IReadOnlyList<RequestTypeOptionViewModel> BuildRequestTypeOptions()

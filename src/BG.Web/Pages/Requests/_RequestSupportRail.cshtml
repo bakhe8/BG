@@ -1,0 +1,141 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Requests.WorkspaceModel
+
+<div class="bg-card shadow-sm p-4 mb-4">
+    <div class="mb-4">
+        <h5 class="fw-bold text-dark m-0">@T["RequestsWorkspace_CreateTitle"]</h5>
+        <p class="x-small text-muted m-0">@T["RequestsWorkspace_CreateSummary"]</p>
+    </div>
+
+    <form method="post" class="stack-form d-flex flex-column gap-3">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger x-small py-2 border-0 rounded-4 shadow-sm"></div>
+        <input asp-for="Input.RequestedByUserId" type="hidden" />
+        <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
+        <input type="hidden" name="request" value="@Model.ActiveRequest?.Id" />
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75" asp-for="Input.GuaranteeNumber">@T["RequestsWorkspace_GuaranteeNumberField"]</label>
+            <input asp-for="Input.GuaranteeNumber" class="form-control" maxlength="64" placeholder="GR-XXXXX" />
+        </div>
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75" asp-for="Input.RequestType">@T["RequestsWorkspace_RequestTypeField"]</label>
+            <select asp-for="Input.RequestType" class="form-select rounded-4 border-1.5 p-2 px-3 small">
+                @foreach (var option in Model.RequestTypeOptions)
+                {
+                    <option value="@option.Type">@T[option.ResourceKey]</option>
+                }
+            </select>
+        </div>
+
+        @if (Model.RequiresAmount)
+        {
+            <div>
+                <label class="form-label x-small fw-bold opacity-75" asp-for="Input.RequestedAmount">@T["RequestsWorkspace_RequestedAmountField"]</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 x-small fw-bold">SAR</span>
+                    <input asp-for="Input.RequestedAmount" class="form-control border-start-0" inputmode="decimal" />
+                </div>
+            </div>
+        }
+
+        @if (Model.RequiresExpiryDate)
+        {
+            <div>
+                <label class="form-label x-small fw-bold opacity-75" asp-for="Input.RequestedExpiryDate">@T["RequestsWorkspace_RequestedExpiryDateField"]</label>
+                <input asp-for="Input.RequestedExpiryDate" class="form-control" type="date" />
+            </div>
+        }
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75" asp-for="Input.Notes">@T["RequestsWorkspace_NotesField"]</label>
+            <textarea asp-for="Input.Notes" class="form-control" rows="3" placeholder="@T["RequestsWorkspace_NotesPlaceholder"]"></textarea>
+        </div>
+
+        <bg-button type="submit" variant="primary" class="mt-2 w-100">@T["RequestsWorkspace_CreateAction"]</bg-button>
+    </form>
+</div>
+
+@{
+    var actorContextModel = new ActorContextPanelModel(
+        T["RequestsWorkspace_ActorContextTitle"].Value,
+        T["RequestsWorkspace_ActorContextSummary"].Value,
+        Model.IsActorContextLocked ? ActorContextPanelMode.LockedPills : ActorContextPanelMode.SelectorForm,
+        "bg-card mb-4")
+    {
+        Pills = Model.IsActorContextLocked
+            ? new[]
+            {
+                T["WorkspaceShell_CurrentUserScopeNotice"].Value,
+                $"{Model.Snapshot.ActiveActor!.DisplayName} ({Model.Snapshot.ActiveActor.Username})"
+            }
+            : Array.Empty<string>(),
+        FormAction = Url.Page("/Requests/Workspace"),
+        ActorFieldLabel = T["RequestsWorkspace_ActorField"].Value,
+        SubmitLabel = T["RequestsWorkspace_LoadActorAction"].Value,
+        HiddenFields = new SurfaceHiddenFieldModel[]
+        {
+            new("page", Model.Snapshot.OwnedRequestsPage.PageNumber.ToString()),
+            new("request", Model.ActiveRequest?.Id.ToString())
+        },
+        Options = Model.Snapshot.AvailableActors
+            .Select(actor => new ActorContextOptionModel(
+                actor.Id.ToString(),
+                $"{actor.DisplayName} ({actor.Username})",
+                actor.Id == Model.Snapshot.ActiveActor!.Id))
+            .ToArray()
+    };
+}
+
+<partial name="/Pages/Shared/_ActorContextPanel.cshtml" model="actorContextModel" />
+
+<div class="bg-card shadow-sm p-4">
+    <div class="mb-4">
+        <h6 class="fw-bold text-dark m-0">@T["RequestsWorkspace_CurrentWorkflowTitle"]</h6>
+        <p class="x-small text-muted m-0">@T["RequestsWorkspace_WorkflowPreviewTitle"]</p>
+    </div>
+
+    @if (Model.SelectedWorkflowTemplate is null)
+    {
+        <div class="text-center py-4 opacity-50">
+            <i class="bi bi-diagram-3 fs-2 d-block mb-2"></i>
+            <p class="x-small m-0">@T["RequestsWorkspace_NoWorkflowTemplate"]</p>
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrWhiteSpace(Model.SelectedWorkflowTemplate.GuaranteeCategoryResourceKey))
+        {
+            <div class="mb-4">
+                <bg-badge variant="light" class="x-small">@T[Model.SelectedWorkflowTemplate.GuaranteeCategoryResourceKey]</bg-badge>
+            </div>
+        }
+
+        <div class="bg-timeline">
+            @foreach (var stage in Model.SelectedWorkflowTemplate.Stages)
+            {
+                var stageTitle = !string.IsNullOrWhiteSpace(stage.TitleText) ? stage.TitleText : T[stage.TitleResourceKey!].Value;
+                var stageSummary = !string.IsNullOrWhiteSpace(stage.SummaryText) ? stage.SummaryText : string.IsNullOrWhiteSpace(stage.SummaryResourceKey) ? "-" : T[stage.SummaryResourceKey].Value;
+
+                <div class="bg-timeline-item">
+                    <div class="bg-timeline-icon">@stage.Level</div>
+                    <div class="ms-1">
+                        <div class="bg-timeline-title">@stageTitle</div>
+                        <p class="x-small text-muted mb-2">@stageSummary</p>
+                        @if (stage.RequiresLetterSignature)
+                        {
+                            <div class="d-flex flex-wrap gap-1">
+                                <span class="bg-light x-small p-1 px-2 rounded-pill text-secondary">@T[stage.CurrentSignatureModeResourceKey]</span>
+                                @if (!string.IsNullOrWhiteSpace(stage.AssignedRoleName))
+                                {
+                                    <span class="bg-light x-small p-1 px-2 rounded-pill text-secondary">@stage.AssignedRoleName</span>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

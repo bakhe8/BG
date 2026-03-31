@@ -49,7 +49,7 @@ public sealed class RequestsWorkspacePageTests
             }
         };
 
-        var result = await model.OnPostAsync(null, CancellationToken.None);
+        var result = await model.OnPostAsync(null, null, CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
         Assert.Equal("/Requests/Workspace", redirect.PageName);
@@ -66,7 +66,7 @@ public sealed class RequestsWorkspacePageTests
         var model = new WorkspaceModel(service, new PassThroughLocalizer());
         AttachAuthenticatedUser(model, lockedActorId);
 
-        var result = await model.OnPostSubmitAsync(Guid.NewGuid(), Guid.NewGuid(), null, CancellationToken.None);
+        var result = await model.OnPostSubmitAsync(Guid.NewGuid(), Guid.NewGuid(), null, null, CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
         Assert.Equal("/Requests/Workspace", redirect.PageName);
@@ -90,6 +90,7 @@ public sealed class RequestsWorkspacePageTests
             "2027-02-28",
             "Updated note",
             null,
+            null,
             CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
@@ -109,7 +110,7 @@ public sealed class RequestsWorkspacePageTests
         AttachAuthenticatedUser(model, lockedActorId);
         var requestId = Guid.NewGuid();
 
-        var result = await model.OnPostCancelAsync(requestId, Guid.NewGuid(), null, CancellationToken.None);
+        var result = await model.OnPostCancelAsync(requestId, Guid.NewGuid(), null, null, CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
         Assert.Equal("/Requests/Workspace", redirect.PageName);
@@ -128,7 +129,7 @@ public sealed class RequestsWorkspacePageTests
         AttachAuthenticatedUser(model, lockedActorId);
         var requestId = Guid.NewGuid();
 
-        var result = await model.OnPostWithdrawAsync(requestId, Guid.NewGuid(), null, CancellationToken.None);
+        var result = await model.OnPostWithdrawAsync(requestId, Guid.NewGuid(), null, null, CancellationToken.None);
 
         var redirect = Assert.IsType<RedirectToPageResult>(result);
         Assert.Equal("/Requests/Workspace", redirect.PageName);
@@ -136,6 +137,23 @@ public sealed class RequestsWorkspacePageTests
         Assert.True(model.IsActorContextLocked);
         Assert.Equal(lockedActorId, service.LastWithdrawnRequestIdActorId!.Value.ActorId);
         Assert.Equal(requestId, service.LastWithdrawnRequestIdActorId.Value.RequestId);
+    }
+
+    [Fact]
+    public async Task ResolveNoOwnerActionReasonResourceKey_returns_completed_reason_for_non_actionable_request()
+    {
+        var actorId = Guid.NewGuid();
+        var model = new WorkspaceModel(
+            new StubRequestWorkspaceService(actorId, requestStatusResourceKey: "RequestStatus_Completed"),
+            new PassThroughLocalizer());
+
+        await model.OnGetAsync(CancellationToken.None);
+
+        Assert.NotNull(model.ActiveRequest);
+        Assert.False(model.HasOwnerAction(model.ActiveRequest!));
+        Assert.Equal(
+            "RequestsWorkspace_NoOwnerAction_Completed",
+            model.ResolveNoOwnerActionReasonResourceKey(model.ActiveRequest!));
     }
 
     private static void AttachAuthenticatedUser(PageModel model, Guid userId)
@@ -158,10 +176,13 @@ public sealed class RequestsWorkspacePageTests
     {
         private readonly Guid _actorId;
 
-        public StubRequestWorkspaceService(Guid actorId)
+        public StubRequestWorkspaceService(Guid actorId, string requestStatusResourceKey = "RequestStatus_Draft")
         {
             _actorId = actorId;
+            _requestStatusResourceKey = requestStatusResourceKey;
         }
+
+        private readonly string _requestStatusResourceKey;
 
         public CreateGuaranteeRequestCommand? LastCommand { get; private set; }
 
@@ -187,7 +208,7 @@ public sealed class RequestsWorkspacePageTests
                         "BG-2026-5001",
                         "GuaranteeCategory_Contract",
                         "RequestType_Extend",
-                        "RequestStatus_Draft",
+                        _requestStatusResourceKey,
                         null,
                         "2027-01-30",
                         "Need extension",
@@ -196,10 +217,10 @@ public sealed class RequestsWorkspacePageTests
                         null,
                         null,
                         null,
-                        true,
-                        true,
-                        true,
-                        false,
+                        _requestStatusResourceKey is "RequestStatus_Draft" or "RequestStatus_Returned",
+                        _requestStatusResourceKey == "RequestStatus_Returned",
+                        _requestStatusResourceKey is "RequestStatus_Draft" or "RequestStatus_Returned",
+                        _requestStatusResourceKey == "RequestStatus_InApproval",
                         false,
                         true,
                         null,

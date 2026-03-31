@@ -1,0 +1,154 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Approvals.QueueModel
+
+@if (Model.ActiveItem is null)
+{
+    <article class="bg-card shadow-sm p-4 text-center">
+        <i class="bi bi-folder-x fs-1 text-muted opacity-25 d-block mb-2"></i>
+        <h5 class="fw-bold">@T["ApprovalQueue_OpenDossierAction"]</h5>
+        <p class="small text-secondary">@T["ApprovalQueue_Empty"]</p>
+    </article>
+}
+else
+{
+    var item = Model.ActiveItem;
+    var conflictingStageTitle = Model.ResolveConflictingStageTitle(item);
+
+    <article class="bg-card shadow-sm p-0 overflow-hidden mb-3">
+        <div class="p-3 bg-brand-gold-soft border-bottom d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-dark"><i class="bi bi-journal-check me-2 text-brand-green"></i>@T["ApprovalQueue_OpenDossierAction"]</span>
+            <bg-badge variant="info">@item.GuaranteeNumber</bg-badge>
+        </div>
+        <div class="p-4">
+            <label class="section-caption x-small mb-2">@T["ApprovalQueue_DossierContextHint"]</label>
+            <p class="small text-secondary mb-3">@T["ApprovalQueue_DossierSummary"]</p>
+            <div class="d-flex flex-wrap gap-1 mb-4">
+                <bg-badge variant="secondary" class="x-small">@T["ApprovalQueue_PriorSignaturesTitle"]: @item.PriorSignatures.Count</bg-badge>
+                <bg-badge variant="secondary" class="x-small">@T["ApprovalQueue_AttachmentsTitle"]: @item.Attachments.Count</bg-badge>
+                <bg-badge variant="secondary" class="x-small">@T["ApprovalQueue_TimelineTitle"]: @item.TimelineEntries.Count</bg-badge>
+            </div>
+
+            @if (item.Governance.IsDecisionBlocked && !string.IsNullOrWhiteSpace(item.Governance.ReasonResourceKey))
+            {
+                <div class="p-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 rounded-4 mb-4">
+                    <label class="section-caption text-danger x-small mb-1">@T["ApprovalQueue_GovernanceBlockedTitle"]</label>
+                    <p class="x-small text-danger mb-0">@T[item.Governance.ReasonResourceKey]</p>
+                </div>
+            }
+
+            <div class="mt-2">
+                <a class="btn btn-brand-green text-white w-100 rounded-pill fw-bold small py-2"
+                   asp-page="/Approvals/Dossier"
+                   asp-all-route-data="Model.BuildDossierRoute(item.RequestId)">
+                    <i class="bi bi-folder2-open me-2"></i>@T["ApprovalQueue_OpenDossierAction"]
+                </a>
+            </div>
+        </div>
+    </article>
+
+    <details class="bg-card shadow-sm p-0 overflow-hidden mb-3" open>
+        <summary class="p-3 bg-brand-gold-soft border-bottom cursor-pointer d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-dark small"><i class="bi bi-pen me-2 text-brand-green"></i>@T["ApprovalQueue_PriorSignaturesTitle"]</span>
+            <i class="bi bi-chevron-down small text-muted"></i>
+        </summary>
+        <div class="p-4">
+            @if (item.PriorSignatures.Count == 0)
+            {
+                <p class="x-small text-muted text-center py-3">@T["ApprovalQueue_PriorSignaturesEmpty"]</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var signature in item.PriorSignatures)
+                    {
+                        var signatureStageTitle = !string.IsNullOrWhiteSpace(signature.StageTitle)
+                            ? signature.StageTitle
+                            : string.IsNullOrWhiteSpace(signature.StageTitleResourceKey)
+                                ? signature.StageRoleName ?? "-"
+                                : T[signature.StageTitleResourceKey].Value;
+
+                        <div class="d-flex gap-3 position-relative">
+                            <div class="d-flex flex-column align-items-center">
+                                <span class="badge bg-brand-green rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">@signature.Sequence</span>
+                                @if (signature != item.PriorSignatures.Last())
+                                {
+                                    <div class="flex-grow-1 border-start border-2 border-light my-1" style="min-height: 20px;"></div>
+                                }
+                            </div>
+                            <div class="pb-3 flex-grow-1">
+                                <strong class="small d-block text-dark">@signatureStageTitle</strong>
+                                <span class="x-small text-muted d-block mb-2">@signature.ActedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <bg-badge variant="light" class="x-small text-muted border">@T["ApprovalQueue_PriorSignatureActorLabel"]: @(string.IsNullOrWhiteSpace(signature.ActorDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : signature.ActorDisplayName)</bg-badge>
+                                    @if (signature.WasDelegated)
+                                    {
+                                        <bg-badge variant="warning" class="x-small">@T["ApprovalQueue_PriorSignatureDelegatedBadge"]</bg-badge>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </details>
+
+    <details class="bg-card shadow-sm p-0 overflow-hidden mb-3">
+        <summary class="p-3 bg-brand-gold-soft border-bottom cursor-pointer d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-dark small"><i class="bi bi-paperclip me-2 text-brand-green"></i>@T["ApprovalQueue_AttachmentsTitle"]</span>
+            <bg-badge variant="secondary">@item.Attachments.Count</bg-badge>
+        </summary>
+        <div class="p-4">
+            @if (item.Attachments.Count == 0)
+            {
+                <p class="x-small text-muted text-center py-3">@T["ApprovalQueue_AttachmentsEmpty"]</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var attachment in item.Attachments)
+                    {
+                        <div class="p-3 bg-light rounded-4 border">
+                            <strong class="small d-block text-dark text-truncate">@attachment.FileName</strong>
+                            <span class="x-small text-muted d-block mb-2">@T[attachment.DocumentTypeResourceKey]</span>
+                            <div class="d-flex flex-wrap gap-1">
+                                @if (attachment.DocumentForm is not null)
+                                {
+                                    <bg-badge variant="info" class="x-small">@T[attachment.DocumentForm.BankResourceKey]</bg-badge>
+                                }
+                                <bg-badge variant="light" class="x-small border text-muted">@attachment.CapturedAtUtc.ToLocalTime().ToString("MM-dd HH:mm")</bg-badge>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </details>
+
+    <details class="bg-card shadow-sm p-0 overflow-hidden">
+        <summary class="p-3 bg-brand-gold-soft border-bottom cursor-pointer d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-dark small"><i class="bi bi-clock-history me-2 text-brand-green"></i>@T["ApprovalQueue_TimelineTitle"]</span>
+            <i class="bi bi-chevron-down small text-muted"></i>
+        </summary>
+        <div class="p-4">
+            @if (item.TimelineEntries.Count == 0)
+            {
+                <p class="x-small text-muted text-center py-3">@T["ApprovalQueue_TimelineEmpty"]</p>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var entry in item.TimelineEntries)
+                    {
+                        <div class="border-start border-2 border-brand-gold-light ps-3 py-1">
+                            <span class="x-small text-muted fw-bold d-block">@entry.OccurredAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                            <span class="small d-block my-1">@entry.Summary</span>
+                            <span class="x-small text-muted italic">@T["RequestsWorkspace_LedgerActorLabel"]: @(string.IsNullOrWhiteSpace(entry.ActorDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : entry.ActorDisplayName)</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </details>
+}

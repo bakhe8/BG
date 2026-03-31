@@ -1,0 +1,21 @@
+@model BG.Web.UI.SurfacePaginationModel
+
+<div class="action-row">
+    @if (Model.PreviousRouteValues is not null)
+    {
+        <a class="btn btn-outline-primary action-button"
+           asp-page="@Model.PagePath"
+           asp-all-route-data="Model.PreviousRouteValues">
+            @Model.PreviousLabel
+        </a>
+    }
+
+    @if (Model.NextRouteValues is not null)
+    {
+        <a class="btn btn-outline-primary action-button"
+           asp-page="@Model.PagePath"
+           asp-all-route-data="Model.NextRouteValues">
+            @Model.NextLabel
+        </a>
+    }
+</div>

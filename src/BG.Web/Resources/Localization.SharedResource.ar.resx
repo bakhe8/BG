@@ -732,7 +732,10 @@
   <data name="DispatchWorkspace_ReopenSuccess" xml:space="preserve"><value>تمت إعادة فتح الإرسال للمرجع الصادر {0} على الضمان {1}.</value></data>
   <data name="DispatchWorkspace_ReadyActionSummary" xml:space="preserve"><value>جهّز النسخة الصادرة النهائية ثم سجّل اللحظة التي يغادر فيها الخطاب BG فعليًا.</value></data>
   <data name="DispatchWorkspace_PendingActionSummary" xml:space="preserve"><value>هذا الخطاب غادر BG بالفعل. أغلق handoff بإثبات التسليم أو إعادة طباعة مضبوطة أو تصحيح إعادة الفتح.</value></data>
+  <data name="DispatchWorkspace_NoAvailableActionsTitle" xml:space="preserve"><value>لماذا لا يوجد إجراء إرسال متاح</value></data>
   <data name="DispatchWorkspace_NoAvailableActionsSummary" xml:space="preserve"><value>لا توجد إجراءات إرسال متاحة للمستخدم الحالي على هذا السطح.</value></data>
+  <data name="DispatchWorkspace_NoAvailableReadyActionsReason" xml:space="preserve"><value>يمكن لهذا المستخدم رؤية سطح العناصر الجاهزة للإرسال، لكنه لا يملك صلاحية الطباعة أو تسجيل الخروج الخارجي لهذا العنصر.</value></data>
+  <data name="DispatchWorkspace_NoAvailablePendingActionsReason" xml:space="preserve"><value>يمكن لهذا المستخدم رؤية سطح العناصر بانتظار التسليم، لكنه لا يملك صلاحية تأكيد التسليم أو إعادة الطباعة أو إعادة فتح handoff لهذا الخطاب.</value></data>
   <data name="DispatchWorkspace_ReadyEvidenceSummary" xml:space="preserve"><value>افتح دليل الطباعة فقط عندما تحتاج إلى التتبع التفصيلي لهذا العنصر الصادر.</value></data>
   <data name="DispatchWorkspace_PendingEvidenceSummary" xml:space="preserve"><value>افتح دليل الإرسال فقط عندما يحتاج handoff الحالي إلى تفاصيل تسليم إضافية.</value></data>
   <data name="DispatchPrintMode_WorkstationPrinter" xml:space="preserve"><value>طابعة المكتب</value></data>
@@ -779,8 +782,11 @@
   <data name="operations.response_type_not_supported" xml:space="preserve"><value>نوع رد البنك هذا غير مدعوم بعد في التطبيق التشغيلي.</value></data>
   <data name="operations.actor_required" xml:space="preserve"><value>اختر موظف التشغيل العامل أولًا.</value></data>
   <data name="operations.actor_invalid" xml:space="preserve"><value>مستخدم التشغيل المحدد غير صالح لهذا الطابور.</value></data>
+  <data name="operations.reopen_correction_note_required" xml:space="preserve"><value>أدخل سبب التصحيح قبل إعادة فتح رد البنك المطبق.</value></data>
+  <data name="operations.reopen_applied_response_not_allowed" xml:space="preserve"><value>لم يعد ممكنًا إعادة فتح رد البنك المطبق هذا للتصحيح.</value></data>
   <data name="OperationsLedgerPolicy_MatchedSuggestionApplied" xml:space="preserve"><value>تم اعتماد وتطبيق ترشيح النظام</value></data>
   <data name="OperationsLedgerPolicy_ManualRequestSelectionApplied" xml:space="preserve"><value>تم تطبيق اختيار يدوي للطلب من قبل التشغيل</value></data>
+  <data name="OperationsLedgerPolicy_AppliedResponseReopened" xml:space="preserve"><value>أعيد فتح رد البنك المطبق للتصحيح</value></data>
   <data name="NavDelegations" xml:space="preserve"><value>التفويضات</value></data>
   <data name="ApprovalDelegation_PageTitle" xml:space="preserve"><value>تفويضات الموافقات</value></data>
   <data name="ApprovalDelegation_Heading" xml:space="preserve"><value>تفويضات الموافقات المؤقتة</value></data>
@@ -879,6 +885,13 @@
   <data name="RequestsWorkspace_NextActionCompleted" xml:space="preserve"><value>اكتمل هذا الطلب. افتح التتبع التفصيلي فقط إذا احتجت الأثر النهائي الكامل.</value></data>
   <data name="RequestsWorkspace_NextActionClosed" xml:space="preserve"><value>هذا الطلب مغلق ولا توجد عليه إجراءات إضافية من سطح المالك.</value></data>
   <data name="RequestsWorkspace_NextActionMonitor" xml:space="preserve"><value>استمر في متابعة هذا الطلب حتى يغيّر handoff التشغيلي التالي حالته.</value></data>
+  <data name="RequestsWorkspace_NoAvailableOwnerActionTitle" xml:space="preserve"><value>لماذا لا يوجد إجراء متاح لك الآن</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_InApproval" xml:space="preserve"><value>هذا الطلب داخل مسار الموافقات حاليًا. يمكنك متابعته من هنا أو سحبه قبل أن تستمر الموافقة الحالية.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_ApprovedForDispatch" xml:space="preserve"><value>أنهى هذا الطلب الموافقات وانتقل إلى الإرسال. يبقى سطح المالك للمتابعة فقط حتى يغيّر handoff التالي حالته.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_AwaitingBankResponse" xml:space="preserve"><value>غادر هذا الطلب BG بالفعل. يبقى سطح المالك للمتابعة فقط حتى يسجل التشغيل رد البنك.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_Completed" xml:space="preserve"><value>اكتمل هذا الطلب ولا يوجد إجراء متاح للمالك إلا إذا احتجت الأثر النهائي فقط.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_Rejected" xml:space="preserve"><value>رُفض هذا الطلب أثناء الموافقات وأصبح مغلقًا على سطح المالك.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_Cancelled" xml:space="preserve"><value>أُلغي هذا الطلب قبل اكتماله ولم يعد هناك إجراء إضافي مسموح للمالك.</value></data>
   <data name="RequestsWorkspace_State_Draft" xml:space="preserve"><value>هذا الطلب ما يزال معك ولم يدخل مسار الموافقات بعد.</value></data>
   <data name="RequestsWorkspace_State_InApproval" xml:space="preserve"><value>هذا الطلب موجود حاليًا داخل مسار الموافقات وينتظر الموقّع النشط.</value></data>
   <data name="RequestsWorkspace_State_Returned" xml:space="preserve"><value>أُعيد هذا الطلب للتصحيح قبل أن يستطيع التقدم مرة أخرى.</value></data>
@@ -900,6 +913,15 @@
   <data name="OperationsQueue_CompleteNowStepMatch" xml:space="preserve"><value>اختر الطلب الصحيح بالاعتماد على ترشيحات النظام أو مراجعتك.</value></data>
   <data name="OperationsQueue_CompleteNowStepConfirm" xml:space="preserve"><value>أكد تاريخ الانتهاء الحقيقي أو المبلغ أو الملاحظة المطلوبة حسب السيناريو.</value></data>
   <data name="OperationsQueue_CompleteNowStepClose" xml:space="preserve"><value>طبّق رد البنك حتى ينتقل الضمان والطلب إلى حالتهما المؤكدة.</value></data>
+  <data name="OperationsQueue_CompletedAtLabel" xml:space="preserve"><value>اكتمل في</value></data>
+  <data name="OperationsQueue_ReopenAction" xml:space="preserve"><value>إعادة فتح الرد المطبق</value></data>
+  <data name="OperationsQueue_ReopenActionSummary" xml:space="preserve"><value>استخدم هذا فقط لعكس آخر رد بنك طُبّق حتى يستطيع التشغيل تصحيح مطابقة الطلب أو القيم المؤكدة.</value></data>
+  <data name="OperationsQueue_ReopenNoteField" xml:space="preserve"><value>سبب التصحيح</value></data>
+  <data name="OperationsQueue_ReopenSuccess" xml:space="preserve"><value>تمت إعادة فتح رد البنك المطبق على الضمان {0} للتصحيح.</value></data>
+  <data name="OperationsQueue_ApplyBlockedTitle" xml:space="preserve"><value>لماذا لا يمكن تطبيق هذا الرد الآن</value></data>
+  <data name="OperationsQueue_BlockedSuggestionLabel" xml:space="preserve"><value>محجوب</value></data>
+  <data name="OperationsQueue_RecentCompletedTitle" xml:space="preserve"><value>عناصر اكتملت مؤخرًا</value></data>
+  <data name="OperationsQueue_RecentCompletedSummary" xml:space="preserve"><value>افتح أحد هذه العناصر فقط عندما تحتاج إلى تصحيح آخر رد بنك تم تطبيقه.</value></data>
   <data name="DispatchWorkspace_ReadyStateTitle" xml:space="preserve"><value>جاهز للطباعة أو الإرسال</value></data>
   <data name="DispatchWorkspace_ReadyStateSummary" xml:space="preserve"><value>هذه الطلبات أنهت الموافقات وتحتاج الآن إلى الطباعة أو تسجيل الإرسال أو كليهما.</value></data>
   <data name="DispatchWorkspace_WhyHereTitle" xml:space="preserve"><value>لماذا هذا العنصر هنا</value></data>
@@ -942,23 +964,53 @@
   <data name="BankProfile_Generic" xml:space="preserve"><value>ملف بنك عام</value></data>
   <data name="BankProfile_SNB" xml:space="preserve"><value>البنك الأهلي السعودي</value></data>
   <data name="BankProfile_AlRajhi" xml:space="preserve"><value>مصرف الراجحي</value></data>
+  <data name="BankProfile_Alinma" xml:space="preserve"><value>مصرف الإنماء</value></data>
   <data name="BankProfile_Riyad" xml:space="preserve"><value>بنك الرياض</value></data>
+  <data name="BankProfile_BnpParibas" xml:space="preserve"><value>بي إن بي باريبا</value></data>
+  <data name="BankProfile_ANB" xml:space="preserve"><value>البنك العربي الوطني</value></data>
+  <data name="BankProfile_BSF" xml:space="preserve"><value>البنك السعودي الفرنسي</value></data>
+  <data name="BankProfile_SABB" xml:space="preserve"><value>ساب</value></data>
+  <data name="BankProfile_Saib" xml:space="preserve"><value>البنك السعودي للاستثمار</value></data>
   <data name="DocumentForm_Instrument_Generic_Title" xml:space="preserve"><value>أصل ضمان بنكي عام</value></data>
   <data name="DocumentForm_Instrument_Generic_Summary" xml:space="preserve"><value>استخدمه عندما يكون أصل الضمان صحيحًا لكنه لا يطابق بعد نموذج بنك محدد مثبت داخل النظام.</value></data>
   <data name="DocumentForm_Instrument_SNB_Title" xml:space="preserve"><value>أصل ضمان البنك الأهلي السعودي</value></data>
   <data name="DocumentForm_Instrument_SNB_Summary" xml:space="preserve"><value>أصل ضمان صادر من البنك الأهلي السعودي ضمن عائلة مستنداته المعتمدة.</value></data>
   <data name="DocumentForm_Instrument_AlRajhi_Title" xml:space="preserve"><value>أصل ضمان مصرف الراجحي</value></data>
   <data name="DocumentForm_Instrument_AlRajhi_Summary" xml:space="preserve"><value>أصل ضمان صادر من مصرف الراجحي ضمن عائلة مستنداته المعتمدة.</value></data>
+  <data name="DocumentForm_Instrument_Alinma_Title" xml:space="preserve"><value>أصل ضمان مصرف الإنماء</value></data>
+  <data name="DocumentForm_Instrument_Alinma_Summary" xml:space="preserve"><value>أصل ضمان صادر من مصرف الإنماء ضمن عائلة مستنداته المعتمدة.</value></data>
   <data name="DocumentForm_Instrument_Riyad_Title" xml:space="preserve"><value>أصل ضمان بنك الرياض</value></data>
   <data name="DocumentForm_Instrument_Riyad_Summary" xml:space="preserve"><value>أصل ضمان صادر من بنك الرياض ضمن عائلة مستنداته المعتمدة.</value></data>
+  <data name="DocumentForm_Instrument_BnpParibas_Title" xml:space="preserve"><value>أصل ضمان بي إن بي باريبا</value></data>
+  <data name="DocumentForm_Instrument_BnpParibas_Summary" xml:space="preserve"><value>أصل ضمان صادر من بي إن بي باريبا ضمن عائلة مستنداته المعتمدة.</value></data>
+  <data name="DocumentForm_Instrument_ANB_Title" xml:space="preserve"><value>أصل ضمان البنك العربي الوطني</value></data>
+  <data name="DocumentForm_Instrument_ANB_Summary" xml:space="preserve"><value>أصل ضمان صادر من البنك العربي الوطني ضمن عائلة مستنداته المعتمدة.</value></data>
+  <data name="DocumentForm_Instrument_BSF_Title" xml:space="preserve"><value>أصل ضمان البنك السعودي الفرنسي</value></data>
+  <data name="DocumentForm_Instrument_BSF_Summary" xml:space="preserve"><value>أصل ضمان صادر من البنك السعودي الفرنسي ضمن عائلة مستنداته المعتمدة.</value></data>
+  <data name="DocumentForm_Instrument_SABB_Title" xml:space="preserve"><value>أصل ضمان ساب</value></data>
+  <data name="DocumentForm_Instrument_SABB_Summary" xml:space="preserve"><value>أصل ضمان صادر من ساب ضمن عائلة مستنداته المعتمدة.</value></data>
+  <data name="DocumentForm_Instrument_Saib_Title" xml:space="preserve"><value>أصل ضمان البنك السعودي للاستثمار</value></data>
+  <data name="DocumentForm_Instrument_Saib_Summary" xml:space="preserve"><value>أصل ضمان صادر من البنك السعودي للاستثمار ضمن عائلة مستنداته المعتمدة.</value></data>
   <data name="DocumentForm_BankLetter_Generic_Title" xml:space="preserve"><value>خطاب وارد عام من البنك</value></data>
   <data name="DocumentForm_BankLetter_Generic_Summary" xml:space="preserve"><value>استخدمه عندما يكون خطاب التأكيد الوارد صحيحًا لكنه غير مربوط بعد بعائلة ترويسة بنك محددة.</value></data>
   <data name="DocumentForm_BankLetter_SNB_Title" xml:space="preserve"><value>خطاب وارد من البنك الأهلي السعودي</value></data>
   <data name="DocumentForm_BankLetter_SNB_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة البنك الأهلي السعودي.</value></data>
   <data name="DocumentForm_BankLetter_AlRajhi_Title" xml:space="preserve"><value>خطاب وارد من مصرف الراجحي</value></data>
   <data name="DocumentForm_BankLetter_AlRajhi_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة مصرف الراجحي.</value></data>
+  <data name="DocumentForm_BankLetter_Alinma_Title" xml:space="preserve"><value>خطاب وارد من مصرف الإنماء</value></data>
+  <data name="DocumentForm_BankLetter_Alinma_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة مصرف الإنماء.</value></data>
   <data name="DocumentForm_BankLetter_Riyad_Title" xml:space="preserve"><value>خطاب وارد من بنك الرياض</value></data>
   <data name="DocumentForm_BankLetter_Riyad_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة بنك الرياض.</value></data>
+  <data name="DocumentForm_BankLetter_BnpParibas_Title" xml:space="preserve"><value>خطاب وارد من بي إن بي باريبا</value></data>
+  <data name="DocumentForm_BankLetter_BnpParibas_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة بي إن بي باريبا.</value></data>
+  <data name="DocumentForm_BankLetter_ANB_Title" xml:space="preserve"><value>خطاب وارد من البنك العربي الوطني</value></data>
+  <data name="DocumentForm_BankLetter_ANB_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة البنك العربي الوطني.</value></data>
+  <data name="DocumentForm_BankLetter_BSF_Title" xml:space="preserve"><value>خطاب وارد من البنك السعودي الفرنسي</value></data>
+  <data name="DocumentForm_BankLetter_BSF_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة البنك السعودي الفرنسي.</value></data>
+  <data name="DocumentForm_BankLetter_SABB_Title" xml:space="preserve"><value>خطاب وارد من ساب</value></data>
+  <data name="DocumentForm_BankLetter_SABB_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة ساب.</value></data>
+  <data name="DocumentForm_BankLetter_Saib_Title" xml:space="preserve"><value>خطاب وارد من البنك السعودي للاستثمار</value></data>
+  <data name="DocumentForm_BankLetter_Saib_Summary" xml:space="preserve"><value>خطاب تأكيد وارد على ترويسة البنك السعودي للاستثمار.</value></data>
   <data name="DocumentForm_Attachment_Generic_Title" xml:space="preserve"><value>ملحق أو مستند داعم</value></data>
   <data name="DocumentForm_Attachment_Generic_Summary" xml:space="preserve"><value>مستندات داعمة أو ملاحق أو أوراق موقعة مرتبطة بضمان قائم.</value></data>
   <data name="DocumentFormCue_BankIdentity" xml:space="preserve"><value>هوية البنك أو ترويسة الخطاب</value></data>

@@ -1,0 +1,10 @@
+@model BG.Web.UI.SurfaceMessageCardModel
+@{
+    var classes = string.IsNullOrWhiteSpace(Model.CssClass)
+        ? "info-card"
+        : $"info-card {Model.CssClass}";
+}
+<article class="@classes">
+    <h2>@Model.Title</h2>
+    <p class="compact-copy">@Model.Summary</p>
+</article>

@@ -4,525 +4,105 @@
 @model BG.Web.Pages.Intake.WorkspaceModel
 @{
     ViewData["Title"] = T["IntakeWorkspace_PageTitle"];
+    var headerModel = new SurfaceHeaderModel(
+        T["NavIntake"].Value,
+        T["IntakeWorkspace_Heading"].Value,
+        T["IntakeWorkspace_ActionSummary"].Value,
+        new[]
+        {
+            T[Model.Workspace.PrimaryRoleResourceKey].Value,
+            T[Model.HasDraft ? "IntakeWorkspace_DraftReady" : "IntakeWorkspace_DraftPending"].Value,
+            T[Model.Workspace.ReviewGateResourceKey].Value
+        },
+        "is-split");
+    var statStripModel = new SurfaceStatStripModel(
+        new[]
+        {
+            new SurfaceStatItem(
+                T["IntakeWorkspace_DraftStatusTitle"].Value,
+                T[Model.HasDraft ? "IntakeWorkspace_DraftReady" : "IntakeWorkspace_DraftPending"].Value),
+            new SurfaceStatItem(
+                T["IntakeWorkspace_DetectedFormTitle"].Value,
+                T[Model.SelectedDocumentForm.TitleResourceKey].Value,
+                T[Model.SelectedDocumentForm.BankResourceKey].Value),
+            new SurfaceStatItem(
+                T["IntakeWorkspace_HandoffTitle"].Value,
+                T[Model.SelectedScenario.SaveOutcomeResourceKey].Value,
+                T[Model.SelectedScenario.HandoffResourceKey].Value),
+            new SurfaceStatItem(
+                T["IntakeWorkspace_RequiredFieldsTitle"].Value,
+                Model.CriticalReviewFields.Count,
+                T["IntakeWorkspace_RequiredBeforeSaveTitle"].Value)
+        });
+    var noEligibleActorModel = new SurfaceMessageCardModel(
+        T["IntakeWorkspace_NoEligibleActor"].Value,
+        T["IntakeWorkspace_NoEligibleActorBody"].Value);
 }
 
-<section class="section-shell">
+<section class="intake-surface">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
-        <div class="notice-banner is-success">@Model.StatusMessage</div>
+        <div class="notice-banner is-success mb-4">@Model.StatusMessage</div>
     }
 
-    @if (Model.Workspace.HasEligibleActor && !string.IsNullOrWhiteSpace(Model.Workspace.ContextNoticeResourceKey))
-    {
-        <div class="notice-banner is-success">@T[Model.Workspace.ContextNoticeResourceKey]</div>
-    }
+    @* Header Integration *@
+    <div class="mb-4">
+        <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
+    </div>
 
     @if (!Model.Workspace.HasEligibleActor)
     {
-        <div class="notice-banner">@T["IntakeWorkspace_NoEligibleActorBody"]</div>
+        <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="noEligibleActorModel" />
     }
-
-    <div class="section-header intake-section-header">
-        <div>
-            <span class="eyebrow">@T["NavIntake"]</span>
-            <h1>@T["IntakeWorkspace_Heading"]</h1>
-            <p class="compact-copy">@T["IntakeWorkspace_ActionSummary"]</p>
+    else
+    {
+        @* Quick Stats Overlay *@
+        <div class="mb-4">
+            <partial name="/Pages/Shared/_SurfaceStatStrip.cshtml" model="statStripModel" />
         </div>
 
-        <div class="pill-list intake-header-pills">
-            <span class="pill">@T[Model.Workspace.PrimaryRoleResourceKey]</span>
-            <span class="pill">@T[Model.HasDraft ? "IntakeWorkspace_DraftReady" : "IntakeWorkspace_DraftPending"]</span>
-            <span class="pill">@T[Model.Workspace.ReviewGateResourceKey]</span>
-        </div>
-    </div>
+        <form id="intake-workspace-form" 
+              method="post" 
+              enctype="multipart/form-data" 
+              class="stack-form"
+              hx-target="#verification-panel-container"
+              hx-swap="innerHTML">
+            
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-3"></div>
 
-    <article class="info-card intake-scenario-shell">
-        <div class="intake-scenario-current">
-            <div class="intake-scenario-copy">
-                <span class="section-caption">@T["IntakeWorkspace_SelectedScenarioLabel"]</span>
-                <h2>@T[Model.SelectedScenario.TitleResourceKey]</h2>
-                <p class="compact-copy">@T[Model.SelectedScenario.SummaryResourceKey]</p>
+            <input asp-for="Input.ScenarioKey" type="hidden" />
+            <input asp-for="Input.StagedDocumentToken" type="hidden" />
+            <input asp-for="Input.ExtractionRouteResourceKey" type="hidden" />
+            <input asp-for="Input.PageCount" type="hidden" />
+            <input asp-for="Input.OriginalFileName" type="hidden" />
+
+            <div class="intake-surface-grid">
+                @* Left Pane: Document / Input *@
+                <div id="document-panel-container">
+                    <partial name="_IntakeDocumentPanel" model="Model" />
+                </div>
+
+                @* Right Pane: Verification / Refinement *@
+                <div id="verification-panel-container">
+                    <partial name="_IntakeVerificationPanel" model="Model" />
+                </div>
             </div>
-
-            <div class="intake-scenario-stats">
-                <section class="draft-status">
-                    <span class="section-caption">@T["IntakeWorkspace_DraftStatusTitle"]</span>
-                    <strong>@T[Model.HasDraft ? "IntakeWorkspace_DraftReady" : "IntakeWorkspace_DraftPending"]</strong>
-                </section>
-
-                <section class="draft-status">
-                    <span class="section-caption">@T["IntakeWorkspace_DetectedFormTitle"]</span>
-                    <strong>@T[Model.SelectedDocumentForm.TitleResourceKey]</strong>
-                    <p class="compact-copy">@T[Model.SelectedDocumentForm.BankResourceKey]</p>
-                </section>
-
-                <section class="draft-status">
-                    <span class="section-caption">@T["IntakeWorkspace_HandoffTitle"]</span>
-                    <strong>@T[Model.SelectedScenario.SaveOutcomeResourceKey]</strong>
-                    <p class="compact-copy">@T[Model.SelectedScenario.HandoffResourceKey]</p>
-                </section>
-            </div>
-        </div>
-
-        <nav class="scenario-switcher" aria-label="@T["IntakeWorkspace_SelectedScenarioLabel"]">
-            @foreach (var scenario in Model.Workspace.Scenarios)
-            {
-                var isActive = scenario.Key == Model.SelectedScenario.Key;
-                <a class="scenario-toggle @(isActive ? "active" : null)"
-                   asp-page="/Intake/Workspace"
-                   asp-route-actor="@(Model.IsActorContextLocked ? null : Model.Workspace.ActiveActor?.Id)"
-                   asp-route-scenario="@scenario.Key">
-                    @T[scenario.TitleResourceKey]
-                </a>
-            }
-        </nav>
-    </article>
-
-    <form method="post" enctype="multipart/form-data" class="stack-form">
-        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
-
-        <input asp-for="Input.ScenarioKey" type="hidden" />
-        <input asp-for="Input.StagedDocumentToken" type="hidden" />
-        <input asp-for="Input.ExtractionRouteResourceKey" type="hidden" />
-        <input asp-for="Input.PageCount" type="hidden" />
-        <input asp-for="Input.OriginalFileName" type="hidden" />
-
-        <div class="intake-surface-grid">
-            <div class="intake-execution-column">
-                <section class="intake-step-card">
-                    <div class="intake-step-header">
-                        <div>
-                            <span class="section-caption">@T["IntakeWorkspace_CaptureZoneTitle"]</span>
-                            <h2>@T["IntakeWorkspace_SourceDocumentTitle"]</h2>
-                            <p class="compact-copy">@T["IntakeWorkspace_SubmissionSummary"]</p>
-                        </div>
-                    </div>
-
-                    <label class="form-label" asp-for="Input.UploadedDocument">@T["IntakeWorkspace_FileField"]</label>
-                    <input asp-for="Input.UploadedDocument" class="form-control" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff" />
-                    <p class="compact-copy">@T["IntakeWorkspace_FileHint"]</p>
-
-                    @if (Model.HasDraft)
-                    {
-                        <div class="data-pairs draft-pairs">
-                            <div>
-                                <dt>@T["IntakeWorkspace_FileNameLabel"]</dt>
-                                <dd>@Model.Input.OriginalFileName</dd>
-                            </div>
-                            <div>
-                                <dt>@T["IntakeWorkspace_PageCountLabel"]</dt>
-                                <dd>@Model.Input.PageCount</dd>
-                            </div>
-                            <div>
-                                <dt>@T["IntakeWorkspace_ExtractionRouteLabel"]</dt>
-                                <dd>@T[Model.Input.ExtractionRouteResourceKey ?? "IntakeExtractionRoute_PdfTextFirst"]</dd>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="notice-banner is-info intake-inline-banner">@T["IntakeWorkspace_NoDraftBody"]</div>
-                    }
-
-                    <div class="action-row">
-                        <button type="submit" asp-page-handler="Extract" class="btn btn-outline-primary action-button">
-                            @T["IntakeWorkspace_ExtractAction"]
-                        </button>
-                    </div>
-                </section>
-
-                <section class="intake-step-card">
-                    <div class="intake-step-header">
-                        <div>
-                            <span class="section-caption">@T["IntakeWorkspace_VerifyZoneTitle"]</span>
-                            <h2>@T["IntakeWorkspace_VerifiedFieldsTitle"]</h2>
-                            <p class="compact-copy">@T["IntakeWorkspace_RequiredBeforeSaveTitle"]</p>
-                        </div>
-                    </div>
-
-                    <label class="form-label" asp-for="Input.GuaranteeNumber">@T["IntakeField_GuaranteeNumber"]</label>
-                    <input asp-for="Input.GuaranteeNumber" class="form-control" maxlength="64" />
-
-                    @if (Model.IsNewGuaranteeScenario)
-                    {
-                        <label class="form-label" asp-for="Input.BankName">@T["IntakeField_BankName"]</label>
-                        <input asp-for="Input.BankName" class="form-control" maxlength="128" />
-
-                        <label class="form-label" asp-for="Input.BeneficiaryName">@T["IntakeField_Beneficiary"]</label>
-                        <input asp-for="Input.BeneficiaryName" class="form-control" maxlength="256" />
-
-                        <label class="form-label" asp-for="Input.PrincipalName">@T["IntakeField_Principal"]</label>
-                        <input asp-for="Input.PrincipalName" class="form-control" maxlength="256" />
-
-                        <label class="form-label" asp-for="Input.GuaranteeCategory">@T["IntakeField_GuaranteeCategory"]</label>
-                        <select asp-for="Input.GuaranteeCategory" class="form-control">
-                            <option value="">@T["IntakeWorkspace_SelectGuaranteeCategory"]</option>
-                            @foreach (var option in Model.GuaranteeCategoryOptions)
-                            {
-                                <option value="@option.Value">@T[option.ResourceKey]</option>
-                            }
-                        </select>
-
-                        <div class="inline-form-grid">
-                            <div>
-                                <label class="form-label" asp-for="Input.Amount">@T["IntakeField_Amount"]</label>
-                                <input asp-for="Input.Amount" class="form-control" inputmode="decimal" />
-                            </div>
-                            <div>
-                                <label class="form-label" asp-for="Input.CurrencyCode">@T["IntakeField_CurrencyCode"]</label>
-                                <input asp-for="Input.CurrencyCode" class="form-control" maxlength="3" />
-                            </div>
-                        </div>
-
-                        <div class="inline-form-grid">
-                            <div>
-                                <label class="form-label" asp-for="Input.IssueDate">@T["IntakeField_IssueDate"]</label>
-                                <input asp-for="Input.IssueDate" class="form-control" type="date" />
-                            </div>
-                            <div>
-                                <label class="form-label" asp-for="Input.ExpiryDate">@T["IntakeField_ExpiryDate"]</label>
-                                <input asp-for="Input.ExpiryDate" class="form-control" type="date" />
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        @if (!Model.IsAttachmentScenario)
-                        {
-                            <div class="inline-form-grid">
-                                <div>
-                                    <label class="form-label" asp-for="Input.OfficialLetterDate">@T["IntakeField_OfficialLetterDate"]</label>
-                                    <input asp-for="Input.OfficialLetterDate" class="form-control" type="date" />
-                                </div>
-                                <div>
-                                    <label class="form-label" asp-for="Input.BankReference">@T["IntakeField_BankReference"]</label>
-                                    <input asp-for="Input.BankReference" class="form-control" maxlength="64" />
-                                </div>
-                            </div>
-                        }
-
-                        @if (Model.IsExtensionScenario)
-                        {
-                            <label class="form-label" asp-for="Input.NewExpiryDate">@T["IntakeField_NewExpiryDate"]</label>
-                            <input asp-for="Input.NewExpiryDate" class="form-control" type="date" />
-                        }
-
-                        @if (Model.IsReductionScenario)
-                        {
-                            <label class="form-label" asp-for="Input.Amount">@T["IntakeField_Amount"]</label>
-                            <input asp-for="Input.Amount" class="form-control" inputmode="decimal" />
-                        }
-
-                        @if (Model.IsStatusScenario)
-                        {
-                            <label class="form-label" asp-for="Input.StatusStatement">@T["IntakeField_StatusStatement"]</label>
-                            <textarea asp-for="Input.StatusStatement" class="form-control" rows="4"></textarea>
-                        }
-
-                        @if (Model.IsAttachmentScenario)
-                        {
-                            <label class="form-label" asp-for="Input.AttachmentNote">@T["IntakeField_AttachmentNote"]</label>
-                            <textarea asp-for="Input.AttachmentNote" class="form-control" rows="4"></textarea>
-                        }
-                    }
-                </section>
-
-                <section class="intake-step-card">
-                    <div class="intake-step-header">
-                        <div>
-                            <span class="section-caption">@T["IntakeWorkspace_ReviewZoneTitle"]</span>
-                            <h2>@T["IntakeWorkspace_ReviewCardTitle"]</h2>
-                            <p class="compact-copy">@T[Model.HasDraft ? "IntakeWorkspace_ReviewCardBody" : "IntakeWorkspace_ReviewCardPendingBody"]</p>
-                        </div>
-                    </div>
-
-                    <div class="surface-stat-grid intake-review-overview">
-                        <section class="surface-stat">
-                            <span class="section-caption">@T["IntakeWorkspace_RequiredFieldsTitle"]</span>
-                            <strong>@Model.CriticalReviewFields.Count</strong>
-                            <p class="compact-copy">@T["IntakeWorkspace_RequiredBeforeSaveTitle"]</p>
-                        </section>
-                        <section class="surface-stat">
-                            <span class="section-caption">@T["IntakeWorkspace_MetricReview"]</span>
-                            <strong>@Model.HighConfidenceCount</strong>
-                            <p class="compact-copy">@T["IntakeWorkspace_ReviewGate"]</p>
-                        </section>
-                        <section class="surface-stat">
-                            <span class="section-caption">@T["IntakeWorkspace_FormExpectedFieldsTitle"]</span>
-                            <strong>@Model.ExpectedFormFieldCount</strong>
-                            <p class="compact-copy">@T["IntakeWorkspace_FormExpectedFieldsSummary"]</p>
-                        </section>
-                    </div>
-
-                    @if (Model.HasDraft)
-                    {
-                        <div class="review-table">
-                            @foreach (var field in Model.CriticalReviewFields)
-                            {
-                                var confidenceClass = field.ConfidencePercent >= 95
-                                    ? "is-high"
-                                    : field.ConfidencePercent >= 90
-                                        ? "is-medium"
-                                        : "is-low";
-
-                                <div class="review-row">
-                                    <div class="review-body">
-                                        <strong>@T[field.LabelResourceKey]</strong>
-                                        <div class="selection-copy">@field.Value</div>
-                                        <div class="review-subline">
-                                            <span>@T[field.IsExpectedByDocumentForm ? "IntakeWorkspace_FormExpectedField" : "IntakeWorkspace_FormSupplementalField"]</span>
-                                            @if (!string.IsNullOrWhiteSpace(field.ProvenanceResourceKey))
-                                            {
-                                                <span>@T[field.ProvenanceResourceKey]</span>
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="review-meta">
-                                        <span class="confidence-chip @confidenceClass">@field.ConfidencePercent%</span>
-                                        @if (field.RequiresExplicitReview)
-                                        {
-                                            <span class="review-flag">@T["IntakeWorkspace_ReviewRequired"]</span>
-                                        }
-                                    </div>
-                                </div>
-                            }
-                        </div>
-
-                        @if (Model.SupportingReviewFieldCount > 0)
-                        {
-                            <details class="details-panel intake-inline-details">
-                                <summary>
-                                    <span>@T["IntakeWorkspace_SupportingReviewTitle"]</span>
-                                    <span class="section-caption">@Model.SupportingReviewFieldCount</span>
-                                </summary>
-                                <div class="details-panel-body">
-                                    <div class="review-table review-table-supporting">
-                                        @foreach (var field in Model.SupportingReviewFields)
-                                        {
-                                            var confidenceClass = field.ConfidencePercent >= 95
-                                                ? "is-high"
-                                                : field.ConfidencePercent >= 90
-                                                    ? "is-medium"
-                                                    : "is-low";
-
-                                            <div class="review-row">
-                                                <div class="review-body">
-                                                    <strong>@T[field.LabelResourceKey]</strong>
-                                                    <div class="selection-copy">@field.Value</div>
-                                                    <div class="review-subline">
-                                                        <span>@T[field.IsExpectedByDocumentForm ? "IntakeWorkspace_FormExpectedField" : "IntakeWorkspace_FormSupplementalField"]</span>
-                                                        @if (!string.IsNullOrWhiteSpace(field.ProvenanceResourceKey))
-                                                        {
-                                                            <span>@T[field.ProvenanceResourceKey]</span>
-                                                        }
-                                                    </div>
-                                                </div>
-                                                <div class="review-meta">
-                                                    <span class="confidence-chip @confidenceClass">@field.ConfidencePercent%</span>
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                            </details>
-                        }
-                    }
-                    else
-                    {
-                        <div class="notice-banner is-info intake-inline-banner">@T["IntakeWorkspace_ReviewCardPendingBody"]</div>
-                    }
-
-                    <div class="action-row">
-                        <button type="submit"
-                                asp-page-handler="Save"
-                                class="btn btn-primary action-button"
-                                disabled="@(Model.CanFinalize ? null : "disabled")">
-                            @T["IntakeWorkspace_SaveAction"]
-                        </button>
-                    </div>
-                </section>
-            </div>
-
-            <aside class="intake-support-column">
-                <section class="support-card intake-support-summary-card">
-                    <span class="section-caption">@T["IntakeWorkspace_SupportRailTitle"]</span>
-                    <h3>@T["IntakeWorkspace_RequiredFieldsTitle"]</h3>
-                    <div class="pill-list">
-                        @foreach (var fieldKey in Model.SelectedScenario.RequiredReviewFieldKeys)
-                        {
-                            <span class="pill">@T[fieldKey]</span>
-                        }
-                    </div>
-                </section>
-
-                <section class="support-card intake-support-summary-card">
-                    <span class="section-caption">@T["IntakeWorkspace_ActorContextTitle"]</span>
-                    @if (!Model.Workspace.HasEligibleActor || Model.Workspace.ActiveActor is null)
-                    {
-                        <h3>@T["IntakeWorkspace_NoEligibleActor"]</h3>
-                        <p class="compact-copy">@T["IntakeWorkspace_NoEligibleActorBody"]</p>
-                    }
-                    else if (Model.IsActorContextLocked)
-                    {
-                        <h3>@Model.Workspace.ActiveActor.DisplayName</h3>
-                        <p class="compact-copy">@Model.Workspace.ActiveActor.Username</p>
-                        <p class="compact-copy">@T["WorkspaceShell_CurrentUserScopeNotice"]</p>
-                    }
-                    else
-                    {
-                        <label class="form-label" asp-for="Input.IntakeActorUserId">@T["IntakeWorkspace_ActorField"]</label>
-                        <select asp-for="Input.IntakeActorUserId" class="form-control">
-                            @foreach (var actor in Model.Workspace.AvailableActors)
-                            {
-                                <option value="@actor.Id">
-                                    @actor.DisplayName (@actor.Username)
-                                </option>
-                            }
-                        </select>
-                        <p class="compact-copy">@T["IntakeWorkspace_ActorContextSummary"]</p>
-                    }
-                </section>
-
-                <details class="details-panel">
-                    <summary>
-                        <span>@T["IntakeWorkspace_DocumentFormTitle"]</span>
-                        <span class="section-caption">@T["IntakeWorkspace_DetectedFormTitle"]</span>
-                    </summary>
-                    <div class="details-panel-body">
-                        <label class="form-label" asp-for="Input.DocumentFormKey">@T["IntakeWorkspace_DocumentFormField"]</label>
-                        <select asp-for="Input.DocumentFormKey" class="form-control">
-                            @foreach (var form in Model.SelectedScenario.SupportedDocumentForms)
-                            {
-                                <option value="@form.Key">@T[form.TitleResourceKey]</option>
-                            }
-                        </select>
-
-                        <section class="support-card">
-                            <span class="section-caption">@T["IntakeWorkspace_DetectedFormTitle"]</span>
-                            <h3>@T[Model.SelectedDocumentForm.TitleResourceKey]</h3>
-                            <p class="compact-copy">@T[Model.SelectedDocumentForm.SummaryResourceKey]</p>
-                            <div class="pill-list">
-                                <span class="pill">@T[Model.SelectedDocumentForm.BankResourceKey]</span>
-                            </div>
-
-                            <span class="section-caption">@T["IntakeWorkspace_FormExpectedCuesTitle"]</span>
-                            <div class="pill-list">
-                                @foreach (var cueKey in Model.SelectedDocumentForm.ExpectedCueResourceKeys)
-                                {
-                                    <span class="pill">@T[cueKey]</span>
-                                }
-                            </div>
-
-                            <span class="section-caption">@T["IntakeWorkspace_FormExpectedFieldsTitle"]</span>
-                            <div class="pill-list">
-                                @foreach (var fieldKey in Model.SelectedDocumentForm.ExpectedFieldKeys)
-                                {
-                                    <span class="pill">@T[fieldKey]</span>
-                                }
-                            </div>
-                        </section>
-                    </div>
-                </details>
-
-                <details class="details-panel">
-                    <summary>
-                        <span>@T["IntakeWorkspace_CaptureProvenanceTitle"]</span>
-                        <span class="section-caption">@T["IntakeWorkspace_CaptureProvenanceSummary"]</span>
-                    </summary>
-                    <div class="details-panel-body">
-                        <label class="form-label" asp-for="Input.CaptureChannel">@T["IntakeWorkspace_CaptureChannelField"]</label>
-                        <select asp-for="Input.CaptureChannel" class="form-control">
-                            @foreach (var option in Model.CaptureChannelOptions)
-                            {
-                                <option value="@option.Value">@T[option.ResourceKey]</option>
-                            }
-                        </select>
-
-                        <label class="form-label" asp-for="Input.SourceSystemName">@T["IntakeWorkspace_SourceSystemNameField"]</label>
-                        <input asp-for="Input.SourceSystemName" class="form-control" maxlength="128" />
-
-                        <label class="form-label" asp-for="Input.SourceReference">@T["IntakeWorkspace_SourceReferenceField"]</label>
-                        <input asp-for="Input.SourceReference" class="form-control" maxlength="128" />
-
-                        <p class="compact-copy">@T[Model.CaptureChannelHintResourceKey]</p>
-                    </div>
-                </details>
-
-                <details class="details-panel">
-                    <summary>
-                        <span>@T["IntakeWorkspace_ProcessingContextTitle"]</span>
-                        <span class="section-caption">@T["IntakeWorkspace_SupportRailSummary"]</span>
-                    </summary>
-                    <div class="details-panel-body">
-                        <div class="support-grid">
-                            <article class="support-card">
-                                <span class="section-caption">@T["IntakeWorkspace_SaveOutcomeTitle"]</span>
-                                <h3>@T["IntakeWorkspace_HandoffTitle"]</h3>
-                                <p class="compact-copy">@T[Model.SelectedScenario.SaveOutcomeResourceKey]</p>
-                                <p class="compact-copy">@T[Model.SelectedScenario.HandoffResourceKey]</p>
-                            </article>
-
-                            <article class="support-card">
-                                <span class="section-caption">@T["IntakeWorkspace_OperatorScopeTitle"]</span>
-                                <h3>@T["IntakeWorkspace_AllowedTitle"]</h3>
-                                <ul>
-                                    @foreach (var actionKey in Model.Workspace.AllowedActionKeys)
-                                    {
-                                        <li>@T[actionKey]</li>
-                                    }
-                                </ul>
-                            </article>
-
-                            <article class="support-card">
-                                <span class="section-caption">@T["IntakeWorkspace_OperatorScopeTitle"]</span>
-                                <h3>@T["IntakeWorkspace_ExcludedTitle"]</h3>
-                                <ul>
-                                    @foreach (var actionKey in Model.Workspace.ExcludedActionKeys)
-                                    {
-                                        <li>@T[actionKey]</li>
-                                    }
-                                </ul>
-                            </article>
-
-                            <article class="support-card">
-                                <span class="section-caption">@T["IntakeWorkspace_PipelineTitle"]</span>
-                                <h3>@T["IntakeWorkspace_QualityTitle"]</h3>
-                                <ul>
-                                    @foreach (var qualityKey in Model.Workspace.QualityGateKeys)
-                                    {
-                                        <li>@T[qualityKey]</li>
-                                    }
-                                </ul>
-                            </article>
-                        </div>
-
-                        <article class="support-card">
-                            <span class="section-caption">@T["IntakeWorkspace_PipelineTitle"]</span>
-                            <h3>@T["IntakeWorkspace_ProcessingContextTitle"]</h3>
-                            <div class="pipeline-grid">
-                                @for (var index = 0; index < Model.Workspace.PipelineStepKeys.Count; index++)
-                                {
-                                    <section class="pipeline-step">
-                                        <span class="pipeline-index">@(index + 1)</span>
-                                        <p>@T[Model.Workspace.PipelineStepKeys[index]]</p>
-                                    </section>
-                                }
-                            </div>
-                        </article>
-
-                        <article class="support-card">
-                            <span class="section-caption">@T["IntakeWorkspace_FutureScannerTitle"]</span>
-                            <h3>@T["IntakeWorkspace_FutureScannerTitle"]</h3>
-                            <ul class="plain-list">
-                                @foreach (var itemKey in Model.Workspace.FutureIntegrationKeys)
-                                {
-                                    <li>@T[itemKey]</li>
-                                }
-                            </ul>
-                        </article>
-                    </div>
-                </details>
-            </aside>
-        </div>
-    </form>
+        </form>
+    }
 </section>
+
+@section SupportRail
+{
+    @if (Model.Workspace.HasEligibleActor)
+    {
+        <partial name="_IntakeSupportRail" model="Model" />
+    }
+}
+
+@section DetailDrawer
+{
+    @if (Model.Workspace.HasEligibleActor)
+    {
+        <partial name="_IntakeDetailDrawer" model="Model" />
+    }
+}

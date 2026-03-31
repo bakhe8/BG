@@ -1,0 +1,107 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Operations.QueueModel
+@{
+    var actorContextModel = new ActorContextPanelModel(
+        T["OperationsQueue_ActorContextTitle"].Value,
+        T["OperationsQueue_ActorContextSummary"].Value,
+        Model.IsActorContextLocked ? ActorContextPanelMode.LockedPills : ActorContextPanelMode.SelectorForm,
+        "operations-rail-card")
+    {
+        Pills = Model.IsActorContextLocked
+            ? new[]
+            {
+                T["WorkspaceShell_CurrentUserScopeNotice"].Value,
+                $"{Model.Snapshot.ActiveActor!.DisplayName} ({Model.Snapshot.ActiveActor.Username})"
+            }
+            : Array.Empty<string>(),
+        FormAction = Url.Page("/Operations/Queue"),
+        ActorFieldLabel = T["OperationsQueue_ActorField"].Value,
+        SubmitLabel = T["OperationsQueue_LoadActorAction"].Value,
+        HiddenFields = new SurfaceHiddenFieldModel[]
+        {
+            new("page", Model.Snapshot.ItemsPage.PageNumber.ToString()),
+            new("item", Model.ActiveItem?.Id.ToString())
+        },
+        Options = Model.Snapshot.AvailableActors
+            .Select(actor => new ActorContextOptionModel(
+                actor.Id.ToString(),
+                $"{actor.DisplayName} ({actor.Username})",
+                actor.Id == Model.Snapshot.ActiveActor!.Id))
+            .ToArray()
+    };
+}
+
+<partial name="/Pages/Shared/_ActorContextPanel.cshtml" model="actorContextModel" />
+
+<details class="details-panel operations-rail-card" open>
+    <summary>
+        <span>@T["OperationsQueue_WorkflowTemplatesTitle"]</span>
+        <span class="section-caption">@T["OperationsQueue_WorkflowTemplatesSummary"]</span>
+    </summary>
+    <div class="details-panel-body">
+        <div class="workflow-grid">
+            @foreach (var template in Model.Snapshot.WorkflowTemplates)
+            {
+                <article class="workflow-card">
+                    <div class="workflow-card-header">
+                        <h3>@T[template.TitleResourceKey]</h3>
+                        <span class="pill">@template.Stages.Count @T["OperationsQueue_LevelsSuffix"]</span>
+                    </div>
+                    <p class="compact-copy">@T[template.SummaryResourceKey]</p>
+                    <div class="workflow-stage-list">
+                        @foreach (var stage in template.Stages)
+                        {
+                            var stageTitle = !string.IsNullOrWhiteSpace(stage.TitleText)
+                                ? stage.TitleText
+                                : T[stage.TitleResourceKey!].Value;
+                            var stageSummary = !string.IsNullOrWhiteSpace(stage.SummaryText)
+                                ? stage.SummaryText
+                                : string.IsNullOrWhiteSpace(stage.SummaryResourceKey)
+                                    ? T["OperationsQueue_NotAvailable"].Value
+                                    : T[stage.SummaryResourceKey].Value;
+
+                            <section class="workflow-stage">
+                                <span class="pipeline-index">@stage.Level</span>
+                                <div>
+                                    <strong>@stageTitle</strong>
+                                    <p class="compact-copy">@stageSummary</p>
+                                    @if (!string.IsNullOrWhiteSpace(stage.AssignedRoleName))
+                                    {
+                                        <div class="workflow-signature-meta">
+                                            <span class="pill">@stage.AssignedRoleName</span>
+                                        </div>
+                                    }
+                                </div>
+                            </section>
+                        }
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+</details>
+
+@if (Model.Snapshot.RecentlyCompletedItems.Count > 0)
+{
+    <details class="details-panel operations-rail-card">
+        <summary>
+            <span>@T["OperationsQueue_RecentCompletedTitle"]</span>
+            <span class="section-caption">@T["OperationsQueue_RecentCompletedSummary"]</span>
+        </summary>
+        <div class="details-panel-body">
+            <div class="workflow-stage-list">
+                @foreach (var item in Model.Snapshot.RecentlyCompletedItems)
+                {
+                    <section class="workflow-stage">
+                        <span class="pipeline-index">@item.CompletedAtUtc.ToLocalTime().ToString("HH:mm")</span>
+                        <div>
+                            <a class="surface-link" asp-page="/Operations/Queue" asp-all-route-data="Model.BuildSelectionRoute(item.Id)">@item.GuaranteeNumber</a>
+                            <p class="compact-copy">@T[item.ScenarioTitleResourceKey] · @T[item.StatusResourceKey]</p>
+                        </div>
+                    </section>
+                }
+            </div>
+        </div>
+    </details>
+}

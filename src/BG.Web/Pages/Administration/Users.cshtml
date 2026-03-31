@@ -4,151 +4,218 @@
 @model BG.Web.Pages.Administration.UsersModel
 @{
     ViewData["Title"] = T["UsersPageTitle"];
+    var activeUsers = Model.Users.Count(user => user.IsActive);
+    var credentialReadyUsers = Model.Users.Count(user => user.HasLocalPassword);
+    var assignedRoles = Model.Users.Sum(user => user.Roles.Count);
+    var headerModel = new SurfaceHeaderModel(
+        T["NavUsers"].Value,
+        T["UsersPageHeading"].Value,
+        T["UsersPageSummary"].Value,
+        CssClass: "is-split");
+    var statStripModel = new SurfaceStatStripModel(
+        new[]
+        {
+            new SurfaceStatItem(T["UsersListTitle"].Value, Model.Users.Count),
+            new SurfaceStatItem(T["Status_Active"].Value, activeUsers),
+            new SurfaceStatItem(T["Credentials_Ready"].Value, credentialReadyUsers),
+            new SurfaceStatItem(T["RolesField"].Value, assignedRoles)
+        });
+    var taskNoticeModel = new InlineNoticeModel(
+        T["AdminUsers_TaskModelTitle"].Value,
+        T["AdminUsers_TaskModelSummary"].Value);
 }
 
-<section class="section-shell">
-    <div class="section-header">
-        <span class="eyebrow">@T["NavUsers"]</span>
-        <h1>@T["UsersPageHeading"]</h1>
-        <p class="compact-copy">@T["UsersPageSummary"]</p>
-    </div>
-
+<section class="bg-shell-content">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
-        <div class="notice-banner is-success">@Model.StatusMessage</div>
+        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4">@Model.StatusMessage</div>
     }
 
-    <div class="notice-banner is-info">
-        <strong>@T["AdminUsers_TaskModelTitle"]</strong>
-        <p class="compact-copy">@T["AdminUsers_TaskModelSummary"]</p>
+    <div class="mb-5 pb-4 border-bottom">
+        <section-caption>@T["NavUsers"]</section-caption>
+        <h1 class="fw-bold text-dark m-0">@T["UsersPageHeading"]</h1>
+        <p class="text-secondary mt-1">@T["UsersPageSummary"]</p>
     </div>
 
-    <div class="admin-grid">
-        <article class="info-card">
-            <h2>@T["CreateUserTitle"]</h2>
-            <form method="post" class="stack-form">
-                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="bg-card shadow-sm p-4 text-center">
+                <div class="section-caption x-small mb-1">@T["UsersListTitle"]</div>
+                <div class="display-6 fw-bold text-dark">@Model.Users.Count</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="bg-card shadow-sm p-4 text-center">
+                <div class="section-caption x-small mb-1">@T["Status_Active"]</div>
+                <div class="display-6 fw-bold text-brand-green">@activeUsers</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="bg-card shadow-sm p-4 text-center">
+                <div class="section-caption x-small mb-1">@T["Credentials_Ready"]</div>
+                <div class="display-6 fw-bold text-brand-gold">@credentialReadyUsers</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="bg-card shadow-sm p-4 text-center">
+                <div class="section-caption x-small mb-1">@T["RolesField"]</div>
+                <div class="display-6 fw-bold text-dark">@assignedRoles</div>
+            </div>
+        </div>
+    </div>
 
-                <label class="form-label" asp-for="Input.Username">@T["UsernameField"]</label>
-                <input asp-for="Input.Username" class="form-control" maxlength="64" />
+    <div class="row g-5">
+        <div class="col-lg-4">
+            <div class="bg-card shadow-sm p-4 sticky-top offset-header">
+                <h5 class="fw-bold text-dark mb-4 pb-2 border-bottom">@T["CreateUserTitle"]</h5>
+                
+                <form method="post" class="d-flex flex-column gap-4">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger x-small py-2 px-3 border-0 rounded-3"></div>
 
-                <label class="form-label" asp-for="Input.DisplayName">@T["DisplayNameField"]</label>
-                <input asp-for="Input.DisplayName" class="form-control" maxlength="128" />
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="Input.Username">@T["UsernameField"]</label>
+                        <input asp-for="Input.Username" class="form-control rounded-4 p-2 small" maxlength="64" />
+                    </div>
 
-                <label class="form-label" asp-for="Input.Email">@T["EmailField"]</label>
-                <input asp-for="Input.Email" class="form-control" maxlength="256" />
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="Input.DisplayName">@T["DisplayNameField"]</label>
+                        <input asp-for="Input.DisplayName" class="form-control rounded-4 p-2 small" maxlength="128" />
+                    </div>
 
-                <label class="form-label" asp-for="Input.InitialPassword">@T["PasswordField"]</label>
-                <input asp-for="Input.InitialPassword" class="form-control" type="password" maxlength="128" autocomplete="new-password" />
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="Input.Email">@T["EmailField"]</label>
+                        <input asp-for="Input.Email" class="form-control rounded-4 p-2 small" maxlength="256" />
+                    </div>
 
-                <fieldset class="selection-block">
-                    <legend>@T["RolesField"]</legend>
-                    @if (Model.Roles.Count == 0)
-                    {
-                        <p class="compact-copy">@T["NoRolesAvailable"]</p>
-                    }
-                    else
-                    {
-                        <div class="checkbox-grid">
-                            @foreach (var role in Model.Roles)
-                            {
-                                <label class="selection-card">
-                                    <input type="checkbox" name="Input.SelectedRoleIds" value="@role.Id" />
-                                    <span class="selection-title">@role.Name</span>
-                                    @if (!string.IsNullOrWhiteSpace(role.Description))
-                                    {
-                                        <span class="selection-copy">@role.Description</span>
-                                    }
-                                </label>
-                            }
-                        </div>
-                    }
-                </fieldset>
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="Input.InitialPassword">@T["PasswordField"]</label>
+                        <input asp-for="Input.InitialPassword" class="form-control rounded-4 p-2 small" type="password" maxlength="128" autocomplete="new-password" />
+                    </div>
 
-                <button type="submit" class="btn btn-primary action-button">@T["SaveUserAction"]</button>
-            </form>
-        </article>
-
-        <article class="info-card">
-            <h2>@T["UsersListTitle"]</h2>
-
-            @if (Model.Users.Count == 0)
-            {
-                <p class="compact-copy">@T["EmptyUsers"]</p>
-            }
-            else
-            {
-                <div class="stack-list">
-                    @foreach (var user in Model.Users)
-                    {
-                        <section class="entity-card">
-                            <div class="entity-header">
-                                <div>
-                                    <h3>@user.DisplayName</h3>
-                                    <p class="entity-subtitle">@user.Username</p>
-                                </div>
-                                <span class="status-badge @(user.IsActive ? "is-active" : "is-inactive")">
-                                    @T[user.IsActive ? "Status_Active" : "Status_Inactive"]
-                                </span>
-                            </div>
-
-                            <dl class="data-pairs">
-                                <div>
-                                    <dt>@T["EmailField"]</dt>
-                                    <dd>@(string.IsNullOrWhiteSpace(user.Email) ? "-" : user.Email)</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["SourceField"]</dt>
-                                    <dd>@T[$"SourceType_{user.SourceType}"]</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["CreatedAtField"]</dt>
-                                    <dd>@user.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["CredentialsField"]</dt>
-                                    <dd>@T[user.HasLocalPassword ? "Credentials_Ready" : "Credentials_Missing"]</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["PasswordUpdatedAtField"]</dt>
-                                    <dd>@(user.PasswordChangedAtUtc.HasValue ? user.PasswordChangedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "-")</dd>
-                                </div>
-                            </dl>
-
-                            <div class="pill-section">
-                                <span class="section-caption">@T["RolesField"]</span>
-                                @if (user.Roles.Count == 0)
+                    <div class="bg-light rounded-4 p-3 mb-2">
+                        <div class="x-small fw-bold text-dark mb-3">@T["RolesField"]</div>
+                        @if (Model.Roles.Count == 0)
+                        {
+                            <p class="x-small text-muted italic">@T["NoRolesAvailable"]</p>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-column gap-2 overflow-auto" style="max-height: 200px;">
+                                @foreach (var role in Model.Roles)
                                 {
-                                    <p class="compact-copy">@T["NoRolesAssigned"]</p>
-                                }
-                                else
-                                {
-                                    <div class="pill-list">
-                                        @foreach (var roleName in user.Roles)
-                                        {
-                                            <span class="pill">@roleName</span>
-                                        }
-                                    </div>
+                                    <label class="d-flex align-items-center gap-3 p-2 bg-white rounded-3 border hover-bg-light cursor-pointer shadow-sm-hover transition-all">
+                                        <input type="checkbox" name="Input.SelectedRoleIds" value="@role.Id" class="form-check-input mt-0" />
+                                        <div>
+                                            <div class="x-small fw-bold text-dark">@role.Name</div>
+                                            @if (!string.IsNullOrWhiteSpace(role.Description))
+                                            {
+                                                <div class="xx-small text-muted line-clamp-1">@role.Description</div>
+                                            }
+                                        </div>
+                                    </label>
                                 }
                             </div>
+                        }
+                    </div>
 
-                            <form method="post" asp-page-handler="SetPassword" class="stack-form compact-form">
-                                <input type="hidden" name="userId" value="@user.Id" />
-                                <label class="form-label" for="password-@user.Id">@T["ResetPasswordField"]</label>
-                                <input id="password-@user.Id"
-                                       name="newPassword"
-                                       class="form-control"
-                                       type="password"
-                                       maxlength="128"
-                                       autocomplete="new-password" />
-                                <button type="submit" class="btn btn-outline-primary action-button">
-                                    @T["SavePasswordAction"]
-                                </button>
-                            </form>
-                        </section>
-                    }
+                    <bg-button type="submit" variant="primary" class="w-100">@T["SaveUserAction"]</bg-button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="bg-card shadow-sm p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <h5 class="fw-bold text-dark m-0">@T["UsersListTitle"]</h5>
+                    <bg-badge variant="light">@Model.Users.Count Users</bg-badge>
                 </div>
-            }
-        </article>
+
+                @if (Model.Users.Count == 0)
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-people-fill display-1 text-light mb-4 d-block"></i>
+                        <p class="text-secondary">@T["EmptyUsers"]</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-4">
+                        @foreach (var user in Model.Users)
+                        {
+                            <div class="bg-white border rounded-4 p-4 shadow-sm hover-shadow-md transition-all">
+                                <div class="d-flex justify-content-between align-items-start mb-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="bg-light text-brand-green rounded-circle width-48 height-48 d-flex align-items-center justify-content-center fw-bold fs-5 shadow-sm">
+                                            @user.DisplayName[0]
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold text-dark m-0">@user.DisplayName</h6>
+                                            <p class="x-small text-muted m-0">@@@user.Username | <span class="text-brand-green">@T[$"SourceType_{user.SourceType}"]</span></p>
+                                        </div>
+                                    </div>
+                                    <bg-badge variant="@(user.IsActive ? "success" : "danger")">
+                                        @T[user.IsActive ? "Status_Active" : "Status_Inactive"]
+                                    </bg-badge>
+                                </div>
+
+                                <div class="row g-4 mb-4 pb-4 border-bottom">
+                                    <div class="col-md-6 border-end">
+                                        <div class="mb-3">
+                                            <div class="x-small text-muted fw-bold">CONTACT</div>
+                                            <div class="small"><i class="bi bi-envelope me-2 text-brand-green"></i>@(string.IsNullOrWhiteSpace(user.Email) ? "-" : user.Email)</div>
+                                        </div>
+                                        <div>
+                                            <div class="x-small text-muted fw-bold">ON-BOARDED</div>
+                                            <div class="small"><i class="bi bi-clock-history me-2 text-brand-green"></i>@user.CreatedAtUtc.ToLocalTime().ToString("MMM dd, yyyy")</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <div class="x-small text-muted fw-bold">SECURITY</div>
+                                            <div class="small d-flex align-items-center gap-2">
+                                                <i class="bi bi-shield-check text-brand-green"></i>
+                                                @T[user.HasLocalPassword ? "Credentials_Ready" : "Credentials_Missing"]
+                                                @if(user.PasswordChangedAtUtc.HasValue) 
+                                                {
+                                                    <span class="text-muted x-small ms-2">Alt: @user.PasswordChangedAtUtc.Value.ToLocalTime().ToString("yy/MM/dd")</span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="x-small text-muted fw-bold">ROLES</div>
+                                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                                @if (user.Roles.Count == 0)
+                                                {
+                                                    <span class="x-small text-muted italic">@T["NoRolesAssigned"]</span>
+                                                }
+                                                else
+                                                {
+                                                    @foreach (var roleName in user.Roles)
+                                                    {
+                                                        <bg-badge variant="light" class="xx-small">@roleName</bg-badge>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <form method="post" asp-page-handler="SetPassword" class="d-flex align-items-center gap-2">
+                                        <input type="hidden" name="userId" value="@user.Id" />
+                                        <div class="flex-grow-1">
+                                            <input name="newPassword" class="form-control rounded-4 p-2 x-small" type="password" placeholder="New Password..." autocomplete="new-password" />
+                                        </div>
+                                        <bg-button type="submit" variant="light" size="sm" class="text-primary flex-shrink-0">
+                                            @T["SavePasswordAction"]
+                                        </bg-button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 </section>

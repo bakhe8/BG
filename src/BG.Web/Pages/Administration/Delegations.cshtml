@@ -4,169 +4,209 @@
 @model BG.Web.Pages.Administration.DelegationsModel
 @{
     ViewData["Title"] = T["ApprovalDelegation_PageTitle"];
+    var now = DateTimeOffset.UtcNow;
+    var activeCount = Model.Snapshot.Delegations.Count(delegation => !delegation.RevokedAtUtc.HasValue && delegation.StartsAtUtc <= now && delegation.EndsAtUtc >= now);
+    var futureCount = Model.Snapshot.Delegations.Count(delegation => !delegation.RevokedAtUtc.HasValue && delegation.StartsAtUtc > now);
+    var revokedCount = Model.Snapshot.Delegations.Count(delegation => delegation.RevokedAtUtc.HasValue);
+    var headerModel = new SurfaceHeaderModel(
+        T["NavDelegations"].Value,
+        T["ApprovalDelegation_Heading"].Value,
+        T["ApprovalDelegation_Summary"].Value,
+        CssClass: "is-split");
+    var statStripModel = new SurfaceStatStripModel(
+        new[]
+        {
+            new SurfaceStatItem(T["ApprovalDelegation_ListTitle"].Value, Model.Snapshot.Delegations.Count),
+            new SurfaceStatItem(T["ApprovalDelegation_StatusActive"].Value, activeCount),
+            new SurfaceStatItem(T["Pending"].Value, futureCount),
+            new SurfaceStatItem(T["ApprovalDelegation_StatusRevoked"].Value, revokedCount)
+        });
+    var taskNoticeModel = new InlineNoticeModel(
+        T["AdminDelegations_TaskModelTitle"].Value,
+        T["AdminDelegations_TaskModelSummary"].Value);
 }
 
-<section class="section-shell">
+<section class="bg-shell-content">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
-        <div class="notice-banner is-success">@Model.StatusMessage</div>
+        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4">@Model.StatusMessage</div>
     }
 
-    <div class="section-header">
-        <span class="eyebrow">@T["NavDelegations"]</span>
-        <h1>@T["ApprovalDelegation_Heading"]</h1>
-        <p class="compact-copy">@T["ApprovalDelegation_Summary"]</p>
+    <div class="mb-5 pb-4 border-bottom">
+        <section-caption>@T["NavDelegations"]</section-caption>
+        <h1 class="fw-bold text-dark m-0">@T["ApprovalDelegation_Heading"]</h1>
+        <p class="text-secondary mt-1">@T["ApprovalDelegation_Summary"]</p>
     </div>
 
-    <div class="notice-banner is-info">
-        <strong>@T["AdminDelegations_TaskModelTitle"]</strong>
-        <p class="compact-copy">@T["AdminDelegations_TaskModelSummary"]</p>
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="bg-card shadow-sm p-4 text-center">
+                <div class="section-caption x-small mb-1">@T["ApprovalDelegation_ListTitle"]</div>
+                <div class="display-6 fw-bold text-dark">@Model.Snapshot.Delegations.Count</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="bg-card shadow-sm p-4 text-center">
+                <div class="section-caption x-small mb-1">@T["ApprovalDelegation_StatusActive"]</div>
+                <div class="display-6 fw-bold text-brand-green">@activeCount</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="bg-card shadow-sm p-4 text-center">
+                <div class="section-caption x-small mb-1">@T["Pending"]</div>
+                <div class="display-6 fw-bold text-brand-gold">@futureCount</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="bg-card shadow-sm p-4 text-center">
+                <div class="section-caption x-small mb-1">@T["ApprovalDelegation_StatusRevoked"]</div>
+                <div class="display-6 fw-bold text-danger">@revokedCount</div>
+            </div>
+        </div>
     </div>
 
-    <div class="admin-grid">
-        <article class="info-card">
-            <h2>@T["ApprovalDelegation_CreateTitle"]</h2>
-            <p class="compact-copy">@T["ApprovalDelegation_CreateSummary"]</p>
+    <div class="row g-5">
+        <div class="col-lg-4">
+            <div class="bg-card shadow-sm p-4 sticky-top offset-header">
+                <h5 class="fw-bold text-dark mb-4 pb-2 border-bottom">@T["ApprovalDelegation_CreateTitle"]</h5>
+                
+                <form method="post" asp-page-handler="Create" class="d-flex flex-column gap-4">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger x-small py-2 px-3 border-0 rounded-3"></div>
 
-            <form method="post" asp-page-handler="Create" class="stack-form">
-                <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" for="delegator-user">@T["ApprovalDelegation_DelegatorField"]</label>
+                        <select id="delegator-user" name="Input.DelegatorUserId" class="form-select rounded-4 p-2 small">
+                            <option value="">@T["ApprovalDelegation_SelectUser"]</option>
+                            @foreach (var user in Model.Snapshot.AvailableUsers)
+                            {
+                                <option value="@user.Id" selected="@(user.Id == Model.Input.DelegatorUserId ? "selected" : null)">
+                                    @user.DisplayName (@user.Username)
+                                </option>
+                            }
+                        </select>
+                    </div>
 
-                <label class="form-label" for="delegator-user">@T["ApprovalDelegation_DelegatorField"]</label>
-                <select id="delegator-user" name="Input.DelegatorUserId" class="form-control">
-                    <option value="">@T["ApprovalDelegation_SelectUser"]</option>
-                    @foreach (var user in Model.Snapshot.AvailableUsers)
-                    {
-                        <option value="@user.Id" selected="@(user.Id == Model.Input.DelegatorUserId ? "selected" : null)">
-                            @user.DisplayName (@user.Username)
-                        </option>
-                    }
-                </select>
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" for="delegate-user">@T["ApprovalDelegation_DelegateField"]</label>
+                        <select id="delegate-user" name="Input.DelegateUserId" class="form-select rounded-4 p-2 small">
+                            <option value="">@T["ApprovalDelegation_SelectUser"]</option>
+                            @foreach (var user in Model.Snapshot.AvailableUsers)
+                            {
+                                <option value="@user.Id" selected="@(user.Id == Model.Input.DelegateUserId ? "selected" : null)">
+                                    @user.DisplayName (@user.Username)
+                                </option>
+                            }
+                        </select>
+                    </div>
 
-                <label class="form-label" for="delegate-user">@T["ApprovalDelegation_DelegateField"]</label>
-                <select id="delegate-user" name="Input.DelegateUserId" class="form-control">
-                    <option value="">@T["ApprovalDelegation_SelectUser"]</option>
-                    @foreach (var user in Model.Snapshot.AvailableUsers)
-                    {
-                        <option value="@user.Id" selected="@(user.Id == Model.Input.DelegateUserId ? "selected" : null)">
-                            @user.DisplayName (@user.Username)
-                        </option>
-                    }
-                </select>
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" for="delegation-role">@T["ApprovalDelegation_RoleField"]</label>
+                        <select id="delegation-role" name="Input.RoleId" class="form-select rounded-4 p-2 small">
+                            <option value="">@T["ApprovalDelegation_SelectRole"]</option>
+                            @foreach (var role in Model.Snapshot.AvailableRoles)
+                            {
+                                <option value="@role.Id" selected="@(role.Id == Model.Input.RoleId ? "selected" : null)">@role.Name</option>
+                            }
+                        </select>
+                    </div>
 
-                <label class="form-label" for="delegation-role">@T["ApprovalDelegation_RoleField"]</label>
-                <select id="delegation-role" name="Input.RoleId" class="form-control">
-                    <option value="">@T["ApprovalDelegation_SelectRole"]</option>
-                    @foreach (var role in Model.Snapshot.AvailableRoles)
-                    {
-                        <option value="@role.Id" selected="@(role.Id == Model.Input.RoleId ? "selected" : null)">@role.Name</option>
-                    }
-                </select>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label x-small fw-bold opacity-75" for="delegation-start">@T["ApprovalDelegation_StartField"]</label>
+                            <input id="delegation-start" name="Input.StartsAtUtc" type="datetime-local" class="form-control rounded-4 p-2 x-small" value="@(Model.Input.StartsAtUtc?.ToLocalTime().ToString("yyyy-MM-ddTHH:mm"))" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label x-small fw-bold opacity-75" for="delegation-end">@T["ApprovalDelegation_EndField"]</label>
+                            <input id="delegation-end" name="Input.EndsAtUtc" type="datetime-local" class="form-control rounded-4 p-2 x-small" value="@(Model.Input.EndsAtUtc?.ToLocalTime().ToString("yyyy-MM-ddTHH:mm"))" />
+                        </div>
+                    </div>
 
-                <label class="form-label" for="delegation-start">@T["ApprovalDelegation_StartField"]</label>
-                <input
-                    id="delegation-start"
-                    name="Input.StartsAtUtc"
-                    type="datetime-local"
-                    class="form-control"
-                    value="@(Model.Input.StartsAtUtc?.ToLocalTime().ToString("yyyy-MM-ddTHH:mm"))" />
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" for="delegation-reason">@T["ApprovalDelegation_ReasonField"]</label>
+                        <textarea id="delegation-reason" name="Input.Reason" class="form-control rounded-4 p-2 small" rows="2">@Model.Input.Reason</textarea>
+                    </div>
 
-                <label class="form-label" for="delegation-end">@T["ApprovalDelegation_EndField"]</label>
-                <input
-                    id="delegation-end"
-                    name="Input.EndsAtUtc"
-                    type="datetime-local"
-                    class="form-control"
-                    value="@(Model.Input.EndsAtUtc?.ToLocalTime().ToString("yyyy-MM-ddTHH:mm"))" />
+                    <bg-button type="submit" variant="primary" class="w-100">@T["ApprovalDelegation_CreateAction"]</bg-button>
+                </form>
+            </div>
+        </div>
 
-                <label class="form-label" for="delegation-reason">@T["ApprovalDelegation_ReasonField"]</label>
-                <textarea
-                    id="delegation-reason"
-                    name="Input.Reason"
-                    class="form-control"
-                    rows="3">@Model.Input.Reason</textarea>
+        <div class="col-lg-8">
+            <div class="bg-card shadow-sm p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <h5 class="fw-bold text-dark m-0">@T["ApprovalDelegation_ListTitle"]</h5>
+                    <bg-badge variant="light">@Model.Snapshot.Delegations.Count Delegations</bg-badge>
+                </div>
 
-                <button type="submit" class="btn btn-primary action-button">@T["ApprovalDelegation_CreateAction"]</button>
-            </form>
-        </article>
-
-        <article class="info-card">
-            <h2>@T["ApprovalDelegation_ListTitle"]</h2>
-            <p class="compact-copy">@T["ApprovalDelegation_ListSummary"]</p>
-
-            @if (Model.Snapshot.Delegations.Count == 0)
-            {
-                <p class="compact-copy">@T["ApprovalDelegation_Empty"]</p>
-            }
-            else
-            {
-                <div class="stack-list">
-                    @foreach (var delegation in Model.Snapshot.Delegations)
-                    {
-                        <section class="entity-card">
-                            <div class="entity-header">
-                                <div>
-                                    <h3>@delegation.DelegateDisplayName</h3>
-                                    <p class="entity-subtitle">@delegation.RoleName</p>
-                                </div>
-                                <span class="status-badge is-active">@T[delegation.StatusResourceKey]</span>
-                            </div>
-
-                            <dl class="data-pairs">
-                                <div>
-                                    <dt>@T["ApprovalDelegation_DelegatorField"]</dt>
-                                    <dd>@delegation.DelegatorDisplayName</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalDelegation_DelegateField"]</dt>
-                                    <dd>@delegation.DelegateDisplayName</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalDelegation_StartField"]</dt>
-                                    <dd>@delegation.StartsAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalDelegation_EndField"]</dt>
-                                    <dd>@delegation.EndsAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                                </div>
-                                <div>
-                                    <dt>@T["ApprovalDelegation_CreatedAtLabel"]</dt>
-                                    <dd>@delegation.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                                </div>
-                                @if (delegation.RevokedAtUtc.HasValue)
-                                {
+                @if (Model.Snapshot.Delegations.Count == 0)
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-person-badge-fill display-1 text-light mb-4 d-block"></i>
+                        <p class="text-secondary">@T["ApprovalDelegation_Empty"]</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-flex flex-column gap-4">
+                        @foreach (var delegation in Model.Snapshot.Delegations)
+                        {
+                            <div class="bg-white border rounded-4 p-4 shadow-sm hover-shadow-md transition-all">
+                                <div class="d-flex justify-content-between align-items-start mb-4">
                                     <div>
-                                        <dt>@T["ApprovalDelegation_RevokedAtLabel"]</dt>
-                                        <dd>@delegation.RevokedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
+                                        <h6 class="fw-bold text-dark m-0">@delegation.DelegateDisplayName</h6>
+                                        <p class="x-small text-muted m-0">Delegate for <span class="fw-bold text-dark">@delegation.RoleName</span></p>
+                                    </div>
+                                    <bg-badge variant="@(delegation.RevokedAtUtc.HasValue ? "danger" : (delegation.StartsAtUtc <= now && delegation.EndsAtUtc >= now ? "success" : "warning"))">
+                                        @T[delegation.StatusResourceKey]
+                                    </bg-badge>
+                                </div>
+
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-6 border-end">
+                                        <div class="mb-3">
+                                            <div class="x-small text-muted fw-bold">DELEGATOR</div>
+                                            <div class="small text-dark fw-bold">@delegation.DelegatorDisplayName</div>
+                                        </div>
+                                        <div>
+                                            <div class="x-small text-muted fw-bold">PERIOD</div>
+                                            <div class="small">
+                                                <i class="bi bi-calendar-event me-2 text-brand-green"></i>
+                                                @delegation.StartsAtUtc.ToLocalTime().ToString("MMM dd, yyyy HH:mm")
+                                                <i class="bi bi-arrow-right mx-2 text-muted"></i>
+                                                @delegation.EndsAtUtc.ToLocalTime().ToString("MMM dd, yyyy HH:mm")
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <div class="x-small text-muted fw-bold">REASON / NOTES</div>
+                                            <div class="small italic text-secondary">@(string.IsNullOrWhiteSpace(delegation.Reason) ? "No reason provided" : delegation.Reason)</div>
+                                        </div>
+                                        @if (delegation.RevokedAtUtc.HasValue)
+                                        {
+                                            <div>
+                                                <div class="x-small text-danger fw-bold">REVOCATION REASON</div>
+                                                <div class="small italic text-danger">@delegation.RevocationReason</div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                @if (!delegation.RevokedAtUtc.HasValue)
+                                {
+                                    <div class="mt-4 pt-3 border-top">
+                                        <form method="post" asp-page-handler="Revoke" class="d-flex gap-2">
+                                            <input type="hidden" name="delegationId" value="@delegation.Id" />
+                                            <input name="reason" class="form-control rounded-4 p-2 x-small border-danger" placeholder="Revoke Reason..." />
+                                            <bg-button type="submit" variant="light" size="sm" class="text-danger flex-shrink-0">Revoke</bg-button>
+                                        </form>
                                     </div>
                                 }
-                            </dl>
-
-                            <div class="pill-section">
-                                <span class="section-caption">@T["ApprovalDelegation_ReasonField"]</span>
-                                <p class="compact-copy">@(string.IsNullOrWhiteSpace(delegation.Reason) ? "-" : delegation.Reason)</p>
                             </div>
-
-                            @if (!string.IsNullOrWhiteSpace(delegation.RevocationReason))
-                            {
-                                <div class="pill-section">
-                                    <span class="section-caption">@T["ApprovalDelegation_RevocationReasonLabel"]</span>
-                                    <p class="compact-copy">@delegation.RevocationReason</p>
-                                </div>
-                            }
-
-                            @if (!delegation.RevokedAtUtc.HasValue)
-                            {
-                                <form method="post" asp-page-handler="Revoke" class="stack-form">
-                                    <input type="hidden" name="delegationId" value="@delegation.Id" />
-                                    <label class="form-label" for="revoke-@delegation.Id">@T["ApprovalDelegation_RevokeReasonField"]</label>
-                                    <textarea id="revoke-@delegation.Id" name="reason" class="form-control" rows="2"></textarea>
-                                    <button type="submit" class="btn btn-outline-danger action-button">@T["ApprovalDelegation_RevokeAction"]</button>
-                                </form>
-                            }
-                        </section>
-                    }
-                </div>
-            }
-        </article>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 </section>

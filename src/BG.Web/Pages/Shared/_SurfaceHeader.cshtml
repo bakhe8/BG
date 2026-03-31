@@ -1,0 +1,27 @@
+@model BG.Web.UI.SurfaceHeaderModel
+@{
+    var classes = string.IsNullOrWhiteSpace(Model.CssClass)
+        ? "section-header"
+        : $"section-header {Model.CssClass}";
+}
+<div class="mb-5 pb-4 border-bottom @Model.CssClass">
+    <section-caption>@Model.Eyebrow</section-caption>
+    <div class="d-flex justify-content-between align-items-end flex-wrap gap-3">
+        <div class="flex-grow-1">
+            <h1 class="fw-bold text-dark m-0">@Model.Title</h1>
+            @if (!string.IsNullOrWhiteSpace(Model.Summary))
+            {
+                <p class="text-secondary mt-1 mb-0">@Model.Summary</p>
+            }
+        </div>
+        @if (Model.Pills is { Count: > 0 })
+        {
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var pill in Model.Pills)
+                {
+                    <bg-badge variant="light">@pill</bg-badge>
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,99 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Dispatch.WorkspaceModel
+
+@{
+    var panelHeaderModel = new SurfacePanelHeaderModel(
+        T["DispatchWorkspace_ItemsTitle"].Value,
+        T["DispatchWorkspace_ItemsSummary"].Value);
+}
+
+<article class="info-card dispatch-queue-panel">
+    <partial name="/Pages/Shared/_SurfacePanelHeader.cshtml" model="panelHeaderModel" />
+
+    @if (Model.Snapshot.Items.Count == 0 && Model.Snapshot.PendingDeliveryItems.Count == 0)
+    {
+        <p class="compact-copy">@T["DispatchWorkspace_Empty"]</p>
+    }
+    else
+    {
+        <div class="dispatch-queue-groups">
+            <section class="dispatch-queue-group">
+                <div class="dispatch-queue-group-header">
+                    <strong>@T["DispatchWorkspace_ReadyStateTitle"]</strong>
+                    <span class="section-caption">@Model.Snapshot.Items.Count</span>
+                </div>
+
+                @if (Model.Snapshot.Items.Count == 0)
+                {
+                    <p class="compact-copy">@T["DispatchWorkspace_Empty"]</p>
+                }
+                else
+                {
+                    <div class="request-queue-list">
+                        @foreach (var item in Model.Snapshot.Items)
+                        {
+                            var isActive = Model.ActiveReadyItem?.RequestId == item.RequestId;
+                            var itemModel = new SurfaceQueueItemLinkModel(
+                                "/Dispatch/Workspace",
+                                new Dictionary<string, string>(Model.BuildSelectionRoute(item.RequestId)),
+                                item.GuaranteeNumber,
+                                T[item.RequestTypeResourceKey].Value,
+                                item.RequesterDisplayName,
+                                T[item.StatusResourceKey].Value,
+                                item.ReadyAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
+                                string.IsNullOrWhiteSpace(item.OutgoingReferenceNumber) ? null : item.OutgoingReferenceNumber,
+                                isActive);
+                            <partial name="/Pages/Shared/_SurfaceQueueItemLink.cshtml" model="itemModel" />
+                        }
+                    </div>
+                }
+            </section>
+
+            <section class="dispatch-queue-group">
+                <div class="dispatch-queue-group-header">
+                    <strong>@T["DispatchWorkspace_PendingDeliveryTitle"]</strong>
+                    <span class="section-caption">@Model.Snapshot.PendingDeliveryItems.Count</span>
+                </div>
+
+                @if (Model.Snapshot.PendingDeliveryItems.Count == 0)
+                {
+                    <p class="compact-copy">@T["DispatchWorkspace_PendingDeliveryEmpty"]</p>
+                }
+                else
+                {
+                    <div class="request-queue-list">
+                        @foreach (var item in Model.Snapshot.PendingDeliveryItems)
+                        {
+                            var isActive = Model.ActivePendingDeliveryItem?.RequestId == item.RequestId;
+                            var itemModel = new SurfaceQueueItemLinkModel(
+                                "/Dispatch/Workspace",
+                                new Dictionary<string, string>(Model.BuildSelectionRoute(item.RequestId)),
+                                item.GuaranteeNumber,
+                                T[item.RequestTypeResourceKey].Value,
+                                item.RequesterDisplayName,
+                                T["DispatchWorkspace_PendingDeliveryBadge"].Value,
+                                item.DispatchedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm"),
+                                T[item.DispatchChannelResourceKey].Value,
+                                isActive);
+                            <partial name="/Pages/Shared/_SurfaceQueueItemLink.cshtml" model="itemModel" />
+                        }
+                    </div>
+                }
+            </section>
+        </div>
+    }
+
+    @if (Model.Snapshot.ItemsPage.TotalPageCount > 1)
+    {
+        var pageInfo = Model.Snapshot.ItemsPage;
+        var paginationModel = new SurfacePaginationModel(
+            "/Dispatch/Workspace",
+            pageInfo.HasPreviousPage ? new Dictionary<string, string>(Model.BuildPageRoute(pageInfo.PreviousPageNumber)) : null,
+            pageInfo.HasNextPage ? new Dictionary<string, string>(Model.BuildPageRoute(pageInfo.NextPageNumber)) : null,
+            T["Pagination_Previous"].Value,
+            T["Pagination_Next"].Value);
+
+        <partial name="/Pages/Shared/_SurfacePagination.cshtml" model="paginationModel" />
+    }
+</article>

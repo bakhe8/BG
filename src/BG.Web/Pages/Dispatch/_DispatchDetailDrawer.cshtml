@@ -1,0 +1,96 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Dispatch.WorkspaceModel
+
+@if (Model.ActiveReadyItem is null && Model.ActivePendingDeliveryItem is null)
+{
+    <article class="info-card dispatch-drawer-card">
+        <h2>@T["DispatchWorkspace_ItemsTitle"]</h2>
+        <p class="compact-copy">@T["DispatchWorkspace_Empty"]</p>
+    </article>
+}
+else if (Model.ActiveReadyItem is not null)
+{
+    var item = Model.ActiveReadyItem;
+
+    <article class="info-card dispatch-drawer-card">
+        <div class="card-header">
+            <div>
+                <h2>@T["DispatchWorkspace_PrintEvidenceTitle"]</h2>
+                <p class="compact-copy">@item.GuaranteeNumber</p>
+            </div>
+        </div>
+
+        <div class="request-drawer-stack">
+            <section class="request-drawer-section">
+                <span class="section-caption">@T["DispatchWorkspace_PrintCountLabel"]</span>
+                <strong>@item.PrintCount</strong>
+            </section>
+
+            <section class="request-drawer-section">
+                <span class="section-caption">@T["DispatchWorkspace_ReferenceLabel"]</span>
+                <strong>@(string.IsNullOrWhiteSpace(item.OutgoingReferenceNumber) ? T["OperationsQueue_NotAvailable"].Value : item.OutgoingReferenceNumber)</strong>
+            </section>
+
+            <section class="request-drawer-section">
+                <span class="section-caption">@T["DispatchWorkspace_ReadyEvidenceSummary"]</span>
+                <div class="pill-list">
+                    @if (item.LastPrintedAtUtc.HasValue)
+                    {
+                        <span class="pill">@T["DispatchWorkspace_LastPrintedAtLabel"]: @item.LastPrintedAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(item.LastPrintModeResourceKey))
+                    {
+                        <span class="pill">@T["DispatchWorkspace_LastPrintModeLabel"]: @T[item.LastPrintModeResourceKey]</span>
+                    }
+                    @if (item.SourceDocumentForm is not null)
+                    {
+                        <span class="pill">@T[item.SourceDocumentForm.TitleResourceKey]</span>
+                        <span class="pill">@T[item.SourceDocumentForm.BankResourceKey]</span>
+                    }
+                </div>
+            </section>
+        </div>
+    </article>
+}
+else if (Model.ActivePendingDeliveryItem is not null)
+{
+    var item = Model.ActivePendingDeliveryItem;
+
+    <article class="info-card dispatch-drawer-card">
+        <div class="card-header">
+            <div>
+                <h2>@T["DispatchWorkspace_DispatchEvidenceTitle"]</h2>
+                <p class="compact-copy">@item.GuaranteeNumber</p>
+            </div>
+        </div>
+
+        <div class="request-drawer-stack">
+            <section class="request-drawer-section">
+                <span class="section-caption">@T["DispatchWorkspace_DispatchChannelLabel"]</span>
+                <strong>@T[item.DispatchChannelResourceKey]</strong>
+            </section>
+
+            <section class="request-drawer-section">
+                <span class="section-caption">@T["DispatchWorkspace_DispatchedAtLabel"]</span>
+                <strong>@item.DispatchedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</strong>
+            </section>
+
+            <section class="request-drawer-section">
+                <span class="section-caption">@T["DispatchWorkspace_PendingEvidenceSummary"]</span>
+                <div class="pill-list">
+                    <span class="pill">@T["DispatchWorkspace_ReferenceLabel"]: @item.ReferenceNumber</span>
+                    @if (!string.IsNullOrWhiteSpace(item.DispatchReference))
+                    {
+                        <span class="pill">@T["DispatchWorkspace_DispatchReferenceField"]: @item.DispatchReference</span>
+                    }
+                    @if (item.SourceDocumentForm is not null)
+                    {
+                        <span class="pill">@T[item.SourceDocumentForm.TitleResourceKey]</span>
+                        <span class="pill">@T[item.SourceDocumentForm.BankResourceKey]</span>
+                    }
+                </div>
+            </section>
+        </div>
+    </article>
+}

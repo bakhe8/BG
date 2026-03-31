@@ -1,0 +1,108 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Requests.WorkspaceModel
+
+<div class="bg-card shadow-sm p-4 mb-4">
+    @if (Model.ActiveRequest is null)
+    {
+        <div class="text-center py-4">
+            <h6 class="fw-bold text-dark m-0">@T["RequestsWorkspace_MyRequestsTitle"]</h6>
+            <p class="x-small text-muted m-0">@T["RequestsWorkspace_Empty"]</p>
+        </div>
+    }
+    else
+    {
+        var request = Model.ActiveRequest;
+        var stageTitle = Model.ResolveStageTitle(request);
+        var requestedChange = Model.ResolveRequestedChange(request);
+
+        <div class="mb-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="fw-bold text-dark m-0">@T["RequestsWorkspace_TrackingSummaryHeading"]</h6>
+                <p class="x-small text-muted m-0">@request.GuaranteeNumber</p>
+            </div>
+            <bg-badge variant="success" class="x-small">@T[request.StatusResourceKey]</bg-badge>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+            <div>
+                <section-caption>@T["RequestsWorkspace_RequestedChangeTitle"]</section-caption>
+                <div class="small fw-bold text-dark">@requestedChange</div>
+            </div>
+
+            <div>
+                <section-caption>@T["RequestsWorkspace_CurrentStageLabel"]</section-caption>
+                <div class="small fw-bold text-dark">@stageTitle</div>
+                @if (!string.IsNullOrWhiteSpace(request.CurrentStageRoleName))
+                {
+                    <div class="x-small text-muted">@request.CurrentStageRoleName</div>
+                }
+            </div>
+
+            <div>
+                <section-caption>@T["RequestsWorkspace_LastDecisionLabel"]</section-caption>
+                <div class="small text-secondary italic">@(string.IsNullOrWhiteSpace(request.LastDecisionNote) ? T["RequestsWorkspace_NoNotes"].Value : request.LastDecisionNote)</div>
+            </div>
+
+            @if (request.PrimaryDocumentForm is not null)
+            {
+                <div>
+                    <section-caption>@T["RequestsWorkspace_TrackingSummaryTitle"]</section-caption>
+                    <div class="d-flex flex-wrap gap-2">
+                        <bg-badge variant="light" class="x-small">@T[request.PrimaryDocumentForm.TitleResourceKey]</bg-badge>
+                        <bg-badge variant="light" class="x-small">@T[request.PrimaryDocumentForm.BankResourceKey]</bg-badge>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (Model.ActiveRequest is not null)
+{
+    var request = Model.ActiveRequest;
+    <div class="bg-card shadow-sm p-4">
+        <div class="mb-4">
+            <h6 class="fw-bold text-dark m-0">@T["RequestsWorkspace_LedgerTitle"]</h6>
+            <p class="x-small text-muted m-0">@T["RequestsWorkspace_LedgerSummary"]</p>
+        </div>
+
+        @if (request.LedgerEntries.Count == 0)
+        {
+            <p class="x-small text-center py-4 opacity-50">@T["RequestsWorkspace_LedgerEmpty"]</p>
+        }
+        else
+        {
+            <div class="bg-timeline">
+                @foreach (var ledgerEntry in request.LedgerEntries)
+                {
+                    <div class="bg-timeline-item">
+                        <div class="bg-timeline-icon"><i class="bi bi-clock"></i></div>
+                        <div class="ms-1">
+                            <div class="bg-timeline-title">@ledgerEntry.OccurredAtUtc.ToLocalTime().ToString("MMM dd, HH:mm")</div>
+                            <div class="x-small text-brand-green mb-1 fw-bold">
+                                @(string.IsNullOrWhiteSpace(ledgerEntry.ActorDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : ledgerEntry.ActorDisplayName)
+                            </div>
+                            <p class="x-small text-muted mb-2">@ledgerEntry.Summary</p>
+
+                            @if (!string.IsNullOrWhiteSpace(ledgerEntry.ApprovalStageLabel) ||
+                                 !string.IsNullOrWhiteSpace(ledgerEntry.ApprovalPolicyResourceKey))
+                            {
+                                <div class="d-flex flex-wrap gap-1 mt-2">
+                                    @if (!string.IsNullOrWhiteSpace(ledgerEntry.ApprovalStageLabel))
+                                    {
+                                        <span class="bg-light x-small p-1 px-2 rounded-pill text-secondary">@ledgerEntry.ApprovalStageLabel</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(ledgerEntry.ApprovalPolicyResourceKey))
+                                    {
+                                        <span class="bg-light x-small p-1 px-2 rounded-pill text-secondary">@T[ledgerEntry.ApprovalPolicyResourceKey]</span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}

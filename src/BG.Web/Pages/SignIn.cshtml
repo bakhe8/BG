@@ -4,14 +4,14 @@
 @model BG.Web.Pages.SignInModel
 @{
     ViewData["Title"] = T["SignIn_PageTitle"];
+    var headerModel = new SurfaceHeaderModel(
+        T["SignIn_Eyebrow"].Value,
+        T["SignIn_Heading"].Value,
+        T["SignIn_Summary"].Value);
 }
 
 <section class="section-shell">
-    <div class="section-header">
-        <span class="eyebrow">@T["SignIn_Eyebrow"]</span>
-        <h1>@T["SignIn_Heading"]</h1>
-        <p class="compact-copy">@T["SignIn_Summary"]</p>
-    </div>
+    <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
 
     @if (!string.IsNullOrWhiteSpace(Model.ShellMessage))
     {

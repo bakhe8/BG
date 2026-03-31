@@ -1,0 +1,70 @@
+@model BG.Web.UI.ActorContextPanelModel
+@{
+    var baseClasses = "bg-card shadow-sm p-4";
+    var customClasses = Model.CssClass?.Replace("info-card", "").Trim();
+    var finalClasses = string.IsNullOrWhiteSpace(customClasses)
+        ? baseClasses
+        : $"{baseClasses} {customClasses}";
+}
+
+<div class="@finalClasses">
+    <div class="mb-4">
+        <h6 class="fw-bold text-dark m-0">@Model.Title</h6>
+        <p class="x-small text-muted m-0">@Model.Summary</p>
+    </div>
+
+    @switch (Model.Mode)
+    {
+        case BG.Web.UI.ActorContextPanelMode.EmptyState:
+            <p class="x-small text-muted italic">@Model.EmptyMessage</p>
+            break;
+
+        case BG.Web.UI.ActorContextPanelMode.LockedPills:
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var pill in Model.Pills)
+                {
+                    <bg-badge variant="light" class="x-small">@pill</bg-badge>
+                }
+            </div>
+            break;
+
+        case BG.Web.UI.ActorContextPanelMode.SelectorForm:
+            <form method="@Model.FormMethod" action="@Model.FormAction" class="stack-form d-flex flex-column gap-3">
+                @foreach (var hiddenField in Model.HiddenFields)
+                {
+                    if (hiddenField.Value is not null)
+                    {
+                        <input type="hidden" name="@hiddenField.Name" value="@hiddenField.Value" />
+                    }
+                }
+                <div>
+                    <label class="form-label x-small fw-bold opacity-75" for="@Model.ActorFieldId">@Model.ActorFieldLabel</label>
+                    <select id="@Model.ActorFieldId" name="@Model.ActorFieldName" class="form-select rounded-4 border-1.5 p-2 px-3 small">
+                        @foreach (var option in Model.Options)
+                        {
+                            <option value="@option.Value" selected="@(option.Selected ? "selected" : null)">@option.Label</option>
+                        }
+                    </select>
+                </div>
+                <bg-button type="submit" variant="secondary" class="w-100">@Model.SubmitLabel</bg-button>
+            </form>
+            break;
+
+        case BG.Web.UI.ActorContextPanelMode.SelectorField:
+            <div class="stack-form">
+                <div>
+                    <label class="form-label x-small fw-bold opacity-75" for="@Model.ActorFieldId">@Model.ActorFieldLabel</label>
+                    <select id="@Model.ActorFieldId"
+                            name="@Model.ActorFieldName"
+                            class="form-select rounded-4 border-1.5 p-2 px-3 small"
+                            form="@Model.ExternalFormId">
+                        @foreach (var option in Model.Options)
+                        {
+                            <option value="@option.Value" selected="@(option.Selected ? "selected" : null)">@option.Label</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            break;
+    }
+</div>

@@ -93,10 +93,17 @@ public sealed class WorkspaceModel : PageModel
             .Select(category => new GuaranteeCategoryOptionViewModel(category, GuaranteeResourceCatalog.GetGuaranteeCategoryResourceKey(category)))
             .ToArray();
 
-    public async Task OnGetAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         await LoadWorkspaceAsync(Actor, Scenario, cancellationToken);
         ReviewFields = BuildReviewFields();
+
+        if (IsHtmxRequest())
+        {
+            return Partial("_IntakeDocumentPanel", this);
+        }
+
+        return Page();
     }
 
     public async Task<IActionResult> OnPostExtractAsync(CancellationToken cancellationToken)
@@ -132,6 +139,12 @@ public sealed class WorkspaceModel : PageModel
 
         ApplyDraft(result.Value!);
         ReviewFields = BuildReviewFields();
+
+        if (IsHtmxRequest())
+        {
+            return Partial("_IntakeVerificationPanel", this);
+        }
+
         return Page();
     }
 
@@ -146,6 +159,12 @@ public sealed class WorkspaceModel : PageModel
         {
             ModelState.AddModelError(string.Empty, _localizer["IntakeWorkspace_NoEligibleActor"]);
             ReviewFields = BuildReviewFields();
+
+            if (IsHtmxRequest())
+            {
+                return Partial("_IntakeVerificationPanel", this);
+            }
+
             return Page();
         }
 
@@ -179,9 +198,16 @@ public sealed class WorkspaceModel : PageModel
 
     private Guid? ResolveActor(Guid? actorId)
     {
-        var lockedActorId = WorkspaceActorContext.TryGetLockedActorUserId(HttpContext);
+        var lockedActorId = HttpContext is null
+            ? null
+            : WorkspaceActorContext.TryGetLockedActorUserId(HttpContext);
         IsActorContextLocked = lockedActorId.HasValue;
         return lockedActorId ?? actorId;
+    }
+
+    private bool IsHtmxRequest()
+    {
+        return HttpContext?.Request?.Headers.ContainsKey("HX-Request") == true;
     }
 
     private RedirectToPageResult RedirectToSelf(Guid actorId, string scenarioKey)

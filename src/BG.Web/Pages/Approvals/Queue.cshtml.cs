@@ -30,7 +30,12 @@ public sealed class QueueModel : PageModel
     [FromQuery(Name = "page")]
     public int? PageNumber { get; set; }
 
+    [FromQuery(Name = "request")]
+    public Guid? SelectedRequestId { get; set; }
+
     public ApprovalQueueSnapshotDto Snapshot { get; private set; } = default!;
+
+    public ApprovalQueueItemDto? ActiveItem { get; private set; }
 
     [TempData]
     public string? StatusMessage { get; set; }
@@ -39,38 +44,59 @@ public sealed class QueueModel : PageModel
 
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
-        await LoadAsync(Actor, PageNumber, cancellationToken);
+        await LoadAsync(Actor, PageNumber, SelectedRequestId, cancellationToken);
     }
 
-    public async Task<IActionResult> OnPostApproveAsync(Guid actorId, Guid requestId, string? note, int? page, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnPostApproveAsync(
+        Guid actorId,
+        Guid requestId,
+        string? note,
+        int? page,
+        Guid? request,
+        CancellationToken cancellationToken)
     {
         return await ApplyAsync(
             actorId,
             requestId,
             note,
             page,
+            request,
             (command, token) => _approvalQueueService.ApproveAsync(command, token),
             cancellationToken);
     }
 
-    public async Task<IActionResult> OnPostReturnAsync(Guid actorId, Guid requestId, string? note, int? page, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnPostReturnAsync(
+        Guid actorId,
+        Guid requestId,
+        string? note,
+        int? page,
+        Guid? request,
+        CancellationToken cancellationToken)
     {
         return await ApplyAsync(
             actorId,
             requestId,
             note,
             page,
+            request,
             (command, token) => _approvalQueueService.ReturnAsync(command, token),
             cancellationToken);
     }
 
-    public async Task<IActionResult> OnPostRejectAsync(Guid actorId, Guid requestId, string? note, int? page, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnPostRejectAsync(
+        Guid actorId,
+        Guid requestId,
+        string? note,
+        int? page,
+        Guid? request,
+        CancellationToken cancellationToken)
     {
         return await ApplyAsync(
             actorId,
             requestId,
             note,
             page,
+            request,
             (command, token) => _approvalQueueService.RejectAsync(command, token),
             cancellationToken);
     }
@@ -80,10 +106,11 @@ public sealed class QueueModel : PageModel
         Guid requestId,
         string? note,
         int? page,
+        Guid? selectedRequestId,
         Func<ApprovalDecisionCommand, CancellationToken, Task<BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto>>> action,
         CancellationToken cancellationToken)
     {
-        await LoadAsync(actorId, page, cancellationToken);
+        await LoadAsync(actorId, page, selectedRequestId ?? requestId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
         {
@@ -106,7 +133,7 @@ public sealed class QueueModel : PageModel
             _localizer[result.Value!.OutcomeResourceKey],
             result.Value.GuaranteeNumber];
 
-        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber);
+        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber, requestId);
     }
 
     public IDictionary<string, string> BuildPageRoute(int pageNumber)
@@ -121,6 +148,18 @@ public sealed class QueueModel : PageModel
             routeValues["actor"] = Snapshot.ActiveActor.Id.ToString();
         }
 
+        if (ActiveItem is not null)
+        {
+            routeValues["request"] = ActiveItem.RequestId.ToString();
+        }
+
+        return routeValues;
+    }
+
+    public IDictionary<string, string> BuildSelectionRoute(Guid requestId, int? pageNumber = null)
+    {
+        var routeValues = BuildPageRoute(pageNumber ?? Snapshot.ItemsPage.PageNumber);
+        routeValues["request"] = requestId.ToString();
         return routeValues;
     }
 
@@ -140,10 +179,66 @@ public sealed class QueueModel : PageModel
         return routeValues;
     }
 
-    private async Task LoadAsync(Guid? actorId, int? pageNumber, CancellationToken cancellationToken)
+    public string ResolveStageTitle(ApprovalQueueItemDto item)
+    {
+        return !string.IsNullOrWhiteSpace(item.CurrentStageTitle)
+            ? item.CurrentStageTitle
+            : string.IsNullOrWhiteSpace(item.CurrentStageTitleResourceKey)
+                ? "-"
+                : _localizer[item.CurrentStageTitleResourceKey].Value;
+    }
+
+    public string ResolveConflictingStageTitle(ApprovalQueueItemDto item)
+    {
+        return !string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitle)
+            ? item.Governance.ConflictingStageTitle
+            : string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitleResourceKey)
+                ? item.Governance.ConflictingStageRoleName ?? "-"
+                : _localizer[item.Governance.ConflictingStageTitleResourceKey].Value;
+    }
+
+    public string ResolveRequestedChange(ApprovalQueueItemDto item)
+    {
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(item.RequestedAmount))
+        {
+            parts.Add(item.RequestedAmount);
+        }
+
+        if (!string.IsNullOrWhiteSpace(item.RequestedExpiryDate))
+        {
+            parts.Add(item.RequestedExpiryDate);
+        }
+
+        return parts.Count == 0 ? "-" : string.Join(" · ", parts);
+    }
+
+    private async Task LoadAsync(Guid? actorId, int? pageNumber, Guid? selectedRequestId, CancellationToken cancellationToken)
     {
         actorId = ResolveActor(actorId);
         Snapshot = await _approvalQueueService.GetWorkspaceAsync(actorId, pageNumber ?? 1, cancellationToken);
+        ActiveItem = ResolveActiveItem(selectedRequestId);
+        SelectedRequestId = ActiveItem?.RequestId;
+    }
+
+    private ApprovalQueueItemDto? ResolveActiveItem(Guid? selectedRequestId)
+    {
+        if (Snapshot.Items.Count == 0)
+        {
+            return null;
+        }
+
+        if (selectedRequestId.HasValue)
+        {
+            var selectedItem = Snapshot.Items.FirstOrDefault(item => item.RequestId == selectedRequestId.Value);
+            if (selectedItem is not null)
+            {
+                return selectedItem;
+            }
+        }
+
+        return Snapshot.Items[0];
     }
 
     private Guid? ResolveActor(Guid? actorId)
@@ -153,10 +248,10 @@ public sealed class QueueModel : PageModel
         return lockedActorId ?? actorId;
     }
 
-    private RedirectToPageResult RedirectToSelf(Guid actorId, int pageNumber)
+    private RedirectToPageResult RedirectToSelf(Guid actorId, int pageNumber, Guid? selectedRequestId = null)
     {
         return IsActorContextLocked
-            ? RedirectToPage("/Approvals/Queue", new { page = pageNumber })
-            : RedirectToPage("/Approvals/Queue", new { actor = actorId, page = pageNumber });
+            ? RedirectToPage("/Approvals/Queue", new { page = pageNumber, request = selectedRequestId })
+            : RedirectToPage("/Approvals/Queue", new { actor = actorId, page = pageNumber, request = selectedRequestId });
     }
 }

@@ -22,6 +22,41 @@
                 ? item.Governance.ConflictingStageRoleName ?? "-"
                 : T[item.Governance.ConflictingStageTitleResourceKey].Value;
     }
+
+    var headerModel = new SurfaceHeaderModel(
+        T["NavApprovals"].Value,
+        T["ApprovalDossier_Heading"].Value,
+        T["ApprovalDossier_Summary"].Value);
+    var noEligibleActorModel = new SurfaceMessageCardModel(
+        T["ApprovalQueue_NoEligibleActor"].Value,
+        T["ApprovalQueue_NoEligibleActorBody"].Value);
+    var actorContextModel = new ActorContextPanelModel(
+        T["ApprovalQueue_ActorContextTitle"].Value,
+        T["ApprovalQueue_ActorContextSummary"].Value,
+        Model.IsActorContextLocked ? ActorContextPanelMode.LockedPills : ActorContextPanelMode.SelectorForm,
+        "full-span")
+    {
+        Pills = Model.IsActorContextLocked
+            ? new[]
+            {
+                T["WorkspaceShell_CurrentUserScopeNotice"].Value,
+                $"{Model.Snapshot.ActiveActor?.DisplayName} ({Model.Snapshot.ActiveActor?.Username})"
+            }
+            : Array.Empty<string>(),
+        FormAction = Url.Page("/Approvals/Dossier", new { requestId = Model.RequestId }),
+        ActorFieldLabel = T["ApprovalQueue_ActorField"].Value,
+        SubmitLabel = T["ApprovalQueue_LoadActorAction"].Value,
+        HiddenFields = new SurfaceHiddenFieldModel[]
+        {
+            new("page", (Model.PageNumber ?? 1).ToString())
+        },
+        Options = Model.Snapshot.AvailableActors
+            .Select(actor => new ActorContextOptionModel(
+                actor.Id.ToString(),
+                $"{actor.DisplayName} ({actor.Username})",
+                Model.Snapshot.ActiveActor is not null && actor.Id == Model.Snapshot.ActiveActor.Id))
+            .ToArray()
+    };
 }
 
 <section class="section-shell">
@@ -30,18 +65,11 @@
         <div class="notice-banner is-success">@T[Model.Snapshot.ContextNoticeResourceKey]</div>
     }
 
-    <div class="section-header">
-        <span class="eyebrow">@T["NavApprovals"]</span>
-        <h1>@T["ApprovalDossier_Heading"]</h1>
-        <p class="compact-copy">@T["ApprovalDossier_Summary"]</p>
-    </div>
+    <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
 
     @if (!Model.Snapshot.HasEligibleActor || Model.Snapshot.ActiveActor is null)
     {
-        <article class="info-card">
-            <h2>@T["ApprovalQueue_NoEligibleActor"]</h2>
-            <p class="compact-copy">@T["ApprovalQueue_NoEligibleActorBody"]</p>
-        </article>
+        <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="noEligibleActorModel" />
     }
     else
     {
@@ -53,43 +81,7 @@
             </a>
         </div>
 
-        <article class="info-card full-span">
-            <div class="card-header">
-                <div>
-                    <h2>@T["ApprovalQueue_ActorContextTitle"]</h2>
-                    <p class="compact-copy">@T["ApprovalQueue_ActorContextSummary"]</p>
-                </div>
-            </div>
-
-            @if (Model.IsActorContextLocked)
-            {
-                <div class="pill-list">
-                    <span class="pill">@T["WorkspaceShell_CurrentUserScopeNotice"]</span>
-                    <span class="pill">@Model.Snapshot.ActiveActor.DisplayName (@Model.Snapshot.ActiveActor.Username)</span>
-                </div>
-            }
-            else
-            {
-                <form method="get"
-                      asp-page="/Approvals/Dossier"
-                      asp-route-requestId="@Model.RequestId"
-                      class="action-row">
-                    <input type="hidden" name="page" value="@(Model.PageNumber ?? 1)" />
-                    <div>
-                        <label class="form-label" for="actor">@T["ApprovalQueue_ActorField"]</label>
-                        <select id="actor" name="actor" class="form-control">
-                            @foreach (var actor in Model.Snapshot.AvailableActors)
-                            {
-                                <option value="@actor.Id" selected="@(actor.Id == Model.Snapshot.ActiveActor.Id ? "selected" : null)">
-                                    @actor.DisplayName (@actor.Username)
-                                </option>
-                            }
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-outline-primary action-button">@T["ApprovalQueue_LoadActorAction"]</button>
-                </form>
-            }
-        </article>
+        <partial name="/Pages/Shared/_ActorContextPanel.cshtml" model="actorContextModel" />
 
         @if (Model.Snapshot.Item is null)
         {

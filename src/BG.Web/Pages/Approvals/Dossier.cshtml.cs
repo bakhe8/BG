@@ -40,7 +40,8 @@ public sealed class DossierModel : PageModel
     {
         var routeValues = new Dictionary<string, string>
         {
-            ["page"] = (PageNumber ?? 1).ToString()
+            ["page"] = (PageNumber ?? 1).ToString(),
+            ["request"] = RequestId.ToString()
         };
 
         if (!IsActorContextLocked && Snapshot.ActiveActor is not null)
