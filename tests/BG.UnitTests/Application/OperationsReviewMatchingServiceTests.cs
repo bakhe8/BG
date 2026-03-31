@@ -325,6 +325,7 @@ public sealed class OperationsReviewMatchingServiceTests
             item.GuaranteeDocument.SourceReference,
             item.GuaranteeDocument.VerifiedDataJson,
             item.GuaranteeCorrespondence?.LetterDate,
+            item.CompletedAtUtc,
             item.Guarantee.Requests
                 .Select(request =>
                 {

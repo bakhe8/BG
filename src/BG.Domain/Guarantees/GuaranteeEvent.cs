@@ -572,6 +572,51 @@ public sealed class GuaranteeEvent
             dispatchPolicyResourceKey: "DispatchLedgerPolicy_HandoffCorrectedBeforeDelivery");
     }
 
+    internal static GuaranteeEvent BankConfirmationReopened(
+        Guid guaranteeId,
+        Guid requestId,
+        Guid correspondenceId,
+        DateTimeOffset occurredAtUtc,
+        Guid? actorUserId,
+        string? actorDisplayName,
+        string? correctionNote,
+        string? operationsScenarioTitleResourceKey,
+        string? operationsLaneResourceKey)
+    {
+        var noteSuffix = string.IsNullOrWhiteSpace(correctionNote)
+            ? string.Empty
+            : $" Note: {correctionNote.Trim()}.";
+
+        return new GuaranteeEvent(
+            guaranteeId,
+            requestId,
+            correspondenceId,
+            null,
+            GuaranteeEventType.BankConfirmationReopened,
+            occurredAtUtc,
+            $"Applied bank confirmation reopened for correction.{noteSuffix}",
+            actorUserId,
+            actorDisplayName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            operationsScenarioTitleResourceKey,
+            operationsLaneResourceKey,
+            null,
+            null,
+            "OperationsLedgerPolicy_AppliedResponseReopened");
+    }
+
     internal static GuaranteeEvent DocumentCaptured(
         Guid guaranteeId,
         Guid documentId,

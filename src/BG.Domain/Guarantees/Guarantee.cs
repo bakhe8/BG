@@ -730,6 +730,112 @@ public sealed class Guarantee
             correspondence);
     }
 
+    public void ReopenAppliedBankConfirmation(
+        Guid requestId,
+        Guid correspondenceId,
+        DateTimeOffset reopenedAtUtc,
+        Guid? actorUserId = null,
+        string? actorDisplayName = null,
+        string? correctionNote = null,
+        string? operationsScenarioTitleResourceKey = null,
+        string? operationsLaneResourceKey = null)
+    {
+        var request = FindRequest(requestId);
+        var correspondence = FindCorrespondence(correspondenceId);
+
+        if (correspondence.GuaranteeRequestId != request.Id)
+        {
+            throw new InvalidOperationException("The incoming correspondence does not belong to the request.");
+        }
+
+        if (!request.CompletedAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("Only completed requests can reopen an applied bank confirmation.");
+        }
+
+        if (Requests.Any(candidate =>
+                candidate.Id != request.Id &&
+                candidate.CompletedAtUtc.HasValue &&
+                candidate.CompletedAtUtc.Value > request.CompletedAtUtc.Value))
+        {
+            throw new InvalidOperationException("A later completed request prevents reopening this applied bank confirmation.");
+        }
+
+        if (Requests.Any(candidate =>
+                candidate.Id != request.Id &&
+                candidate.Status is GuaranteeRequestStatus.InApproval or GuaranteeRequestStatus.ApprovedForDispatch or GuaranteeRequestStatus.AwaitingBankResponse))
+        {
+            throw new InvalidOperationException("Another active request prevents reopening this applied bank confirmation.");
+        }
+
+        var appliedEvent = Events
+            .Where(ledgerEntry =>
+                ledgerEntry.GuaranteeRequestId == request.Id &&
+                ledgerEntry.GuaranteeCorrespondenceId == correspondence.Id &&
+                IsAppliedBankConfirmationEvent(ledgerEntry.EventType))
+            .OrderByDescending(ledgerEntry => ledgerEntry.OccurredAtUtc)
+            .FirstOrDefault();
+
+        if (appliedEvent is null)
+        {
+            throw new InvalidOperationException("The original bank confirmation application ledger entry was not found.");
+        }
+
+        switch (appliedEvent.EventType)
+        {
+            case GuaranteeEventType.ExpiryExtended:
+                if (!appliedEvent.PreviousExpiryDate.HasValue)
+                {
+                    throw new InvalidOperationException("The original expiry date is missing from the bank confirmation ledger entry.");
+                }
+
+                ExpiryDate = appliedEvent.PreviousExpiryDate.Value;
+                break;
+
+            case GuaranteeEventType.AmountReduced:
+                if (!appliedEvent.PreviousAmount.HasValue)
+                {
+                    throw new InvalidOperationException("The original guarantee amount is missing from the bank confirmation ledger entry.");
+                }
+
+                CurrentAmount = decimal.Round(appliedEvent.PreviousAmount.Value, 2, MidpointRounding.AwayFromZero);
+                break;
+
+            case GuaranteeEventType.Released:
+            case GuaranteeEventType.Replaced:
+                Status = ParseGuaranteeStatus(appliedEvent.PreviousStatus) ?? GuaranteeStatus.Active;
+                if (appliedEvent.EventType == GuaranteeEventType.Replaced)
+                {
+                    SupersededByGuaranteeNumber = null;
+                }
+                break;
+
+            case GuaranteeEventType.StatusConfirmed:
+                break;
+
+            default:
+                throw new InvalidOperationException("This bank confirmation event type cannot be reopened.");
+        }
+
+        request.ReopenAppliedBankConfirmation(correspondence.Id);
+        correspondence.ReopenAppliedToGuarantee();
+        LastUpdatedAtUtc = reopenedAtUtc;
+
+        AddEvent(
+            GuaranteeEvent.BankConfirmationReopened(
+                Id,
+                request.Id,
+                correspondence.Id,
+                reopenedAtUtc,
+                actorUserId,
+                actorDisplayName,
+                correctionNote,
+                operationsScenarioTitleResourceKey,
+                operationsLaneResourceKey),
+            request,
+            correspondence);
+    }
+
     internal void RecordRequestSubmittedForApproval(
         Guid requestId,
         DateTimeOffset occurredAtUtc,
@@ -926,5 +1032,21 @@ public sealed class Guarantee
         }
 
         return normalized;
+    }
+
+    private static bool IsAppliedBankConfirmationEvent(GuaranteeEventType eventType)
+    {
+        return eventType is GuaranteeEventType.ExpiryExtended
+            or GuaranteeEventType.AmountReduced
+            or GuaranteeEventType.Released
+            or GuaranteeEventType.Replaced
+            or GuaranteeEventType.StatusConfirmed;
+    }
+
+    private static GuaranteeStatus? ParseGuaranteeStatus(string? value)
+    {
+        return Enum.TryParse<GuaranteeStatus>(value, ignoreCase: false, out var parsed)
+            ? parsed
+            : null;
     }
 }

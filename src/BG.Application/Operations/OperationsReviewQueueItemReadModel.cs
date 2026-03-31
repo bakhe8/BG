@@ -21,4 +21,5 @@ public sealed record OperationsReviewQueueItemReadModel(
     string? SourceReference,
     string? VerifiedDataJson,
     DateOnly? BankLetterDate,
+    DateTimeOffset? CompletedAtUtc,
     IReadOnlyList<OperationsReviewRequestCandidateReadModel> CandidateRequests);

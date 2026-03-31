@@ -196,6 +196,23 @@ public sealed class GuaranteeRequest
         Status = GuaranteeRequestStatus.Completed;
     }
 
+    internal void ReopenAppliedBankConfirmation(Guid correspondenceId)
+    {
+        if (Status != GuaranteeRequestStatus.Completed)
+        {
+            throw new InvalidOperationException("Only completed requests can reopen an applied bank confirmation.");
+        }
+
+        if (!CompletionCorrespondenceId.HasValue || CompletionCorrespondenceId.Value != correspondenceId)
+        {
+            throw new InvalidOperationException("The applied correspondence does not match the request completion record.");
+        }
+
+        CompletionCorrespondenceId = null;
+        CompletedAtUtc = null;
+        Status = GuaranteeRequestStatus.AwaitingBankResponse;
+    }
+
     internal void AttachCorrespondence(GuaranteeCorrespondence correspondence)
     {
         if (correspondence.GuaranteeRequestId != Id)

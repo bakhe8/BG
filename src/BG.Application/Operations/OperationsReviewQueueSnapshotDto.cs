@@ -6,6 +6,7 @@ public sealed record OperationsReviewQueueSnapshotDto(
     OperationsActorSummaryDto? ActiveActor,
     IReadOnlyList<OperationsActorSummaryDto> AvailableActors,
     IReadOnlyList<OperationsReviewItemDto> Items,
+    IReadOnlyList<OperationsReviewRecentItemDto> RecentlyCompletedItems,
     PageInfoDto ItemsPage,
     IReadOnlyList<RequestWorkflowTemplateDto> WorkflowTemplates,
     int OpenItemsCount,

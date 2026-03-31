@@ -14,4 +14,6 @@ public static class OperationsReviewErrorCodes
     public const string ConfirmedAmountRequired = "operations.confirmed_amount_required";
     public const string ReplacementGuaranteeNumberRequired = "operations.replacement_guarantee_number_required";
     public const string ResponseTypeNotSupported = "operations.response_type_not_supported";
+    public const string ReopenCorrectionNoteRequired = "operations.reopen_correction_note_required";
+    public const string ReopenAppliedResponseNotAllowed = "operations.reopen_applied_response_not_allowed";
 }

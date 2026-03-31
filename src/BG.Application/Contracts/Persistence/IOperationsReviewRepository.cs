@@ -15,7 +15,13 @@ public interface IOperationsReviewRepository
         int pageSize,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<OperationsReviewRecentItemReadModel>> ListRecentlyCompletedAsync(
+        int takeCount,
+        CancellationToken cancellationToken = default);
+
     Task<OperationsReviewItem?> GetOpenItemByIdAsync(Guid reviewItemId, CancellationToken cancellationToken = default);
+
+    Task<OperationsReviewItem?> GetItemByIdAsync(Guid reviewItemId, CancellationToken cancellationToken = default);
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -127,6 +127,73 @@ public sealed class GuaranteeAggregateTests
     }
 
     [Fact]
+    public void Applied_bank_confirmation_can_be_reopened_for_operations_correction()
+    {
+        var guarantee = CreateGuarantee();
+        var originalExpiryDate = guarantee.ExpiryDate;
+        var request = guarantee.CreateRequest(
+            RequestsUserId,
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 6, 30),
+            notes: "Requesting extension",
+            createdAtUtc: DateTimeOffset.UtcNow);
+        ApproveForDispatch(request);
+
+        guarantee.RecordOutgoingDispatch(
+            request.Id,
+            "LTR-001",
+            new DateOnly(2026, 3, 11),
+            GuaranteeDispatchChannel.Courier,
+            "PKG-1",
+            "Sent to bank",
+            DateTimeOffset.UtcNow);
+
+        var scannedResponse = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.BankResponse,
+            "bank-response.pdf",
+            "scans/2026/03/bank-response.pdf",
+            2,
+            DateTimeOffset.UtcNow);
+
+        var response = guarantee.RegisterCorrespondence(
+            request.Id,
+            GuaranteeCorrespondenceDirection.Incoming,
+            GuaranteeCorrespondenceKind.BankConfirmation,
+            "BNK-889",
+            new DateOnly(2026, 3, 15),
+            scannedResponse.Id,
+            notes: "Official confirmation from bank",
+            registeredAtUtc: DateTimeOffset.UtcNow);
+
+        guarantee.ApplyBankConfirmation(
+            request.Id,
+            response.Id,
+            DateTimeOffset.UtcNow,
+            confirmedExpiryDate: new DateOnly(2027, 6, 30));
+
+        guarantee.ReopenAppliedBankConfirmation(
+            request.Id,
+            response.Id,
+            DateTimeOffset.UtcNow.AddMinutes(1),
+            RequestsUserId,
+            "Operations Reviewer",
+            "Applied to the wrong request.",
+            "IntakeScenario_Extension_Title",
+            "OperationsReviewLane_BankConfirmationReview");
+
+        Assert.Equal(originalExpiryDate, guarantee.ExpiryDate);
+        Assert.Equal(GuaranteeRequestStatus.AwaitingBankResponse, request.Status);
+        Assert.Null(request.CompletedAtUtc);
+        Assert.Null(request.CompletionCorrespondenceId);
+        Assert.Null(response.AppliedToGuaranteeAtUtc);
+        Assert.Contains(
+            guarantee.Events,
+            guaranteeEvent => guaranteeEvent.EventType == GuaranteeEventType.BankConfirmationReopened &&
+                              guaranteeEvent.GuaranteeRequestId == request.Id);
+    }
+
+    [Fact]
     public void Printing_and_dispatching_outgoing_letter_records_distinct_ledger_entries()
     {
         var guarantee = CreateGuarantee();

@@ -128,6 +128,9 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
             reasons.Add("OperationsMatchReason_AmountMatches");
         }
 
+        var isSelectionBlocked = false;
+        string? blockingReasonResourceKey = null;
+
         if (responseDocumentForm is not null &&
             requestDocumentForm is not null &&
             GuaranteeDocumentFormCatalog.IsSpecificBankProfile(responseDocumentForm) &&
@@ -142,6 +145,8 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
             {
                 score -= 15;
                 reasons.Add("OperationsMatchReason_DocumentFormBankMismatch");
+                isSelectionBlocked = true;
+                blockingReasonResourceKey = OperationsReviewErrorCodes.ResponseBankProfileMismatch;
             }
         }
 
@@ -156,7 +161,9 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
             request.SubmittedToBankAtUtc,
             request.LatestOutgoingReferenceNumber,
             reasons,
-            GuaranteeDocumentFormCatalog.ToSnapshot(requestDocumentForm));
+            GuaranteeDocumentFormCatalog.ToSnapshot(requestDocumentForm),
+            isSelectionBlocked,
+            blockingReasonResourceKey);
     }
 
     private static ResponseSignal ParseResponseSignal(OperationsReviewQueueItemReadModel item)

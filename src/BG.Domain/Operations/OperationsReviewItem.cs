@@ -83,6 +83,25 @@ public sealed class OperationsReviewItem
         Status = OperationsReviewItemStatus.Completed;
     }
 
+    public void ReopenForCorrection(DateTimeOffset reopenedAtUtc)
+    {
+        if (Status != OperationsReviewItemStatus.Completed)
+        {
+            throw new InvalidOperationException("Only completed review items can be reopened for correction.");
+        }
+
+        CompletedAtUtc = null;
+
+        if (!string.IsNullOrWhiteSpace(RoutedToLaneKey))
+        {
+            RoutedAtUtc = reopenedAtUtc;
+            Status = OperationsReviewItemStatus.Routed;
+            return;
+        }
+
+        Status = OperationsReviewItemStatus.Pending;
+    }
+
     private static string NormalizeRequired(string value, string paramName, int maxLength)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value, paramName);

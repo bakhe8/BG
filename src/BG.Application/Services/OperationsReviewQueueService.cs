@@ -41,6 +41,7 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
                 null,
                 [],
                 [],
+                [],
                 new PageInfoDto(1, WorkspacePaging.DefaultPageSize, 0),
                 await _workflowTemplateService.GetTemplatesAsync(cancellationToken),
                 0,
@@ -60,6 +61,7 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             normalizedPageNumber,
             WorkspacePaging.DefaultPageSize,
             cancellationToken);
+        var recentCompletedItems = await _repository.ListRecentlyCompletedAsync(5, cancellationToken);
         var mappedItems = items.Items.Items
             .Select(MapItem)
             .ToArray();
@@ -71,6 +73,14 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
                 .Select(actor => new OperationsActorSummaryDto(actor.Id, actor.Username, actor.DisplayName))
                 .ToArray(),
             mappedItems,
+            recentCompletedItems
+                .Select(item => new OperationsReviewRecentItemDto(
+                    item.Id,
+                    item.GuaranteeNumber,
+                    IntakeScenarioCatalog.Find(item.ScenarioKey)?.TitleResourceKey ?? "OperationsReviewScenario_Unknown",
+                    "OperationsReviewStatus_Completed",
+                    item.CompletedAtUtc))
+                .ToArray(),
             items.Items.PageInfo,
             await _workflowTemplateService.GetTemplatesAsync(cancellationToken),
             items.Counts.OpenItemsCount,
@@ -78,6 +88,19 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             items.Counts.RoutedItemsCount,
             true,
             "OperationsQueue_ActorScopedNotice");
+    }
+
+    public async Task<OperationsReviewItemDto?> GetCompletedItemAsync(
+        Guid reviewItemId,
+        CancellationToken cancellationToken = default)
+    {
+        var item = await _repository.GetItemByIdAsync(reviewItemId, cancellationToken);
+        if (item is null || item.Status != OperationsReviewItemStatus.Completed)
+        {
+            return null;
+        }
+
+        return MapItem(CreateReadModel(item));
     }
 
     public async Task<OperationResult<ApplyBankResponseReceiptDto>> ApplyBankResponseAsync(
@@ -212,6 +235,74 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
                 item.Guarantee.GuaranteeNumber));
     }
 
+    public async Task<OperationResult<ReopenAppliedBankResponseReceiptDto>> ReopenAppliedBankResponseAsync(
+        ReopenAppliedBankResponseCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (command.OperationsActorUserId == Guid.Empty)
+        {
+            return OperationResult<ReopenAppliedBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorRequired);
+        }
+
+        var actor = await _repository.GetOperationsActorByIdAsync(command.OperationsActorUserId, cancellationToken);
+        if (actor is null)
+        {
+            return OperationResult<ReopenAppliedBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
+        }
+
+        var correctionNote = Normalize(command.CorrectionNote);
+        if (string.IsNullOrWhiteSpace(correctionNote))
+        {
+            return OperationResult<ReopenAppliedBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReopenCorrectionNoteRequired);
+        }
+
+        var item = await _repository.GetItemByIdAsync(command.ReviewItemId, cancellationToken);
+        if (item is null)
+        {
+            return OperationResult<ReopenAppliedBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReviewItemNotFound);
+        }
+
+        if (item.Status != OperationsReviewItemStatus.Completed || item.GuaranteeCorrespondence is null)
+        {
+            return OperationResult<ReopenAppliedBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReopenAppliedResponseNotAllowed);
+        }
+
+        var request = item.Guarantee.Requests.SingleOrDefault(candidate =>
+            candidate.CompletionCorrespondenceId == item.GuaranteeCorrespondence.Id);
+        if (request is null)
+        {
+            return OperationResult<ReopenAppliedBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReopenAppliedResponseNotAllowed);
+        }
+
+        try
+        {
+            var reopenedAtUtc = DateTimeOffset.UtcNow;
+            var scenario = IntakeScenarioCatalog.Find(item.ScenarioKey);
+            item.Guarantee.ReopenAppliedBankConfirmation(
+                request.Id,
+                item.GuaranteeCorrespondence.Id,
+                reopenedAtUtc,
+                actor.Id,
+                actor.DisplayName,
+                correctionNote,
+                scenario?.TitleResourceKey,
+                OperationsReviewResourceCatalog.GetRecommendedLaneResourceKey(item.Category));
+            item.ReopenForCorrection(reopenedAtUtc);
+
+            await _repository.SaveChangesAsync(cancellationToken);
+
+            return OperationResult<ReopenAppliedBankResponseReceiptDto>.Success(
+                new ReopenAppliedBankResponseReceiptDto(
+                    item.Id,
+                    request.Id,
+                    item.Guarantee.GuaranteeNumber));
+        }
+        catch (InvalidOperationException)
+        {
+            return OperationResult<ReopenAppliedBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReopenAppliedResponseNotAllowed);
+        }
+    }
+
     private OperationsReviewItemDto MapItem(OperationsReviewQueueItemReadModel item)
     {
         var scenario = IntakeScenarioCatalog.Find(item.ScenarioKey);
@@ -244,7 +335,8 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             suggestedValues.ConfirmedAmount,
             suggestedValues.StatusStatement,
             scenario?.RequiresConfirmedExpiryDate ?? false,
-            scenario?.RequiresConfirmedAmount ?? false);
+            scenario?.RequiresConfirmedAmount ?? false,
+            item.CompletedAtUtc);
     }
 
     private static OperationsReviewQueueItemReadModel CreateReadModel(OperationsReviewItem item)
@@ -267,6 +359,7 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             item.GuaranteeDocument.SourceReference,
             item.GuaranteeDocument.VerifiedDataJson,
             item.GuaranteeCorrespondence?.LetterDate,
+            item.CompletedAtUtc,
             item.Guarantee.Requests
                 .Select(request =>
                 {

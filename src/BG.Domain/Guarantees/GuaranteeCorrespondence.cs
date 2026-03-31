@@ -189,6 +189,21 @@ public sealed class GuaranteeCorrespondence
         AppliedToGuaranteeAtUtc = appliedAtUtc;
     }
 
+    internal void ReopenAppliedToGuarantee()
+    {
+        if (Direction != GuaranteeCorrespondenceDirection.Incoming)
+        {
+            throw new InvalidOperationException("Only incoming bank correspondence can be reopened after application.");
+        }
+
+        if (!AppliedToGuaranteeAtUtc.HasValue)
+        {
+            throw new InvalidOperationException("This bank correspondence has not been applied to the guarantee.");
+        }
+
+        AppliedToGuaranteeAtUtc = null;
+    }
+
     internal void LinkToRequest(GuaranteeRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);

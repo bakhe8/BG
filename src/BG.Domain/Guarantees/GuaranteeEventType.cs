@@ -23,5 +23,6 @@ public enum GuaranteeEventType
     RequestUpdated = 19,
     RequestCancelled = 20,
     RequestWithdrawn = 21,
-    OutgoingLetterDispatchReopened = 22
+    OutgoingLetterDispatchReopened = 22,
+    BankConfirmationReopened = 23
 }

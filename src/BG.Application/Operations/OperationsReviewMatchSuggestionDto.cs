@@ -11,4 +11,6 @@ public sealed record OperationsReviewMatchSuggestionDto(
     DateTimeOffset? SubmittedToBankAtUtc,
     string? OutgoingReferenceNumber,
     IReadOnlyList<string> ReasonResourceKeys,
-    GuaranteeDocumentFormSnapshotDto? RequestDocumentForm);
+    GuaranteeDocumentFormSnapshotDto? RequestDocumentForm,
+    bool IsSelectionBlocked,
+    string? BlockingReasonResourceKey);

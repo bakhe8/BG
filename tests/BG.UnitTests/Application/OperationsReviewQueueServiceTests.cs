@@ -268,6 +268,221 @@ public sealed class OperationsReviewQueueServiceTests
         Assert.False(repository.SaveChangesCalled);
     }
 
+    [Fact]
+    public async Task GetSnapshotAsync_marks_match_suggestion_as_blocked_when_bank_profile_conflicts()
+    {
+        var actor = CreateActor();
+        var guarantee = CreateGuarantee();
+        var request = guarantee.CreateRequest(
+            Guid.NewGuid(),
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 12, 31),
+            notes: "Awaiting extension",
+            createdAtUtc: DateTimeOffset.UtcNow.AddDays(-10));
+        AttachRequestSourceDocument(
+            guarantee,
+            request,
+            "riyad-instrument.pdf",
+            GuaranteeDocumentFormKeys.GuaranteeInstrumentRiyad,
+            "Riyad Bank");
+        ApproveAndDispatchRequest(request, guarantee, "LTR-EXT-3", new DateOnly(2026, 3, 1));
+
+        var document = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.BankResponse,
+            "extension-response.pdf",
+            "guarantees/sample/extension-response.pdf",
+            1,
+            DateTimeOffset.UtcNow,
+            intakeScenarioKey: IntakeScenarioKeys.ExtensionConfirmation,
+            extractionMethod: "OCR",
+            verifiedDataJson: "{\"documentFormKey\":\"bank-letter-snb\",\"bankName\":\"Saudi National Bank\",\"newExpiryDate\":\"2027-12-31\"}");
+
+        var correspondence = guarantee.RegisterCorrespondence(
+            requestId: null,
+            GuaranteeCorrespondenceDirection.Incoming,
+            GuaranteeCorrespondenceKind.BankConfirmation,
+            "BNK-EXT-3",
+            new DateOnly(2026, 3, 5),
+            document.Id,
+            "Extension reply",
+            DateTimeOffset.UtcNow);
+
+        var item = CreateReviewItem(
+            guarantee,
+            document,
+            correspondence,
+            IntakeScenarioKeys.ExtensionConfirmation,
+            OperationsReviewItemCategory.IncomingBankConfirmation);
+
+        var service = new OperationsReviewQueueService(
+            new StubOperationsReviewRepository(actor, item),
+            new StubWorkflowTemplateService(),
+            new OperationsReviewMatchingService());
+
+        var snapshot = await service.GetSnapshotAsync(actor.Id);
+
+        var suggestion = Assert.Single(snapshot.Items[0].MatchSuggestions);
+        Assert.True(suggestion.IsSelectionBlocked);
+        Assert.Equal(OperationsReviewErrorCodes.ResponseBankProfileMismatch, suggestion.BlockingReasonResourceKey);
+    }
+
+    [Fact]
+    public async Task ReopenAppliedBankResponseAsync_restores_request_guarantee_and_review_item_for_correction()
+    {
+        var actor = CreateActor();
+        var guarantee = CreateGuarantee();
+        var originalExpiryDate = guarantee.ExpiryDate;
+        var request = guarantee.CreateRequest(
+            Guid.NewGuid(),
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 12, 31),
+            notes: "Awaiting extension",
+            createdAtUtc: DateTimeOffset.UtcNow.AddDays(-10));
+        ApproveAndDispatchRequest(request, guarantee, "LTR-EXT-9", new DateOnly(2026, 3, 1));
+
+        var document = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.BankResponse,
+            "extension-response.pdf",
+            "guarantees/sample/extension-response.pdf",
+            1,
+            DateTimeOffset.UtcNow,
+            intakeScenarioKey: IntakeScenarioKeys.ExtensionConfirmation,
+            extractionMethod: "OCR",
+            verifiedDataJson: "{\"newExpiryDate\":\"2027-12-31\"}");
+
+        var correspondence = guarantee.RegisterCorrespondence(
+            requestId: null,
+            GuaranteeCorrespondenceDirection.Incoming,
+            GuaranteeCorrespondenceKind.BankConfirmation,
+            "BNK-EXT-9",
+            new DateOnly(2026, 3, 5),
+            document.Id,
+            "Extension reply",
+            DateTimeOffset.UtcNow);
+
+        var item = CreateReviewItem(
+            guarantee,
+            document,
+            correspondence,
+            IntakeScenarioKeys.ExtensionConfirmation,
+            OperationsReviewItemCategory.IncomingBankConfirmation);
+
+        var repository = new StubOperationsReviewRepository(actor, item);
+        var service = new OperationsReviewQueueService(
+            repository,
+            new StubWorkflowTemplateService(),
+            new StubOperationsReviewMatchingService());
+
+        var applyResult = await service.ApplyBankResponseAsync(
+            new ApplyBankResponseCommand(
+                actor.Id,
+                item.Id,
+                request.Id,
+                ConfirmedExpiryDate: null,
+                ConfirmedAmount: null,
+                ReplacementGuaranteeNumber: null,
+                Note: "Confirmed by operations"));
+
+        Assert.True(applyResult.Succeeded);
+        repository.ResetSaveChangesFlag();
+
+        var reopenResult = await service.ReopenAppliedBankResponseAsync(
+            new ReopenAppliedBankResponseCommand(
+                actor.Id,
+                item.Id,
+                "Wrong request mapping."));
+
+        Assert.True(reopenResult.Succeeded);
+        Assert.Equal(originalExpiryDate, guarantee.ExpiryDate);
+        Assert.Equal(GuaranteeRequestStatus.AwaitingBankResponse, request.Status);
+        Assert.Null(request.CompletedAtUtc);
+        Assert.Null(request.CompletionCorrespondenceId);
+        Assert.Null(correspondence.AppliedToGuaranteeAtUtc);
+        Assert.Equal(OperationsReviewItemStatus.Pending, item.Status);
+        Assert.Null(item.CompletedAtUtc);
+        var reopenEvent = Assert.Single(
+            guarantee.Events.Where(ledgerEntry =>
+                ledgerEntry.EventType == GuaranteeEventType.BankConfirmationReopened &&
+                ledgerEntry.ActorDisplayName == actor.DisplayName));
+        Assert.Equal("IntakeScenario_Extension_Title", reopenEvent.OperationsScenarioTitleResourceKey);
+        Assert.Equal("OperationsReviewLane_BankConfirmationReview", reopenEvent.OperationsLaneResourceKey);
+        Assert.Equal("OperationsLedgerPolicy_AppliedResponseReopened", reopenEvent.OperationsPolicyResourceKey);
+        Assert.True(repository.SaveChangesCalled);
+    }
+
+    [Fact]
+    public async Task ReopenAppliedBankResponseAsync_requires_correction_note()
+    {
+        var actor = CreateActor();
+        var guarantee = CreateGuarantee();
+        var request = guarantee.CreateRequest(
+            Guid.NewGuid(),
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 12, 31),
+            notes: "Awaiting extension",
+            createdAtUtc: DateTimeOffset.UtcNow.AddDays(-10));
+        ApproveAndDispatchRequest(request, guarantee, "LTR-EXT-10", new DateOnly(2026, 3, 1));
+
+        var document = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.BankResponse,
+            "extension-response.pdf",
+            "guarantees/sample/extension-response.pdf",
+            1,
+            DateTimeOffset.UtcNow,
+            intakeScenarioKey: IntakeScenarioKeys.ExtensionConfirmation,
+            extractionMethod: "OCR",
+            verifiedDataJson: "{\"newExpiryDate\":\"2027-12-31\"}");
+
+        var correspondence = guarantee.RegisterCorrespondence(
+            requestId: null,
+            GuaranteeCorrespondenceDirection.Incoming,
+            GuaranteeCorrespondenceKind.BankConfirmation,
+            "BNK-EXT-10",
+            new DateOnly(2026, 3, 5),
+            document.Id,
+            "Extension reply",
+            DateTimeOffset.UtcNow);
+
+        var item = CreateReviewItem(
+            guarantee,
+            document,
+            correspondence,
+            IntakeScenarioKeys.ExtensionConfirmation,
+            OperationsReviewItemCategory.IncomingBankConfirmation);
+
+        var repository = new StubOperationsReviewRepository(actor, item);
+        var service = new OperationsReviewQueueService(
+            repository,
+            new StubWorkflowTemplateService(),
+            new StubOperationsReviewMatchingService());
+
+        var applyResult = await service.ApplyBankResponseAsync(
+            new ApplyBankResponseCommand(
+                actor.Id,
+                item.Id,
+                request.Id,
+                ConfirmedExpiryDate: null,
+                ConfirmedAmount: null,
+                ReplacementGuaranteeNumber: null,
+                Note: "Confirmed by operations"));
+
+        Assert.True(applyResult.Succeeded);
+
+        var reopenResult = await service.ReopenAppliedBankResponseAsync(
+            new ReopenAppliedBankResponseCommand(
+                actor.Id,
+                item.Id,
+                "  "));
+
+        Assert.False(reopenResult.Succeeded);
+        Assert.Equal(OperationsReviewErrorCodes.ReopenCorrectionNoteRequired, reopenResult.ErrorCode);
+        Assert.Equal(GuaranteeRequestStatus.Completed, request.Status);
+        Assert.Equal(OperationsReviewItemStatus.Completed, item.Status);
+    }
+
     private static Guarantee CreateGuarantee()
     {
         return Guarantee.RegisterNew(
@@ -440,6 +655,7 @@ public sealed class OperationsReviewQueueServiceTests
             CancellationToken cancellationToken = default)
         {
             var pageItems = _items
+                .Where(item => item.Status != OperationsReviewItemStatus.Completed)
                 .Select(MapItem)
                 .ToArray();
 
@@ -454,6 +670,24 @@ public sealed class OperationsReviewQueueServiceTests
                         _items.Count(item => item.Status == OperationsReviewItemStatus.Routed))));
         }
 
+        public Task<IReadOnlyList<OperationsReviewRecentItemReadModel>> ListRecentlyCompletedAsync(
+            int takeCount,
+            CancellationToken cancellationToken = default)
+        {
+            IReadOnlyList<OperationsReviewRecentItemReadModel> completedItems = _items
+                .Where(item => item.Status == OperationsReviewItemStatus.Completed && item.CompletedAtUtc.HasValue)
+                .OrderByDescending(item => item.CompletedAtUtc)
+                .Take(takeCount)
+                .Select(item => new OperationsReviewRecentItemReadModel(
+                    item.Id,
+                    item.GuaranteeNumber,
+                    item.ScenarioKey,
+                    item.CompletedAtUtc!.Value))
+                .ToArray();
+
+            return Task.FromResult(completedItems);
+        }
+
         public bool SaveChangesCalled { get; private set; }
 
         public Task<OperationsReviewItem?> GetOpenItemByIdAsync(Guid reviewItemId, CancellationToken cancellationToken = default)
@@ -461,10 +695,20 @@ public sealed class OperationsReviewQueueServiceTests
             return Task.FromResult(_items.SingleOrDefault(item => item.Id == reviewItemId && item.Status != OperationsReviewItemStatus.Completed));
         }
 
+        public Task<OperationsReviewItem?> GetItemByIdAsync(Guid reviewItemId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(_items.SingleOrDefault(item => item.Id == reviewItemId));
+        }
+
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             SaveChangesCalled = true;
             return Task.CompletedTask;
+        }
+
+        public void ResetSaveChangesFlag()
+        {
+            SaveChangesCalled = false;
         }
 
         private static OperationsReviewQueueItemReadModel MapItem(OperationsReviewItem item)
@@ -489,23 +733,33 @@ public sealed class OperationsReviewQueueServiceTests
                 item.GuaranteeDocument.SourceReference,
                 item.GuaranteeDocument.VerifiedDataJson,
                 item.GuaranteeCorrespondence?.LetterDate,
+                item.CompletedAtUtc,
                 guarantee is null
                     ? []
                     : guarantee.Requests
-                        .Select(request => new OperationsReviewRequestCandidateReadModel(
-                            request.Id,
-                            request.RequestType,
-                            request.Status,
-                            request.RequestedExpiryDate,
-                            request.RequestedAmount,
-                            request.SubmittedToBankAtUtc,
-                            request.Correspondence
-                                .Where(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)
-                                .OrderByDescending(correspondence => correspondence.RegisteredAtUtc)
-                                .Select(correspondence => correspondence.ReferenceNumber)
-                                .FirstOrDefault(),
-                            null,
-                            null))
+                        .Select(request =>
+                        {
+                            var primaryDocument = request.RequestDocuments
+                                .OrderBy(link => link.GuaranteeDocument.DocumentType == GuaranteeDocumentType.GuaranteeInstrument ? 0 : 1)
+                                .ThenBy(link => link.LinkedAtUtc)
+                                .Select(link => link.GuaranteeDocument)
+                                .FirstOrDefault();
+
+                            return new OperationsReviewRequestCandidateReadModel(
+                                request.Id,
+                                request.RequestType,
+                                request.Status,
+                                request.RequestedExpiryDate,
+                                request.RequestedAmount,
+                                request.SubmittedToBankAtUtc,
+                                request.Correspondence
+                                    .Where(correspondence => correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing)
+                                    .OrderByDescending(correspondence => correspondence.RegisteredAtUtc)
+                                    .Select(correspondence => correspondence.ReferenceNumber)
+                                    .FirstOrDefault(),
+                                primaryDocument?.DocumentType,
+                                primaryDocument?.VerifiedDataJson);
+                        })
                         .ToArray());
         }
     }
@@ -566,6 +820,8 @@ public sealed class OperationsReviewQueueServiceTests
                         DateTimeOffset.UtcNow.AddDays(-2),
                         "LTR-1001",
                         ["OperationsMatchReason_RequestTypeAligned"],
+                        null,
+                        false,
                         null)
                 ];
             }
@@ -581,6 +837,8 @@ public sealed class OperationsReviewQueueServiceTests
                     DateTimeOffset.UtcNow.AddDays(-2),
                     "LTR-1001",
                     ["OperationsMatchReason_RequestTypeAligned"],
+                    null,
+                    false,
                     null)
             ];
         }

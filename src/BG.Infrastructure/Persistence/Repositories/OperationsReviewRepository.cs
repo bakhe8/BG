@@ -89,7 +89,8 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
                         item.GuaranteeDocument.SourceSystemName,
                         item.GuaranteeDocument.SourceReference,
                         item.GuaranteeDocument.VerifiedDataJson,
-                        item.GuaranteeCorrespondence != null ? item.GuaranteeCorrespondence.LetterDate : null))
+                        item.GuaranteeCorrespondence != null ? item.GuaranteeCorrespondence.LetterDate : null,
+                        item.CompletedAtUtc))
                     .ToListAsync(cancellationToken))
                     .OrderByDescending(item => item.CreatedAtUtc),
                 pageInfo)
@@ -114,7 +115,8 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
                     item.GuaranteeDocument.SourceSystemName,
                     item.GuaranteeDocument.SourceReference,
                     item.GuaranteeDocument.VerifiedDataJson,
-                    item.GuaranteeCorrespondence != null ? item.GuaranteeCorrespondence.LetterDate : null))
+                    item.GuaranteeCorrespondence != null ? item.GuaranteeCorrespondence.LetterDate : null,
+                    item.CompletedAtUtc))
                 .ToListAsync(cancellationToken);
 
         var items = itemRows
@@ -136,6 +138,7 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
                 item.SourceReference,
                 item.VerifiedDataJson,
                 item.BankLetterDate,
+                item.CompletedAtUtc,
                 Array.Empty<OperationsReviewRequestCandidateReadModel>()))
             .ToArray();
 
@@ -237,6 +240,39 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
             counts);
     }
 
+    public async Task<IReadOnlyList<OperationsReviewRecentItemReadModel>> ListRecentlyCompletedAsync(
+        int takeCount,
+        CancellationToken cancellationToken = default)
+    {
+        var filteredQuery = _dbContext.OperationsReviewItems
+            .Where(item => item.Status == OperationsReviewItemStatus.Completed && item.CompletedAtUtc.HasValue)
+            .AsNoTracking();
+
+        if (RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext))
+        {
+            return (await filteredQuery
+                    .Select(item => new OperationsReviewRecentItemReadModel(
+                        item.Id,
+                        item.GuaranteeNumber,
+                        item.ScenarioKey,
+                        item.CompletedAtUtc!.Value))
+                    .ToListAsync(cancellationToken))
+                .OrderByDescending(item => item.CompletedAtUtc)
+                .Take(takeCount)
+                .ToArray();
+        }
+
+        return await filteredQuery
+            .OrderByDescending(item => item.CompletedAtUtc)
+            .Take(takeCount)
+            .Select(item => new OperationsReviewRecentItemReadModel(
+                item.Id,
+                item.GuaranteeNumber,
+                item.ScenarioKey,
+                item.CompletedAtUtc!.Value))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<OperationsReviewItem?> GetOpenItemByIdAsync(Guid reviewItemId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.OperationsReviewItems
@@ -253,6 +289,27 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
             .Include(item => item.GuaranteeCorrespondence)
             .SingleOrDefaultAsync(
                 item => item.Id == reviewItemId && item.Status != OperationsReviewItemStatus.Completed,
+                cancellationToken);
+    }
+
+    public async Task<OperationsReviewItem?> GetItemByIdAsync(Guid reviewItemId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.OperationsReviewItems
+            .Include(item => item.Guarantee)
+            .ThenInclude(guarantee => guarantee.Requests)
+            .ThenInclude(request => request.RequestDocuments)
+            .ThenInclude(link => link.GuaranteeDocument)
+            .Include(item => item.Guarantee)
+            .ThenInclude(guarantee => guarantee.Requests)
+            .ThenInclude(request => request.Correspondence)
+            .Include(item => item.Guarantee)
+            .ThenInclude(guarantee => guarantee.Correspondence)
+            .Include(item => item.Guarantee)
+            .ThenInclude(guarantee => guarantee.Events)
+            .Include(item => item.GuaranteeDocument)
+            .Include(item => item.GuaranteeCorrespondence)
+            .SingleOrDefaultAsync(
+                item => item.Id == reviewItemId,
                 cancellationToken);
     }
 
@@ -278,7 +335,8 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
         string? SourceSystemName,
         string? SourceReference,
         string? VerifiedDataJson,
-        DateOnly? BankLetterDate);
+        DateOnly? BankLetterDate,
+        DateTimeOffset? CompletedAtUtc);
 
     private sealed record OperationsReviewRequestCandidateRow(
         Guid GuaranteeId,

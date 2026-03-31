@@ -25,4 +25,5 @@ public sealed record OperationsReviewItemDto(
     string? SuggestedConfirmedAmount,
     string? SuggestedStatusStatement,
     bool RequiresConfirmedExpiryDate,
-    bool RequiresConfirmedAmount);
+    bool RequiresConfirmedAmount,
+    DateTimeOffset? CompletedAtUtc);
