@@ -1,12 +1,12 @@
-# Production Runbook
+﻿# Production Runbook
 
 ## Document Role
 
 - Status: `source of truth`
 - Scope: step-by-step production deployment execution procedure
-- Documentation index: [docs/README.md](docs/README.md)
+- Documentation index: [README.md](../README.md)
 - Baseline policy document: [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md)
-- Repository-wide testing policy: [.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md)
+- Repository-wide testing policy: [testing.instructions.md](../../.github/instructions/testing.instructions.md)
 
 This runbook turns the production baseline into an executable deployment procedure for `BG`.
 
@@ -17,7 +17,7 @@ Use it together with [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md).
 This document owns the deployment sequence itself.
 
 - Use [PRODUCTION_DEPLOYMENT.md](./PRODUCTION_DEPLOYMENT.md) for the required production baseline and runtime guards.
-- Use [.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md) for the canonical repository-wide test policy.
+- Use [testing.instructions.md](../../.github/instructions/testing.instructions.md) for the canonical repository-wide test policy.
 - The commands in this runbook operationalize a release; they do not replace the testing policy document.
 
 ## 1. Scope
@@ -146,9 +146,9 @@ After `dotnet publish`, edit the generated `web.config` in the publish folder an
 </environmentVariables>
 ```
 
-You can start from the ready template in [deploy/iis/web.config.environmentVariables.example.xml](./deploy/iis/web.config.environmentVariables.example.xml).
+You can start from the ready template in [deploy/iis/web.config.environmentVariables.example.xml](../../deploy/iis/web.config.environmentVariables.example.xml).
 
-Before go-live, fill the server handoff checklist in [deploy/iis/production_server_checklist.md](./deploy/iis/production_server_checklist.md).
+Before go-live, fill the server handoff checklist in [production_server_checklist.md](deployment/production_server_checklist.md).
 The publish output also includes a ready handoff folder with the checklist,
 environment variable template, release handoff sheet, and post-deploy smoke
 record.

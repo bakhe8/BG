@@ -1,4 +1,4 @@
-# 2026-03-13 Component and Role Visibility Matrix
+﻿# 2026-03-13 Component and Role Visibility Matrix
 
 ## Purpose
 
@@ -22,7 +22,7 @@ This matrix is based on:
 - [README.md](../ui-proposals/README.md)
 - [frontend_reconstruction_plan.md](../frontend_reconstruction_plan.md)
 - [2026-03-12-execution-decision-backlog.md](2026-03-12-execution-decision-backlog.md)
-- [ARCHITECTURE.md](../../ARCHITECTURE.md)
+- [ARCHITECTURE.md](../instructions/ARCHITECTURE.md)
 - [PermissionCatalog.cs](../../src/BG.Application/Security/PermissionCatalog.cs)
 - [WorkspaceShellService.cs](../../src/BG.Web/UI/WorkspaceShellService.cs)
 

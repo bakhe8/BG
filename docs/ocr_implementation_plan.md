@@ -1,11 +1,11 @@
-# OCR Implementation Plan
+﻿# OCR Implementation Plan
 
 ## Document Role
 
 - Status: `execution plan`
 - Scope: live OCR implementation order, locked decisions, and completion criteria
 - Documentation index: [README.md](README.md)
-- Architecture baseline: [../ARCHITECTURE.md](../ARCHITECTURE.md)
+- Architecture baseline: [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
 - Real sample baseline: [reference/initial-bank-form-sample-catalog.md](reference/initial-bank-form-sample-catalog.md)
 
 ## Boundary
@@ -13,7 +13,7 @@
 This file owns the live OCR implementation order.
 
 - Use it for phase order, locked execution decisions, and completion criteria.
-- Use [../ARCHITECTURE.md](../ARCHITECTURE.md) for the higher-level architectural baseline.
+- Use [ARCHITECTURE.md](instructions/ARCHITECTURE.md) for the higher-level architectural baseline.
 - Use [reference/initial-bank-form-sample-catalog.md](reference/initial-bank-form-sample-catalog.md) for the real-sample reference baseline.
 - Do not let older audit or planning material override this file when OCR implementation details diverge.
 

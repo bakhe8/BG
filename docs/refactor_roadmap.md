@@ -1,11 +1,11 @@
-# Refactor Roadmap
+﻿# Refactor Roadmap
 
 ## Document Role
 
 - Status: `execution plan`
 - Scope: post-stabilization refactor work for documentation, UI, application, and tests
 - Documentation index: [README.md](README.md)
-- Architecture baseline: [../ARCHITECTURE.md](../ARCHITECTURE.md)
+- Architecture baseline: [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
 
 ## الحالة الحالية
 
@@ -54,7 +54,7 @@
 
 ## ما لا يشمله هذا المسار
 
-- تغيير المعمارية الأساسية المعتمدة في [ARCHITECTURE.md](../ARCHITECTURE.md)
+- تغيير المعمارية الأساسية المعتمدة في [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
 - تحويل النظام إلى `SPA`
 - استبدال `Bootstrap`
 - استبدال `PostgreSQL`
@@ -89,10 +89,10 @@
 ### نطاق العمل
 
 - حصر جميع مستندات التعليمات المرجعية داخل المشروع، خصوصًا:
-  - [ARCHITECTURE.md](../ARCHITECTURE.md)
-  - [LOCAL_DEVELOPMENT.md](../LOCAL_DEVELOPMENT.md)
-  - [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)
-  - [PRODUCTION_RUNBOOK.md](../PRODUCTION_RUNBOOK.md)
+  - [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
+  - [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
+  - [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
+  - [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
   - [testing.instructions.md](../.github/instructions/testing.instructions.md)
   - [frontend_reconstruction_plan.md](frontend_reconstruction_plan.md)
   - [ocr_implementation_plan.md](ocr_implementation_plan.md)

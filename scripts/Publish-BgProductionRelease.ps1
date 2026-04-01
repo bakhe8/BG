@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$Configuration = "Release",
     [string]$OutputRoot = "",
     [switch]$SkipToolRestore,
@@ -223,10 +223,10 @@ if (Test-Path $handoffRoot)
 
 New-Item -ItemType Directory -Force -Path $handoffRoot | Out-Null
 
-$serverChecklistTemplate = Join-Path $projectRoot "deploy\iis\production_server_checklist.md"
+$serverChecklistTemplate = Join-Path $projectRoot "docs\instructions\deployment\production_server_checklist.md"
 $envTemplate = Join-Path $projectRoot "deploy\iis\web.config.environmentVariables.example.xml"
-$releaseHandoffTemplate = Join-Path $projectRoot "deploy\iis\release_handoff_template.md"
-$smokeRecordTemplate = Join-Path $projectRoot "deploy\iis\post_deploy_smoke_record.md"
+$releaseHandoffTemplate = Join-Path $projectRoot "docs\instructions\deployment\release_handoff_template.md"
+$smokeRecordTemplate = Join-Path $projectRoot "docs\instructions\deployment\post_deploy_smoke_record.md"
 
 Copy-Item $serverChecklistTemplate (Join-Path $handoffRoot "production_server_checklist.md")
 Copy-Item $envTemplate (Join-Path $handoffRoot "web.config.environmentVariables.example.xml")

@@ -1,11 +1,11 @@
-# Local Development
+﻿# Local Development
 
 ## Document Role
 
 - Status: `source of truth`
 - Scope: local prerequisites, secrets, migrations, and OCR local setup
-- Documentation index: [docs/README.md](docs/README.md)
-- Repository-wide testing policy: [.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md)
+- Documentation index: [README.md](../README.md)
+- Repository-wide testing policy: [testing.instructions.md](../../.github/instructions/testing.instructions.md)
 - Use [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) and [PRODUCTION_RUNBOOK.md](PRODUCTION_RUNBOOK.md) for production, not this file
 
 ## Boundary
@@ -13,7 +13,7 @@
 This document owns local machine setup only.
 
 - Use it for local secrets, PostgreSQL, migrations, and OCR local prerequisites.
-- Use [.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md) for repository-wide test policy and the canonical quality gate.
+- Use [testing.instructions.md](../../.github/instructions/testing.instructions.md) for repository-wide test policy and the canonical quality gate.
 - Use [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) and [PRODUCTION_RUNBOOK.md](PRODUCTION_RUNBOOK.md) for production configuration and deployment procedure.
 
 ## PostgreSQL
@@ -91,6 +91,6 @@ Notes:
 - Local development must run with `ASPNETCORE_ENVIRONMENT=Development` so that `user-secrets` are loaded.
 - `OperationalSeed` is disabled by default in tracked configuration. Enable it only through local secrets when you explicitly need seeded users and data.
 - `OCR` tests are mandatory now. If `.venv-ocr312` or the worker script is missing, the test suite should fail instead of silently skipping OCR coverage.
-- For repository-wide build and test expectations, follow [.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md).
+- For repository-wide build and test expectations, follow [testing.instructions.md](../../.github/instructions/testing.instructions.md).
 - For production configuration and IIS deployment, use [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) and [PRODUCTION_RUNBOOK.md](PRODUCTION_RUNBOOK.md).
 - The project is intentionally configured to fail fast with a clear error if the PostgreSQL password is still the placeholder `change-me`.

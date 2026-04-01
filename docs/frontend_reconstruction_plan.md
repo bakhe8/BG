@@ -1,11 +1,11 @@
-# Frontend Interface Reconstruction Plan — BG Application
+﻿# Frontend Interface Reconstruction Plan — BG Application
 
 ## Document Role
 
 - Status: `execution plan`
 - Scope: live frontend reconstruction priorities and completion boundary
 - Documentation index: [README.md](README.md)
-- Architecture baseline: [../ARCHITECTURE.md](../ARCHITECTURE.md)
+- Architecture baseline: [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
 - Visual reference library: [ui-proposals/README.md](ui-proposals/README.md)
 
 ## Boundary
@@ -13,7 +13,7 @@
 This file owns the live frontend execution boundary.
 
 - Use it to decide what frontend work is still active, complete, deferred, or explicitly out of scope.
-- Use [../ARCHITECTURE.md](../ARCHITECTURE.md) for the higher-level architectural baseline.
+- Use [ARCHITECTURE.md](instructions/ARCHITECTURE.md) for the higher-level architectural baseline.
 - Use [ui-proposals/README.md](ui-proposals/README.md) as the binding visual reference library.
 - Use `audits` as supporting diagnostic context, not as the first execution source when this file already defines the current boundary.
 

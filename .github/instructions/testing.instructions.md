@@ -1,15 +1,15 @@
-# BG Testing Instructions
+﻿# BG Testing Instructions
 
 ## Document Role
 
 - Status: `source of truth`
 - Scope: repository testing policy, definition of done, and verification commands
 - Documentation index: [docs/README.md](../../docs/README.md)
-- Architecture baseline: [ARCHITECTURE.md](../../ARCHITECTURE.md)
-- Local setup reference: [LOCAL_DEVELOPMENT.md](../../LOCAL_DEVELOPMENT.md)
+- Architecture baseline: [ARCHITECTURE.md](../../docs/instructions/ARCHITECTURE.md)
+- Local setup reference: [LOCAL_DEVELOPMENT.md](../../docs/instructions/LOCAL_DEVELOPMENT.md)
 - Production references:
-  - [PRODUCTION_DEPLOYMENT.md](../../PRODUCTION_DEPLOYMENT.md)
-  - [PRODUCTION_RUNBOOK.md](../../PRODUCTION_RUNBOOK.md)
+  - [PRODUCTION_DEPLOYMENT.md](../../docs/instructions/PRODUCTION_DEPLOYMENT.md)
+  - [PRODUCTION_RUNBOOK.md](../../docs/instructions/PRODUCTION_RUNBOOK.md)
 
 Apply these rules when creating or editing tests in this repository.
 

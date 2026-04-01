@@ -1,12 +1,12 @@
-# Production Server Checklist
+﻿# Production Server Checklist
 
 Use this checklist before the first production deployment and before every
 go-live.
 
 Related documents:
 
-- [../../PRODUCTION_DEPLOYMENT.md](../../PRODUCTION_DEPLOYMENT.md)
-- [../../PRODUCTION_RUNBOOK.md](../../PRODUCTION_RUNBOOK.md)
+- [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)
+- [PRODUCTION_RUNBOOK.md](../PRODUCTION_RUNBOOK.md)
 - [web.config.environmentVariables.example.xml](web.config.environmentVariables.example.xml)
 
 ## 1. Server Identity

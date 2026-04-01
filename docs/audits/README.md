@@ -1,4 +1,4 @@
-# Audits Folder
+﻿# Audits Folder
 
 ## Document Role
 
@@ -14,8 +14,8 @@
 
 ## Current Live Sources That Override Audit Snapshots
 
-- [../../ARCHITECTURE.md](../../ARCHITECTURE.md)
+- [ARCHITECTURE.md](../instructions/ARCHITECTURE.md)
 - [../frontend_reconstruction_plan.md](../frontend_reconstruction_plan.md)
 - [../ocr_implementation_plan.md](../ocr_implementation_plan.md)
-- [../../PRODUCTION_DEPLOYMENT.md](../../PRODUCTION_DEPLOYMENT.md)
-- [../../PRODUCTION_RUNBOOK.md](../../PRODUCTION_RUNBOOK.md)
+- [PRODUCTION_DEPLOYMENT.md](../instructions/PRODUCTION_DEPLOYMENT.md)
+- [PRODUCTION_RUNBOOK.md](../instructions/PRODUCTION_RUNBOOK.md)

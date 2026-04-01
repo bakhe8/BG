@@ -1,11 +1,11 @@
-# Production Deployment
+﻿# Production Deployment
 
 ## Document Role
 
 - Status: `source of truth`
 - Scope: production configuration baseline and runtime guards
-- Documentation index: [docs/README.md](docs/README.md)
-- Repository-wide testing policy: [.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md)
+- Documentation index: [README.md](../README.md)
+- Repository-wide testing policy: [testing.instructions.md](../../.github/instructions/testing.instructions.md)
 - Execution procedure: [PRODUCTION_RUNBOOK.md](./PRODUCTION_RUNBOOK.md)
 
 This document defines the minimum deployment baseline for running `BG` as a production workload.
@@ -18,7 +18,7 @@ This document defines what production must satisfy, not the full step-by-step de
 
 - Use this file for required production settings, runtime guards, and host baseline.
 - Use [PRODUCTION_RUNBOOK.md](./PRODUCTION_RUNBOOK.md) for the exact deployment sequence.
-- Use [.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md) for the repository-wide build and test quality gate.
+- Use [testing.instructions.md](../../.github/instructions/testing.instructions.md) for the repository-wide build and test quality gate.
 
 ## Required Configuration
 
@@ -60,7 +60,7 @@ When `ASPNETCORE_ENVIRONMENT=Production`, the application now fails fast if any 
 - Persist the documents root and data-protection keys outside the deployment directory.
 - Run database migrations before or during startup only under controlled deployment procedures.
 - Keep OCR worker dependencies on the same host when OCR is enabled.
-- Use the server readiness checklist in [deploy/iis/production_server_checklist.md](./deploy/iis/production_server_checklist.md) before each deployment.
+- Use the server readiness checklist in [production_server_checklist.md](deployment/production_server_checklist.md) before each deployment.
 
 ## Smoke Verification
 

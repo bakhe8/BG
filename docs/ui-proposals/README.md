@@ -1,4 +1,4 @@
-# مقترحات واجهات المستخدم (UI Proposals)
+﻿# مقترحات واجهات المستخدم (UI Proposals)
 
 ## حالة المستند
 
@@ -6,7 +6,7 @@
 - هذا المجلد مرجع بصري معتمد، لكنه ليس المصدر التنفيذي الأعلى وحده
 - الخارطة العامة للوثائق: [../README.md](../README.md)
 - المصدر التنفيذي الحي للواجهة: [../frontend_reconstruction_plan.md](../frontend_reconstruction_plan.md)
-- المرجع المعماري الأعلى: [../../ARCHITECTURE.md](../../ARCHITECTURE.md)
+- المرجع المعماري الأعلى: [ARCHITECTURE.md](../instructions/ARCHITECTURE.md)
 
 هذا المجلد يحتوي جميع الصور المرجعية الخاصة بالاتجاه الجديد لواجهات BG.
 

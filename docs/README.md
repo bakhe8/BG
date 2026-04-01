@@ -1,4 +1,4 @@
-# Documentation Map
+﻿# Documentation Map
 
 ## Purpose
 
@@ -25,24 +25,24 @@ Use this file when you need to know:
 
 ## Read Order For Core Work
 
-1. [ARCHITECTURE.md](../ARCHITECTURE.md)
-2. [LOCAL_DEVELOPMENT.md](../LOCAL_DEVELOPMENT.md)
+1. [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
+2. [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
 3. [testing.instructions.md](../.github/instructions/testing.instructions.md)
-4. [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)
-5. [PRODUCTION_RUNBOOK.md](../PRODUCTION_RUNBOOK.md)
+4. [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
+5. [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
 
 ## Topic Ownership
 
 - Architecture baseline and platform decisions:
-  [ARCHITECTURE.md](../ARCHITECTURE.md)
+  [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
 - Local machine setup, local secrets, migrations, and OCR local environment:
-  [LOCAL_DEVELOPMENT.md](../LOCAL_DEVELOPMENT.md)
+  [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
 - Repository-wide testing policy and verification gates:
   [testing.instructions.md](../.github/instructions/testing.instructions.md)
 - Production configuration baseline and runtime guards:
-  [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)
+  [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
 - Production deployment execution procedure:
-  [PRODUCTION_RUNBOOK.md](../PRODUCTION_RUNBOOK.md)
+  [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
 - Frontend evolution and reconstruction boundary:
   [frontend_reconstruction_plan.md](frontend_reconstruction_plan.md)
 - OCR implementation order and locked technical decisions:
@@ -52,19 +52,19 @@ Use this file when you need to know:
 
 ## Current Source Documents
 
-- [ARCHITECTURE.md](../ARCHITECTURE.md)
+- [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
   Status: `source of truth`
   Scope: architecture baseline, platform decisions, quality floor, operational rules.
-- [LOCAL_DEVELOPMENT.md](../LOCAL_DEVELOPMENT.md)
+- [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
   Status: `source of truth`
   Scope: local prerequisites, secrets, migrations, OCR local setup.
 - [testing.instructions.md](../.github/instructions/testing.instructions.md)
   Status: `source of truth`
   Scope: testing policy, definition of done, test priorities, and commands.
-- [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)
+- [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
   Status: `source of truth`
   Scope: production configuration baseline and runtime guards.
-- [PRODUCTION_RUNBOOK.md](../PRODUCTION_RUNBOOK.md)
+- [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
   Status: `source of truth`
   Scope: executable production deployment procedure.
 

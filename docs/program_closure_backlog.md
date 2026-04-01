@@ -1,15 +1,15 @@
-# Program Closure Backlog
+﻿# Program Closure Backlog
 
 ## Document Role
 
 - Status: `execution plan`
 - Scope: consolidated mandatory closure backlog across all active plans
 - Documentation index: [README.md](README.md)
-- Architecture baseline: [../ARCHITECTURE.md](../ARCHITECTURE.md)
+- Architecture baseline: [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
 - Frontend execution plan: [frontend_reconstruction_plan.md](frontend_reconstruction_plan.md)
 - OCR execution plan: [ocr_implementation_plan.md](ocr_implementation_plan.md)
-- Production baseline: [../PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)
-- Production execution procedure: [../PRODUCTION_RUNBOOK.md](../PRODUCTION_RUNBOOK.md)
+- Production baseline: [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
+- Production execution procedure: [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
 - Repository testing policy: [../.github/instructions/testing.instructions.md](../.github/instructions/testing.instructions.md)
 - Reference program plan: [audits/2026-03-12-master-program-execution-plan.md](audits/2026-03-12-master-program-execution-plan.md)
 
@@ -91,8 +91,8 @@ to end.
 
 ### Source Documents
 
-- [../PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md)
-- [../PRODUCTION_RUNBOOK.md](../PRODUCTION_RUNBOOK.md)
+- [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
+- [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
 
 ## Milestone B: Operational Completion Closure
 
