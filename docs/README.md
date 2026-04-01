@@ -26,15 +26,24 @@ Use this file when you need to know:
 ## Read Order For Core Work
 
 1. [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
-2. [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
-3. [testing.instructions.md](../.github/instructions/testing.instructions.md)
-4. [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
-5. [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
+2. [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
+3. [ROLE_DAILY_CHECKLISTS.md](instructions/ROLE_DAILY_CHECKLISTS.md)
+4. [ROLE_SOPS_AR.md](instructions/ROLE_SOPS_AR.md)
+5. [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
+6. [testing.instructions.md](../.github/instructions/testing.instructions.md)
+7. [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
+8. [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
 
 ## Topic Ownership
 
 - Architecture baseline and platform decisions:
   [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
+- Implemented daily operating model and role-step-decision flow:
+  [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
+- Concise day-to-day checklists for active roles:
+  [ROLE_DAILY_CHECKLISTS.md](instructions/ROLE_DAILY_CHECKLISTS.md)
+- Arabic short-form SOPs for day-to-day operator use:
+  [ROLE_SOPS_AR.md](instructions/ROLE_SOPS_AR.md)
 - Local machine setup, local secrets, migrations, and OCR local environment:
   [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
 - Repository-wide testing policy and verification gates:
@@ -55,6 +64,15 @@ Use this file when you need to know:
 - [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
   Status: `source of truth`
   Scope: architecture baseline, platform decisions, quality floor, operational rules.
+- [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
+  Status: `source of truth`
+  Scope: implemented daily operating model, role-step-decision flow, and live validation boundary.
+- [ROLE_DAILY_CHECKLISTS.md](instructions/ROLE_DAILY_CHECKLISTS.md)
+  Status: `source of truth`
+  Scope: concise daily execution checklists for each active role.
+- [ROLE_SOPS_AR.md](instructions/ROLE_SOPS_AR.md)
+  Status: `source of truth`
+  Scope: Arabic short-form SOPs for day-to-day operator execution.
 - [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
   Status: `source of truth`
   Scope: local prerequisites, secrets, migrations, OCR local setup.

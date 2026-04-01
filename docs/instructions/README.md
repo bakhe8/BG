@@ -15,6 +15,12 @@ Use these files when you need the current authoritative guidance for:
 
 - [ARCHITECTURE.md](ARCHITECTURE.md)
   Scope: architecture baseline, platform decisions, quality floor, and core operational rules.
+- [DAILY_OPERATIONS_MATRIX.md](DAILY_OPERATIONS_MATRIX.md)
+  Scope: implemented daily operating model, role-step-decision flow, and validation boundary.
+- [ROLE_DAILY_CHECKLISTS.md](ROLE_DAILY_CHECKLISTS.md)
+  Scope: concise daily execution checklists for each active role.
+- [ROLE_SOPS_AR.md](ROLE_SOPS_AR.md)
+  Scope: Arabic short-form SOPs for day-to-day operator execution.
 - [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)
   Scope: local prerequisites, secrets, migrations, and OCR local setup.
 - [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)
