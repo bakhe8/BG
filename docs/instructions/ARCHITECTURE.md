@@ -7,6 +7,7 @@
 - Documentation index: [README.md](../README.md)
 - Related documents:
   - [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)
+  - [DAILY_OPERATIONS_MATRIX.md](DAILY_OPERATIONS_MATRIX.md)
   - [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)
   - [PRODUCTION_RUNBOOK.md](PRODUCTION_RUNBOOK.md)
   - [testing.instructions.md](../../.github/instructions/testing.instructions.md)
