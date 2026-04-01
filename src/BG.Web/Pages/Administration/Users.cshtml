@@ -3,41 +3,47 @@
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.Pages.Administration.UsersModel
 @{
+    string BuildInitials(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "BG";
+        }
+
+        var initials = new List<char>(2);
+        foreach (var part in value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            initials.Add(char.ToUpperInvariant(part[0]));
+            if (initials.Count == 2)
+            {
+                break;
+            }
+        }
+
+        return initials.Count == 0 ? "BG" : new string(initials.ToArray());
+    }
+
     ViewData["Title"] = T["UsersPageTitle"];
     var activeUsers = Model.Users.Count(user => user.IsActive);
     var credentialReadyUsers = Model.Users.Count(user => user.HasLocalPassword);
     var assignedRoles = Model.Users.Sum(user => user.Roles.Count);
-    var headerModel = new SurfaceHeaderModel(
-        T["NavUsers"].Value,
-        T["UsersPageHeading"].Value,
-        T["UsersPageSummary"].Value,
-        CssClass: "is-split");
-    var statStripModel = new SurfaceStatStripModel(
-        new[]
-        {
-            new SurfaceStatItem(T["UsersListTitle"].Value, Model.Users.Count),
-            new SurfaceStatItem(T["Status_Active"].Value, activeUsers),
-            new SurfaceStatItem(T["Credentials_Ready"].Value, credentialReadyUsers),
-            new SurfaceStatItem(T["RolesField"].Value, assignedRoles)
-        });
-    var taskNoticeModel = new InlineNoticeModel(
-        T["AdminUsers_TaskModelTitle"].Value,
-        T["AdminUsers_TaskModelSummary"].Value);
+    var activeUser = Model.ActiveUser;
 }
 
-<section class="bg-shell-content">
+<section class="section-shell admin-users-surface">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
-        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4">@Model.StatusMessage</div>
+        <div class="notice-banner is-success">@Model.StatusMessage</div>
     }
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
     <div class="mb-5 pb-4 border-bottom">
         <section-caption>@T["NavUsers"]</section-caption>
         <h1 class="fw-bold text-dark m-0">@T["UsersPageHeading"]</h1>
-        <p class="text-secondary mt-1">@T["UsersPageSummary"]</p>
     </div>
 
-    <div class="row g-4 mb-5">
+    <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="bg-card shadow-sm p-4 text-center">
                 <div class="section-caption x-small mb-1">@T["UsersListTitle"]</div>
@@ -64,14 +70,76 @@
         </div>
     </div>
 
-    <div class="row g-5">
-        <div class="col-lg-4">
-            <div class="bg-card shadow-sm p-4 sticky-top offset-header">
-                <h5 class="fw-bold text-dark mb-4 pb-2 border-bottom">@T["CreateUserTitle"]</h5>
-                
-                <form method="post" class="d-flex flex-column gap-4">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger x-small py-2 px-3 border-0 rounded-3"></div>
+    <div class="admin-users-layout">
+        <div class="admin-users-sidebar">
+            <article class="admin-users-directory bg-card shadow-sm">
+                <div class="admin-users-card-header">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">@T["UsersListTitle"]</h5>
+                        <p class="compact-copy mb-0">@T["UsersPage_DirectorySummary"]</p>
+                    </div>
+                    <bg-badge variant="light">@T["UsersPage_CountBadge", Model.Users.Count]</bg-badge>
+                </div>
 
+                @if (Model.Users.Count == 0)
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-people-fill display-1 text-light mb-4 d-block"></i>
+                        <p class="text-secondary mb-0">@T["EmptyUsers"]</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="admin-users-directory-list">
+                        @foreach (var user in Model.Users)
+                        {
+                            var isActive = activeUser?.Id == user.Id;
+                            var userInitials = BuildInitials(user.DisplayName);
+
+                            <a asp-page="/Administration/Users"
+                               asp-all-route-data="Model.BuildSelectionRoute(user.Id)"
+                               class="request-queue-link admin-user-link @(isActive ? "active" : null)">
+                                <div class="request-queue-copy">
+                                    <div class="admin-user-link-header">
+                                        <span class="admin-user-avatar">@userInitials</span>
+                                        <div>
+                                            <strong>@user.DisplayName</strong>
+                                            <div class="entity-subtitle">@@@user.Username</div>
+                                        </div>
+                                    </div>
+                                    <p class="compact-copy mb-0">
+                                        @T[$"SourceType_{user.SourceType}"]
+                                        @if (user.Roles.Count > 0)
+                                        {
+                                            <span> · @string.Join(" · ", user.Roles.Take(2))</span>
+                                        }
+                                    </p>
+                                </div>
+                                <div class="request-queue-meta">
+                                    @if (isActive)
+                                    {
+                                        <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
+                                    }
+                                    <bg-badge variant="@(user.IsActive ? "success" : "danger")">
+                                        @T[user.IsActive ? "Status_Active" : "Status_Inactive"]
+                                    </bg-badge>
+                                    <span class="section-caption">@T[user.HasLocalPassword ? "Credentials_Ready" : "Credentials_Missing"]</span>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+            </article>
+
+            <article class="admin-users-create bg-card shadow-sm">
+                <div class="admin-users-card-header">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">@T["CreateUserTitle"]</h5>
+                        <p class="compact-copy mb-0">@T["UsersPage_CreateSummary"]</p>
+                    </div>
+                </div>
+
+                <form method="post" class="d-flex flex-column gap-4">
                     <div>
                         <label class="form-label x-small fw-bold opacity-75" asp-for="Input.Username">@T["UsernameField"]</label>
                         <input asp-for="Input.Username" class="form-control rounded-4 p-2 small" maxlength="64" />
@@ -92,18 +160,18 @@
                         <input asp-for="Input.InitialPassword" class="form-control rounded-4 p-2 small" type="password" maxlength="128" autocomplete="new-password" />
                     </div>
 
-                    <div class="bg-light rounded-4 p-3 mb-2">
+                    <div class="bg-light rounded-4 p-3">
                         <div class="x-small fw-bold text-dark mb-3">@T["RolesField"]</div>
                         @if (Model.Roles.Count == 0)
                         {
-                            <p class="x-small text-muted italic">@T["NoRolesAvailable"]</p>
+                            <p class="x-small text-muted italic mb-0">@T["NoRolesAvailable"]</p>
                         }
                         else
                         {
-                            <div class="d-flex flex-column gap-2 overflow-auto" style="max-height: 200px;">
+                            <div class="admin-users-role-picker">
                                 @foreach (var role in Model.Roles)
                                 {
-                                    <label class="d-flex align-items-center gap-3 p-2 bg-white rounded-3 border hover-bg-light cursor-pointer shadow-sm-hover transition-all">
+                                    <label class="d-flex align-items-center gap-3 p-2 bg-white rounded-3 border cursor-pointer">
                                         <input type="checkbox" name="Input.SelectedRoleIds" value="@role.Id" class="form-check-input mt-0" />
                                         <div>
                                             <div class="x-small fw-bold text-dark">@role.Name</div>
@@ -120,102 +188,118 @@
 
                     <bg-button type="submit" variant="primary" class="w-100">@T["SaveUserAction"]</bg-button>
                 </form>
-            </div>
+            </article>
         </div>
 
-        <div class="col-lg-8">
-            <div class="bg-card shadow-sm p-4 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-                    <h5 class="fw-bold text-dark m-0">@T["UsersListTitle"]</h5>
-                    <bg-badge variant="light">@Model.Users.Count Users</bg-badge>
+        <article class="admin-users-detail bg-card shadow-sm">
+            @if (activeUser is null)
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-person-lines-fill fs-1 text-muted opacity-25 d-block mb-3"></i>
+                    <h5 class="fw-bold text-dark">@T["WorkspaceShell_SelectUser"]</h5>
+                    <p class="compact-copy mb-0">@T["UsersPage_DirectorySummary"]</p>
+                </div>
+            }
+            else
+            {
+                var activeUserInitials = BuildInitials(activeUser.DisplayName);
+                var createdAtText = activeUser.CreatedAtUtc.ToLocalTime().ToString("d", System.Globalization.CultureInfo.CurrentCulture);
+                var passwordUpdatedText = activeUser.PasswordChangedAtUtc?.ToLocalTime().ToString("d", System.Globalization.CultureInfo.CurrentCulture);
+
+                <div class="admin-users-card-header">
+                    <div class="admin-user-detail-header">
+                        <span class="admin-user-avatar is-large">@activeUserInitials</span>
+                        <div>
+                            <h4 class="fw-bold text-dark m-0">@activeUser.DisplayName</h4>
+                            <div class="entity-subtitle">@@@activeUser.Username</div>
+                        </div>
+                    </div>
+                    <bg-badge variant="@(activeUser.IsActive ? "success" : "danger")">
+                        @T[activeUser.IsActive ? "Status_Active" : "Status_Inactive"]
+                    </bg-badge>
                 </div>
 
-                @if (Model.Users.Count == 0)
-                {
-                    <div class="text-center py-5">
-                        <i class="bi bi-people-fill display-1 text-light mb-4 d-block"></i>
-                        <p class="text-secondary">@T["EmptyUsers"]</p>
-                    </div>
-                }
-                else
-                {
-                    <div class="d-flex flex-column gap-4">
-                        @foreach (var user in Model.Users)
+                <p class="compact-copy mb-4">@T["UsersPage_SelectedUserSummary"]</p>
+
+                <div class="admin-user-detail-grid">
+                    <section class="admin-user-detail-section">
+                        <label class="section-caption x-small">@T["UsersPage_IdentityTitle"]</label>
+                        <div class="admin-user-facts">
+                            <div class="admin-user-fact">
+                                <span>@T["UsernameField"]</span>
+                                <strong>@activeUser.Username</strong>
+                            </div>
+                            <div class="admin-user-fact">
+                                <span>@T["DisplayNameField"]</span>
+                                <strong>@activeUser.DisplayName</strong>
+                            </div>
+                            <div class="admin-user-fact">
+                                <span>@T["SourceField"]</span>
+                                <strong>@T[$"SourceType_{activeUser.SourceType}"]</strong>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-user-detail-section">
+                        <label class="section-caption x-small">@T["UsersPage_ContactTitle"]</label>
+                        <div class="admin-user-facts">
+                            <div class="admin-user-fact">
+                                <span>@T["EmailField"]</span>
+                                <strong>@(string.IsNullOrWhiteSpace(activeUser.Email) ? T["UsersPage_NoEmailValue"].Value : activeUser.Email)</strong>
+                            </div>
+                            <div class="admin-user-fact">
+                                <span>@T["UsersPage_OnboardedTitle"]</span>
+                                <strong>@createdAtText</strong>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-user-detail-section">
+                        <label class="section-caption x-small">@T["UsersPage_SecurityTitle"]</label>
+                        <div class="admin-user-facts">
+                            <div class="admin-user-fact">
+                                <span>@T["CredentialsField"]</span>
+                                <strong>@T[activeUser.HasLocalPassword ? "Credentials_Ready" : "Credentials_Missing"]</strong>
+                            </div>
+                            <div class="admin-user-fact">
+                                <span>@T["PasswordUpdatedAtField"]</span>
+                                <strong>@(string.IsNullOrWhiteSpace(passwordUpdatedText) ? "-" : passwordUpdatedText)</strong>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="admin-user-detail-section">
+                        <label class="section-caption x-small">@T["RolesField"]</label>
+                        @if (activeUser.Roles.Count == 0)
                         {
-                            <div class="bg-white border rounded-4 p-4 shadow-sm hover-shadow-md transition-all">
-                                <div class="d-flex justify-content-between align-items-start mb-4">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <div class="bg-light text-brand-green rounded-circle width-48 height-48 d-flex align-items-center justify-content-center fw-bold fs-5 shadow-sm">
-                                            @user.DisplayName[0]
-                                        </div>
-                                        <div>
-                                            <h6 class="fw-bold text-dark m-0">@user.DisplayName</h6>
-                                            <p class="x-small text-muted m-0">@@@user.Username | <span class="text-brand-green">@T[$"SourceType_{user.SourceType}"]</span></p>
-                                        </div>
-                                    </div>
-                                    <bg-badge variant="@(user.IsActive ? "success" : "danger")">
-                                        @T[user.IsActive ? "Status_Active" : "Status_Inactive"]
-                                    </bg-badge>
-                                </div>
-
-                                <div class="row g-4 mb-4 pb-4 border-bottom">
-                                    <div class="col-md-6 border-end">
-                                        <div class="mb-3">
-                                            <div class="x-small text-muted fw-bold">CONTACT</div>
-                                            <div class="small"><i class="bi bi-envelope me-2 text-brand-green"></i>@(string.IsNullOrWhiteSpace(user.Email) ? "-" : user.Email)</div>
-                                        </div>
-                                        <div>
-                                            <div class="x-small text-muted fw-bold">ON-BOARDED</div>
-                                            <div class="small"><i class="bi bi-clock-history me-2 text-brand-green"></i>@user.CreatedAtUtc.ToLocalTime().ToString("MMM dd, yyyy")</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <div class="x-small text-muted fw-bold">SECURITY</div>
-                                            <div class="small d-flex align-items-center gap-2">
-                                                <i class="bi bi-shield-check text-brand-green"></i>
-                                                @T[user.HasLocalPassword ? "Credentials_Ready" : "Credentials_Missing"]
-                                                @if(user.PasswordChangedAtUtc.HasValue) 
-                                                {
-                                                    <span class="text-muted x-small ms-2">Alt: @user.PasswordChangedAtUtc.Value.ToLocalTime().ToString("yy/MM/dd")</span>
-                                                }
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div class="x-small text-muted fw-bold">ROLES</div>
-                                            <div class="d-flex flex-wrap gap-1 mt-1">
-                                                @if (user.Roles.Count == 0)
-                                                {
-                                                    <span class="x-small text-muted italic">@T["NoRolesAssigned"]</span>
-                                                }
-                                                else
-                                                {
-                                                    @foreach (var roleName in user.Roles)
-                                                    {
-                                                        <bg-badge variant="light" class="xx-small">@roleName</bg-badge>
-                                                    }
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mt-2">
-                                    <form method="post" asp-page-handler="SetPassword" class="d-flex align-items-center gap-2">
-                                        <input type="hidden" name="userId" value="@user.Id" />
-                                        <div class="flex-grow-1">
-                                            <input name="newPassword" class="form-control rounded-4 p-2 x-small" type="password" placeholder="New Password..." autocomplete="new-password" />
-                                        </div>
-                                        <bg-button type="submit" variant="light" size="sm" class="text-primary flex-shrink-0">
-                                            @T["SavePasswordAction"]
-                                        </bg-button>
-                                    </form>
-                                </div>
+                            <p class="x-small text-muted italic mb-0">@T["NoRolesAssigned"]</p>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach (var roleName in activeUser.Roles)
+                                {
+                                    <bg-badge variant="light">@roleName</bg-badge>
+                                }
                             </div>
                         }
-                    </div>
-                }
-            </div>
-        </div>
+                    </section>
+                </div>
+
+                <section class="admin-user-password-panel">
+                    <label class="section-caption x-small">@T["UsersPage_ResetPasswordTitle"]</label>
+                    <form method="post" asp-page-handler="SetPassword" class="admin-user-password-form">
+                        <input type="hidden" name="userId" value="@activeUser.Id" />
+                        <div class="flex-grow-1">
+                            <label class="form-label x-small fw-bold opacity-75" for="newPassword">@T["ResetPasswordField"]</label>
+                            <input id="newPassword" name="newPassword" class="form-control rounded-4 p-2 x-small" type="password" placeholder="@T["UsersPage_NewPasswordPlaceholder"]" autocomplete="new-password" />
+                        </div>
+                        <bg-button type="submit" variant="light" class="text-primary flex-shrink-0">
+                            @T["SavePasswordAction"]
+                        </bg-button>
+                    </form>
+                </section>
+            }
+        </article>
     </div>
 </section>

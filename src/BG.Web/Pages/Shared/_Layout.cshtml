@@ -50,6 +50,7 @@
     };
     var brandInitials = "KF";
     var currentUserInitials = shell.CurrentUser is null ? null : BuildInitials(shell.CurrentUser.DisplayName);
+    var navigationDrawerId = "shellSidebar";
 }
 <!DOCTYPE html>
 <html lang="@currentCulture" dir="@currentDirection">
@@ -61,6 +62,12 @@
     <link rel="stylesheet" href="~/css/workspace-shell.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/surface-primitives.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/administration.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/requests.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/approvals.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/operations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/dispatch.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/intake.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/bg-components.css" asp-append-version="true" />
 </head>
 <body class="theme-@currentTheme" hx-boost="true">
@@ -76,71 +83,96 @@
                 : shell.CurrentUser.DisplayName;
     }
     <div class="shell-app">
-        <aside class="shell-sidebar bg-shell-sidebar">
-            <div class="shell-sidebar-frame">
-                <div class="shell-brand-block p-4 border-bottom border-white border-opacity-10 mb-3">
-                    <a class="shell-brand d-flex align-items-center gap-2 text-decoration-none" asp-area="" asp-page="/Index">
-                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-white"
-                              style="width: 32px; height: 32px; background: linear-gradient(135deg, #0f6a4d 0%, #c5a02d 100%);"
-                              aria-hidden="true">
-                            @brandInitials
-                        </span>
-                        <div class="d-flex flex-column">
-                            <span class="fw-bold text-white small">KFSHRC</span>
-                            <span class="x-small text-white opacity-50">@T["AppBrandSubtitle"]</span>
-                        </div>
-                    </a>
+        <aside id="@navigationDrawerId"
+               class="shell-sidebar bg-shell-sidebar offcanvas offcanvas-start"
+               tabindex="-1"
+               aria-labelledby="shellSidebarLabel">
+            <div class="offcanvas-header d-lg-none px-4 pt-4 pb-0">
+                <div>
+                    <div id="shellSidebarLabel" class="fw-bold text-white">KFSHRC</div>
+                    <div class="x-small text-white opacity-50">@T["AppBrandSubtitle"]</div>
                 </div>
+                <button type="button"
+                        class="btn btn-sm btn-outline-light rounded-circle border-white border-opacity-25"
+                        data-bs-dismiss="offcanvas"
+                        aria-label="@T["Shared_CloseAction"]">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
 
-                @if (operationalItems.Length > 0)
-                {
-                    <section class="shell-sidebar-section px-3">
-                        <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_WorkspacesLabel"]">
-                            @foreach (var item in operationalItems)
-                            {
-                                var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
-                                <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
-                                    <i class="bi bi-circle-fill x-small"></i>
-                                    <span class="small fw-bold">@T[item.ResourceKey]</span>
-                                </a>
-                            }
-                        </nav>
-                    </section>
-                }
+            <div class="offcanvas-body shell-sidebar-body">
+                <div class="shell-sidebar-frame">
+                    <div class="shell-brand-block p-4 border-bottom border-white border-opacity-10 mb-3">
+                        <a class="shell-brand d-flex align-items-center gap-2 text-decoration-none" asp-area="" asp-page="/Index">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-white"
+                                  style="width: 32px; height: 32px; background: linear-gradient(135deg, #0f6a4d 0%, #c5a02d 100%);"
+                                  aria-hidden="true">
+                                @brandInitials
+                            </span>
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-white small">KFSHRC</span>
+                                <span class="x-small text-white opacity-50">@T["AppBrandSubtitle"]</span>
+                            </div>
+                        </a>
+                    </div>
 
-                @if (administrationItems.Length > 0)
-                {
-                    <section class="shell-sidebar-section px-3 mt-4">
-                        <div class="px-3 mb-2 d-flex justify-content-between align-items-center">
-                            <span class="x-small fw-bold text-white opacity-25 text-uppercase letter-spacing-1">@T["WorkspaceShell_AdminLabel"]</span>
-                        </div>
-                        <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_AdminLabel"]">
-                            @foreach (var item in administrationItems)
-                            {
-                                var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
-                                <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
-                                    <i class="bi bi-gear x-small"></i>
-                                    <span class="small fw-bold">@T[item.ResourceKey]</span>
-                                </a>
-                            }
-                        </nav>
-                    </section>
-                }
+                    @if (operationalItems.Length > 0)
+                    {
+                        <section class="shell-sidebar-section px-3">
+                            <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_WorkspacesLabel"]">
+                                @foreach (var item in operationalItems)
+                                {
+                                    var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
+                                    <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
+                                        <i class="bi bi-circle-fill x-small"></i>
+                                        <span class="small fw-bold">@T[item.ResourceKey]</span>
+                                    </a>
+                                }
+                            </nav>
+                        </section>
+                    }
+
+                    @if (administrationItems.Length > 0)
+                    {
+                        <section class="shell-sidebar-section px-3 mt-4">
+                            <div class="px-3 mb-2 d-flex justify-content-between align-items-center">
+                                <span class="x-small fw-bold text-white opacity-25 text-uppercase letter-spacing-1">@T["WorkspaceShell_AdminLabel"]</span>
+                            </div>
+                            <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_AdminLabel"]">
+                                @foreach (var item in administrationItems)
+                                {
+                                    var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
+                                    <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
+                                        <i class="bi bi-gear x-small"></i>
+                                        <span class="small fw-bold">@T[item.ResourceKey]</span>
+                                    </a>
+                                }
+                            </nav>
+                        </section>
+                    }
+                </div>
             </div>
         </aside>
 
         <div class="shell-stage bg-shell-content d-flex flex-column p-0">
-            <header class="bg-shell-topbar d-flex justify-content-between align-items-center px-4 py-3 sticky-top shadow-sm">
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn btn-light d-lg-none rounded-circle p-2"><i class="bi bi-list"></i></button>
+            <header class="shell-stage-header bg-shell-topbar d-flex justify-content-between align-items-center px-4 py-3 sticky-top shadow-sm">
+                <div class="shell-stage-header-main d-flex align-items-center gap-3">
+                    <button type="button"
+                            class="btn btn-light d-lg-none rounded-circle p-2"
+                            data-bs-toggle="offcanvas"
+                            data-bs-target="#@navigationDrawerId"
+                            aria-controls="@navigationDrawerId"
+                            aria-label="@T["WorkspaceShell_OpenNavigationAction"]">
+                        <i class="bi bi-list"></i>
+                    </button>
                     <div>
                         <h5 class="fw-bold m-0 text-dark">@stageTitle</h5>
                         <div class="x-small text-muted">@stageSummary</div>
                     </div>
                 </div>
 
-                <div class="d-flex align-items-center gap-4">
-                    <div class="d-flex bg-light rounded-pill p-1">
+                <div class="shell-stage-header-actions d-flex align-items-center gap-4">
+                    <div class="shell-language-switch d-flex bg-light rounded-pill p-1">
                         @foreach (var culture in UiConfiguration.SupportedCultures)
                         {
                             var isActive = culture.Culture == currentCulture;
@@ -153,7 +185,7 @@
 
                     @if (shell.CurrentUser is not null)
                     {
-                        <div class="d-flex align-items-center gap-3 border-start ps-4">
+                        <div class="shell-user-strip d-flex align-items-center gap-3 border-start ps-4">
                             <div class="text-end d-none d-md-block">
                                 <div class="small fw-bold text-dark">@shell.CurrentUser.DisplayName</div>
                                 <div class="x-small text-muted">@shell.CurrentUser.Username</div>
@@ -174,7 +206,7 @@
                 </div>
             </header>
 
-            <main role="main" class="flex-grow-1 p-4">
+            <main role="main" class="shell-stage-main flex-grow-1 p-4">
                 @if (!string.IsNullOrWhiteSpace(shellMessageKey))
                 {
                     <div class="alert alert-info border-0 rounded-4 shadow-sm mb-4">
@@ -210,12 +242,12 @@
                 }
             </main>
 
-            <footer class="p-4 border-top bg-white mt-auto">
+            <footer class="shell-stage-footer p-4 border-top bg-white mt-auto">
                 <div class="d-flex justify-content-between align-items-center x-small text-muted">
                     <span>@T["FooterBaseline"]</span>
                     <div class="d-flex gap-3">
-                        <a href="#" class="text-decoration-none text-muted">Help Center</a>
-                        <a href="#" class="text-decoration-none text-muted">Privacy Policy</a>
+                        <a href="#" class="text-decoration-none text-muted">@T["Footer_HelpCenter"]</a>
+                        <a href="/Privacy" class="text-decoration-none text-muted">@T["Privacy_PageTitle"]</a>
                     </div>
                 </div>
             </footer>

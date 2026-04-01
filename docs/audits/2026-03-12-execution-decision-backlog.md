@@ -23,10 +23,10 @@ Items are classified into:
 
 This backlog must now be read together with:
 
-- [frontend_reconstruction_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/frontend_reconstruction_plan.md)
-- [README.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ui-proposals/README.md)
-- [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
-- [ocr_implementation_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ocr_implementation_plan.md)
+- [frontend_reconstruction_plan.md](../frontend_reconstruction_plan.md)
+- [README.md](../ui-proposals/README.md)
+- [2026-03-13-component-role-visibility-matrix.md](2026-03-13-component-role-visibility-matrix.md)
+- [ocr_implementation_plan.md](../ocr_implementation_plan.md)
 
 New decision:
 
@@ -225,7 +225,7 @@ Program effect:
 2026-03-13 sample-baseline update:
 
 - the first real scanned sample set has now been received and reviewed
-- reference: [initial-bank-form-sample-catalog.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/reference/initial-bank-form-sample-catalog.md)
+- reference: [initial-bank-form-sample-catalog.md](../reference/initial-bank-form-sample-catalog.md)
 - the reviewed files are image-based scans without a usable text layer
 - this confirms `OCR provider` as the correct first external integration
 - the first observed bank families are:

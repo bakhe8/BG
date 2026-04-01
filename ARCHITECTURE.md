@@ -1,5 +1,18 @@
 # BG Architecture Baseline
 
+## Document Role
+
+- Status: `source of truth`
+- Scope: architecture baseline, platform decisions, quality floor, and core operational rules
+- Documentation index: [docs/README.md](docs/README.md)
+- Related documents:
+  - [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)
+  - [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md)
+  - [PRODUCTION_RUNBOOK.md](PRODUCTION_RUNBOOK.md)
+  - [.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md)
+  - [docs/frontend_reconstruction_plan.md](docs/frontend_reconstruction_plan.md)
+  - [docs/ocr_implementation_plan.md](docs/ocr_implementation_plan.md)
+
 ## الهدف الحالي
 
 `BG` هو نظام ويب مستقل لإدارة الضمانات البنكية، يتم تطويره الآن بشكل منعزل، على أن يصبح لاحقًا جزءًا من البيئة الداخلية لـ `KFSHRC` ويتكامل مع أنظمة المستشفى عبر `API`.
@@ -37,6 +50,12 @@
 - التحقق الأدنى قبل رفع أي تغيير هو:
   - `dotnet build BG.sln`
   - `dotnet test BG.sln`
+
+هذه الفقرة تثبت الحد الأدنى المعماري للجودة فقط.
+
+أما سياسة الاختبارات التفصيلية، وأسلوب كتابة الاختبارات، وأولوياتها، فتملكها الوثيقة المرجعية:
+
+- [.github/instructions/testing.instructions.md](.github/instructions/testing.instructions.md)
 
 ## المستخدمون والهوية في المرحلة الحالية
 
@@ -220,6 +239,13 @@
   - أسرع مراجعة بشرية ممكنة
   - تقليل أخطاء الإدخال إلى الحد الأدنى
 
+هذه الوثيقة تثبت المبادئ المعمارية فقط لهذه الطبقة.
+
+أما ترتيب التنفيذ الفعلي، والمراحل، ومعايير الإغلاق، ومسؤولية الحفاظ على تماسك التنفيذ، فتملكها الوثيقتان:
+
+- [docs/ocr_implementation_plan.md](docs/ocr_implementation_plan.md)
+- [docs/reference/initial-bank-form-sample-catalog.md](docs/reference/initial-bank-form-sample-catalog.md)
+
 ## المعمارية المعتمدة للمسح والاستخراج
 
 المسار المعتمد هو:
@@ -302,3 +328,10 @@
 ## التوجيه المستقبلي
 
 عند بدء مرحلة التكامل مع المستشفى، يكون الربط عبر `API` فقط، وتظل طبقة الأعمال وقاعدة بيانات `BG` مستقلة، مع وضع `Integration Layer` كوسيط تقني بين `BG` والأنظمة الخارجية.
+
+## خارطة إعادة التنظيم
+
+- لا توجد حاجة حالية إلى إعادة هيكلة جذرية للمشروع
+- المسار المعتمد هو `refactor` منخفض المخاطر بعد تثبيت الإنتاج
+- الخارطة الرسمية لهذا المسار موجودة في [docs/refactor_roadmap.md](docs/refactor_roadmap.md)
+- هذا المسار لا يغير المعمارية الأساسية المعتمدة في هذا الملف، بل ينظم التنفيذ داخلها

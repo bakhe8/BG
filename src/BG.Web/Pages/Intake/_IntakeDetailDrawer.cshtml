@@ -2,7 +2,7 @@
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.Pages.Intake.WorkspaceModel
 
-<details class="bg-card p-0 overflow-hidden mb-3" open>
+<details class="bg-card p-0 overflow-hidden mb-3">
     <summary class="p-3 bg-brand-gold-soft border-bottom cursor-pointer d-flex justify-content-between align-items-center">
         <span class="fw-bold text-dark"><i class="bi bi-file-earmark-medical me-2 text-brand-green"></i>@T["IntakeWorkspace_DocumentFormTitle"]</span>
         <bg-badge variant="info">@T[Model.SelectedDocumentForm.BankResourceKey]</bg-badge>

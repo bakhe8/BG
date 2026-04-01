@@ -17,10 +17,10 @@ follow this order unless a blocking defect forces a temporary deviation.
 
 This plan must now be read together with:
 
-- [frontend_reconstruction_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/frontend_reconstruction_plan.md)
-- [README.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ui-proposals/README.md)
-- [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
-- [ocr_implementation_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ocr_implementation_plan.md)
+- [frontend_reconstruction_plan.md](../frontend_reconstruction_plan.md)
+- [README.md](../ui-proposals/README.md)
+- [2026-03-13-component-role-visibility-matrix.md](2026-03-13-component-role-visibility-matrix.md)
+- [ocr_implementation_plan.md](../ocr_implementation_plan.md)
 
 The UI proposal library is now a binding execution input.
 

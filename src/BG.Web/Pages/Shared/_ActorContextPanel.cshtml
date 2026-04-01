@@ -10,7 +10,10 @@
 <div class="@finalClasses">
     <div class="mb-4">
         <h6 class="fw-bold text-dark m-0">@Model.Title</h6>
-        <p class="x-small text-muted m-0">@Model.Summary</p>
+        @if (!string.IsNullOrWhiteSpace(Model.Summary))
+        {
+            <p class="x-small text-muted m-0">@Model.Summary</p>
+        }
     </div>
 
     @switch (Model.Mode)

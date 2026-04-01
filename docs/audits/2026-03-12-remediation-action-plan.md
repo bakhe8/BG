@@ -27,9 +27,9 @@ next execution step for the product.
 
 The active next-step direction has moved to:
 
-- [frontend_reconstruction_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/frontend_reconstruction_plan.md)
-- [2026-03-12-master-program-execution-plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-12-master-program-execution-plan.md)
-- [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
+- [frontend_reconstruction_plan.md](../frontend_reconstruction_plan.md)
+- [2026-03-12-master-program-execution-plan.md](2026-03-12-master-program-execution-plan.md)
+- [2026-03-13-component-role-visibility-matrix.md](2026-03-13-component-role-visibility-matrix.md)
 
 Important update:
 
@@ -369,7 +369,7 @@ had to close before broader product expansion continued.
 
 The current next-step reference is:
 
-- [2026-03-12-master-program-execution-plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-12-master-program-execution-plan.md)
+- [2026-03-12-master-program-execution-plan.md](2026-03-12-master-program-execution-plan.md)
 
 The active next move is now:
 

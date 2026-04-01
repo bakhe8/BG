@@ -7,7 +7,7 @@
     var headerModel = new SurfaceHeaderModel(
         T["NavIntake"].Value,
         T["IntakeWorkspace_Heading"].Value,
-        T["IntakeWorkspace_ActionSummary"].Value,
+        null,
         new[]
         {
             T[Model.Workspace.PrimaryRoleResourceKey].Value,
@@ -27,12 +27,10 @@
                 T[Model.SelectedDocumentForm.BankResourceKey].Value),
             new SurfaceStatItem(
                 T["IntakeWorkspace_HandoffTitle"].Value,
-                T[Model.SelectedScenario.SaveOutcomeResourceKey].Value,
-                T[Model.SelectedScenario.HandoffResourceKey].Value),
+                T[Model.SelectedScenario.SaveOutcomeResourceKey].Value),
             new SurfaceStatItem(
                 T["IntakeWorkspace_RequiredFieldsTitle"].Value,
-                Model.CriticalReviewFields.Count,
-                T["IntakeWorkspace_RequiredBeforeSaveTitle"].Value)
+                Model.CriticalReviewFields.Count)
         });
     var noEligibleActorModel = new SurfaceMessageCardModel(
         T["IntakeWorkspace_NoEligibleActor"].Value,

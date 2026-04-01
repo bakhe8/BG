@@ -1,5 +1,14 @@
 # Antigravity: UX & Operational Architecture Audit
 
+## Archive Status
+
+- Classification: `archive`
+- This folder is preserved for historical context and diagnostic background.
+- It is not the current execution source of truth for BG.
+- Current live document map: [../../README.md](../../README.md)
+- Current frontend execution plan: [../../frontend_reconstruction_plan.md](../../frontend_reconstruction_plan.md)
+- Current architecture baseline: [../../../ARCHITECTURE.md](../../../ARCHITECTURE.md)
+
 This folder contains a comprehensive diagnostic analysis and remediation strategy for the **Bank Guarantee (BG) Management System**, conducted by **Antigravity** (Senior Product Designer & UX Systems Architect).
 
 ---

@@ -11,12 +11,49 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddOptions<ApprovalGovernanceOptions>();
+        AddOcrFallback(services);
+        AddPlatformServices(services);
+        AddIdentityServices(services);
+        AddHomeServices(services);
+        AddIntakeServices(services);
+        AddRequestServices(services);
+        AddApprovalServices(services);
+        AddOperationsServices(services);
+        AddDispatchServices(services);
+        AddAdministrationServices(services);
+
+        return services;
+    }
+
+    private static void AddOcrFallback(IServiceCollection services)
+    {
         if (!services.Any(service => service.ServiceType == typeof(IOcrDocumentProcessingService)))
         {
             services.AddSingleton<IOcrDocumentProcessingService, NullOcrDocumentProcessingService>();
         }
+    }
+
+    private static void AddPlatformServices(IServiceCollection services)
+    {
         services.AddSingleton<IArchitectureProfileService, ArchitectureProfileService>();
+    }
+
+    private static void AddIdentityServices(IServiceCollection services)
+    {
+        services.AddScoped<IIdentityAdministrationService, IdentityAdministrationService>();
+        services.AddScoped<ILocalAuthenticationService, LocalAuthenticationService>();
+        services.AddScoped<IUserAccessProfileService, UserAccessProfileService>();
+    }
+
+    private static void AddHomeServices(IServiceCollection services)
+    {
+        services.AddScoped<IHomeDashboardService, HomeDashboardService>();
+    }
+
+    private static void AddIntakeServices(IServiceCollection services)
+    {
         services.AddScoped<IIntakeWorkspaceService, IntakeWorkspaceService>();
+        services.AddScoped<IIntakeSubmissionService, IntakeSubmissionService>();
         services.AddSingleton<IIntakeDocumentClassifier, LocalIntakeDocumentClassifier>();
         services.AddSingleton<IIntakeDirectTextExtractor>(
             serviceProvider => new LocalIntakeDirectTextExtractor(
@@ -32,20 +69,33 @@ public static class DependencyInjection
                 serviceProvider.GetRequiredService<IIntakeDirectTextExtractor>(),
                 serviceProvider.GetRequiredService<IIntakeOcrExtractor>(),
                 serviceProvider.GetRequiredService<IIntakeFieldReviewProjector>()));
-        services.AddSingleton<IOperationsReviewMatchingService, OperationsReviewMatchingService>();
-        services.AddScoped<IIdentityAdministrationService, IdentityAdministrationService>();
-        services.AddScoped<ILocalAuthenticationService, LocalAuthenticationService>();
-        services.AddScoped<IUserAccessProfileService, UserAccessProfileService>();
-        services.AddScoped<IHomeDashboardService, HomeDashboardService>();
-        services.AddScoped<IIntakeSubmissionService, IntakeSubmissionService>();
-        services.AddScoped<IOperationsReviewQueueService, OperationsReviewQueueService>();
+    }
+
+    private static void AddRequestServices(IServiceCollection services)
+    {
         services.AddScoped<IRequestWorkspaceService, RequestWorkspaceService>();
+    }
+
+    private static void AddApprovalServices(IServiceCollection services)
+    {
         services.AddScoped<IApprovalQueueService, ApprovalQueueService>();
         services.AddScoped<IApprovalDelegationAdministrationService, ApprovalDelegationAdministrationService>();
+    }
+
+    private static void AddOperationsServices(IServiceCollection services)
+    {
+        services.AddSingleton<IOperationsReviewMatchingService, OperationsReviewMatchingService>();
+        services.AddScoped<IOperationsReviewQueueService, OperationsReviewQueueService>();
+    }
+
+    private static void AddDispatchServices(IServiceCollection services)
+    {
         services.AddScoped<IDispatchWorkspaceService, DispatchWorkspaceService>();
+    }
+
+    private static void AddAdministrationServices(IServiceCollection services)
+    {
         services.AddScoped<IWorkflowAdministrationService, WorkflowAdministrationService>();
         services.AddScoped<IWorkflowTemplateService, WorkflowTemplateService>();
-
-        return services;
     }
 }

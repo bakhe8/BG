@@ -1,5 +1,22 @@
 # Frontend Interface Reconstruction Plan — BG Application
 
+## Document Role
+
+- Status: `execution plan`
+- Scope: live frontend reconstruction priorities and completion boundary
+- Documentation index: [README.md](README.md)
+- Architecture baseline: [../ARCHITECTURE.md](../ARCHITECTURE.md)
+- Visual reference library: [ui-proposals/README.md](ui-proposals/README.md)
+
+## Boundary
+
+This file owns the live frontend execution boundary.
+
+- Use it to decide what frontend work is still active, complete, deferred, or explicitly out of scope.
+- Use [../ARCHITECTURE.md](../ARCHITECTURE.md) for the higher-level architectural baseline.
+- Use [ui-proposals/README.md](ui-proposals/README.md) as the binding visual reference library.
+- Use `audits` as supporting diagnostic context, not as the first execution source when this file already defines the current boundary.
+
 This document outlines the strategic reconstruction of the BG application's frontend. It transitions the system from a high-consistency but low-abstraction Razor-based UI to a modern, component-driven, and interactive system.
 
 ## Institutional Direction Baseline
@@ -201,8 +218,8 @@ Therefore the correct frontend target is:
 
 This plan must now be read together with:
 
-- [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
-- [README.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ui-proposals/README.md)
+- [2026-03-13-component-role-visibility-matrix.md](audits/2026-03-13-component-role-visibility-matrix.md)
+- [README.md](ui-proposals/README.md)
 
 And those two documents are not advisory-only; they are binding execution
 companions.

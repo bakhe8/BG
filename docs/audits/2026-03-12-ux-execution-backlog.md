@@ -12,9 +12,9 @@ Companion document:
 
 This backlog must now be read together with:
 
-- [README.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ui-proposals/README.md)
-- [frontend_reconstruction_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/frontend_reconstruction_plan.md)
-- [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
+- [README.md](../ui-proposals/README.md)
+- [frontend_reconstruction_plan.md](../frontend_reconstruction_plan.md)
+- [2026-03-13-component-role-visibility-matrix.md](2026-03-13-component-role-visibility-matrix.md)
 
 Operational update:
 

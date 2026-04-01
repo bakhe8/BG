@@ -103,8 +103,7 @@ The BG system operates as a **High-Density Operational Dashboard**. It follows a
 ## Stage 9 — Visual Audit Observations
 
 ### Visual Analysis: Intake Workspace
-![Intake Workspace 3-Column Layout](C:\Users\Bakheet\Documents\Projects\BG\antigravity\intake_workspace_3_column_1773342456213.png)
-*Figure 1: The "Gaze Shift" issue. Functional components are pushed "below the fold" by large scenario cards and contextual data.*
+*Figure 1 reference omitted from the repository: the original intake workspace screenshot was stored in an external audit workspace and is preserved here as historical context only. The observation remains: the "Gaze Shift" issue pushed key functional components below the fold through large scenario cards and contextual data.*
 
 
 **Findings:**

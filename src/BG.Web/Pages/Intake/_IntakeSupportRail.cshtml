@@ -9,7 +9,7 @@
             : ActorContextPanelMode.SelectorField;
     var actorContextModel = new ActorContextPanelModel(
         T["IntakeWorkspace_ActorContextTitle"].Value,
-        T["IntakeWorkspace_ActorContextSummary"].Value,
+        null,
         actorContextMode,
         "bg-card")
     {
@@ -36,7 +36,6 @@
 
 <article class="bg-card">
     <label class="section-caption">@T["IntakeWorkspace_SelectedScenarioLabel"]</label>
-    <p class="small text-secondary mb-3">@T["IntakeWorkspace_ActionSummary"]</p>
 
     <div class="d-flex flex-wrap gap-2 mb-4">
         <bg-badge variant="info">@T[Model.SelectedScenario.TitleResourceKey]</bg-badge>
@@ -63,7 +62,6 @@
 
 <article class="bg-card">
     <label class="section-caption">@T["IntakeWorkspace_RequiredFieldsTitle"]</label>
-    <p class="small text-secondary mb-3">@T["IntakeWorkspace_RequiredBeforeSaveTitle"]</p>
 
     <div class="d-flex flex-wrap gap-2">
         @foreach (var fieldKey in Model.SelectedScenario.RequiredReviewFieldKeys)

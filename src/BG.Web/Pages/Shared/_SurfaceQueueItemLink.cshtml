@@ -1,6 +1,9 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
 @model BG.Web.UI.SurfaceQueueItemLinkModel
 
 <a class="request-queue-link @(Model.IsActive ? "active" : null)"
+   aria-current="@(Model.IsActive ? "true" : "false")"
    asp-page="@Model.PagePath"
    asp-all-route-data="Model.RouteValues">
     <div class="request-queue-copy">
@@ -9,6 +12,10 @@
         <p class="compact-copy">@Model.Summary</p>
     </div>
     <div class="request-queue-meta">
+        @if (Model.IsActive)
+        {
+            <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
+        }
         <span class="status-badge is-active">@Model.Status</span>
         <span class="section-caption">@Model.MetaPrimary</span>
         @if (!string.IsNullOrWhiteSpace(Model.MetaSecondary))

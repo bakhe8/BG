@@ -26,13 +26,13 @@
     var headerModel = new SurfaceHeaderModel(
         T["NavApprovals"].Value,
         T["ApprovalDossier_Heading"].Value,
-        T["ApprovalDossier_Summary"].Value);
+        null);
     var noEligibleActorModel = new SurfaceMessageCardModel(
         T["ApprovalQueue_NoEligibleActor"].Value,
         T["ApprovalQueue_NoEligibleActorBody"].Value);
     var actorContextModel = new ActorContextPanelModel(
         T["ApprovalQueue_ActorContextTitle"].Value,
-        T["ApprovalQueue_ActorContextSummary"].Value,
+        null,
         Model.IsActorContextLocked ? ActorContextPanelMode.LockedPills : ActorContextPanelMode.SelectorForm,
         "full-span")
     {
@@ -99,7 +99,6 @@
                 <div class="card-header">
                     <div>
                         <h2>@T["ApprovalDossier_RequestTitle"]</h2>
-                        <p class="compact-copy">@T["ApprovalDossier_RequestSummary"]</p>
                     </div>
                 </div>
 
@@ -109,11 +108,6 @@
                         <div class="entity-subtitle">@T[item.RequestTypeResourceKey] · @T[item.GuaranteeCategoryResourceKey]</div>
                     </div>
                     <span class="status-badge is-active">@T[item.StatusResourceKey]</span>
-                </div>
-
-                <div class="notice-banner is-info">
-                    <strong>@T["ApprovalDossier_ActionReminder"]</strong>
-                    <p class="compact-copy">@T["ApprovalDossier_ActionReminderBody"]</p>
                 </div>
 
                 <dl class="data-pairs">
@@ -169,17 +163,14 @@
                     <section class="surface-stat">
                         <span class="section-caption">@T["ApprovalQueue_PriorSignaturesTitle"]</span>
                         <strong>@item.PriorSignatures.Count</strong>
-                        <p class="compact-copy">@T["ApprovalDossier_PriorSignaturesSummary"]</p>
                     </section>
                     <section class="surface-stat">
                         <span class="section-caption">@T["ApprovalQueue_AttachmentsTitle"]</span>
                         <strong>@item.Attachments.Count</strong>
-                        <p class="compact-copy">@T["ApprovalDossier_AttachmentsSummary"]</p>
                     </section>
                     <section class="surface-stat">
                         <span class="section-caption">@T["ApprovalQueue_TimelineTitle"]</span>
                         <strong>@item.TimelineEntries.Count</strong>
-                        <p class="compact-copy">@T["ApprovalDossier_TimelineSummary"]</p>
                     </section>
                 </div>
 

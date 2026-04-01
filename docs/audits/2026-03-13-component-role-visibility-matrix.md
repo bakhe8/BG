@@ -19,12 +19,12 @@ does not drift back into "all information for all users on the same page."
 
 This matrix is based on:
 
-- [README.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ui-proposals/README.md)
-- [frontend_reconstruction_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/frontend_reconstruction_plan.md)
-- [2026-03-12-execution-decision-backlog.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-12-execution-decision-backlog.md)
-- [ARCHITECTURE.md](/C:/Users/Bakheet/Documents/Projects/BG/ARCHITECTURE.md)
-- [PermissionCatalog.cs](/C:/Users/Bakheet/Documents/Projects/BG/src/BG.Application/Security/PermissionCatalog.cs)
-- [WorkspaceShellService.cs](/C:/Users/Bakheet/Documents/Projects/BG/src/BG.Web/UI/WorkspaceShellService.cs)
+- [README.md](../ui-proposals/README.md)
+- [frontend_reconstruction_plan.md](../frontend_reconstruction_plan.md)
+- [2026-03-12-execution-decision-backlog.md](2026-03-12-execution-decision-backlog.md)
+- [ARCHITECTURE.md](../../ARCHITECTURE.md)
+- [PermissionCatalog.cs](../../src/BG.Application/Security/PermissionCatalog.cs)
+- [WorkspaceShellService.cs](../../src/BG.Web/UI/WorkspaceShellService.cs)
 
 ## Core Principle
 

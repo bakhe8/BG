@@ -4,7 +4,7 @@
 @{
     var actorContextModel = new ActorContextPanelModel(
         T["OperationsQueue_ActorContextTitle"].Value,
-        T["OperationsQueue_ActorContextSummary"].Value,
+        null,
         Model.IsActorContextLocked ? ActorContextPanelMode.LockedPills : ActorContextPanelMode.SelectorForm,
         "operations-rail-card")
     {
@@ -34,7 +34,7 @@
 
 <partial name="/Pages/Shared/_ActorContextPanel.cshtml" model="actorContextModel" />
 
-<details class="details-panel operations-rail-card" open>
+<details class="details-panel operations-rail-card">
     <summary>
         <span>@T["OperationsQueue_WorkflowTemplatesTitle"]</span>
         <span class="section-caption">@T["OperationsQueue_WorkflowTemplatesSummary"]</span>

@@ -9,50 +9,26 @@
     var readyCount = Model.Snapshot.Definitions.Count(definition => definition.IsActive);
     var issueCount = Model.Snapshot.Definitions.Count(definition => definition.IntegrityIssueResourceKeys.Count > 0);
     var stageCount = Model.Snapshot.Definitions.Sum(definition => definition.Stages.Count);
-    var headerModel = new SurfaceHeaderModel(
-        T["NavWorkflowAdmin"].Value,
-        T["WorkflowAdmin_Heading"].Value,
-        T["WorkflowAdmin_Summary"].Value,
-        CssClass: "is-split");
-    var statStripModel = new SurfaceStatStripModel(
-        new[]
-        {
-            new SurfaceStatItem(T["WorkflowAdmin_CurrentStagesTitle"].Value, definitionCount),
-            new SurfaceStatItem(T["WorkflowAdmin_StatusReady"].Value, readyCount),
-            new SurfaceStatItem(T["WorkflowAdmin_StatusNeedsConfiguration"].Value, issueCount),
-            new SurfaceStatItem(T["OperationsQueue_LevelsSuffix"].Value, stageCount)
-        });
-    var taskNoticeModel = new InlineNoticeModel(
-        T["AdminWorkflow_TaskModelTitle"].Value,
-        T["AdminWorkflow_TaskModelSummary"].Value);
+    var activeDefinition = Model.ActiveDefinition;
 }
 
-<section class="bg-shell-content">
+<section class="section-shell admin-workflow-surface">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
-        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4">@Model.StatusMessage</div>
+        <div class="notice-banner is-success">@Model.StatusMessage</div>
     }
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
     <div class="mb-5 pb-4 border-bottom">
         <section-caption>@T["NavWorkflowAdmin"]</section-caption>
         <h1 class="fw-bold text-dark m-0">@T["WorkflowAdmin_Heading"]</h1>
-        <p class="text-secondary mt-1">@T["WorkflowAdmin_Summary"]</p>
     </div>
 
-    <div class="bg-card-premium shadow-sm p-4 mb-5 border-start border-brand-gold border-4">
-        <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-info-circle text-brand-gold fs-4"></i>
-            <div>
-                <div class="fw-bold text-dark">@T["AdminWorkflow_TaskModelTitle"]</div>
-                <div class="small text-muted">@T["AdminWorkflow_TaskModelSummary"]</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4 mb-5">
+    <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["WorkflowAdmin_CurrentStagesTitle"]</div>
+                <div class="section-caption x-small mb-1">@T["WorkflowAdmin_DirectoryTitle"]</div>
                 <div class="display-6 fw-bold text-dark">@definitionCount</div>
             </div>
         </div>
@@ -70,7 +46,7 @@
         </div>
         <div class="col-md-3">
             <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["OperationsQueue_LevelsSuffix"]</div>
+                <div class="section-caption x-small mb-1">@T["WorkflowAdmin_CurrentStagesTitle"]</div>
                 <div class="display-6 fw-bold text-dark">@stageCount</div>
             </div>
         </div>
@@ -82,87 +58,194 @@
             <i class="bi bi-diagram-3-fill display-1 text-light mb-4 d-block"></i>
             <h2 class="fw-bold text-dark">@T["WorkflowAdmin_NoDefinitionsTitle"]</h2>
             <p class="text-secondary">@T["WorkflowAdmin_NoDefinitionsBody"]</p>
-            <bg-button variant="primary" class="mt-4">@T["WorkflowAdmin_AddFirstAction"]</bg-button>
         </div>
     }
     else
     {
-        <div class="d-flex flex-column gap-5">
-            @foreach (var definition in Model.Snapshot.Definitions)
-            {
-                <div class="bg-card shadow-sm p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-4 pb-3 border-bottom">
+        <div class="admin-workflow-layout">
+            <div class="admin-workflow-sidebar">
+                <article class="admin-workflow-directory bg-card shadow-sm">
+                    <div class="admin-users-card-header">
                         <div>
-                            <h3 class="fw-bold text-dark m-0">@T[definition.TitleResourceKey]</h3>
-                            <p class="small text-muted m-0">@T[definition.SummaryResourceKey]</p>
+                            <h5 class="fw-bold text-dark m-0">@T["WorkflowAdmin_DirectoryTitle"]</h5>
+                            <p class="compact-copy mb-0">@T["WorkflowAdmin_DirectorySummary"]</p>
                         </div>
-                        <div class="d-flex gap-2">
-                            <bg-badge variant="light">@definition.Stages.Count @T["OperationsQueue_LevelsSuffix"]</bg-badge>
-                            <bg-badge variant="@(definition.IsActive ? "success" : "warning")">
-                                @T[definition.IsActive ? "WorkflowAdmin_StatusReady" : "WorkflowAdmin_StatusNeedsConfiguration"]
+                        <bg-badge variant="light">@T["WorkflowAdmin_DefinitionCountBadge", Model.Snapshot.Definitions.Count]</bg-badge>
+                    </div>
+
+                    <div class="admin-workflow-directory-list">
+                        @foreach (var definition in Model.Snapshot.Definitions)
+                        {
+                            var isActive = activeDefinition?.Id == definition.Id;
+                            var statusVariant = definition.IsActive ? "success" : "warning";
+
+                            <a asp-page="/Administration/Workflow"
+                               asp-all-route-data="Model.BuildSelectionRoute(definition.Id)"
+                               class="request-queue-link admin-workflow-link @(isActive ? "active" : null)">
+                                <div class="request-queue-copy">
+                                    <strong>@T[definition.TitleResourceKey]</strong>
+                                    <div class="entity-subtitle">@T[$"RequestType_{definition.RequestType}"]</div>
+                                    <p class="compact-copy mb-0">@T[definition.SummaryResourceKey]</p>
+                                </div>
+                                <div class="request-queue-meta">
+                                    @if (isActive)
+                                    {
+                                        <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
+                                    }
+
+                                    <bg-badge variant="@statusVariant">
+                                        @T[definition.IsActive ? "WorkflowAdmin_StatusReady" : "WorkflowAdmin_StatusNeedsConfiguration"]
+                                    </bg-badge>
+
+                                    <span class="section-caption">@T["WorkflowAdmin_StageCountBadge", definition.Stages.Count]</span>
+
+                                    @if (!string.IsNullOrWhiteSpace(definition.GuaranteeCategoryResourceKey))
+                                    {
+                                        <bg-badge variant="light">@T[definition.GuaranteeCategoryResourceKey]</bg-badge>
+                                    }
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </article>
+            </div>
+
+            <article class="admin-workflow-detail bg-card shadow-sm">
+                @if (activeDefinition is null)
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-diagram-3-fill fs-1 text-muted opacity-25 d-block mb-3"></i>
+                        <h5 class="fw-bold text-dark">@T["WorkflowAdmin_DirectoryTitle"]</h5>
+                        <p class="compact-copy mb-0">@T["WorkflowAdmin_DirectorySummary"]</p>
+                    </div>
+                }
+                else
+                {
+                    var thresholdInput = activeDefinition.DelegationAmountThreshold?.ToString("0.##", CultureInfo.CurrentCulture);
+                    var thresholdSummary = activeDefinition.DelegationAmountThreshold?.ToString("N2", CultureInfo.CurrentCulture) ?? T["WorkflowAdmin_NoAmountThreshold"].Value;
+                    var requestTypeText = T[$"RequestType_{activeDefinition.RequestType}"].Value;
+                    var categoryText = !string.IsNullOrWhiteSpace(activeDefinition.GuaranteeCategoryResourceKey)
+                        ? T[activeDefinition.GuaranteeCategoryResourceKey].Value
+                        : T["WorkflowAdmin_NoCategory"].Value;
+
+                    <div class="admin-users-card-header">
+                        <div>
+                            <h4 class="fw-bold text-dark m-0">@T[activeDefinition.TitleResourceKey]</h4>
+                            <div class="entity-subtitle">@requestTypeText</div>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <bg-badge variant="light">@T["WorkflowAdmin_StageCountBadge", activeDefinition.Stages.Count]</bg-badge>
+                            <bg-badge variant="@(activeDefinition.IsActive ? "success" : "warning")">
+                                @T[activeDefinition.IsActive ? "WorkflowAdmin_StatusReady" : "WorkflowAdmin_StatusNeedsConfiguration"]
                             </bg-badge>
-                            @if (!string.IsNullOrWhiteSpace(definition.GuaranteeCategoryResourceKey))
+                            @if (!string.IsNullOrWhiteSpace(activeDefinition.GuaranteeCategoryResourceKey))
                             {
-                                <bg-badge variant="brand">@T[definition.GuaranteeCategoryResourceKey]</bg-badge>
+                                <bg-badge variant="brand">@T[activeDefinition.GuaranteeCategoryResourceKey]</bg-badge>
                             }
                         </div>
                     </div>
 
-                    @if (definition.IntegrityIssueResourceKeys.Count > 0)
-                    {
-                        <div class="alert alert-warning border-0 rounded-4 p-3 mb-4 d-flex align-items-center gap-3">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            <div class="small fw-bold">@string.Join(" ", definition.IntegrityIssueResourceKeys.Select(resourceKey => T[resourceKey].Value))</div>
-                        </div>
-                    }
+                    <p class="compact-copy mb-4">@T["WorkflowAdmin_SelectedSummary"]</p>
 
-                    <div class="bg-light rounded-4 p-4 mb-4">
-                        <h6 class="fw-bold text-dark mb-3">@T["WorkflowAdmin_GovernanceTitle"]</h6>
-                        
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <form method="post" asp-page-handler="UpdateGovernance" class="d-flex flex-column gap-3">
-                                    <input type="hidden" name="definitionId" value="@definition.Id" />
-
-                                    <div>
-                                        <label class="form-label x-small fw-bold opacity-75" for="final-signature-policy-@definition.Id">@T["WorkflowAdmin_FinalSignaturePolicyField"]</label>
-                                        <select id="final-signature-policy-@definition.Id" name="finalSignatureDelegationPolicy" class="form-select rounded-4 border-1.5 p-2 px-3 small">
-                                            @foreach (var policy in Model.DelegationPolicies)
-                                            {
-                                                <option value="@policy.Value" selected="@(policy.Value == definition.FinalSignatureDelegationPolicy ? "selected" : null)">@T[policy.ResourceKey]</option>
-                                            }
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label class="form-label x-small fw-bold opacity-75" for="amount-threshold-@definition.Id">@T["WorkflowAdmin_AmountThresholdField"]</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-white x-small fw-bold">SAR</span>
-                                            <input id="amount-threshold-@definition.Id" name="delegationAmountThreshold" class="form-control" inputmode="decimal" value="@(definition.DelegationAmountThreshold?.ToString("0.##", CultureInfo.InvariantCulture))" />
-                                        </div>
-                                    </div>
-
-                                    <bg-button type="submit" variant="secondary" size="md">@T["WorkflowAdmin_SaveGovernanceAction"]</bg-button>
-                                </form>
-                            </div>
-                            <div class="col-md-6 border-start d-flex flex-column gap-2 justify-content-center ps-5">
-                                <div class="x-small text-muted fw-bold">CURRENT SETTINGS</div>
-                                <div class="small"><span class="text-secondary">Policy:</span> @T[$"WorkflowDelegationPolicy_{definition.FinalSignatureDelegationPolicy}"]</div>
-                                <div class="small">
-                                    <span class="text-secondary">Threshold:</span> 
-                                    @(definition.DelegationAmountThreshold?.ToString("N2", CultureInfo.InvariantCulture) ?? T["WorkflowAdmin_NoAmountThreshold"].Value)
-                                </div>
-                            </div>
-                        </div>
+                    <div class="admin-workflow-detail-grid">
+                        <section class="admin-role-fact-card">
+                            <span class="section-caption x-small">@T["WorkflowAdmin_RequestTypeLabel"]</span>
+                            <strong>@requestTypeText</strong>
+                        </section>
+                        <section class="admin-role-fact-card">
+                            <span class="section-caption x-small">@T["WorkflowAdmin_CategoryLabel"]</span>
+                            <strong>@categoryText</strong>
+                        </section>
+                        <section class="admin-role-fact-card">
+                            <span class="section-caption x-small">@T["WorkflowAdmin_DefinitionKeyLabel"]</span>
+                            <strong class="text-break">@activeDefinition.Key</strong>
+                        </section>
+                        <section class="admin-role-fact-card">
+                            <span class="section-caption x-small">@T["WorkflowAdmin_FinalSignaturePolicyLabel"]</span>
+                            <strong>@T[$"WorkflowDelegationPolicy_{activeDefinition.FinalSignatureDelegationPolicy}"]</strong>
+                        </section>
                     </div>
 
-                    <div class="mt-5">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="fw-bold text-dark m-0">@T["WorkflowAdmin_CurrentStagesTitle"]</h5>
-                            <bg-badge variant="light">@definition.Stages.Count Stages</bg-badge>
+                    @if (activeDefinition.IntegrityIssueResourceKeys.Count > 0)
+                    {
+                        <section class="admin-role-permissions-panel mb-4">
+                            <div class="admin-users-card-header">
+                                <div>
+                                    <h5 class="fw-bold text-dark m-0">@T["WorkflowAdmin_IntegrityTitle"]</h5>
+                                    <p class="compact-copy mb-0">@T["WorkflowAdmin_StatusNeedsConfiguration"]</p>
+                                </div>
+                            </div>
+
+                            <div class="admin-role-permission-groups">
+                                @foreach (var issueResourceKey in activeDefinition.IntegrityIssueResourceKeys)
+                                {
+                                    <section class="admin-role-permission-group">
+                                        <div class="compact-copy text-danger mb-0">@T[issueResourceKey]</div>
+                                    </section>
+                                }
+                            </div>
+                        </section>
+                    }
+
+                    <section class="admin-role-permissions-panel mb-4">
+                        <div class="admin-users-card-header">
+                            <div>
+                                <h5 class="fw-bold text-dark m-0">@T["WorkflowAdmin_GovernanceTitle"]</h5>
+                                <p class="compact-copy mb-0">@T["WorkflowAdmin_GovernanceSummary"]</p>
+                            </div>
                         </div>
-                        
-                        @if (definition.Stages.Count == 0)
+
+                        <div class="admin-workflow-governance-grid">
+                            <form method="post" asp-page-handler="UpdateGovernance" class="row g-3">
+                                <input type="hidden" name="definitionId" value="@activeDefinition.Id" />
+
+                                <div class="col-md-6">
+                                    <label class="form-label x-small fw-bold opacity-75" for="final-signature-policy-@activeDefinition.Id">@T["WorkflowAdmin_FinalSignaturePolicyField"]</label>
+                                    <select id="final-signature-policy-@activeDefinition.Id" name="finalSignatureDelegationPolicy" class="form-select rounded-4 border-1.5 p-2 px-3 small">
+                                        @foreach (var policy in Model.DelegationPolicies)
+                                        {
+                                            <option value="@policy.Value" selected="@(policy.Value == activeDefinition.FinalSignatureDelegationPolicy ? "selected" : null)">@T[policy.ResourceKey]</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label x-small fw-bold opacity-75" for="amount-threshold-@activeDefinition.Id">@T["WorkflowAdmin_AmountThresholdField"]</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white x-small fw-bold">SAR</span>
+                                        <input id="amount-threshold-@activeDefinition.Id" name="delegationAmountThreshold" class="form-control" inputmode="decimal" value="@thresholdInput" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12 d-flex justify-content-end">
+                                    <bg-button type="submit" variant="secondary" size="md">@T["WorkflowAdmin_SaveGovernanceAction"]</bg-button>
+                                </div>
+                            </form>
+
+                            <section class="admin-role-permission-group">
+                                <div class="section-caption x-small">@T["WorkflowAdmin_CurrentSettingsTitle"]</div>
+                                <div class="compact-copy mb-0">
+                                    <strong>@T["WorkflowAdmin_PolicySummaryLabel"]:</strong>
+                                    @T[$"WorkflowDelegationPolicy_{activeDefinition.FinalSignatureDelegationPolicy}"]
+                                </div>
+                                <div class="compact-copy mb-0">
+                                    <strong>@T["WorkflowAdmin_ThresholdSummaryLabel"]:</strong>
+                                    @thresholdSummary
+                                </div>
+                            </section>
+                        </div>
+                    </section>
+
+                    <section class="admin-role-permissions-panel mb-4">
+                        <div class="admin-users-card-header">
+                            <div>
+                                <h5 class="fw-bold text-dark m-0">@T["WorkflowAdmin_CurrentStagesTitle"]</h5>
+                                <p class="compact-copy mb-0">@T[activeDefinition.SummaryResourceKey]</p>
+                            </div>
+                            <bg-badge variant="light">@T["WorkflowAdmin_StageCountBadge", activeDefinition.Stages.Count]</bg-badge>
+                        </div>
+
+                        @if (activeDefinition.Stages.Count == 0)
                         {
                             <div class="text-center py-5 border rounded-4 border-dashed">
                                 <p class="small text-muted m-0">@T["WorkflowAdmin_NoStages"]</p>
@@ -170,22 +253,32 @@
                         }
                         else
                         {
-                            <div class="d-flex flex-column gap-3">
-                                @foreach (var stage in definition.Stages)
+                            <div class="admin-workflow-stage-list">
+                                @foreach (var stage in activeDefinition.Stages)
                                 {
-                                    var stageTitle = !string.IsNullOrWhiteSpace(stage.CustomTitle) ? stage.CustomTitle : !string.IsNullOrWhiteSpace(stage.TitleResourceKey) ? T[stage.TitleResourceKey].Value : stage.RoleName ?? T["WorkflowAdmin_UnassignedRole"].Value;
-                                    var stageSummary = !string.IsNullOrWhiteSpace(stage.CustomSummary) ? stage.CustomSummary : !string.IsNullOrWhiteSpace(stage.SummaryResourceKey) ? T[stage.SummaryResourceKey].Value : T["WorkflowAdmin_NoStageSummary"].Value;
+                                    var stageTitle = !string.IsNullOrWhiteSpace(stage.CustomTitle)
+                                        ? stage.CustomTitle
+                                        : !string.IsNullOrWhiteSpace(stage.TitleResourceKey)
+                                            ? T[stage.TitleResourceKey].Value
+                                            : stage.RoleName ?? T["WorkflowAdmin_UnassignedRole"].Value;
+                                    var stageSummary = !string.IsNullOrWhiteSpace(stage.CustomSummary)
+                                        ? stage.CustomSummary
+                                        : !string.IsNullOrWhiteSpace(stage.SummaryResourceKey)
+                                            ? T[stage.SummaryResourceKey].Value
+                                            : T["WorkflowAdmin_NoStageSummary"].Value;
+                                    var canMoveUp = stage.Sequence > 1;
+                                    var canMoveDown = stage.Sequence < activeDefinition.Stages.Count;
 
-                                    <div class="bg-white border rounded-4 p-4 shadow-sm hover-shadow-md transition-all">
-                                        <div class="d-flex justify-content-between align-items-start mb-4">
-                                            <div class="d-flex align-items-center gap-3">
-                                                <div class="bg-brand-green text-white rounded-circle width-32 height-32 d-flex align-items-center justify-content-center fw-bold x-small">@stage.Sequence</div>
+                                    <article class="admin-workflow-stage-card">
+                                        <div class="admin-users-card-header">
+                                            <div class="admin-user-link-header">
+                                                <span class="admin-user-avatar">@stage.Sequence</span>
                                                 <div>
                                                     <h6 class="fw-bold text-dark m-0">@stageTitle</h6>
-                                                    <p class="x-small text-muted m-0">@stageSummary</p>
+                                                    <p class="compact-copy mb-0">@stageSummary</p>
                                                 </div>
                                             </div>
-                                            <div class="d-flex gap-2">
+                                            <div class="d-flex flex-wrap gap-2 justify-content-end">
                                                 @if (!string.IsNullOrWhiteSpace(stage.RoleName))
                                                 {
                                                     <bg-badge variant="light">@stage.RoleName</bg-badge>
@@ -198,11 +291,11 @@
                                             </div>
                                         </div>
 
-                                        <form method="post" asp-page-handler="UpdateStage" class="row g-3 admin-stage-form">
-                                            <input type="hidden" name="definitionId" value="@definition.Id" />
+                                        <form method="post" asp-page-handler="UpdateStage" class="row g-3">
+                                            <input type="hidden" name="definitionId" value="@activeDefinition.Id" />
                                             <input type="hidden" name="stageId" value="@stage.Id" />
 
-                                            <div class="col-md-3">
+                                            <div class="col-lg-4">
                                                 <label class="form-label x-small fw-bold opacity-75" for="role-@stage.Id">@T["WorkflowAdmin_RoleField"]</label>
                                                 <select id="role-@stage.Id" name="roleId" class="form-select rounded-4 p-2 small">
                                                     <option value="">@T["WorkflowAdmin_UnassignedRole"]</option>
@@ -213,12 +306,12 @@
                                                 </select>
                                             </div>
 
-                                            <div class="col-md-3">
+                                            <div class="col-lg-4">
                                                 <label class="form-label x-small fw-bold opacity-75" for="custom-title-@stage.Id">@T["WorkflowAdmin_CustomTitleField"]</label>
                                                 <input id="custom-title-@stage.Id" name="customTitle" class="form-control rounded-4 p-2 small" value="@stage.CustomTitle" maxlength="128" />
                                             </div>
 
-                                            <div class="col-md-3">
+                                            <div class="col-lg-4">
                                                 <label class="form-label x-small fw-bold opacity-75" for="delegation-policy-@stage.Id">@T["WorkflowAdmin_DelegationPolicyField"]</label>
                                                 <select id="delegation-policy-@stage.Id" name="delegationPolicy" class="form-select rounded-4 p-2 small">
                                                     @foreach (var policy in Model.DelegationPolicies)
@@ -228,48 +321,58 @@
                                                 </select>
                                             </div>
 
-                                            <div class="col-md-3 d-flex align-items-end gap-2">
-                                                <div class="form-check mb-2">
+                                            <div class="col-lg-8">
+                                                <label class="form-label x-small fw-bold opacity-75" for="custom-summary-@stage.Id">@T["WorkflowAdmin_CustomSummaryField"]</label>
+                                                <textarea id="custom-summary-@stage.Id" name="customSummary" class="form-control rounded-4 p-2 small" rows="2" maxlength="256">@stage.CustomSummary</textarea>
+                                            </div>
+
+                                            <div class="col-lg-4 d-flex flex-column justify-content-end gap-3">
+                                                <div class="form-check">
                                                     <input type="hidden" name="requiresLetterSignature" value="false" />
                                                     <input id="requires-signature-@stage.Id" class="form-check-input" type="checkbox" name="requiresLetterSignature" value="true" checked="@(stage.RequiresLetterSignature ? "checked" : null)" />
                                                     <label class="form-check-label x-small fw-bold" for="requires-signature-@stage.Id">@T["WorkflowAdmin_RequiresSignatureField"]</label>
                                                 </div>
-                                                <bg-button type="submit" variant="primary" class="ms-auto">Save</bg-button>
+                                                <bg-button type="submit" variant="primary">@T["WorkflowAdmin_SaveStageAction"]</bg-button>
                                             </div>
                                         </form>
 
-                                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                                        <div class="admin-workflow-stage-actions">
                                             <form method="post" asp-page-handler="MoveUp">
-                                                <input type="hidden" name="definitionId" value="@definition.Id" />
+                                                <input type="hidden" name="definitionId" value="@activeDefinition.Id" />
                                                 <input type="hidden" name="stageId" value="@stage.Id" />
-                                                <bg-button type="submit" variant="light" size="sm"><i class="bi bi-arrow-up me-1"></i> @T["WorkflowAdmin_MoveUpAction"]</bg-button>
+                                                <bg-button type="submit" variant="light" size="sm" disabled="@(!canMoveUp)">@T["WorkflowAdmin_MoveUpAction"]</bg-button>
                                             </form>
                                             <form method="post" asp-page-handler="MoveDown">
-                                                <input type="hidden" name="definitionId" value="@definition.Id" />
+                                                <input type="hidden" name="definitionId" value="@activeDefinition.Id" />
                                                 <input type="hidden" name="stageId" value="@stage.Id" />
-                                                <bg-button type="submit" variant="light" size="sm"><i class="bi bi-arrow-down me-1"></i> @T["WorkflowAdmin_MoveDownAction"]</bg-button>
+                                                <bg-button type="submit" variant="light" size="sm" disabled="@(!canMoveDown)">@T["WorkflowAdmin_MoveDownAction"]</bg-button>
                                             </form>
                                             <form method="post" asp-page-handler="RemoveStage">
-                                                <input type="hidden" name="definitionId" value="@definition.Id" />
+                                                <input type="hidden" name="definitionId" value="@activeDefinition.Id" />
                                                 <input type="hidden" name="stageId" value="@stage.Id" />
-                                                <bg-button type="submit" variant="light" size="sm" class="text-danger"><i class="bi bi-trash me-1"></i> @T["WorkflowAdmin_RemoveStageAction"]</bg-button>
+                                                <bg-button type="submit" variant="light" size="sm" class="text-danger" disabled="@(activeDefinition.Stages.Count <= 1)">@T["WorkflowAdmin_RemoveStageAction"]</bg-button>
                                             </form>
                                         </div>
-                                    </div>
+                                    </article>
                                 }
                             </div>
                         }
-                    </div>
+                    </section>
 
-                    <div class="mt-5 bg-white border border-dashed rounded-4 p-4">
-                        <h6 class="fw-bold text-dark mb-4">@T["WorkflowAdmin_AddStageTitle"] <span class="text-muted fw-normal x-small ms-2">@T["WorkflowAdmin_AddStageSummary"]</span></h6>
-                        
+                    <section class="admin-role-permissions-panel">
+                        <div class="admin-users-card-header">
+                            <div>
+                                <h5 class="fw-bold text-dark m-0">@T["WorkflowAdmin_AddStageTitle"]</h5>
+                                <p class="compact-copy mb-0">@T["WorkflowAdmin_AddStageSummary"]</p>
+                            </div>
+                        </div>
+
                         <form method="post" asp-page-handler="AddStage" class="row g-3">
-                            <input type="hidden" name="definitionId" value="@definition.Id" />
+                            <input type="hidden" name="definitionId" value="@activeDefinition.Id" />
 
-                            <div class="col-md-3">
-                                <label class="form-label x-small fw-bold opacity-75" for="add-role-@definition.Id">@T["WorkflowAdmin_RoleField"]</label>
-                                <select id="add-role-@definition.Id" name="roleId" class="form-select rounded-4 p-2 small" required>
+                            <div class="col-lg-4">
+                                <label class="form-label x-small fw-bold opacity-75" for="add-role-@activeDefinition.Id">@T["WorkflowAdmin_RoleField"]</label>
+                                <select id="add-role-@activeDefinition.Id" name="roleId" class="form-select rounded-4 p-2 small" required>
                                     <option value="">@T["WorkflowAdmin_SelectRole"]</option>
                                     @foreach (var role in Model.Snapshot.AvailableRoles)
                                     {
@@ -278,14 +381,14 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-3">
-                                <label class="form-label x-small fw-bold opacity-75" for="add-title-@definition.Id">@T["WorkflowAdmin_CustomTitleField"]</label>
-                                <input id="add-title-@definition.Id" name="customTitle" class="form-control rounded-4 p-2 small" maxlength="128" placeholder="Title Override" />
+                            <div class="col-lg-4">
+                                <label class="form-label x-small fw-bold opacity-75" for="add-title-@activeDefinition.Id">@T["WorkflowAdmin_CustomTitleField"]</label>
+                                <input id="add-title-@activeDefinition.Id" name="customTitle" class="form-control rounded-4 p-2 small" maxlength="128" placeholder="@T["WorkflowAdmin_TitleOverridePlaceholder"]" />
                             </div>
 
-                            <div class="col-md-3">
-                                <label class="form-label x-small fw-bold opacity-75" for="add-delegation-policy-@definition.Id">@T["WorkflowAdmin_DelegationPolicyField"]</label>
-                                <select id="add-delegation-policy-@definition.Id" name="delegationPolicy" class="form-select rounded-4 p-2 small">
+                            <div class="col-lg-4">
+                                <label class="form-label x-small fw-bold opacity-75" for="add-delegation-policy-@activeDefinition.Id">@T["WorkflowAdmin_DelegationPolicyField"]</label>
+                                <select id="add-delegation-policy-@activeDefinition.Id" name="delegationPolicy" class="form-select rounded-4 p-2 small">
                                     @foreach (var policy in Model.DelegationPolicies)
                                     {
                                         <option value="@policy.Value">@T[policy.ResourceKey]</option>
@@ -293,18 +396,23 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-3 d-flex align-items-end gap-2">
-                                <div class="form-check mb-2">
+                            <div class="col-lg-8">
+                                <label class="form-label x-small fw-bold opacity-75" for="add-summary-@activeDefinition.Id">@T["WorkflowAdmin_CustomSummaryField"]</label>
+                                <textarea id="add-summary-@activeDefinition.Id" name="customSummary" class="form-control rounded-4 p-2 small" rows="2" maxlength="256"></textarea>
+                            </div>
+
+                            <div class="col-lg-4 d-flex flex-column justify-content-end gap-3">
+                                <div class="form-check">
                                     <input type="hidden" name="requiresLetterSignature" value="false" />
-                                    <input id="add-requires-signature-@definition.Id" class="form-check-input" type="checkbox" name="requiresLetterSignature" value="true" checked="checked" />
-                                    <label class="form-check-label x-small fw-bold" for="add-requires-signature-@definition.Id">@T["WorkflowAdmin_RequiresSignatureField"]</label>
+                                    <input id="add-requires-signature-@activeDefinition.Id" class="form-check-input" type="checkbox" name="requiresLetterSignature" value="true" checked="checked" />
+                                    <label class="form-check-label x-small fw-bold" for="add-requires-signature-@activeDefinition.Id">@T["WorkflowAdmin_RequiresSignatureField"]</label>
                                 </div>
-                                <bg-button type="submit" variant="primary" class="ms-auto">Add Stage</bg-button>
+                                <bg-button type="submit" variant="primary">@T["WorkflowAdmin_AddStageAction"]</bg-button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            }
+                    </section>
+                }
+            </article>
         </div>
     }
 </section>

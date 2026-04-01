@@ -27,6 +27,11 @@ public sealed class WorkflowModel : PageModel
 
     public WorkflowAdministrationSnapshotDto Snapshot { get; private set; } = default!;
 
+    [FromQuery(Name = "definition")]
+    public Guid? SelectedDefinitionId { get; set; }
+
+    public WorkflowDefinitionAdminDto? ActiveDefinition { get; private set; }
+
     public IReadOnlyList<DelegationPolicyOption> DelegationPolicies { get; } =
     [
         new(ApprovalDelegationPolicy.Inherit, "WorkflowDelegationPolicy_Inherit"),
@@ -55,7 +60,7 @@ public sealed class WorkflowModel : PageModel
             new AddWorkflowStageCommand(definitionId, roleId, customTitle, customSummary, requiresLetterSignature, delegationPolicy),
             cancellationToken);
 
-        return await CompleteAsync(result, "WorkflowAdmin_AddStageSuccess", cancellationToken);
+        return await CompleteAsync(result, definitionId, "WorkflowAdmin_AddStageSuccess", cancellationToken);
     }
 
     public async Task<IActionResult> OnPostUpdateStageAsync(
@@ -73,7 +78,7 @@ public sealed class WorkflowModel : PageModel
             new UpdateWorkflowStageCommand(definitionId, stageId, normalizedRoleId, customTitle, customSummary, requiresLetterSignature, delegationPolicy),
             cancellationToken);
 
-        return await CompleteAsync(result, "WorkflowAdmin_UpdateStageSuccess", cancellationToken);
+        return await CompleteAsync(result, definitionId, "WorkflowAdmin_UpdateStageSuccess", cancellationToken);
     }
 
     public async Task<IActionResult> OnPostUpdateGovernanceAsync(
@@ -86,7 +91,7 @@ public sealed class WorkflowModel : PageModel
             new UpdateWorkflowGovernanceCommand(definitionId, finalSignatureDelegationPolicy, delegationAmountThreshold),
             cancellationToken);
 
-        return await CompleteAsync(result, "WorkflowAdmin_UpdateGovernanceSuccess", cancellationToken);
+        return await CompleteAsync(result, definitionId, "WorkflowAdmin_UpdateGovernanceSuccess", cancellationToken);
     }
 
     public async Task<IActionResult> OnPostMoveUpAsync(Guid definitionId, Guid stageId, CancellationToken cancellationToken)
@@ -95,7 +100,7 @@ public sealed class WorkflowModel : PageModel
             new MoveWorkflowStageCommand(definitionId, stageId, WorkflowStageMoveDirection.Up),
             cancellationToken);
 
-        return await CompleteAsync(result, "WorkflowAdmin_ReorderStageSuccess", cancellationToken);
+        return await CompleteAsync(result, definitionId, "WorkflowAdmin_ReorderStageSuccess", cancellationToken);
     }
 
     public async Task<IActionResult> OnPostMoveDownAsync(Guid definitionId, Guid stageId, CancellationToken cancellationToken)
@@ -104,7 +109,7 @@ public sealed class WorkflowModel : PageModel
             new MoveWorkflowStageCommand(definitionId, stageId, WorkflowStageMoveDirection.Down),
             cancellationToken);
 
-        return await CompleteAsync(result, "WorkflowAdmin_ReorderStageSuccess", cancellationToken);
+        return await CompleteAsync(result, definitionId, "WorkflowAdmin_ReorderStageSuccess", cancellationToken);
     }
 
     public async Task<IActionResult> OnPostRemoveStageAsync(Guid definitionId, Guid stageId, CancellationToken cancellationToken)
@@ -113,28 +118,59 @@ public sealed class WorkflowModel : PageModel
             new RemoveWorkflowStageCommand(definitionId, stageId),
             cancellationToken);
 
-        return await CompleteAsync(result, "WorkflowAdmin_RemoveStageSuccess", cancellationToken);
+        return await CompleteAsync(result, definitionId, "WorkflowAdmin_RemoveStageSuccess", cancellationToken);
+    }
+
+    public IDictionary<string, string> BuildSelectionRoute(Guid definitionId)
+    {
+        return new Dictionary<string, string>
+        {
+            ["definition"] = definitionId.ToString()
+        };
     }
 
     private async Task<IActionResult> CompleteAsync(
         OperationResult<Guid> result,
+        Guid definitionId,
         string successMessageResourceKey,
         CancellationToken cancellationToken)
     {
         if (!result.Succeeded)
         {
             ModelState.AddModelError(string.Empty, _localizer[result.ErrorCode!]);
+            SelectedDefinitionId = definitionId;
             await LoadAsync(cancellationToken);
             return Page();
         }
 
         StatusMessage = _localizer[successMessageResourceKey];
-        return RedirectToPage();
+        return RedirectToPage(new { definition = result.Value });
     }
 
     private async Task LoadAsync(CancellationToken cancellationToken)
     {
         Snapshot = await _workflowAdministrationService.GetSnapshotAsync(cancellationToken);
+        ActiveDefinition = ResolveActiveDefinition(SelectedDefinitionId);
+        SelectedDefinitionId = ActiveDefinition?.Id;
+    }
+
+    private WorkflowDefinitionAdminDto? ResolveActiveDefinition(Guid? selectedDefinitionId)
+    {
+        if (Snapshot.Definitions.Count == 0)
+        {
+            return null;
+        }
+
+        if (selectedDefinitionId.HasValue)
+        {
+            var selectedDefinition = Snapshot.Definitions.FirstOrDefault(definition => definition.Id == selectedDefinitionId.Value);
+            if (selectedDefinition is not null)
+            {
+                return selectedDefinition;
+            }
+        }
+
+        return Snapshot.Definitions[0];
     }
 
     public sealed record DelegationPolicyOption(ApprovalDelegationPolicy Value, string ResourceKey);

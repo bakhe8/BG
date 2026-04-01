@@ -14,9 +14,9 @@ active reference for frontend direction.
 
 The `antigravity` review has now been superseded on the UI side by:
 
-- [README.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/ui-proposals/README.md)
-- [frontend_reconstruction_plan.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/frontend_reconstruction_plan.md)
-- [2026-03-13-component-role-visibility-matrix.md](/C:/Users/Bakheet/Documents/Projects/BG/docs/audits/2026-03-13-component-role-visibility-matrix.md)
+- [README.md](../ui-proposals/README.md)
+- [frontend_reconstruction_plan.md](../frontend_reconstruction_plan.md)
+- [2026-03-13-component-role-visibility-matrix.md](2026-03-13-component-role-visibility-matrix.md)
 
 Updated interpretation:
 

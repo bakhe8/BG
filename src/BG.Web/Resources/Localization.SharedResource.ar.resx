@@ -20,7 +20,7 @@
   <data name="LanguageLabel" xml:space="preserve"><value>اللغة</value></data>
   <data name="ThemeLabel" xml:space="preserve"><value>الثيم</value></data>
   <data name="Culture_ar" xml:space="preserve"><value>العربية</value></data>
-  <data name="Culture_en" xml:space="preserve"><value>English</value></data>
+  <data name="Culture_en" xml:space="preserve"><value>الإنجليزية</value></data>
   <data name="Theme_kfsh" xml:space="preserve"><value>هوية KFSHRC المؤسسية</value></data>
   <data name="Theme_emerald" xml:space="preserve"><value>زمردي</value></data>
   <data name="Theme_slate" xml:space="preserve"><value>رمادي أردوازي</value></data>
@@ -28,7 +28,9 @@
   <data name="AppBrandSubtitle" xml:space="preserve"><value>تشغيل الضمانات الداخلية</value></data>
   <data name="WorkspaceShell_WorkspacesLabel" xml:space="preserve"><value>مساحات العمل</value></data>
   <data name="WorkspaceShell_AdminLabel" xml:space="preserve"><value>الإدارة</value></data>
+  <data name="WorkspaceShell_OpenNavigationAction" xml:space="preserve"><value>فتح التنقل</value></data>
   <data name="WorkspaceShell_RoleCountSummary" xml:space="preserve"><value>{0} أدوار</value></data>
+  <data name="Shared_CloseAction" xml:space="preserve"><value>إغلاق</value></data>
   <data name="Shared_Yes" xml:space="preserve"><value>نعم</value></data>
   <data name="Shared_No" xml:space="preserve"><value>لا</value></data>
   <data name="Home_PageTitle" xml:space="preserve"><value>لوحة التشغيل</value></data>
@@ -85,38 +87,42 @@
   <data name="ArchitectureDecisions" xml:space="preserve"><value>القرارات المعتمدة</value></data>
   <data name="ApplicationNameLabel" xml:space="preserve"><value>اسم التطبيق:</value></data>
   <data name="UserInterfaceLabel" xml:space="preserve"><value>الواجهات:</value></data>
-  <data name="ApiLabel" xml:space="preserve"><value>الـ API:</value></data>
+  <data name="ApiLabel" xml:space="preserve"><value>واجهة البرمجة:</value></data>
   <data name="IntegrationsLabel" xml:space="preserve"><value>التكاملات:</value></data>
   <data name="LocalizationAndTheme" xml:space="preserve"><value>اللغة والهوية المؤسسية</value></data>
   <data name="CurrentLanguageLabel" xml:space="preserve"><value>اللغة الحالية:</value></data>
   <data name="CurrentDirectionLabel" xml:space="preserve"><value>الاتجاه الحالي:</value></data>
   <data name="CurrentThemeLabel" xml:space="preserve"><value>الهوية المؤسسية الحالية:</value></data>
   <data name="SupportedLanguagesLabel" xml:space="preserve"><value>اللغات المدعومة:</value></data>
-  <data name="HospitalApiReadiness" xml:space="preserve"><value>جاهزية Hospital API</value></data>
-  <data name="HospitalApiLabel" xml:space="preserve"><value>Hospital API:</value></data>
+  <data name="HospitalApiReadiness" xml:space="preserve"><value>جاهزية واجهة المستشفى البرمجية</value></data>
+  <data name="HospitalApiLabel" xml:space="preserve"><value>واجهة المستشفى البرمجية:</value></data>
   <data name="Configured" xml:space="preserve"><value>مهيأ</value></data>
   <data name="Pending" xml:space="preserve"><value>قيد الانتظار</value></data>
   <data name="BaseUrlLabel" xml:space="preserve"><value>الرابط الأساسي:</value></data>
   <data name="AuthenticationLabel" xml:space="preserve"><value>المصادقة:</value></data>
-  <data name="HealthEndpointLabel" xml:space="preserve"><value>Health endpoint:</value></data>
+  <data name="HealthEndpointLabel" xml:space="preserve"><value>نقطة التحقق الصحي:</value></data>
   <data name="NotConfigured" xml:space="preserve"><value>غير مهيأ</value></data>
   <data name="DeveloperTools" xml:space="preserve"><value>أدوات التطوير</value></data>
   <data name="NextStepTitle" xml:space="preserve"><value>الخطوة التالية</value></data>
-  <data name="NextStepBody" xml:space="preserve"><value>بعد تثبيت هذا الأساس سنبدأ تصميم Modules النظام نفسها: الضمانات البنكية، الدفعات، الصلاحيات، سير العمل، وشاشات تشغيل ثنائية اللغة.</value></data>
+  <data name="NextStepBody" xml:space="preserve"><value>بعد تثبيت هذا الأساس سنبدأ تصميم وحدات النظام نفسها: الضمانات البنكية، الدفعات، الصلاحيات، سير العمل، وشاشات تشغيل ثنائية اللغة.</value></data>
   <data name="NavUsers" xml:space="preserve"><value>المستخدمون</value></data>
   <data name="NavRoles" xml:space="preserve"><value>الأدوار</value></data>
   <data name="NavWorkflowAdmin" xml:space="preserve"><value>مسارات الموافقة</value></data>
   <data name="UsersPageTitle" xml:space="preserve"><value>إدارة المستخدمين</value></data>
   <data name="UsersPageHeading" xml:space="preserve"><value>المستخدمون المحليون</value></data>
-  <data name="UsersPageSummary" xml:space="preserve"><value>يدير BG المستخدمين محليًا حاليًا مع إبقاء النموذج جاهزًا للربط المستقبلي مع هوية المستشفى.</value></data>
+  <data name="UsersPageSummary" xml:space="preserve"><value>يدير النظام المستخدمين محليًا حاليًا مع إبقاء النموذج جاهزًا للربط المستقبلي مع هوية المستشفى.</value></data>
   <data name="CreateUserTitle" xml:space="preserve"><value>إنشاء مستخدم</value></data>
+  <data name="UsersPage_CreateSummary" xml:space="preserve"><value>أنشئ حسابًا محليًا وحدد تغطيته الأولية من الأدوار من هذه اللوحة.</value></data>
   <data name="UsersListTitle" xml:space="preserve"><value>المستخدمون الحاليون</value></data>
+  <data name="UsersPage_DirectorySummary" xml:space="preserve"><value>اختر حسابًا لمراجعة الهوية وتغطية الأدوار وبيانات الاعتماد المحلية.</value></data>
+  <data name="UsersPage_SelectedUserSummary" xml:space="preserve"><value>راجع الحساب المحدد قبل تغيير كلمة المرور المحلية أو توقعات الأدوار الخاصة به.</value></data>
   <data name="EmptyUsers" xml:space="preserve"><value>لم يتم إنشاء أي مستخدمين بعد.</value></data>
   <data name="UsernameField" xml:space="preserve"><value>اسم المستخدم</value></data>
   <data name="DisplayNameField" xml:space="preserve"><value>الاسم المعروض</value></data>
   <data name="EmailField" xml:space="preserve"><value>البريد الإلكتروني</value></data>
   <data name="PasswordField" xml:space="preserve"><value>كلمة المرور</value></data>
   <data name="RolesField" xml:space="preserve"><value>الأدوار</value></data>
+  <data name="UsersPage_IdentityTitle" xml:space="preserve"><value>الهوية</value></data>
   <data name="SourceField" xml:space="preserve"><value>المصدر</value></data>
   <data name="CredentialsField" xml:space="preserve"><value>بيانات الاعتماد</value></data>
   <data name="PasswordUpdatedAtField" xml:space="preserve"><value>آخر تحديث لكلمة المرور</value></data>
@@ -124,24 +130,30 @@
   <data name="SaveUserAction" xml:space="preserve"><value>إنشاء مستخدم</value></data>
   <data name="SavePasswordAction" xml:space="preserve"><value>حفظ كلمة المرور</value></data>
   <data name="ResetPasswordField" xml:space="preserve"><value>إعادة تعيين كلمة المرور</value></data>
+  <data name="UsersPage_ResetPasswordTitle" xml:space="preserve"><value>إعادة تعيين كلمة المرور المحلية</value></data>
   <data name="Credentials_Ready" xml:space="preserve"><value>جاهزة</value></data>
   <data name="Credentials_Missing" xml:space="preserve"><value>غير مضبوطة</value></data>
   <data name="UsersPage_UserCreated" xml:space="preserve"><value>تم إنشاء المستخدم بنجاح.</value></data>
   <data name="UsersPage_PasswordUpdated" xml:space="preserve"><value>تم تحديث كلمة المرور بنجاح.</value></data>
   <data name="NoRolesAvailable" xml:space="preserve"><value>أنشئ الأدوار أولًا قبل ربطها بالمستخدمين.</value></data>
   <data name="NoRolesAssigned" xml:space="preserve"><value>لا توجد أدوار مرتبطة.</value></data>
+  <data name="UsersPage_NoEmailValue" xml:space="preserve"><value>لا يوجد بريد إلكتروني مسجل</value></data>
   <data name="RolesPageTitle" xml:space="preserve"><value>إدارة الأدوار</value></data>
   <data name="RolesPageHeading" xml:space="preserve"><value>الأدوار والصلاحيات</value></data>
-  <data name="RolesPageSummary" xml:space="preserve"><value>تجمع الأدوار الصلاحيات الآن حتى تُبنى بقية Modules فوق أساس ثابت للصلاحيات.</value></data>
+  <data name="RolesPageSummary" xml:space="preserve"><value>تجمع الأدوار الصلاحيات الآن حتى تُبنى بقية وحدات النظام فوق أساس صلاحيات ثابت.</value></data>
   <data name="CreateRoleTitle" xml:space="preserve"><value>إنشاء دور</value></data>
+  <data name="RolesPage_CreateSummary" xml:space="preserve"><value>أنشئ حزمة دور وحدد الصلاحيات التي يجب أن تفتحها عبر مساحات العمل.</value></data>
   <data name="RoleNameField" xml:space="preserve"><value>اسم الدور</value></data>
   <data name="DescriptionField" xml:space="preserve"><value>الوصف</value></data>
   <data name="PermissionsField" xml:space="preserve"><value>الصلاحيات</value></data>
   <data name="SaveRoleAction" xml:space="preserve"><value>إنشاء دور</value></data>
   <data name="RolesListTitle" xml:space="preserve"><value>الأدوار الحالية</value></data>
+  <data name="RolesPage_DirectorySummary" xml:space="preserve"><value>اختر دورًا لمراجعة وصفه وتغطيته من الصلاحيات وأثره التشغيلي.</value></data>
+  <data name="RolesPage_SelectedRoleSummary" xml:space="preserve"><value>راجع الدور المحدد قبل تغيير حزم الصلاحيات التي تشكل الوصول إلى مساحات العمل.</value></data>
   <data name="EmptyRoles" xml:space="preserve"><value>لم يتم إنشاء أي أدوار بعد.</value></data>
   <data name="NoPermissionsAvailable" xml:space="preserve"><value>لا توجد صلاحيات متاحة.</value></data>
   <data name="NoPermissionsAssigned" xml:space="preserve"><value>لا توجد صلاحيات مرتبطة.</value></data>
+  <data name="RolesPage_PermissionCoverageTitle" xml:space="preserve"><value>تغطية الصلاحيات</value></data>
   <data name="Status_Active" xml:space="preserve"><value>نشط</value></data>
   <data name="Status_Inactive" xml:space="preserve"><value>غير نشط</value></data>
   <data name="SourceType_Local" xml:space="preserve"><value>محلي</value></data>
@@ -217,7 +229,7 @@
   <data name="IntakeWorkspace_NoEligibleActorBody" xml:space="preserve"><value>أنشئ مستخدمًا نشطًا واحدًا على الأقل مع صلاحيات الإدخال قبل مسح المستندات أو حفظ حزم الإدخال.</value></data>
   <data name="IntakeWorkspace_ActorScopedNotice" xml:space="preserve"><value>تم تحميل مساحة الإدخال على المستخدم المحدد، وسيُنسب إليه الالتقاط والمراجعة والحفظ في السجل.</value></data>
   <data name="IntakeWorkspace_ActorContextTitle" xml:space="preserve"><value>سياق مستخدم الإدخال</value></data>
-  <data name="IntakeWorkspace_ActorContextSummary" xml:space="preserve"><value>إلى أن يتم ربط المصادقة، اختر موظف الإدخال العامل صراحة حتى يسجل الـ ledger من التقط المستند ومن راجعه.</value></data>
+  <data name="IntakeWorkspace_ActorContextSummary" xml:space="preserve"><value>إلى أن يتم ربط المصادقة، اختر موظف الإدخال العامل صراحة حتى يسجل السجل من التقط المستند ومن راجعه.</value></data>
   <data name="IntakeWorkspace_ActorField" xml:space="preserve"><value>مستخدم الإدخال</value></data>
   <data name="IntakeWorkspace_LoadActorAction" xml:space="preserve"><value>تحميل مستخدم الإدخال</value></data>
   <data name="IntakeWorkspace_CaptureProvenanceTitle" xml:space="preserve"><value>توثيق مصدر الالتقاط</value></data>
@@ -315,7 +327,7 @@
   <data name="OperationsQueue_NoEligibleActorBody" xml:space="preserve"><value>أنشئ مستخدمًا نشطًا واحدًا على الأقل مع صلاحيات طابور التشغيل قبل تطبيق ردود البنك.</value></data>
   <data name="OperationsQueue_ActorScopedNotice" xml:space="preserve"><value>تم تحميل طابور التشغيل على المستخدم المحدد، وسيُنسب إليه ربط رد البنك وتطبيقه في السجل.</value></data>
   <data name="OperationsQueue_ActorContextTitle" xml:space="preserve"><value>سياق مستخدم التشغيل</value></data>
-  <data name="OperationsQueue_ActorContextSummary" xml:space="preserve"><value>اختر موظف التشغيل العامل صراحة حتى يسجل الـ ledger من ربط الرد الوارد ومن اعتمد تطبيقه.</value></data>
+  <data name="OperationsQueue_ActorContextSummary" xml:space="preserve"><value>اختر موظف التشغيل العامل صراحة حتى يسجل السجل من ربط الرد الوارد ومن اعتمد تطبيقه.</value></data>
   <data name="OperationsQueue_ActorField" xml:space="preserve"><value>مستخدم التشغيل</value></data>
   <data name="OperationsQueue_LoadActorAction" xml:space="preserve"><value>تحميل مستخدم التشغيل</value></data>
   <data name="OperationsQueue_CaptureLedgerTitle" xml:space="preserve"><value>سجل الالتقاط</value></data>
@@ -327,7 +339,7 @@
   <data name="OperationsQueue_MatchFormSummary" xml:space="preserve"><value>اختر الطلب الصحيح ثم أكد القيمة الحقيقية وبعدها طبّق رد البنك.</value></data>
   <data name="OperationsQueue_EvidenceTitle" xml:space="preserve"><value>الأدلة وتتبع الالتقاط</value></data>
   <data name="OperationsQueue_EvidenceSummary" xml:space="preserve"><value>افتح سياق الالتقاط الكامل وأدلة النظام فقط عندما تحتاج دعماً إضافياً للقرار الحالي.</value></data>
-  <data name="OperationsQueue_NoApplyActionSummary" xml:space="preserve"><value>هذا العنصر لا يحتاج مطابقة طلب من هذا السطح الآن. استمر فقط في متابعة handoff التشغيلي الموجّه له.</value></data>
+  <data name="OperationsQueue_NoApplyActionSummary" xml:space="preserve"><value>هذا العنصر لا يحتاج مطابقة طلب من هذا السطح الآن. استمر فقط في متابعة التسليم التشغيلي الموجّه له.</value></data>
   <data name="OperationsMatchConfidence_High" xml:space="preserve"><value>ثقة عالية</value></data>
   <data name="OperationsMatchConfidence_Medium" xml:space="preserve"><value>ثقة متوسطة</value></data>
   <data name="OperationsMatchConfidence_Low" xml:space="preserve"><value>ثقة منخفضة</value></data>
@@ -369,8 +381,8 @@
   <data name="WorkflowStage_GuaranteesSupervisor_Summary" xml:space="preserve"><value>كل خطاب صادر إلى أي بنك يبدأ بتوقيع مشرف قسم الضمانات البنكية.</value></data>
   <data name="WorkflowStage_DepartmentManager_Title" xml:space="preserve"><value>مدير الإدارة</value></data>
   <data name="WorkflowStage_DepartmentManager_Summary" xml:space="preserve"><value>التوقيع التالي دائمًا هو توقيع مدير الإدارة.</value></data>
-  <data name="WorkflowStage_ProgramDirector_Title" xml:space="preserve"><value>Program Director</value></data>
-  <data name="WorkflowStage_ProgramDirector_Summary" xml:space="preserve"><value>التوقيع المشترك الثالث في جميع الخطابات هو توقيع Program Director.</value></data>
+  <data name="WorkflowStage_ProgramDirector_Title" xml:space="preserve"><value>مدير البرنامج</value></data>
+  <data name="WorkflowStage_ProgramDirector_Summary" xml:space="preserve"><value>التوقيع المشترك الثالث في جميع الخطابات هو توقيع مدير البرنامج.</value></data>
   <data name="WorkflowStage_DeputyFinancialAffairsDirector_Title" xml:space="preserve"><value>نائب مدير الشؤون المالية</value></data>
   <data name="WorkflowStage_DeputyFinancialAffairsDirector_Summary" xml:space="preserve"><value>هذا هو التوقيع الرابع والأخير المشترك لكل الطلبات، وهو الأخير أيضًا لخطابات التمديد والتخفيض والبديل المخفض والتحقق من الحالة.</value></data>
   <data name="WorkflowStage_ContractsSigner1_Title" xml:space="preserve"><value>موقع إدارة العقود 1</value></data>
@@ -392,9 +404,15 @@
   <data name="WorkflowAdmin_PageTitle" xml:space="preserve"><value>إدارة مسارات الموافقة</value></data>
   <data name="WorkflowAdmin_Heading" xml:space="preserve"><value>تسلسل موافقات وتوقيعات مرن</value></data>
   <data name="WorkflowAdmin_Summary" xml:space="preserve"><value>يمكن لمدير النظام زيادة مراحل الموافقة أو تقليلها أو إعادة ترتيبها أو ربطها بالأدوار لكل مسار طلب بدون تعديل الكود.</value></data>
+  <data name="WorkflowAdmin_DirectoryTitle" xml:space="preserve"><value>مسارات الطلبات</value></data>
+  <data name="WorkflowAdmin_DirectorySummary" xml:space="preserve"><value>اختر مسار طلب واحدًا لمراجعة حوكمته ومراحله بدل عرض جميع المسارات دفعة واحدة.</value></data>
+  <data name="WorkflowAdmin_SelectedSummary" xml:space="preserve"><value>حرر المسار النشط هنا مباشرة: الحوكمة، الترتيب، والمراحل الجديدة.</value></data>
   <data name="WorkflowAdmin_NoDefinitionsTitle" xml:space="preserve"><value>لا توجد تعريفات لمسارات الموافقة</value></data>
   <data name="WorkflowAdmin_NoDefinitionsBody" xml:space="preserve"><value>شغّل تهيئة التطبيق مرة واحدة حتى يتم زرع المسارات الافتراضية.</value></data>
   <data name="WorkflowAdmin_NoStages" xml:space="preserve"><value>لا توجد مراحل مهيأة لهذا المسار حتى الآن.</value></data>
+  <data name="WorkflowAdmin_RequestTypeLabel" xml:space="preserve"><value>نوع الطلب</value></data>
+  <data name="WorkflowAdmin_CategoryLabel" xml:space="preserve"><value>فئة الضمان</value></data>
+  <data name="WorkflowAdmin_DefinitionKeyLabel" xml:space="preserve"><value>مفتاح القالب</value></data>
   <data name="WorkflowAdmin_RoleField" xml:space="preserve"><value>الدور المرتبط</value></data>
   <data name="WorkflowAdmin_DelegationPolicyField" xml:space="preserve"><value>سياسة التفويض</value></data>
   <data name="WorkflowAdmin_DelegationPolicyLabel" xml:space="preserve"><value>التفويض</value></data>
@@ -421,6 +439,8 @@
   <data name="WorkflowAdmin_UnassignedRole" xml:space="preserve"><value>غير مربوط</value></data>
   <data name="WorkflowAdmin_StatusReady" xml:space="preserve"><value>جاهز</value></data>
   <data name="WorkflowAdmin_StatusNeedsConfiguration" xml:space="preserve"><value>يحتاج تهيئة</value></data>
+  <data name="WorkflowAdmin_IntegrityTitle" xml:space="preserve"><value>ملاحظات التهيئة</value></data>
+  <data name="WorkflowAdmin_NoCategory" xml:space="preserve"><value>بدون فرع فئة</value></data>
   <data name="WorkflowAdmin_NoStageSummary" xml:space="preserve"><value>لا يوجد وصف مخصص لهذه المرحلة.</value></data>
   <data name="WorkflowAdmin_AddStageSuccess" xml:space="preserve"><value>تمت إضافة مرحلة إلى المسار.</value></data>
   <data name="WorkflowAdmin_UpdateStageSuccess" xml:space="preserve"><value>تم تحديث المرحلة.</value></data>
@@ -527,6 +547,7 @@
   <data name="RequestsWorkspace_RequestedAmountField" xml:space="preserve"><value>المبلغ المطلوب</value></data>
   <data name="RequestsWorkspace_RequestedExpiryDateField" xml:space="preserve"><value>تاريخ الانتهاء المطلوب</value></data>
   <data name="RequestsWorkspace_NotesField" xml:space="preserve"><value>ملاحظات العمل</value></data>
+  <data name="RequestsWorkspace_NotesPlaceholder" xml:space="preserve"><value>أضف الملاحظة أو التوضيح الذي يجب أن يرافق هذا الطلب.</value></data>
   <data name="RequestsWorkspace_CreateAction" xml:space="preserve"><value>إنشاء الطلب</value></data>
   <data name="RequestsWorkspace_CurrentWorkflowTitle" xml:space="preserve"><value>مسار الموافقة المحدد</value></data>
   <data name="RequestsWorkspace_CurrentWorkflowSummary" xml:space="preserve"><value>مستويات الموافقة تختلف حسب نوع الطلب، وكل مرحلة موافقة تعامل هنا كمرحلة توقيع يظهر أثرها على ملف الخطاب النهائي.</value></data>
@@ -653,12 +674,12 @@
   <data name="ApprovalQueue_PriorSignatureDelegatedBadge" xml:space="preserve"><value>توقيع بالنيابة</value></data>
   <data name="ApprovalDossier_PageTitle" xml:space="preserve"><value>ملف الموافقة</value></data>
   <data name="ApprovalDossier_Heading" xml:space="preserve"><value>ملف طلب الموافقة</value></data>
-  <data name="ApprovalDossier_Summary" xml:space="preserve"><value>راجع ملف الطلب الكامل ومرفقاته والتواقيع السابقة والـ ledger المنظم قبل اتخاذ القرار.</value></data>
+  <data name="ApprovalDossier_Summary" xml:space="preserve"><value>راجع ملف الطلب الكامل ومرفقاته والتواقيع السابقة والسجل المنظم قبل اتخاذ القرار.</value></data>
   <data name="ApprovalDossier_BackToQueueAction" xml:space="preserve"><value>العودة إلى الطابور</value></data>
   <data name="ApprovalDossier_UnavailableTitle" xml:space="preserve"><value>الملف غير متاح</value></data>
   <data name="ApprovalDossier_RequestNotAvailable" xml:space="preserve"><value>هذا الطلب لم يعد متاحًا ضمن سياق الموقّع الحالي. ربما انتقل إلى مرحلة أخرى أو لم يعد تابعًا لهذا الموقّع.</value></data>
   <data name="ApprovalDossier_RequestTitle" xml:space="preserve"><value>ملف الطلب</value></data>
-  <data name="ApprovalDossier_RequestSummary" xml:space="preserve"><value>تجمع هذه الصفحة حقائق الطلب ومرفقاته والتواقيع السابقة ومسار الـ ledger الكامل في مكان واحد.</value></data>
+  <data name="ApprovalDossier_RequestSummary" xml:space="preserve"><value>تجمع هذه الصفحة حقائق الطلب ومرفقاته والتواقيع السابقة ومسار السجل الكامل في مكان واحد.</value></data>
   <data name="ApprovalDossier_GovernanceTitle" xml:space="preserve"><value>حالة الحوكمة</value></data>
   <data name="ApprovalDossier_GovernanceClear" xml:space="preserve"><value>لا توجد سياسة حوكمة تمنع القرار حاليًا على الموقّع المحدد.</value></data>
   <data name="ApprovalGovernancePolicy_SignerSeparation" xml:space="preserve"><value>فصل الموقّعين</value></data>
@@ -688,7 +709,7 @@
   <data name="DispatchWorkspace_PageTitle" xml:space="preserve"><value>مساحة إرسال الخطابات</value></data>
   <data name="DispatchWorkspace_Heading" xml:space="preserve"><value>مساحة إرسال الخطابات إلى البنك</value></data>
   <data name="DispatchWorkspace_Summary" xml:space="preserve"><value>سجّل الخطاب الصادر فقط بعد اكتمال الموافقات ووصول الطلب إلى حالة الجاهزية للتسليم أو الإرسال إلى البنك.</value></data>
-  <data name="DispatchWorkspace_ActionSummary" xml:space="preserve"><value>اعمل فقط على handoff الصادر الحالي: جهّز الخطاب النهائي، أخرجه فعليًا من BG، أو أغلق أثر التسليم الخارجي عندما يكون قد خرج بالفعل.</value></data>
+  <data name="DispatchWorkspace_ActionSummary" xml:space="preserve"><value>اعمل فقط على مرحلة الإرسال الحالية: جهّز الخطاب النهائي، أخرجه فعليًا من BG، أو أغلق أثر التسليم الخارجي عندما يكون قد خرج بالفعل.</value></data>
   <data name="DispatchWorkspace_NoEligibleActor" xml:space="preserve"><value>لا يوجد سياق إرسال متاح</value></data>
   <data name="DispatchWorkspace_NoEligibleActorBody" xml:space="preserve"><value>أنشئ مستخدمي الإرسال واربطهم بصلاحيات الإرسال قبل تسجيل الخطابات الصادرة للبنك.</value></data>
   <data name="DispatchWorkspace_ActorScopedNotice" xml:space="preserve"><value>تم تحميل مساحة الإرسال على المستخدم التشغيلي المحدد.</value></data>
@@ -731,13 +752,13 @@
   <data name="DispatchWorkspace_ReopenNoteField" xml:space="preserve"><value>سبب التصحيح</value></data>
   <data name="DispatchWorkspace_ReopenSuccess" xml:space="preserve"><value>تمت إعادة فتح الإرسال للمرجع الصادر {0} على الضمان {1}.</value></data>
   <data name="DispatchWorkspace_ReadyActionSummary" xml:space="preserve"><value>جهّز النسخة الصادرة النهائية ثم سجّل اللحظة التي يغادر فيها الخطاب BG فعليًا.</value></data>
-  <data name="DispatchWorkspace_PendingActionSummary" xml:space="preserve"><value>هذا الخطاب غادر BG بالفعل. أغلق handoff بإثبات التسليم أو إعادة طباعة مضبوطة أو تصحيح إعادة الفتح.</value></data>
+  <data name="DispatchWorkspace_PendingActionSummary" xml:space="preserve"><value>هذا الخطاب غادر BG بالفعل. أغلق مرحلة التسليم بإثبات التسليم أو إعادة طباعة مضبوطة أو تصحيح إعادة الفتح.</value></data>
   <data name="DispatchWorkspace_NoAvailableActionsTitle" xml:space="preserve"><value>لماذا لا يوجد إجراء إرسال متاح</value></data>
   <data name="DispatchWorkspace_NoAvailableActionsSummary" xml:space="preserve"><value>لا توجد إجراءات إرسال متاحة للمستخدم الحالي على هذا السطح.</value></data>
   <data name="DispatchWorkspace_NoAvailableReadyActionsReason" xml:space="preserve"><value>يمكن لهذا المستخدم رؤية سطح العناصر الجاهزة للإرسال، لكنه لا يملك صلاحية الطباعة أو تسجيل الخروج الخارجي لهذا العنصر.</value></data>
-  <data name="DispatchWorkspace_NoAvailablePendingActionsReason" xml:space="preserve"><value>يمكن لهذا المستخدم رؤية سطح العناصر بانتظار التسليم، لكنه لا يملك صلاحية تأكيد التسليم أو إعادة الطباعة أو إعادة فتح handoff لهذا الخطاب.</value></data>
+  <data name="DispatchWorkspace_NoAvailablePendingActionsReason" xml:space="preserve"><value>يمكن لهذا المستخدم رؤية سطح العناصر بانتظار التسليم، لكنه لا يملك صلاحية تأكيد التسليم أو إعادة الطباعة أو إعادة فتح مرحلة التسليم لهذا الخطاب.</value></data>
   <data name="DispatchWorkspace_ReadyEvidenceSummary" xml:space="preserve"><value>افتح دليل الطباعة فقط عندما تحتاج إلى التتبع التفصيلي لهذا العنصر الصادر.</value></data>
-  <data name="DispatchWorkspace_PendingEvidenceSummary" xml:space="preserve"><value>افتح دليل الإرسال فقط عندما يحتاج handoff الحالي إلى تفاصيل تسليم إضافية.</value></data>
+  <data name="DispatchWorkspace_PendingEvidenceSummary" xml:space="preserve"><value>افتح دليل الإرسال فقط عندما تحتاج مرحلة التسليم الحالية إلى تفاصيل تسليم إضافية.</value></data>
   <data name="DispatchPrintMode_WorkstationPrinter" xml:space="preserve"><value>طابعة المكتب</value></data>
   <data name="DispatchPrintMode_CentralPrintRoom" xml:space="preserve"><value>غرفة الطباعة المركزية</value></data>
   <data name="DispatchPrintMode_PdfExport" xml:space="preserve"><value>تصدير PDF</value></data>
@@ -793,6 +814,7 @@
   <data name="ApprovalDelegation_Summary" xml:space="preserve"><value>فوّض دور الموافقة مؤقتًا إلى موظف آخر أثناء الغياب مع الاحتفاظ بتتبع صريح للتنفيذ بالنيابة.</value></data>
   <data name="ApprovalDelegation_CreateTitle" xml:space="preserve"><value>إنشاء تفويض</value></data>
   <data name="ApprovalDelegation_CreateSummary" xml:space="preserve"><value>اختر صاحب الدور الغائب، والبديل المؤقت، ودور الموافقة، وفترة سريان التفويض.</value></data>
+  <data name="ApprovalDelegation_SelectedSummary" xml:space="preserve"><value>راجع التفويض المحدد قبل إلغائه أو الاعتماد على تغطيته الحالية للموافقة.</value></data>
   <data name="ApprovalDelegation_DelegatorField" xml:space="preserve"><value>المفوِّض</value></data>
   <data name="ApprovalDelegation_DelegateField" xml:space="preserve"><value>المفوَّض إليه</value></data>
   <data name="ApprovalDelegation_RoleField" xml:space="preserve"><value>دور الموافقة</value></data>
@@ -834,6 +856,9 @@
   <data name="WorkspaceShell_SelectUser" xml:space="preserve"><value>اختر مستخدمًا</value></data>
   <data name="WorkspaceShell_LoadUserAction" xml:space="preserve"><value>تحميل الملف</value></data>
   <data name="WorkspaceShell_CurrentUserScopeNotice" xml:space="preserve"><value>هذه المساحة مقيدة على جلسة المستخدم المسجل دخوله.</value></data>
+  <data name="SurfaceQueue_CurrentItemLabel" xml:space="preserve"><value>العنصر الحالي</value></data>
+  <data name="SurfaceAction_CurrentActionLabel" xml:space="preserve"><value>الإجراء الحالي</value></data>
+  <data name="SurfaceAction_BlockedLabel" xml:space="preserve"><value>الإجراء محجوب</value></data>
   <data name="WorkspaceShell_SelectUserFirst" xml:space="preserve"><value>سجل الدخول أولًا للوصول إلى هذه المساحة.</value></data>
   <data name="WorkspaceShell_AccessDenied" xml:space="preserve"><value>المستخدم المسجل دخوله غير مخول للوصول إلى هذه المساحة.</value></data>
   <data name="WorkspaceShell_UserNotFound" xml:space="preserve"><value>هذا المستخدم لم يعد متاحًا لتسجيل الدخول.</value></data>
@@ -884,10 +909,10 @@
   <data name="RequestsWorkspace_NextActionAwaitExternal" xml:space="preserve"><value>لا يوجد إجراء مطلوب منك الآن. تابع الطلب حتى يكتمل عبر الإرسال أو رد البنك.</value></data>
   <data name="RequestsWorkspace_NextActionCompleted" xml:space="preserve"><value>اكتمل هذا الطلب. افتح التتبع التفصيلي فقط إذا احتجت الأثر النهائي الكامل.</value></data>
   <data name="RequestsWorkspace_NextActionClosed" xml:space="preserve"><value>هذا الطلب مغلق ولا توجد عليه إجراءات إضافية من سطح المالك.</value></data>
-  <data name="RequestsWorkspace_NextActionMonitor" xml:space="preserve"><value>استمر في متابعة هذا الطلب حتى يغيّر handoff التشغيلي التالي حالته.</value></data>
+  <data name="RequestsWorkspace_NextActionMonitor" xml:space="preserve"><value>استمر في متابعة هذا الطلب حتى يغيّر التسليم التشغيلي التالي حالته.</value></data>
   <data name="RequestsWorkspace_NoAvailableOwnerActionTitle" xml:space="preserve"><value>لماذا لا يوجد إجراء متاح لك الآن</value></data>
   <data name="RequestsWorkspace_NoOwnerAction_InApproval" xml:space="preserve"><value>هذا الطلب داخل مسار الموافقات حاليًا. يمكنك متابعته من هنا أو سحبه قبل أن تستمر الموافقة الحالية.</value></data>
-  <data name="RequestsWorkspace_NoOwnerAction_ApprovedForDispatch" xml:space="preserve"><value>أنهى هذا الطلب الموافقات وانتقل إلى الإرسال. يبقى سطح المالك للمتابعة فقط حتى يغيّر handoff التالي حالته.</value></data>
+  <data name="RequestsWorkspace_NoOwnerAction_ApprovedForDispatch" xml:space="preserve"><value>أنهى هذا الطلب الموافقات وانتقل إلى الإرسال. يبقى سطح المالك للمتابعة فقط حتى يغيّر التسليم التالي حالته.</value></data>
   <data name="RequestsWorkspace_NoOwnerAction_AwaitingBankResponse" xml:space="preserve"><value>غادر هذا الطلب BG بالفعل. يبقى سطح المالك للمتابعة فقط حتى يسجل التشغيل رد البنك.</value></data>
   <data name="RequestsWorkspace_NoOwnerAction_Completed" xml:space="preserve"><value>اكتمل هذا الطلب ولا يوجد إجراء متاح للمالك إلا إذا احتجت الأثر النهائي فقط.</value></data>
   <data name="RequestsWorkspace_NoOwnerAction_Rejected" xml:space="preserve"><value>رُفض هذا الطلب أثناء الموافقات وأصبح مغلقًا على سطح المالك.</value></data>
@@ -908,7 +933,7 @@
   <data name="RequestsWorkspace_LedgerSummary" xml:space="preserve"><value>افتح المسار الزمني الكامل فقط عندما تحتاج إلى التتبع التفصيلي.</value></data>
   <data name="RequestsWorkspace_RequestNotesTitle" xml:space="preserve"><value>ملاحظات الطلب</value></data>
   <data name="OperationsQueue_WhyHereTitle" xml:space="preserve"><value>لماذا هذا العنصر هنا</value></data>
-  <data name="OperationsQueue_WhyHereSummary" xml:space="preserve"><value>ينتظر عنصر المراجعة هذا التشغيل للتحقق من الرد الوارد وإغلاق handoff الصحيح.</value></data>
+  <data name="OperationsQueue_WhyHereSummary" xml:space="preserve"><value>ينتظر عنصر المراجعة هذا التشغيل للتحقق من الرد الوارد وإغلاق مسار التسليم الصحيح.</value></data>
   <data name="OperationsQueue_CompleteNowTitle" xml:space="preserve"><value>ما الذي يغلقه الآن</value></data>
   <data name="OperationsQueue_CompleteNowStepMatch" xml:space="preserve"><value>اختر الطلب الصحيح بالاعتماد على ترشيحات النظام أو مراجعتك.</value></data>
   <data name="OperationsQueue_CompleteNowStepConfirm" xml:space="preserve"><value>أكد تاريخ الانتهاء الحقيقي أو المبلغ أو الملاحظة المطلوبة حسب السيناريو.</value></data>
@@ -935,7 +960,7 @@
   <data name="DispatchWorkspace_PendingDeliveryStateSummary" xml:space="preserve"><value>هذه الخطابات غادرت BG بالفعل وتحتاج الآن إلى إثبات التسليم أو إعادة طباعة مضبوطة.</value></data>
   <data name="DispatchWorkspace_WhyHerePendingDeliverySummary" xml:space="preserve"><value>تم إرسال هذه المراسلة وتنتظر الآن إثبات التسليم الخارجي.</value></data>
   <data name="DispatchWorkspace_DispatchEvidenceTitle" xml:space="preserve"><value>إثبات الإرسال</value></data>
-  <data name="DispatchWorkspace_NextStepDelivery" xml:space="preserve"><value>أكد التسليم عندما يتم التحقق من البريد أو المندوب أو handoff الخارجي.</value></data>
+  <data name="DispatchWorkspace_NextStepDelivery" xml:space="preserve"><value>أكد التسليم عندما يتم التحقق من البريد أو المندوب أو التسليم الخارجي.</value></data>
   <data name="DispatchWorkspace_NextStepReprint" xml:space="preserve"><value>استخدم إعادة الطباعة فقط عندما تكون هناك حاجة إلى نسخة صادرة إضافية مضبوطة.</value></data>
   <data name="AdminUsers_TaskModelTitle" xml:space="preserve"><value>إدارة المستخدمين</value></data>
   <data name="AdminUsers_TaskModelSummary" xml:space="preserve"><value>استخدم هذه الصفحة لإنشاء الحسابات المحلية وإسناد الأدوار وصيانة كلمات المرور، وليست تقريرًا تدقيقيًا كاملًا لكل حدث هوية.</value></data>
@@ -943,7 +968,7 @@
   <data name="AdminRoles_TaskModelTitle" xml:space="preserve"><value>إدارة الأدوار والصلاحيات</value></data>
   <data name="AdminRoles_TaskModelSummary" xml:space="preserve"><value>استخدم هذه الصفحة لتعريف حزم الصلاحيات التي تتحكم في الوصول إلى المساحات، وافصل مراجعة الصلاحيات عن صيانة المستخدمين.</value></data>
   <data name="AdminDelegations_TaskModelTitle" xml:space="preserve"><value>إدارة التفويضات</value></data>
-  <data name="AdminDelegations_TaskModelSummary" xml:space="preserve"><value>استخدم هذه الصفحة لإنشاء تغطية موافقات مؤقتة وإلغائها عند انتهاء handoff المؤقت.</value></data>
+  <data name="AdminDelegations_TaskModelSummary" xml:space="preserve"><value>استخدم هذه الصفحة لإنشاء تغطية موافقات مؤقتة وإلغائها عند انتهاء الفترة المحددة.</value></data>
   <data name="AdminWorkflow_TaskModelTitle" xml:space="preserve"><value>إدارة المسارات</value></data>
   <data name="AdminWorkflow_TaskModelSummary" xml:space="preserve"><value>استخدم هذه الصفحة للحفاظ على تعريفات الموافقة قابلة للتنفيذ ومحكومة. التاريخ التشغيلي التفصيلي مكانه في المساحات التشغيلية وليس هنا.</value></data>
   <data name="WorkflowAdmin_CurrentStagesTitle" xml:space="preserve"><value>المراحل الحالية</value></data>
@@ -1020,4 +1045,55 @@
   <data name="DocumentFormCue_OfficialLetterDate" xml:space="preserve"><value>تاريخ الخطاب الرسمي</value></data>
   <data name="DocumentFormCue_BankReference" xml:space="preserve"><value>مرجع البنك</value></data>
   <data name="DocumentFormCue_AttachmentPurpose" xml:space="preserve"><value>غرض الملحق أو ملاحظة المستند</value></data>
+  <data name="Privacy_PageTitle" xml:space="preserve"><value>سياسة الخصوصية</value></data>
+  <data name="Privacy_PageBody" xml:space="preserve"><value>هذه الصفحة مخصصة لعرض إشعار الخصوصية والتزامات التعامل مع البيانات لمستخدمي النظام.</value></data>
+  <data name="Footer_HelpCenter" xml:space="preserve"><value>مركز المساعدة</value></data>
+  <data name="Error_PageTitle" xml:space="preserve"><value>خطأ</value></data>
+  <data name="Error_Heading" xml:space="preserve"><value>حدث خطأ</value></data>
+  <data name="Error_Summary" xml:space="preserve"><value>حدث خطأ أثناء معالجة طلبك.</value></data>
+  <data name="Error_RequestIdLabel" xml:space="preserve"><value>معرّف الطلب</value></data>
+  <data name="Error_DevelopmentModeTitle" xml:space="preserve"><value>وضع التطوير</value></data>
+  <data name="Error_DevelopmentModeBody" xml:space="preserve"><value>الانتقال إلى بيئة التطوير يعرض معلومات تفصيلية عن الخطأ الذي حدث.</value></data>
+  <data name="Error_DevelopmentModeWarning" xml:space="preserve"><value>يجب عدم تفعيل بيئة التطوير على التطبيقات المنشورة.</value></data>
+  <data name="Error_DevelopmentModeInstruction" xml:space="preserve"><value>لأغراض التصحيح المحلي اضبط المتغير</value></data>
+  <data name="WorkflowAdmin_CurrentSettingsTitle" xml:space="preserve"><value>الإعدادات الحالية</value></data>
+  <data name="WorkflowAdmin_PolicySummaryLabel" xml:space="preserve"><value>السياسة</value></data>
+  <data name="WorkflowAdmin_ThresholdSummaryLabel" xml:space="preserve"><value>الحد</value></data>
+  <data name="WorkflowAdmin_DefinitionCountBadge" xml:space="preserve"><value>{0} مسارات</value></data>
+  <data name="WorkflowAdmin_StageCountBadge" xml:space="preserve"><value>{0} مراحل</value></data>
+  <data name="WorkflowAdmin_TitleOverridePlaceholder" xml:space="preserve"><value>عنوان بديل</value></data>
+  <data name="UsersPage_CountBadge" xml:space="preserve"><value>{0} مستخدمين</value></data>
+  <data name="UsersPage_ContactTitle" xml:space="preserve"><value>التواصل</value></data>
+  <data name="UsersPage_OnboardedTitle" xml:space="preserve"><value>تاريخ الإضافة</value></data>
+  <data name="UsersPage_SecurityTitle" xml:space="preserve"><value>الأمان</value></data>
+  <data name="UsersPage_PasswordUpdatedShort" xml:space="preserve"><value>آخر تحديث {0}</value></data>
+  <data name="UsersPage_NewPasswordPlaceholder" xml:space="preserve"><value>كلمة مرور جديدة...</value></data>
+  <data name="RolesPage_CountBadge" xml:space="preserve"><value>{0} أدوار</value></data>
+  <data name="RolesPage_NoDescription" xml:space="preserve"><value>لا يوجد وصف.</value></data>
+  <data name="RolesPage_AssignedPermissionsTitle" xml:space="preserve"><value>الصلاحيات المرتبطة</value></data>
+  <data name="ApprovalDelegation_CountBadge" xml:space="preserve"><value>{0} تفويضات</value></data>
+  <data name="ApprovalDelegation_DelegateForSummary" xml:space="preserve"><value>تفويض لدور {0}</value></data>
+  <data name="ApprovalDelegation_DelegatorLabel" xml:space="preserve"><value>المفوِّض</value></data>
+  <data name="ApprovalDelegation_PeriodLabel" xml:space="preserve"><value>الفترة</value></data>
+  <data name="ApprovalDelegation_ReasonNotesLabel" xml:space="preserve"><value>السبب / الملاحظات</value></data>
+  <data name="ApprovalDelegation_NoReason" xml:space="preserve"><value>لا يوجد سبب مدخل.</value></data>
+  <data name="ApprovalQueue_ExecutiveDossierTitle" xml:space="preserve"><value>الملف التنفيذي: #{0} | {1} | {2}</value></data>
+  <data name="ApprovalQueue_PendingMyApprovalBadge" xml:space="preserve"><value>بانتظار اعتمادي - {0}</value></data>
+  <data name="ApprovalQueue_MetadataSummary" xml:space="preserve"><value>بيانات سياقية · {0} · {1}</value></data>
+  <data name="ApprovalQueue_WorkflowTimelineTitle" xml:space="preserve"><value>المسار الزمني للموافقة</value></data>
+  <data name="ApprovalQueue_ByLabel" xml:space="preserve"><value>بواسطة:</value></data>
+  <data name="ApprovalQueue_ActiveStepAwaitingReview" xml:space="preserve"><value>المرحلة الحالية: بانتظار مراجعتك</value></data>
+  <data name="ApprovalQueue_CurrentUserLabel" xml:space="preserve"><value>المستخدم الحالي</value></data>
+  <data name="ApprovalQueue_DossierDetailsTitle" xml:space="preserve"><value>تفاصيل الملف</value></data>
+  <data name="ApprovalQueue_ApplicationSummaryTitle" xml:space="preserve"><value>ملخص الطلب</value></data>
+  <data name="ApprovalQueue_SupportingDocumentsTitle" xml:space="preserve"><value>المستندات الداعمة</value></data>
+  <data name="ApprovalQueue_RelatedNotesTitle" xml:space="preserve"><value>الملاحظات المرتبطة</value></data>
+  <data name="ApprovalQueue_RequestHistoryTitle" xml:space="preserve"><value>سجل الطلب</value></data>
+  <data name="ApprovalQueue_GovernanceBlockTitle" xml:space="preserve"><value>قيد حوكمة</value></data>
+  <data name="ApprovalQueue_CommentsTitle" xml:space="preserve"><value>التعليقات</value></data>
+  <data name="ApprovalQueue_CommentPlaceholder" xml:space="preserve"><value>أضف تعليقًا...</value></data>
+  <data name="ApprovalQueue_ChecklistTitle" xml:space="preserve"><value>قائمة التحقق قبل الاعتماد</value></data>
+  <data name="ApprovalQueue_ChecklistReviewFields" xml:space="preserve"><value>مراجعة تفاصيل الطلب والحقول الداعمة</value></data>
+  <data name="ApprovalQueue_ChecklistValidateGovernance" xml:space="preserve"><value>التحقق من متطلبات الحوكمة والتوقيع</value></data>
+  <data name="ApprovalQueue_ChecklistRecommendDecision" xml:space="preserve"><value>القرار جاهز للاعتماد</value></data>
 </root>

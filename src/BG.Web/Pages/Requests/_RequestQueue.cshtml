@@ -6,7 +6,6 @@
     <div class="p-3 bg-brand-gold-soft border-bottom d-flex justify-content-between align-items-center">
         <div>
             <span class="fw-bold text-dark d-block">@T["RequestsWorkspace_MyRequestsTitle"]</span>
-            <span class="x-small text-muted">@T["RequestsWorkspace_MyRequestsSummary"]</span>
         </div>
         <bg-badge variant="secondary">@Model.Snapshot.OwnedRequests.Count</bg-badge>
     </div>
@@ -29,15 +28,21 @@
                     var requestedChange = Model.ResolveRequestedChange(request);
                     
                     <a href="@Url.Page("/Requests/Workspace", Model.BuildSelectionRoute(request.Id))" 
-                       class="text-decoration-none d-block p-3 rounded-4 border transition-all @(isActive ? "bg-brand-gold-soft border-gold shadow-sm" : "bg-white hover-bg-light")">
-                        <div class="d-flex justify-content-between align-items-start mb-1">
-                            <span class="small fw-bold @(isActive ? "text-brand-green" : "text-dark")">@request.GuaranteeNumber</span>
-                            <bg-badge variant="@(isActive ? "success" : "light")" class="x-small">@T[request.StatusResourceKey]</bg-badge>
+                       aria-current="@(isActive ? "true" : "false")"
+                       class="request-queue-link @(isActive ? "active" : null)">
+                        <div class="request-queue-copy">
+                            <div class="entity-subtitle">@T[request.RequestTypeResourceKey]</div>
+                            <strong>@request.GuaranteeNumber</strong>
+                            <p class="compact-copy">@requestedChange</p>
                         </div>
-                        <div class="x-small text-muted text-truncate mb-2">@T[request.RequestTypeResourceKey] · @stageTitle</div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="x-small fw-bold text-dark">@requestedChange</span>
-                            <i class="bi bi-chevron-right x-small text-muted"></i>
+                        <div class="request-queue-meta">
+                            @if (isActive)
+                            {
+                                <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
+                            }
+                            <span class="status-badge is-active">@T[request.StatusResourceKey]</span>
+                            <span class="section-caption">@stageTitle</span>
+                            <span class="compact-copy">@request.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd")</span>
                         </div>
                     </a>
                 }

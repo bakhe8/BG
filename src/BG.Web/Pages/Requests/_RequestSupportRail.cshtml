@@ -5,7 +5,6 @@
 <div class="bg-card shadow-sm p-4 mb-4">
     <div class="mb-4">
         <h5 class="fw-bold text-dark m-0">@T["RequestsWorkspace_CreateTitle"]</h5>
-        <p class="x-small text-muted m-0">@T["RequestsWorkspace_CreateSummary"]</p>
     </div>
 
     <form method="post" class="stack-form d-flex flex-column gap-3">
@@ -60,7 +59,7 @@
 @{
     var actorContextModel = new ActorContextPanelModel(
         T["RequestsWorkspace_ActorContextTitle"].Value,
-        T["RequestsWorkspace_ActorContextSummary"].Value,
+        null,
         Model.IsActorContextLocked ? ActorContextPanelMode.LockedPills : ActorContextPanelMode.SelectorForm,
         "bg-card mb-4")
     {
@@ -93,7 +92,6 @@
 <div class="bg-card shadow-sm p-4">
     <div class="mb-4">
         <h6 class="fw-bold text-dark m-0">@T["RequestsWorkspace_CurrentWorkflowTitle"]</h6>
-        <p class="x-small text-muted m-0">@T["RequestsWorkspace_WorkflowPreviewTitle"]</p>
     </div>
 
     @if (Model.SelectedWorkflowTemplate is null)

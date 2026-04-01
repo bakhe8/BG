@@ -1,5 +1,16 @@
 # BG Testing Instructions
 
+## Document Role
+
+- Status: `source of truth`
+- Scope: repository testing policy, definition of done, and verification commands
+- Documentation index: [docs/README.md](../../docs/README.md)
+- Architecture baseline: [ARCHITECTURE.md](../../ARCHITECTURE.md)
+- Local setup reference: [LOCAL_DEVELOPMENT.md](../../LOCAL_DEVELOPMENT.md)
+- Production references:
+  - [PRODUCTION_DEPLOYMENT.md](../../PRODUCTION_DEPLOYMENT.md)
+  - [PRODUCTION_RUNBOOK.md](../../PRODUCTION_RUNBOOK.md)
+
 Apply these rules when creating or editing tests in this repository.
 
 ## Scope
@@ -14,6 +25,8 @@ Apply these rules when creating or editing tests in this repository.
 - If a change cannot be covered meaningfully by an automated test, document the reason in the change itself and keep the change narrowly scoped
 - Every regression fix must add or update a regression test that would fail without the fix
 - Before pushing, run `dotnet build BG.sln` and `dotnet test BG.sln`
+- After UI or shell changes, run the hosted smoke subset as a fast regression pass:
+  `dotnet test tests/BG.UnitTests/BG.UnitTests.csproj --no-build --filter "FullyQualifiedName~BG.UnitTests.Hosted.HostedSmokeTests"`
 
 ## Test priorities
 
@@ -51,4 +64,5 @@ Write tests in this order:
 
 - Build: `dotnet build BG.sln`
 - Run tests: `dotnet test BG.sln`
+- Run hosted smoke subset: `dotnet test tests/BG.UnitTests/BG.UnitTests.csproj --no-build --filter "FullyQualifiedName~BG.UnitTests.Hosted.HostedSmokeTests"`
 - Run tests with coverage: `dotnet test BG.sln --collect:\"XPlat Code Coverage\"`

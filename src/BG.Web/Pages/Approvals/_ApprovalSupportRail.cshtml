@@ -4,7 +4,7 @@
 @{
     var actorContextModel = new ActorContextPanelModel(
         T["ApprovalQueue_ActorContextTitle"].Value,
-        T["ApprovalQueue_ActorContextSummary"].Value,
+        null,
         Model.IsActorContextLocked ? ActorContextPanelMode.LockedPills : ActorContextPanelMode.SelectorForm,
         "bg-card shadow-sm")
     {
@@ -34,13 +34,13 @@
 
 <partial name="/Pages/Shared/_ActorContextPanel.cshtml" model="actorContextModel" />
 
-<article class="bg-card shadow-sm mt-3 p-0 overflow-hidden">
-    <div class="p-3 bg-brand-gold-soft border-bottom d-flex justify-content-between align-items-center">
+<details class="bg-card shadow-sm mt-3 p-0 overflow-hidden">
+    <summary class="p-3 bg-brand-gold-soft border-bottom cursor-pointer d-flex justify-content-between align-items-center">
         <span class="fw-bold text-dark small"><i class="bi bi-info-circle me-2 text-brand-green"></i>@T["ApprovalQueue_NextAfterDecisionTitle"]</span>
-    </div>
+        <i class="bi bi-chevron-down small text-muted"></i>
+    </summary>
     <div class="p-4">
-        <label class="section-caption x-small mb-3">@T["ApprovalQueue_DossierSummary"]</label>
-        <ul class="list-unstyled small d-flex flex-column gap-3">
+        <ul class="list-unstyled small d-flex flex-column gap-3 mb-0">
             <li class="d-flex align-items-start gap-3">
                 <bg-badge variant="success" class="rounded-circle p-1" style="width: 20px; height: 20px;"></bg-badge>
                 <span>@T["ApprovalQueue_NextAfterApprove"]</span>
@@ -55,4 +55,4 @@
             </li>
         </ul>
     </div>
-</article>
+</details>

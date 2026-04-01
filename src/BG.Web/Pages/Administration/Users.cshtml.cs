@@ -26,9 +26,14 @@ public sealed class UsersModel : PageModel
     [BindProperty]
     public CreateUserInput Input { get; set; } = new();
 
+    [FromQuery(Name = "user")]
+    public Guid? SelectedUserId { get; set; }
+
     public IReadOnlyList<UserSummaryDto> Users { get; private set; } = Array.Empty<UserSummaryDto>();
 
     public IReadOnlyList<RoleSummaryDto> Roles { get; private set; } = Array.Empty<RoleSummaryDto>();
+
+    public UserSummaryDto? ActiveUser { get; private set; }
 
     [TempData]
     public string? StatusMessage { get; set; }
@@ -52,7 +57,7 @@ public sealed class UsersModel : PageModel
         if (result.Succeeded)
         {
             StatusMessage = _localizer["UsersPage_UserCreated"];
-            return RedirectToPage();
+            return RedirectToPage(new { user = result.Value!.Id });
         }
 
         ModelState.AddModelError(string.Empty, _localizer[result.ErrorCode!]);
@@ -69,18 +74,48 @@ public sealed class UsersModel : PageModel
         if (result.Succeeded)
         {
             StatusMessage = _localizer["UsersPage_PasswordUpdated"];
-            return RedirectToPage();
+            return RedirectToPage(new { user = result.Value!.Id });
         }
 
         ModelState.AddModelError(string.Empty, _localizer[result.ErrorCode!]);
+        SelectedUserId = userId;
         await LoadAsync(cancellationToken);
         return Page();
+    }
+
+    public IDictionary<string, string> BuildSelectionRoute(Guid userId)
+    {
+        return new Dictionary<string, string>
+        {
+            ["user"] = userId.ToString()
+        };
     }
 
     private async Task LoadAsync(CancellationToken cancellationToken)
     {
         Users = await _identityAdministrationService.GetUsersAsync(cancellationToken);
         Roles = await _identityAdministrationService.GetRolesAsync(cancellationToken);
+        ActiveUser = ResolveActiveUser(SelectedUserId);
+        SelectedUserId = ActiveUser?.Id;
+    }
+
+    private UserSummaryDto? ResolveActiveUser(Guid? selectedUserId)
+    {
+        if (Users.Count == 0)
+        {
+            return null;
+        }
+
+        if (selectedUserId.HasValue)
+        {
+            var selectedUser = Users.FirstOrDefault(user => user.Id == selectedUserId.Value);
+            if (selectedUser is not null)
+            {
+                return selectedUser;
+            }
+        }
+
+        return Users[0];
     }
 
     public sealed class CreateUserInput

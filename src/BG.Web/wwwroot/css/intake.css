@@ -1,0 +1,12 @@
+.intake-surface-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (max-width: 991.98px) {
+  .intake-surface-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,8 +1,10 @@
-﻿@page
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = T["Privacy_PageTitle"];
 }
-<h1>@ViewData["Title"]</h1>
+<h1>@T["Privacy_PageTitle"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<p>@T["Privacy_PageBody"]</p>

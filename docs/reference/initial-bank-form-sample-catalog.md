@@ -1,5 +1,12 @@
 # Initial Bank Form Sample Catalog
 
+## Document Role
+
+- Status: `reference`
+- Scope: early real bank-form sample baseline for OCR and document-form classification
+- Documentation index: [../README.md](../README.md)
+- OCR execution plan: [../ocr_implementation_plan.md](../ocr_implementation_plan.md)
+
 ## Purpose
 
 This document records the first real scanned bank guarantee samples received for

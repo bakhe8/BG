@@ -26,9 +26,14 @@ public sealed class RolesModel : PageModel
     [BindProperty]
     public CreateRoleInput Input { get; set; } = new();
 
+    [FromQuery(Name = "role")]
+    public Guid? SelectedRoleId { get; set; }
+
     public IReadOnlyList<RoleSummaryDto> Roles { get; private set; } = Array.Empty<RoleSummaryDto>();
 
     public IReadOnlyList<PermissionGroupViewModel> PermissionGroups { get; private set; } = Array.Empty<PermissionGroupViewModel>();
+
+    public RoleSummaryDto? ActiveRole { get; private set; }
 
     [TempData]
     public string? StatusMessage { get; set; }
@@ -50,12 +55,20 @@ public sealed class RolesModel : PageModel
         if (result.Succeeded)
         {
             StatusMessage = _localizer["RolesPage_RoleCreated"];
-            return RedirectToPage();
+            return RedirectToPage(new { role = result.Value!.Id });
         }
 
         ModelState.AddModelError(string.Empty, _localizer[result.ErrorCode!]);
         await LoadAsync(cancellationToken);
         return Page();
+    }
+
+    public IDictionary<string, string> BuildSelectionRoute(Guid roleId)
+    {
+        return new Dictionary<string, string>
+        {
+            ["role"] = roleId.ToString()
+        };
     }
 
     private async Task LoadAsync(CancellationToken cancellationToken)
@@ -69,6 +82,27 @@ public sealed class RolesModel : PageModel
                 group.Key,
                 group.OrderBy(permission => permission.Key, StringComparer.OrdinalIgnoreCase).ToArray()))
             .ToArray();
+        ActiveRole = ResolveActiveRole(SelectedRoleId);
+        SelectedRoleId = ActiveRole?.Id;
+    }
+
+    private RoleSummaryDto? ResolveActiveRole(Guid? selectedRoleId)
+    {
+        if (Roles.Count == 0)
+        {
+            return null;
+        }
+
+        if (selectedRoleId.HasValue)
+        {
+            var selectedRole = Roles.FirstOrDefault(role => role.Id == selectedRoleId.Value);
+            if (selectedRole is not null)
+            {
+                return selectedRole;
+            }
+        }
+
+        return Roles[0];
     }
 
     public sealed class CreateRoleInput

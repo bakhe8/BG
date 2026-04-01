@@ -1,0 +1,26 @@
+<environmentVariables>
+  <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
+  <environmentVariable name="ConnectionStrings__PostgreSql" value="Host=db01;Port=5432;Database=bg_prod;Username=bg_prod;Password=REPLACE_ME;Application Name=BG" />
+  <environmentVariable name="Storage__DocumentsRoot" value="C:\BG\documents" />
+  <environmentVariable name="DataProtection__KeysPath" value="C:\BG\data-protection" />
+  <environmentVariable name="AllowedHosts" value="bg.example.local" />
+  <environmentVariable name="OperationalSeed__Enabled" value="false" />
+  <environmentVariable name="Swagger__Enabled" value="false" />
+  <environmentVariable name="Ocr__Enabled" value="false" />
+
+  <!-- Optional controlled bootstrap admin -->
+  <!--
+  <environmentVariable name="Identity__BootstrapAdmin__Username" value="admin.prod" />
+  <environmentVariable name="Identity__BootstrapAdmin__DisplayName" value="Production Admin" />
+  <environmentVariable name="Identity__BootstrapAdmin__Email" value="admin@example.local" />
+  <environmentVariable name="Identity__BootstrapAdmin__Password" value="REPLACE_WITH_STRONG_PASSWORD" />
+  -->
+
+  <!-- Optional OCR -->
+  <!--
+  <environmentVariable name="Ocr__Enabled" value="true" />
+  <environmentVariable name="Ocr__PythonExecutablePath" value="C:\BG\ocr\.venv\Scripts\python.exe" />
+  <environmentVariable name="Ocr__WorkerScriptPath" value="OcrWorker\ocr_worker.py" />
+  <environmentVariable name="Ocr__TimeoutSeconds" value="120" />
+  -->
+</environmentVariables>

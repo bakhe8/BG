@@ -19,7 +19,7 @@ public sealed record SurfaceHiddenFieldModel(
 
 public sealed record ActorContextPanelModel(
     string Title,
-    string Summary,
+    string? Summary,
     ActorContextPanelMode Mode,
     string? CssClass = null)
 {

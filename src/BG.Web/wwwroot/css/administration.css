@@ -1,0 +1,270 @@
+.admin-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(18rem, 24rem) minmax(0, 1fr);
+  align-items: start;
+}
+
+.admin-surface-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(18rem, 24rem) minmax(0, 1fr);
+  align-items: start;
+}
+
+.admin-editor-panel,
+.admin-catalog-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-users-layout,
+.admin-users-sidebar,
+.admin-user-detail-grid,
+.admin-user-facts,
+.admin-user-password-panel,
+.admin-users-directory-list,
+.admin-users-role-picker,
+.admin-roles-layout,
+.admin-roles-sidebar,
+.admin-roles-directory-list,
+.admin-role-picker,
+.admin-role-permission-groups,
+.admin-workflow-layout,
+.admin-workflow-sidebar,
+.admin-workflow-directory-list,
+.admin-workflow-detail-grid,
+.admin-workflow-governance-grid,
+.admin-workflow-stage-list,
+.admin-delegations-layout,
+.admin-delegations-sidebar,
+.admin-delegations-directory-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-users-layout {
+  grid-template-columns: minmax(20rem, 24rem) minmax(0, 1fr);
+  align-items: start;
+}
+
+.admin-roles-layout {
+  grid-template-columns: minmax(22rem, 26rem) minmax(0, 1fr);
+  align-items: start;
+}
+
+.admin-workflow-layout {
+  grid-template-columns: minmax(22rem, 26rem) minmax(0, 1fr);
+  align-items: start;
+}
+
+.admin-delegations-layout {
+  grid-template-columns: minmax(22rem, 26rem) minmax(0, 1fr);
+  align-items: start;
+}
+
+.admin-users-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+
+.admin-user-link,
+.admin-role-link,
+.admin-workflow-link,
+.admin-delegation-link {
+  align-items: center;
+}
+
+.admin-user-link-header,
+.admin-user-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.admin-user-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--accent) 12%, white);
+  color: var(--accent-strong);
+  font-weight: 800;
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, white);
+}
+
+.admin-user-avatar.is-large {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.05rem;
+}
+
+.admin-user-detail-grid {
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  margin-bottom: 1rem;
+}
+
+.admin-user-detail-section {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, white);
+  background: color-mix(in srgb, var(--surface) 95%, white);
+}
+
+.admin-user-facts {
+  gap: 0.75rem;
+}
+
+.admin-user-fact {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-user-fact span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-user-fact strong {
+  color: var(--text);
+  font-size: 0.96rem;
+  line-height: 1.5;
+}
+
+.admin-user-password-panel {
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, white);
+  background: color-mix(in srgb, var(--surface-alt) 78%, white);
+}
+
+.admin-user-password-form {
+  display: flex;
+  align-items: end;
+  gap: 0.75rem;
+}
+
+.admin-users-role-picker {
+  max-height: 14rem;
+  overflow: auto;
+}
+
+.admin-role-picker {
+  max-height: 24rem;
+  overflow: auto;
+}
+
+.admin-role-picker-group {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-role-facts-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  margin-bottom: 1rem;
+}
+
+.admin-workflow-detail-grid {
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  margin-bottom: 1rem;
+}
+
+.admin-delegation-facts-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  margin-bottom: 1rem;
+}
+
+.admin-role-fact-card,
+.admin-role-permission-group {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, white);
+  background: color-mix(in srgb, var(--surface) 95%, white);
+}
+
+.admin-role-fact-card strong {
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.admin-role-permissions-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, white);
+  background: color-mix(in srgb, var(--surface-alt) 78%, white);
+}
+
+.admin-workflow-governance-grid {
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+  align-items: start;
+}
+
+.admin-workflow-stage-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--border) 82%, white);
+  background: color-mix(in srgb, var(--surface) 95%, white);
+}
+
+.admin-workflow-stage-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid color-mix(in srgb, var(--border) 72%, white);
+}
+
+.workflow-admin-actions {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 991.98px) {
+  .admin-grid,
+  .admin-users-layout,
+  .admin-roles-layout,
+  .admin-workflow-layout,
+  .admin-delegations-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-users-card-header,
+  .admin-user-password-form {
+    flex-direction: column;
+    align-items: start;
+  }
+
+  .admin-workflow-governance-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-workflow-layout > .admin-workflow-detail {
+    order: 1;
+  }
+
+  .admin-workflow-layout > .admin-workflow-sidebar {
+    order: 2;
+  }
+}

@@ -5,36 +5,32 @@
 @{
     ViewData["Title"] = T["RolesPageTitle"];
     var permissionCount = Model.PermissionGroups.Sum(group => group.Permissions.Count);
-    var headerModel = new SurfaceHeaderModel(
-        T["NavRoles"].Value,
-        T["RolesPageHeading"].Value,
-        T["RolesPageSummary"].Value,
-        CssClass: "is-split");
-    var statStripModel = new SurfaceStatStripModel(
-        new[]
-        {
-            new SurfaceStatItem(T["RolesListTitle"].Value, Model.Roles.Count),
-            new SurfaceStatItem(T["PermissionsField"].Value, permissionCount),
-            new SurfaceStatItem(T["PermissionGroup_Administration"].Value, Model.PermissionGroups.Count)
-        });
-    var taskNoticeModel = new InlineNoticeModel(
-        T["AdminRoles_TaskModelTitle"].Value,
-        T["AdminRoles_TaskModelSummary"].Value);
+    var activeRole = Model.ActiveRole;
+    var activeRolePermissionKeys = activeRole?.PermissionKeys.ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    var activeRoleGroups = activeRole is null
+        ? Array.Empty<BG.Web.Pages.Administration.RolesModel.PermissionGroupViewModel>()
+        : Model.PermissionGroups
+            .Select(group => new BG.Web.Pages.Administration.RolesModel.PermissionGroupViewModel(
+                group.Area,
+                group.Permissions.Where(permission => activeRolePermissionKeys.Contains(permission.Key)).ToArray()))
+            .Where(group => group.Permissions.Count > 0)
+            .ToArray();
 }
 
-<section class="bg-shell-content">
+<section class="section-shell admin-roles-surface">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
-        <div class="alert alert-success border-0 rounded-4 shadow-sm mb-4">@Model.StatusMessage</div>
+        <div class="notice-banner is-success">@Model.StatusMessage</div>
     }
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
     <div class="mb-5 pb-4 border-bottom">
         <section-caption>@T["NavRoles"]</section-caption>
         <h1 class="fw-bold text-dark m-0">@T["RolesPageHeading"]</h1>
-        <p class="text-secondary mt-1">@T["RolesPageSummary"]</p>
     </div>
 
-    <div class="row g-4 mb-5">
+    <div class="row g-4 mb-4">
         <div class="col-md-4">
             <div class="bg-card shadow-sm p-4 text-center">
                 <div class="section-caption x-small mb-1">@T["RolesListTitle"]</div>
@@ -55,14 +51,62 @@
         </div>
     </div>
 
-    <div class="row g-5">
-        <div class="col-lg-5">
-            <div class="bg-card shadow-sm p-4 sticky-top offset-header">
-                <h5 class="fw-bold text-dark mb-4 pb-2 border-bottom">@T["CreateRoleTitle"]</h5>
-                
-                <form method="post" class="d-flex flex-column gap-4">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger x-small py-2 px-3 border-0 rounded-3"></div>
+    <div class="admin-roles-layout">
+        <div class="admin-roles-sidebar">
+            <article class="admin-roles-directory bg-card shadow-sm">
+                <div class="admin-users-card-header">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">@T["RolesListTitle"]</h5>
+                        <p class="compact-copy mb-0">@T["RolesPage_DirectorySummary"]</p>
+                    </div>
+                    <bg-badge variant="light">@T["RolesPage_CountBadge", Model.Roles.Count]</bg-badge>
+                </div>
 
+                @if (Model.Roles.Count == 0)
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-shield-lock-fill display-1 text-light mb-4 d-block"></i>
+                        <p class="text-secondary mb-0">@T["EmptyRoles"]</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="admin-roles-directory-list">
+                        @foreach (var role in Model.Roles)
+                        {
+                            var isActive = activeRole?.Id == role.Id;
+                            var permissionGroupCount = Model.PermissionGroups.Count(group => group.Permissions.Any(permission => role.PermissionKeys.Contains(permission.Key, StringComparer.OrdinalIgnoreCase)));
+
+                            <a asp-page="/Administration/Roles"
+                               asp-all-route-data="Model.BuildSelectionRoute(role.Id)"
+                               class="request-queue-link admin-role-link @(isActive ? "active" : null)">
+                                <div class="request-queue-copy">
+                                    <strong>@role.Name</strong>
+                                    <div class="entity-subtitle">@(string.IsNullOrWhiteSpace(role.Description) ? T["RolesPage_NoDescription"].Value : role.Description)</div>
+                                </div>
+                                <div class="request-queue-meta">
+                                    @if (isActive)
+                                    {
+                                        <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
+                                    }
+                                    <bg-badge variant="light">@role.PermissionKeys.Count @T["PermissionsField"]</bg-badge>
+                                    <span class="section-caption">@permissionGroupCount @T["PermissionGroup_Administration"]</span>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+            </article>
+
+            <article class="admin-roles-create bg-card shadow-sm">
+                <div class="admin-users-card-header">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">@T["CreateRoleTitle"]</h5>
+                        <p class="compact-copy mb-0">@T["RolesPage_CreateSummary"]</p>
+                    </div>
+                </div>
+
+                <form method="post" class="d-flex flex-column gap-4">
                     <div>
                         <label class="form-label x-small fw-bold opacity-75" asp-for="Input.Name">@T["RoleNameField"]</label>
                         <input asp-for="Input.Name" class="form-control rounded-4 p-2 small" maxlength="64" />
@@ -77,19 +121,19 @@
                         <h6 class="fw-bold text-dark mb-4">@T["PermissionsField"]</h6>
                         @if (Model.PermissionGroups.Count == 0)
                         {
-                            <p class="x-small text-muted italic">@T["NoPermissionsAvailable"]</p>
+                            <p class="x-small text-muted italic mb-0">@T["NoPermissionsAvailable"]</p>
                         }
                         else
                         {
-                            <div class="d-flex flex-column gap-4 overflow-auto px-1" style="max-height: 400px;">
+                            <div class="admin-role-picker">
                                 @foreach (var group in Model.PermissionGroups)
                                 {
-                                    <div>
+                                    <div class="admin-role-picker-group">
                                         <div class="x-small fw-bold text-brand-green mb-2 opacity-75 text-uppercase letter-spacing-1">@T[$"PermissionGroup_{group.Area}"]</div>
                                         <div class="d-flex flex-column gap-2">
                                             @foreach (var permission in group.Permissions)
                                             {
-                                                <label class="d-flex align-items-center gap-3 p-2 bg-white rounded-3 border hover-bg-light cursor-pointer shadow-sm-hover transition-all">
+                                                <label class="d-flex align-items-center gap-3 p-2 bg-white rounded-3 border cursor-pointer">
                                                     <input type="checkbox" name="Input.SelectedPermissionKeys" value="@permission.Key" class="form-check-input mt-0" />
                                                     <div>
                                                         <div class="x-small fw-bold text-dark">@T[$"Permission_{permission.Key}"]</div>
@@ -106,55 +150,76 @@
 
                     <bg-button type="submit" variant="primary" class="w-100">@T["SaveRoleAction"]</bg-button>
                 </form>
-            </div>
+            </article>
         </div>
 
-        <div class="col-lg-7">
-            <div class="bg-card shadow-sm p-4 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
-                    <h5 class="fw-bold text-dark m-0">@T["RolesListTitle"]</h5>
-                    <bg-badge variant="light">@Model.Roles.Count Roles</bg-badge>
+        <article class="admin-roles-detail bg-card shadow-sm">
+            @if (activeRole is null)
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-shield-lock-fill fs-1 text-muted opacity-25 d-block mb-3"></i>
+                    <h5 class="fw-bold text-dark">@T["RolesListTitle"]</h5>
+                    <p class="compact-copy mb-0">@T["RolesPage_DirectorySummary"]</p>
+                </div>
+            }
+            else
+            {
+                <div class="admin-users-card-header">
+                    <div>
+                        <h4 class="fw-bold text-dark m-0">@activeRole.Name</h4>
+                        <div class="entity-subtitle">@(string.IsNullOrWhiteSpace(activeRole.Description) ? T["RolesPage_NoDescription"].Value : activeRole.Description)</div>
+                    </div>
+                    <bg-badge variant="light">@activeRole.PermissionKeys.Count @T["PermissionsField"]</bg-badge>
                 </div>
 
-                @if (Model.Roles.Count == 0)
-                {
-                    <div class="text-center py-5">
-                        <i class="bi bi-shield-lock-fill display-1 text-light mb-4 d-block"></i>
-                        <p class="text-secondary">@T["EmptyRoles"]</p>
-                    </div>
-                }
-                else
-                {
-                    <div class="d-flex flex-column gap-4">
-                        @foreach (var role in Model.Roles)
-                        {
-                            <div class="bg-white border rounded-4 p-4 shadow-sm hover-shadow-md transition-all">
-                                <div class="mb-4">
-                                    <h6 class="fw-bold text-dark m-0">@role.Name</h6>
-                                    <p class="small text-muted mt-1 m-0">@(string.IsNullOrWhiteSpace(role.Description) ? "No description provided." : role.Description)</p>
-                                </div>
+                <p class="compact-copy mb-4">@T["RolesPage_SelectedRoleSummary"]</p>
 
-                                <div class="bg-light rounded-4 p-3">
-                                    <div class="x-small fw-bold text-muted mb-3 text-uppercase">Assigned Permissions</div>
-                                    @if (role.PermissionKeys.Count == 0)
-                                    {
-                                        <p class="x-small text-muted italic m-0">@T["NoPermissionsAssigned"]</p>
-                                    }
-                                    else
-                                    {
-                                        <div class="d-flex flex-wrap gap-1">
-                                            @foreach (var permissionKey in role.PermissionKeys)
-                                            {
-                                                <bg-badge variant="light" class="xx-small">@T[$"Permission_{permissionKey}"]</bg-badge>
-                                            }
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        }
+                <div class="admin-role-facts-grid">
+                    <section class="admin-role-fact-card">
+                        <span class="section-caption x-small">@T["RoleNameField"]</span>
+                        <strong>@activeRole.Name</strong>
+                    </section>
+                    <section class="admin-role-fact-card">
+                        <span class="section-caption x-small">@T["DescriptionField"]</span>
+                        <strong>@(string.IsNullOrWhiteSpace(activeRole.Description) ? T["RolesPage_NoDescription"].Value : activeRole.Description)</strong>
+                    </section>
+                    <section class="admin-role-fact-card">
+                        <span class="section-caption x-small">@T["RolesPage_PermissionCoverageTitle"]</span>
+                        <strong>@activeRoleGroups.Length @T["PermissionGroup_Administration"]</strong>
+                    </section>
+                </div>
+
+                <section class="admin-role-permissions-panel">
+                    <div class="admin-users-card-header">
+                        <div>
+                            <h5 class="fw-bold text-dark m-0">@T["RolesPage_AssignedPermissionsTitle"]</h5>
+                            <p class="compact-copy mb-0">@T["RolesPage_DirectorySummary"]</p>
+                        </div>
                     </div>
-                }
-            </div>
-        </div>
+
+                    @if (activeRole.PermissionKeys.Count == 0)
+                    {
+                        <p class="x-small text-muted italic mb-0">@T["NoPermissionsAssigned"]</p>
+                    }
+                    else
+                    {
+                        <div class="admin-role-permission-groups">
+                            @foreach (var group in activeRoleGroups)
+                            {
+                                <section class="admin-role-permission-group">
+                                    <div class="section-caption x-small">@T[$"PermissionGroup_{group.Area}"]</div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach (var permission in group.Permissions)
+                                        {
+                                            <bg-badge variant="light">@T[$"Permission_{permission.Key}"]</bg-badge>
+                                        }
+                                    </div>
+                                </section>
+                            }
+                        </div>
+                    }
+                </section>
+            }
+        </article>
     </div>
 </section>

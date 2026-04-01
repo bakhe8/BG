@@ -27,7 +27,12 @@ public sealed class DelegationsModel : PageModel
     [BindProperty]
     public CreateApprovalDelegationInput Input { get; set; } = new();
 
+    [FromQuery(Name = "delegation")]
+    public Guid? SelectedDelegationId { get; set; }
+
     public ApprovalDelegationAdministrationSnapshotDto Snapshot { get; private set; } = default!;
+
+    public ApprovalDelegationSummaryDto? ActiveDelegation { get; private set; }
 
     [TempData]
     public string? StatusMessage { get; set; }
@@ -64,7 +69,7 @@ public sealed class DelegationsModel : PageModel
         }
 
         StatusMessage = _localizer["ApprovalDelegation_CreateSuccess"];
-        return RedirectToPage();
+        return RedirectToPage(new { delegation = result.Value });
     }
 
     public async Task<IActionResult> OnPostRevokeAsync(Guid delegationId, string? reason, CancellationToken cancellationToken)
@@ -81,12 +86,41 @@ public sealed class DelegationsModel : PageModel
         }
 
         StatusMessage = _localizer["ApprovalDelegation_RevokeSuccess"];
-        return RedirectToPage();
+        return RedirectToPage(new { delegation = result.Value });
+    }
+
+    public IDictionary<string, string> BuildSelectionRoute(Guid delegationId)
+    {
+        return new Dictionary<string, string>
+        {
+            ["delegation"] = delegationId.ToString()
+        };
     }
 
     private async Task LoadAsync(CancellationToken cancellationToken)
     {
         Snapshot = await _approvalDelegationAdministrationService.GetSnapshotAsync(cancellationToken);
+        ActiveDelegation = ResolveActiveDelegation(SelectedDelegationId);
+        SelectedDelegationId = ActiveDelegation?.Id;
+    }
+
+    private ApprovalDelegationSummaryDto? ResolveActiveDelegation(Guid? selectedDelegationId)
+    {
+        if (Snapshot.Delegations.Count == 0)
+        {
+            return null;
+        }
+
+        if (selectedDelegationId.HasValue)
+        {
+            var selectedDelegation = Snapshot.Delegations.FirstOrDefault(delegation => delegation.Id == selectedDelegationId.Value);
+            if (selectedDelegation is not null)
+            {
+                return selectedDelegation;
+            }
+        }
+
+        return Snapshot.Delegations[0];
     }
 
     public sealed class CreateApprovalDelegationInput
