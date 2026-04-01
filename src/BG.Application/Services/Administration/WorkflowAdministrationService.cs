@@ -236,8 +236,7 @@ internal sealed class WorkflowAdministrationService : IWorkflowAdministrationSer
             return true;
         }
 
-        if (!decimal.TryParse(value.Trim(), NumberStyles.Number, CultureInfo.InvariantCulture, out var parsed) &&
-            !decimal.TryParse(value.Trim(), NumberStyles.Number, CultureInfo.CurrentCulture, out parsed))
+        if (!StructuredInputParser.TryParseAmount(value, out var parsed))
         {
             threshold = null;
             return false;

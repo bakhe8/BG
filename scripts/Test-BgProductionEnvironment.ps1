@@ -36,6 +36,10 @@ $operationalSeedEnabled = $env:OperationalSeed__Enabled
 $ocrEnabled = $env:Ocr__Enabled
 $ocrPythonPath = $env:Ocr__PythonExecutablePath
 $ocrWorkerPath = $env:Ocr__WorkerScriptPath
+$ocrMaxFileSizeBytes = $env:Ocr__MaxFileSizeBytes
+$ocrQueueCapacity = $env:Ocr__QueueCapacity
+$knownProxies = Get-ChildItem Env: | Where-Object Name -like "ReverseProxy__KnownProxies__*"
+$knownNetworks = Get-ChildItem Env: | Where-Object Name -like "ReverseProxy__KnownNetworks__*"
 
 if ($environmentName -ne "Production")
 {
@@ -63,6 +67,11 @@ else
     {
         $failures.Add("AllowedHosts must not be blank and cannot contain *.")
     }
+}
+
+if (($knownProxies | Measure-Object).Count -eq 0 -and ($knownNetworks | Measure-Object).Count -eq 0)
+{
+    $failures.Add("ReverseProxy__KnownProxies__* or ReverseProxy__KnownNetworks__* must be configured.")
 }
 
 if ([string]::IsNullOrWhiteSpace($documentsRoot))
@@ -164,6 +173,18 @@ if ($ocrEnabledValue -eq "true")
         {
             $failures.Add("Ocr__WorkerScriptPath does not exist: $resolvedWorkerPath")
         }
+    }
+
+    $parsedOcrMaxFileSizeBytes = 0L
+    if (-not [long]::TryParse($ocrMaxFileSizeBytes, [ref]$parsedOcrMaxFileSizeBytes) -or $parsedOcrMaxFileSizeBytes -le 0)
+    {
+        $failures.Add("Ocr__MaxFileSizeBytes must be greater than zero while OCR is enabled.")
+    }
+
+    $parsedOcrQueueCapacity = 0
+    if (-not [int]::TryParse($ocrQueueCapacity, [ref]$parsedOcrQueueCapacity) -or $parsedOcrQueueCapacity -le 0)
+    {
+        $failures.Add("Ocr__QueueCapacity must be greater than zero while OCR is enabled.")
     }
 }
 else

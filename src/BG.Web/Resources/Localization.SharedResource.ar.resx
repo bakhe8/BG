@@ -44,6 +44,8 @@
   <data name="Home_MinimalSummary" xml:space="preserve"><value>ابدأ من مساحات العمل المسندة لك، ثم افتح الطابور الذي يحتاج إجراء الآن.</value></data>
   <data name="Home_DashboardAttentionSummary" xml:space="preserve"><value>هناك {0} موافقات تنتظر، و{1} طلبات مفتوحة ما زالت مملوكة لك، و{2} ضمانات تقترب من الانتهاء.</value></data>
   <data name="Home_WorkspacesTitle" xml:space="preserve"><value>مساحات العمل المسندة</value></data>
+  <data name="Home_NoCurrentWorkTitle" xml:space="preserve"><value>لا يوجد عمل يحتاج إجراء الآن</value></data>
+  <data name="Home_NoCurrentWorkBody" xml:space="preserve"><value>لا توجد عناصر تنتظر هذا الدور في الوقت الحالي. افتح مساحة العمل الصحيحة فقط عندما يصل عنصر جديد أو عندما تحتاج إلى بدء عمل جديد.</value></data>
   <data name="Home_WorkspacesSummary" xml:space="preserve"><value>تظهر هنا فقط المساحات المخصصة لهذا الحساب.</value></data>
   <data name="Home_FocusSummary" xml:space="preserve"><value>ابدأ بالمساحة التي تحتاج إجراء أولًا.</value></data>
   <data name="Home_SecondarySummary" xml:space="preserve"><value>أبق هذه المساحة تحت النظر بعد إنهاء الطابور الحالي.</value></data>
@@ -94,8 +96,6 @@
   <data name="CurrentDirectionLabel" xml:space="preserve"><value>الاتجاه الحالي:</value></data>
   <data name="CurrentThemeLabel" xml:space="preserve"><value>الهوية المؤسسية الحالية:</value></data>
   <data name="SupportedLanguagesLabel" xml:space="preserve"><value>اللغات المدعومة:</value></data>
-  <data name="HospitalApiReadiness" xml:space="preserve"><value>جاهزية واجهة المستشفى البرمجية</value></data>
-  <data name="HospitalApiLabel" xml:space="preserve"><value>واجهة المستشفى البرمجية:</value></data>
   <data name="Configured" xml:space="preserve"><value>مهيأ</value></data>
   <data name="Pending" xml:space="preserve"><value>قيد الانتظار</value></data>
   <data name="BaseUrlLabel" xml:space="preserve"><value>الرابط الأساسي:</value></data>
@@ -170,6 +170,7 @@
   <data name="identity.password_too_short" xml:space="preserve"><value>يجب ألا تقل كلمة المرور عن 12 حرفًا.</value></data>
   <data name="identity.user_not_found" xml:space="preserve"><value>المستخدم المحدد غير موجود.</value></data>
   <data name="identity.invalid_credentials" xml:space="preserve"><value>اسم المستخدم أو كلمة المرور غير صحيح.</value></data>
+  <data name="identity.login_temporarily_locked" xml:space="preserve"><value>تم إيقاف تسجيل الدخول مؤقتًا بعد محاولات فاشلة متكررة. حاول لاحقًا.</value></data>
   <data name="PermissionGroup_Dashboard" xml:space="preserve"><value>لوحة المعلومات</value></data>
   <data name="PermissionGroup_Intake" xml:space="preserve"><value>إدخال المستندات</value></data>
   <data name="PermissionGroup_Operations" xml:space="preserve"><value>التشغيل</value></data>
@@ -179,7 +180,6 @@
   <data name="PermissionGroup_Dispatch" xml:space="preserve"><value>إرسال الخطابات</value></data>
   <data name="PermissionGroup_Administration" xml:space="preserve"><value>الإدارة</value></data>
   <data name="PermissionGroup_Guarantees" xml:space="preserve"><value>الضمانات</value></data>
-  <data name="Permission_dashboard.view" xml:space="preserve"><value>عرض لوحة المعلومات</value></data>
   <data name="Permission_intake.view" xml:space="preserve"><value>عرض مساحة إدخال المستندات</value></data>
   <data name="Permission_intake.scan" xml:space="preserve"><value>مسح المستندات وربطها</value></data>
   <data name="Permission_intake.verify" xml:space="preserve"><value>مراجعة البيانات المستخرجة من المستند</value></data>
@@ -190,7 +190,6 @@
   <data name="Permission_requests.create" xml:space="preserve"><value>إنشاء طلبات الضمانات</value></data>
   <data name="Permission_approvals.queue.view" xml:space="preserve"><value>عرض طابور الموافقات</value></data>
   <data name="Permission_approvals.sign" xml:space="preserve"><value>اعتماد الطلب أو إرجاعه أو رفضه في المرحلة الحالية</value></data>
-  <data name="Permission_workflow.view" xml:space="preserve"><value>عرض قوالب مسارات الموافقة</value></data>
   <data name="Permission_workflow.manage" xml:space="preserve"><value>إدارة تعريفات مسارات الموافقة</value></data>
   <data name="Permission_dispatch.view" xml:space="preserve"><value>عرض مساحة إرسال الخطابات</value></data>
   <data name="Permission_dispatch.print" xml:space="preserve"><value>طباعة الخطابات الموقعة</value></data>
@@ -200,8 +199,6 @@
   <data name="Permission_users.manage" xml:space="preserve"><value>إدارة المستخدمين</value></data>
   <data name="Permission_roles.view" xml:space="preserve"><value>عرض الأدوار</value></data>
   <data name="Permission_roles.manage" xml:space="preserve"><value>إدارة الأدوار</value></data>
-  <data name="Permission_guarantees.view" xml:space="preserve"><value>عرض الضمانات</value></data>
-  <data name="Permission_guarantees.manage" xml:space="preserve"><value>إدارة الضمانات</value></data>
   <data name="IntakeWorkspace_PageTitle" xml:space="preserve"><value>مساحة إدخال المستندات</value></data>
   <data name="IntakeWorkspace_Heading" xml:space="preserve"><value>مساحة عمل الإدخال بالمسح</value></data>
   <data name="IntakeWorkspace_Summary" xml:space="preserve"><value>هذه المساحة مخصصة للموظف المختص الذي يمسح المستندات الورقية، يراجع البيانات المستخرجة، ثم يحفظ المستند وبياناته معًا ضمن تسليم مضبوط.</value></data>
@@ -527,6 +524,9 @@
   <data name="intake.source_reference_required" xml:space="preserve"><value>أدخل المرجع الخارجي للمستندات المستوردة.</value></data>
   <data name="RequestsWorkspace_PageTitle" xml:space="preserve"><value>مساحة الطلبات</value></data>
   <data name="RequestsWorkspace_Heading" xml:space="preserve"><value>مساحة عمل طلبات الضمانات</value></data>
+  <data name="RequestsWorkspace_RoleSummary" xml:space="preserve"><value>هذا الدور ينشئ طلبات الضمان ويتابع حالتها فقط. لا ينفذ الموافقات ولا الإرسال ولا التشغيل.</value></data>
+  <data name="RequestsWorkspace_StartNowTitle" xml:space="preserve"><value>ابدأ من هنا</value></data>
+  <data name="RequestsWorkspace_StartNowBody" xml:space="preserve"><value>أنشئ طلبًا جديدًا من البطاقة الجانبية، أو اختر أحد طلباتك من القائمة لمتابعته أو تعديله.</value></data>
   <data name="RequestsWorkspace_Summary" xml:space="preserve"><value>هذه المساحة تخص دور إعداد الطلبات فقط. تنشئ سجلات الطلبات وتعرض فقط طلبات المستخدم النشط وما يحدث عليها.</value></data>
   <data name="RequestsWorkspace_PrimaryFlow" xml:space="preserve"><value>مساحة ملكية الطلبات</value></data>
   <data name="RequestsWorkspace_MetricActor" xml:space="preserve"><value>المستخدم النشط</value></data>
@@ -557,6 +557,7 @@
   <data name="RequestsWorkspace_MyRequestsSummary" xml:space="preserve"><value>تعرض القائمة أدناه طلبات المستخدم النشط فقط وما وصلت إليه من تقدم.</value></data>
   <data name="RequestsWorkspace_Empty" xml:space="preserve"><value>لم يتم إنشاء أي طلبات لهذا المستخدم حتى الآن.</value></data>
   <data name="RequestsWorkspace_CorrespondenceLabel" xml:space="preserve"><value>الخطابات المرتبطة</value></data>
+  <data name="RequestsWorkspace_CurrentRequestTitle" xml:space="preserve"><value>طلبك الحالي</value></data>
   <data name="RequestsWorkspace_CurrentStageLabel" xml:space="preserve"><value>مرحلة الموافقة الحالية</value></data>
   <data name="RequestsWorkspace_LastDecisionLabel" xml:space="preserve"><value>آخر قرار في المسار</value></data>
   <data name="RequestsWorkspace_LedgerTitle" xml:space="preserve"><value>سجل الطلب</value></data>
@@ -607,6 +608,7 @@
   <data name="requests.user_context_invalid" xml:space="preserve"><value>مستخدم الطلبات المحدد غير صالح لهذه المساحة.</value></data>
   <data name="requests.guarantee_number_required" xml:space="preserve"><value>رقم الضمان مطلوب.</value></data>
   <data name="requests.guarantee_not_found" xml:space="preserve"><value>تعذر العثور على رقم الضمان.</value></data>
+  <data name="requests.guarantee_not_requestable" xml:space="preserve"><value>لا يمكن إنشاء طلب جديد على ضمان وصل إلى حالة نهائية.</value></data>
   <data name="requests.duplicate_open_request" xml:space="preserve"><value>يوجد طلب مفتوح من النوع نفسه لهذا المستخدم وعلى هذا الضمان.</value></data>
   <data name="requests.requested_amount_required" xml:space="preserve"><value>أدخل المبلغ المطلوب لطلبات التخفيض وما في حكمها.</value></data>
   <data name="requests.requested_expiry_date_required" xml:space="preserve"><value>أدخل تاريخ الانتهاء المطلوب لطلبات التمديد.</value></data>
@@ -627,6 +629,8 @@
   <data name="ApprovalQueue_ItemsTitle" xml:space="preserve"><value>طلبات تنتظر التوقيع</value></data>
   <data name="ApprovalQueue_ItemsSummary" xml:space="preserve"><value>اعتمد أو أرجع أو ارفض فقط الطلبات المرتبطة حاليًا بدور الموقّع المحدد.</value></data>
   <data name="ApprovalQueue_Empty" xml:space="preserve"><value>لا توجد طلبات تنتظر هذا الموقّع حاليًا.</value></data>
+  <data name="ApprovalQueue_EmptyStateTitle" xml:space="preserve"><value>لا توجد موافقات تنتظر هذا الدور حاليًا</value></data>
+  <data name="ApprovalQueue_EmptyStateBody" xml:space="preserve"><value>هذا الطابور فارغ الآن لهذا الدور في الموافقات. عد لاحقًا عندما تصل معاملة جديدة إلى هذه المرحلة.</value></data>
   <data name="ApprovalQueue_RequesterLabel" xml:space="preserve"><value>مقدم الطلب</value></data>
   <data name="ApprovalQueue_RequestChannelLabel" xml:space="preserve"><value>تم طلبه عبر</value></data>
   <data name="ApprovalQueue_CreatedAtLabel" xml:space="preserve"><value>تاريخ الطلب</value></data>
@@ -732,6 +736,38 @@
   <data name="DispatchWorkspace_PrintModeField" xml:space="preserve"><value>وسيلة الطباعة</value></data>
   <data name="DispatchWorkspace_PrintAction" xml:space="preserve"><value>تسجيل الطباعة</value></data>
   <data name="DispatchWorkspace_ReprintAction" xml:space="preserve"><value>تسجيل إعادة الطباعة</value></data>
+  <data name="DispatchLetter_OpenPreviewAction" xml:space="preserve"><value>فتح الخطاب</value></data>
+  <data name="DispatchLetter_PageTitle" xml:space="preserve"><value>معاينة خطاب الإرسال</value></data>
+  <data name="DispatchLetter_BackToWorkspace" xml:space="preserve"><value>العودة إلى الإرسال</value></data>
+  <data name="DispatchLetter_PrintAction" xml:space="preserve"><value>طباعة أو حفظ PDF</value></data>
+  <data name="DispatchLetter_DraftNotice" xml:space="preserve"><value>هذه معاينة عمل للخطاب. لن تُسجل ضمن الإرسال حتى تنفذ الطباعة أو خروج الخطاب من نفس المساحة.</value></data>
+  <data name="DispatchLetter_RecordedNotice" xml:space="preserve"><value>هذه هي النسخة الحالية للخطاب المسجل على هذا الطلب ويمكن طباعتها أو حفظها بصيغة PDF.</value></data>
+  <data name="DispatchLetter_Heading" xml:space="preserve"><value>خطاب صادر إلى البنك</value></data>
+  <data name="DispatchLetter_RequestTypeLabel" xml:space="preserve"><value>نوع الطلب</value></data>
+  <data name="DispatchLetter_ToLabel" xml:space="preserve"><value>إلى</value></data>
+  <data name="DispatchLetter_SubjectLabel" xml:space="preserve"><value>الموضوع</value></data>
+  <data name="DispatchLetter_Subject" xml:space="preserve"><value>طلب بخصوص الضمان البنكي رقم {0}</value></data>
+  <data name="DispatchLetter_ReferenceLabel" xml:space="preserve"><value>مرجع الخطاب</value></data>
+  <data name="DispatchLetter_LetterDateLabel" xml:space="preserve"><value>تاريخ الخطاب</value></data>
+  <data name="DispatchLetter_GuaranteeNumberLabel" xml:space="preserve"><value>رقم الضمان</value></data>
+  <data name="DispatchLetter_PrintCountLabel" xml:space="preserve"><value>مرات الطباعة المسجلة</value></data>
+  <data name="DispatchLetter_Intro" xml:space="preserve"><value>نأمل اتخاذ الإجراء البنكي المناسب على الضمان الموضح أدناه وفق الطلب المعتمد.</value></data>
+  <data name="DispatchLetter_Body_Extend" xml:space="preserve"><value>نرجو تمديد الضمان رقم {0} حتى تاريخ {1} وتزويدنا بخطاب البنك الرسمي المؤكد لذلك.</value></data>
+  <data name="DispatchLetter_Body_Reduce" xml:space="preserve"><value>نرجو تخفيض مبلغ الضمان رقم {0} ليصبح {1} وفق ما تم اعتماده داخل النظام.</value></data>
+  <data name="DispatchLetter_Body_Release" xml:space="preserve"><value>نرجو الإفراج عن الضمان رقم {0} وإقفال التزامه وفق المتطلبات البنكية المعتادة.</value></data>
+  <data name="DispatchLetter_Body_Replace" xml:space="preserve"><value>نرجو استبدال الضمان رقم {0} بضمان بديل مخفض بقيمة {1} واستكمال الخطوات البنكية المرتبطة بذلك.</value></data>
+  <data name="DispatchLetter_Body_VerifyStatus" xml:space="preserve"><value>نرجو إفادتنا بالحالة الحالية للضمان رقم {0} عبر خطاب بنك رسمي.</value></data>
+  <data name="DispatchLetter_Body_Generic" xml:space="preserve"><value>نرجو اتخاذ الإجراء المطلوب على الضمان رقم {0} وفق الطلب المعتمد داخل BG.</value></data>
+  <data name="DispatchLetter_Closing" xml:space="preserve"><value>يرجى اعتماد الخطاب والرد عبر القنوات البنكية الرسمية المعتمدة لدينا.</value></data>
+  <data name="DispatchLetter_BeneficiaryLabel" xml:space="preserve"><value>المستفيد</value></data>
+  <data name="DispatchLetter_PrincipalLabel" xml:space="preserve"><value>العميل / المقاول</value></data>
+  <data name="DispatchLetter_CurrentAmountLabel" xml:space="preserve"><value>المبلغ الحالي</value></data>
+  <data name="DispatchLetter_CurrentExpiryDateLabel" xml:space="preserve"><value>تاريخ الانتهاء الحالي</value></data>
+  <data name="DispatchLetter_RequestedAmountLabel" xml:space="preserve"><value>المبلغ المطلوب</value></data>
+  <data name="DispatchLetter_RequestedExpiryDateLabel" xml:space="preserve"><value>تاريخ الانتهاء المطلوب</value></data>
+  <data name="DispatchLetter_RequestNotesLabel" xml:space="preserve"><value>ملاحظات الطلب</value></data>
+  <data name="DispatchLetter_PreparedByLabel" xml:space="preserve"><value>المعاينة بواسطة</value></data>
+  <data name="DispatchLetter_GeneratedAtLabel" xml:space="preserve"><value>وقت إنشاء المعاينة</value></data>
   <data name="DispatchWorkspace_ReopenAction" xml:space="preserve"><value>إعادة فتح الإرسال</value></data>
   <data name="DispatchWorkspace_PrintSuccess" xml:space="preserve"><value>تم تسجيل طباعة الخطاب {0} للضمان {1} (النسخة {2}).</value></data>
   <data name="DispatchWorkspace_DispatchChannelField" xml:space="preserve"><value>وسيلة الإرسال</value></data>
@@ -927,11 +963,19 @@
   <data name="RequestsWorkspace_State_Cancelled" xml:space="preserve"><value>أُلغي هذا الطلب ولم يعد نشطًا.</value></data>
   <data name="RequestsWorkspace_TrackingSummaryTitle" xml:space="preserve"><value>ملخص التتبع</value></data>
   <data name="RequestsWorkspace_TrackingSummaryHeading" xml:space="preserve"><value>ما الذي يهمك الآن</value></data>
+  <data name="RequestsWorkspace_RequestDetailsTitle" xml:space="preserve"><value>تفاصيل الطلب</value></data>
+  <data name="RequestsWorkspace_RequestDetailsSummary" xml:space="preserve"><value>افتح هذه التفاصيل فقط إذا احتجت الملاحظات أو آخر قرار أو بيانات المستند المرتبط.</value></data>
+  <data name="RequestsWorkspace_InternalSeedNote" xml:space="preserve"><value>تفصيل تجريبي داخلي</value></data>
   <data name="RequestsWorkspace_TrackingSummaryLedger" xml:space="preserve"><value>قيود السجل المسجلة: {0}</value></data>
   <data name="RequestsWorkspace_TrackingSummaryCorrespondence" xml:space="preserve"><value>المراسلات المرتبطة: {0}</value></data>
   <data name="RequestsWorkspace_TrackingSummaryStage" xml:space="preserve"><value>المرحلة الحالية: {0}</value></data>
   <data name="RequestsWorkspace_LedgerSummary" xml:space="preserve"><value>افتح المسار الزمني الكامل فقط عندما تحتاج إلى التتبع التفصيلي.</value></data>
   <data name="RequestsWorkspace_RequestNotesTitle" xml:space="preserve"><value>ملاحظات الطلب</value></data>
+  <data name="RoleName_IntakeOperators" xml:space="preserve"><value>فريق الإدخال</value></data>
+  <data name="RoleName_OperationsReviewers" xml:space="preserve"><value>مراجعو التشغيل</value></data>
+  <data name="RoleName_RequestOwners" xml:space="preserve"><value>ملاك الطلبات</value></data>
+  <data name="RoleName_DispatchOfficers" xml:space="preserve"><value>مسؤولو الإرسال</value></data>
+  <data name="RoleName_SystemAdministrator" xml:space="preserve"><value>مسؤول النظام</value></data>
   <data name="OperationsQueue_WhyHereTitle" xml:space="preserve"><value>لماذا هذا العنصر هنا</value></data>
   <data name="OperationsQueue_WhyHereSummary" xml:space="preserve"><value>ينتظر عنصر المراجعة هذا التشغيل للتحقق من الرد الوارد وإغلاق مسار التسليم الصحيح.</value></data>
   <data name="OperationsQueue_CompleteNowTitle" xml:space="preserve"><value>ما الذي يغلقه الآن</value></data>

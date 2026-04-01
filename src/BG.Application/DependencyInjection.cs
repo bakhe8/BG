@@ -2,6 +2,7 @@ using BG.Application.Contracts.Services;
 using BG.Application.Intake;
 using BG.Application.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using BG.Application.Approvals;
 
 namespace BG.Application;
@@ -36,6 +37,7 @@ public static class DependencyInjection
     private static void AddPlatformServices(IServiceCollection services)
     {
         services.AddSingleton<IArchitectureProfileService, ArchitectureProfileService>();
+        services.TryAddScoped<IExecutionActorAccessor, NullExecutionActorAccessor>();
     }
 
     private static void AddIdentityServices(IServiceCollection services)

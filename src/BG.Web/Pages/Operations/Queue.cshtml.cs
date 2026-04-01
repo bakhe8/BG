@@ -147,23 +147,6 @@ public sealed class QueueModel : PageModel
         return routeValues;
     }
 
-    public string ResolveActionSummary(OperationsReviewItemDto item)
-    {
-        if (!item.SupportsRequestMatching)
-        {
-            return _localizer["OperationsQueue_NoApplyActionSummary"].Value;
-        }
-
-        if (IsApplyBlocked(item))
-        {
-            return _localizer[ResolveApplyBlockedReasonResourceKey(item)!].Value;
-        }
-
-        return item.MatchSuggestions.Count == 0
-            ? _localizer["OperationsQueue_NoMatchSuggestions"].Value
-            : _localizer["OperationsQueue_MatchFormSummary"].Value;
-    }
-
     public string ResolveSuggestionOptionLabel(OperationsReviewMatchSuggestionDto suggestion)
     {
         var label = $"{_localizer[suggestion.RequestTypeResourceKey].Value} - {_localizer[suggestion.StatusResourceKey].Value} ({suggestion.Score})";

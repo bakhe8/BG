@@ -194,6 +194,156 @@ public sealed class GuaranteeAggregateTests
     }
 
     [Fact]
+    public void Older_applied_bank_confirmation_cannot_be_reopened_after_a_later_reapplication()
+    {
+        var guarantee = CreateGuarantee();
+        var request = guarantee.CreateRequest(
+            RequestsUserId,
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 6, 30),
+            notes: "Reapply extension",
+            createdAtUtc: DateTimeOffset.UtcNow);
+        ApproveForDispatch(request);
+
+        var firstDocument = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.BankResponse,
+            "bank-response-1.pdf",
+            "scans/2026/03/bank-response-1.pdf",
+            1,
+            DateTimeOffset.UtcNow);
+        var firstResponse = guarantee.RegisterCorrespondence(
+            request.Id,
+            GuaranteeCorrespondenceDirection.Incoming,
+            GuaranteeCorrespondenceKind.BankConfirmation,
+            "BNK-001",
+            new DateOnly(2026, 3, 15),
+            firstDocument.Id,
+            notes: "First confirmation",
+            registeredAtUtc: DateTimeOffset.UtcNow);
+
+        guarantee.ApplyBankConfirmation(
+            request.Id,
+            firstResponse.Id,
+            DateTimeOffset.UtcNow,
+            confirmedExpiryDate: new DateOnly(2027, 6, 30));
+
+        guarantee.ReopenAppliedBankConfirmation(
+            request.Id,
+            firstResponse.Id,
+            DateTimeOffset.UtcNow.AddMinutes(1),
+            RequestsUserId,
+            "Operations Reviewer",
+            "Need corrected evidence.");
+
+        var secondDocument = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.BankResponse,
+            "bank-response-2.pdf",
+            "scans/2026/03/bank-response-2.pdf",
+            1,
+            DateTimeOffset.UtcNow.AddMinutes(2));
+        var secondResponse = guarantee.RegisterCorrespondence(
+            request.Id,
+            GuaranteeCorrespondenceDirection.Incoming,
+            GuaranteeCorrespondenceKind.BankConfirmation,
+            "BNK-002",
+            new DateOnly(2026, 3, 16),
+            secondDocument.Id,
+            notes: "Corrected confirmation",
+            registeredAtUtc: DateTimeOffset.UtcNow.AddMinutes(2));
+
+        guarantee.ApplyBankConfirmation(
+            request.Id,
+            secondResponse.Id,
+            DateTimeOffset.UtcNow.AddMinutes(3),
+            confirmedExpiryDate: new DateOnly(2027, 7, 31));
+
+        Assert.Throws<InvalidOperationException>(() => guarantee.ReopenAppliedBankConfirmation(
+            request.Id,
+            firstResponse.Id,
+            DateTimeOffset.UtcNow.AddMinutes(4),
+            RequestsUserId,
+            "Operations Reviewer",
+            "Should be blocked."));
+    }
+
+    [Fact]
+    public void Terminal_guarantees_reject_new_requests()
+    {
+        var guarantee = CreateGuarantee();
+        typeof(Guarantee)
+            .GetProperty(nameof(Guarantee.Status))!
+            .SetValue(guarantee, GuaranteeStatus.Released);
+
+        Assert.Throws<InvalidOperationException>(() => guarantee.CreateRequest(
+            RequestsUserId,
+            GuaranteeRequestType.Release,
+            requestedAmount: null,
+            requestedExpiryDate: null,
+            notes: "Should not be allowed",
+            createdAtUtc: DateTimeOffset.UtcNow));
+    }
+
+    [Fact]
+    public void Applying_bank_confirmation_only_backfills_orphan_evidence_for_the_same_incoming_response()
+    {
+        var guarantee = CreateGuarantee();
+        var request = guarantee.CreateRequest(
+            RequestsUserId,
+            GuaranteeRequestType.Extend,
+            requestedAmount: null,
+            requestedExpiryDate: new DateOnly(2027, 6, 30),
+            notes: "Targeted evidence linking",
+            createdAtUtc: DateTimeOffset.UtcNow);
+        ApproveForDispatch(request);
+
+        var unrelatedDocument = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.SupportingDocument,
+            "unrelated-support.pdf",
+            "scans/2026/03/unrelated-support.pdf",
+            1,
+            DateTimeOffset.UtcNow.AddMinutes(-2));
+
+        var bankResponseDocument = guarantee.RegisterScannedDocument(
+            GuaranteeDocumentType.BankResponse,
+            "bank-response.pdf",
+            "scans/2026/03/bank-response.pdf",
+            1,
+            DateTimeOffset.UtcNow.AddMinutes(-1));
+
+        var incomingResponse = guarantee.RegisterCorrespondence(
+            requestId: null,
+            GuaranteeCorrespondenceDirection.Incoming,
+            GuaranteeCorrespondenceKind.BankConfirmation,
+            "BNK-900",
+            new DateOnly(2026, 3, 18),
+            bankResponseDocument.Id,
+            notes: "Incoming response not yet linked",
+            registeredAtUtc: DateTimeOffset.UtcNow);
+
+        guarantee.ApplyBankConfirmation(
+            request.Id,
+            incomingResponse.Id,
+            DateTimeOffset.UtcNow.AddMinutes(1),
+            confirmedExpiryDate: new DateOnly(2027, 6, 30));
+
+        var linkedDocumentEvent = Assert.Single(guarantee.Events.Where(guaranteeEvent =>
+            guaranteeEvent.EventType == GuaranteeEventType.DocumentCaptured &&
+            guaranteeEvent.GuaranteeDocumentId == bankResponseDocument.Id));
+        Assert.Equal(request.Id, linkedDocumentEvent.GuaranteeRequestId);
+
+        var linkedCorrespondenceEvent = Assert.Single(guarantee.Events.Where(guaranteeEvent =>
+            guaranteeEvent.EventType == GuaranteeEventType.IncomingCorrespondenceRecorded &&
+            guaranteeEvent.GuaranteeCorrespondenceId == incomingResponse.Id));
+        Assert.Equal(request.Id, linkedCorrespondenceEvent.GuaranteeRequestId);
+
+        var unrelatedDocumentEvent = Assert.Single(guarantee.Events.Where(guaranteeEvent =>
+            guaranteeEvent.EventType == GuaranteeEventType.DocumentCaptured &&
+            guaranteeEvent.GuaranteeDocumentId == unrelatedDocument.Id));
+        Assert.Null(unrelatedDocumentEvent.GuaranteeRequestId);
+    }
+
+    [Fact]
     public void Printing_and_dispatching_outgoing_letter_records_distinct_ledger_entries()
     {
         var guarantee = CreateGuarantee();

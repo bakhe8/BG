@@ -32,15 +32,17 @@ Do not rely on repository defaults in production. Configure these values through
   Absolute path to persisted ASP.NET Core data-protection keys.
 - `AllowedHosts`
   Explicit host list. Wildcard `*` is rejected in production.
+- `ReverseProxy:KnownProxies` or `ReverseProxy:KnownNetworks`
+  Explicit trusted reverse-proxy addresses or CIDR ranges for forwarded-header processing.
 
 ## Optional Configuration
 
 - `Identity:BootstrapAdmin:*`
   Only configure for controlled first-run bootstrap or break-glass access.
+- `Identity:LoginLockout:*`
+  Override only when the environment requires thresholds different from the built-in lockout defaults.
 - `Ocr:*`
-  Leave `Ocr:Enabled=false` unless the production node has the Python runtime, worker script, and model dependencies installed locally.
-- `HospitalApi:*`
-  Configure when external hospital integration is enabled for the environment.
+  Leave `Ocr:Enabled=false` unless the production node has the Python runtime, worker script, and model dependencies installed locally. When enabled, configure `Ocr:PythonExecutablePath`, `Ocr:WorkerScriptPath`, `Ocr:TimeoutSeconds`, `Ocr:MaxFileSizeBytes`, and `Ocr:QueueCapacity`.
 
 ## Production Guards
 
@@ -49,17 +51,21 @@ When `ASPNETCORE_ENVIRONMENT=Production`, the application now fails fast if any 
 - `AllowedHosts` is blank or contains `*`
 - `Storage:DocumentsRoot` is not configured
 - `DataProtection:KeysPath` is not configured
+- neither `ReverseProxy:KnownProxies` nor `ReverseProxy:KnownNetworks` is configured
 - `OperationalSeed:Enabled=true`
 - `Swagger:Enabled=true`
 - `Ocr:Enabled=true` while the configured Python executable or worker script is missing
+- `Ocr:Enabled=true` while `Ocr:MaxFileSizeBytes` or `Ocr:QueueCapacity` is non-positive
 
 ## Recommended IIS / Host Baseline
 
 - Terminate TLS before the application and serve only over HTTPS.
 - Preserve `X-Forwarded-For` and `X-Forwarded-Proto`.
+- Configure only the proxy IPs or networks that are actually allowed to forward headers to the app.
 - Persist the documents root and data-protection keys outside the deployment directory.
 - Run database migrations before or during startup only under controlled deployment procedures.
 - Keep OCR worker dependencies on the same host when OCR is enabled.
+- Operational demo data is no longer generated from normal startup. It can run only through the explicit seed command outside production.
 - Use the server readiness checklist in [production_server_checklist.md](deployment/production_server_checklist.md) before each deployment.
 
 ## Smoke Verification

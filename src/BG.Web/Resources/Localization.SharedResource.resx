@@ -44,6 +44,8 @@
   <data name="Home_MinimalSummary" xml:space="preserve"><value>Start from your assigned workspaces, then open the queue that needs action now.</value></data>
   <data name="Home_DashboardAttentionSummary" xml:space="preserve"><value>{0} approvals are waiting, {1} open requests are still owned by you, and {2} guarantees are nearing expiry.</value></data>
   <data name="Home_WorkspacesTitle" xml:space="preserve"><value>Assigned workspaces</value></data>
+  <data name="Home_NoCurrentWorkTitle" xml:space="preserve"><value>No work needs action right now.</value></data>
+  <data name="Home_NoCurrentWorkBody" xml:space="preserve"><value>Nothing is waiting for this role at the moment. Open the correct workspace only when a new item arrives or when you need to start new work.</value></data>
   <data name="Home_WorkspacesSummary" xml:space="preserve"><value>Only the areas assigned to this account are shown here.</value></data>
   <data name="Home_FocusSummary" xml:space="preserve"><value>Open the area that needs action first.</value></data>
   <data name="Home_SecondarySummary" xml:space="preserve"><value>Keep this area in view after the current queue is cleared.</value></data>
@@ -94,8 +96,6 @@
   <data name="CurrentDirectionLabel" xml:space="preserve"><value>Current direction:</value></data>
   <data name="CurrentThemeLabel" xml:space="preserve"><value>Current institutional shell:</value></data>
   <data name="SupportedLanguagesLabel" xml:space="preserve"><value>Supported languages:</value></data>
-  <data name="HospitalApiReadiness" xml:space="preserve"><value>Hospital API readiness</value></data>
-  <data name="HospitalApiLabel" xml:space="preserve"><value>Hospital API:</value></data>
   <data name="Configured" xml:space="preserve"><value>Configured</value></data>
   <data name="Pending" xml:space="preserve"><value>Pending</value></data>
   <data name="BaseUrlLabel" xml:space="preserve"><value>Base URL:</value></data>
@@ -170,6 +170,7 @@
   <data name="identity.password_too_short" xml:space="preserve"><value>Password must be at least 12 characters.</value></data>
   <data name="identity.user_not_found" xml:space="preserve"><value>The selected user was not found.</value></data>
   <data name="identity.invalid_credentials" xml:space="preserve"><value>Invalid username or password.</value></data>
+  <data name="identity.login_temporarily_locked" xml:space="preserve"><value>Sign-in is temporarily locked after repeated failed attempts. Try again later.</value></data>
   <data name="PermissionGroup_Dashboard" xml:space="preserve"><value>Dashboard</value></data>
   <data name="PermissionGroup_Intake" xml:space="preserve"><value>Document intake</value></data>
   <data name="PermissionGroup_Operations" xml:space="preserve"><value>Operations</value></data>
@@ -179,7 +180,6 @@
   <data name="PermissionGroup_Dispatch" xml:space="preserve"><value>Dispatch</value></data>
   <data name="PermissionGroup_Administration" xml:space="preserve"><value>Administration</value></data>
   <data name="PermissionGroup_Guarantees" xml:space="preserve"><value>Guarantees</value></data>
-  <data name="Permission_dashboard.view" xml:space="preserve"><value>View dashboard</value></data>
   <data name="Permission_intake.view" xml:space="preserve"><value>View intake workspace</value></data>
   <data name="Permission_intake.scan" xml:space="preserve"><value>Scan and attach documents</value></data>
   <data name="Permission_intake.verify" xml:space="preserve"><value>Verify extracted document data</value></data>
@@ -190,7 +190,6 @@
   <data name="Permission_requests.create" xml:space="preserve"><value>Create guarantee requests</value></data>
   <data name="Permission_approvals.queue.view" xml:space="preserve"><value>View approval queue</value></data>
   <data name="Permission_approvals.sign" xml:space="preserve"><value>Approve, return, or reject requests at the current stage</value></data>
-  <data name="Permission_workflow.view" xml:space="preserve"><value>View approval workflow templates</value></data>
   <data name="Permission_workflow.manage" xml:space="preserve"><value>Manage approval workflow definitions</value></data>
   <data name="Permission_dispatch.view" xml:space="preserve"><value>View dispatch workspace</value></data>
   <data name="Permission_dispatch.print" xml:space="preserve"><value>Print signed letters</value></data>
@@ -200,8 +199,6 @@
   <data name="Permission_users.manage" xml:space="preserve"><value>Manage users</value></data>
   <data name="Permission_roles.view" xml:space="preserve"><value>View roles</value></data>
   <data name="Permission_roles.manage" xml:space="preserve"><value>Manage roles</value></data>
-  <data name="Permission_guarantees.view" xml:space="preserve"><value>View guarantees</value></data>
-  <data name="Permission_guarantees.manage" xml:space="preserve"><value>Manage guarantees</value></data>
   <data name="IntakeWorkspace_PageTitle" xml:space="preserve"><value>Intake Workspace</value></data>
   <data name="IntakeWorkspace_Heading" xml:space="preserve"><value>Document intake workspace</value></data>
   <data name="IntakeWorkspace_Summary" xml:space="preserve"><value>This workspace is dedicated to the specialist who scans paper documents, verifies the extracted data, and saves the document and its data in one controlled step.</value></data>
@@ -527,6 +524,9 @@
   <data name="intake.source_reference_required" xml:space="preserve"><value>Enter the external source reference for imported documents.</value></data>
   <data name="RequestsWorkspace_PageTitle" xml:space="preserve"><value>Requests Workspace</value></data>
   <data name="RequestsWorkspace_Heading" xml:space="preserve"><value>Guarantee requests workspace</value></data>
+  <data name="RequestsWorkspace_RoleSummary" xml:space="preserve"><value>This role creates guarantee requests and tracks their status only. It does not perform approvals, dispatch, or operations work.</value></data>
+  <data name="RequestsWorkspace_StartNowTitle" xml:space="preserve"><value>Start here</value></data>
+  <data name="RequestsWorkspace_StartNowBody" xml:space="preserve"><value>Create a new request from the side card, or choose one of your requests from the list to follow it or revise it.</value></data>
   <data name="RequestsWorkspace_Summary" xml:space="preserve"><value>This workspace belongs to the request-preparation role only. It creates request records and shows only the active user's own requests and their progress.</value></data>
   <data name="RequestsWorkspace_PrimaryFlow" xml:space="preserve"><value>Request ownership workspace</value></data>
   <data name="RequestsWorkspace_MetricActor" xml:space="preserve"><value>Active user</value></data>
@@ -557,6 +557,7 @@
   <data name="RequestsWorkspace_MyRequestsSummary" xml:space="preserve"><value>The list below shows only the active user's requests and their current progress.</value></data>
   <data name="RequestsWorkspace_Empty" xml:space="preserve"><value>No requests have been created for this user yet.</value></data>
   <data name="RequestsWorkspace_CorrespondenceLabel" xml:space="preserve"><value>Linked correspondence</value></data>
+  <data name="RequestsWorkspace_CurrentRequestTitle" xml:space="preserve"><value>Current request</value></data>
   <data name="RequestsWorkspace_CurrentStageLabel" xml:space="preserve"><value>Current approval stage</value></data>
   <data name="RequestsWorkspace_LastDecisionLabel" xml:space="preserve"><value>Last workflow decision</value></data>
   <data name="RequestsWorkspace_LedgerTitle" xml:space="preserve"><value>Request history</value></data>
@@ -607,6 +608,7 @@
   <data name="requests.user_context_invalid" xml:space="preserve"><value>The selected request user is not valid for this workspace.</value></data>
   <data name="requests.guarantee_number_required" xml:space="preserve"><value>Guarantee number is required.</value></data>
   <data name="requests.guarantee_not_found" xml:space="preserve"><value>The guarantee number could not be found.</value></data>
+  <data name="requests.guarantee_not_requestable" xml:space="preserve"><value>New requests cannot be created against a guarantee in a terminal state.</value></data>
   <data name="requests.duplicate_open_request" xml:space="preserve"><value>An open request of the same type already exists for this user and guarantee.</value></data>
   <data name="requests.requested_amount_required" xml:space="preserve"><value>Enter the requested amount for reduction-based requests.</value></data>
   <data name="requests.requested_expiry_date_required" xml:space="preserve"><value>Enter the requested expiry date for extension requests.</value></data>
@@ -627,6 +629,8 @@
   <data name="ApprovalQueue_ItemsTitle" xml:space="preserve"><value>Requests waiting for signature</value></data>
   <data name="ApprovalQueue_ItemsSummary" xml:space="preserve"><value>Approve, return, or reject only the requests that are currently assigned to the selected approver's role.</value></data>
   <data name="ApprovalQueue_Empty" xml:space="preserve"><value>No requests are waiting for this approver right now.</value></data>
+  <data name="ApprovalQueue_EmptyStateTitle" xml:space="preserve"><value>No approvals are waiting for this role right now.</value></data>
+  <data name="ApprovalQueue_EmptyStateBody" xml:space="preserve"><value>This queue is currently empty for the selected approval role. Return later when a request reaches this stage.</value></data>
   <data name="ApprovalQueue_RequesterLabel" xml:space="preserve"><value>Requester</value></data>
   <data name="ApprovalQueue_RequestChannelLabel" xml:space="preserve"><value>Requested via</value></data>
   <data name="ApprovalQueue_CreatedAtLabel" xml:space="preserve"><value>Requested at</value></data>
@@ -732,6 +736,38 @@
   <data name="DispatchWorkspace_PrintModeField" xml:space="preserve"><value>Print mode</value></data>
   <data name="DispatchWorkspace_PrintAction" xml:space="preserve"><value>Record print</value></data>
   <data name="DispatchWorkspace_ReprintAction" xml:space="preserve"><value>Record reprint</value></data>
+  <data name="DispatchLetter_OpenPreviewAction" xml:space="preserve"><value>Open letter</value></data>
+  <data name="DispatchLetter_PageTitle" xml:space="preserve"><value>Dispatch letter preview</value></data>
+  <data name="DispatchLetter_BackToWorkspace" xml:space="preserve"><value>Back to dispatch</value></data>
+  <data name="DispatchLetter_PrintAction" xml:space="preserve"><value>Print or save PDF</value></data>
+  <data name="DispatchLetter_DraftNotice" xml:space="preserve"><value>This is a working preview of the letter. It is not recorded in dispatch until you print it or record the handoff from the workspace.</value></data>
+  <data name="DispatchLetter_RecordedNotice" xml:space="preserve"><value>This is the current recorded version of the outgoing letter and it can now be printed or saved as PDF.</value></data>
+  <data name="DispatchLetter_Heading" xml:space="preserve"><value>Outgoing letter to the bank</value></data>
+  <data name="DispatchLetter_RequestTypeLabel" xml:space="preserve"><value>Request type</value></data>
+  <data name="DispatchLetter_ToLabel" xml:space="preserve"><value>To</value></data>
+  <data name="DispatchLetter_SubjectLabel" xml:space="preserve"><value>Subject</value></data>
+  <data name="DispatchLetter_Subject" xml:space="preserve"><value>Request regarding bank guarantee {0}</value></data>
+  <data name="DispatchLetter_ReferenceLabel" xml:space="preserve"><value>Letter reference</value></data>
+  <data name="DispatchLetter_LetterDateLabel" xml:space="preserve"><value>Letter date</value></data>
+  <data name="DispatchLetter_GuaranteeNumberLabel" xml:space="preserve"><value>Guarantee number</value></data>
+  <data name="DispatchLetter_PrintCountLabel" xml:space="preserve"><value>Recorded prints</value></data>
+  <data name="DispatchLetter_Intro" xml:space="preserve"><value>Please process the approved bank guarantee request shown below.</value></data>
+  <data name="DispatchLetter_Body_Extend" xml:space="preserve"><value>Please extend guarantee {0} until {1} and confirm the change through official bank correspondence.</value></data>
+  <data name="DispatchLetter_Body_Reduce" xml:space="preserve"><value>Please reduce guarantee {0} to {1} in line with the approved request.</value></data>
+  <data name="DispatchLetter_Body_Release" xml:space="preserve"><value>Please release guarantee {0} and close the related obligation through the normal bank process.</value></data>
+  <data name="DispatchLetter_Body_Replace" xml:space="preserve"><value>Please replace guarantee {0} with a reduced guarantee for {1} and complete the associated bank issuance steps.</value></data>
+  <data name="DispatchLetter_Body_VerifyStatus" xml:space="preserve"><value>Please confirm the current status of guarantee {0} through official bank correspondence.</value></data>
+  <data name="DispatchLetter_Body_Generic" xml:space="preserve"><value>Please act on guarantee {0} in line with the approved BG request.</value></data>
+  <data name="DispatchLetter_Closing" xml:space="preserve"><value>Please process this request and reply through the approved bank channels.</value></data>
+  <data name="DispatchLetter_BeneficiaryLabel" xml:space="preserve"><value>Beneficiary</value></data>
+  <data name="DispatchLetter_PrincipalLabel" xml:space="preserve"><value>Principal / contractor</value></data>
+  <data name="DispatchLetter_CurrentAmountLabel" xml:space="preserve"><value>Current amount</value></data>
+  <data name="DispatchLetter_CurrentExpiryDateLabel" xml:space="preserve"><value>Current expiry date</value></data>
+  <data name="DispatchLetter_RequestedAmountLabel" xml:space="preserve"><value>Requested amount</value></data>
+  <data name="DispatchLetter_RequestedExpiryDateLabel" xml:space="preserve"><value>Requested expiry date</value></data>
+  <data name="DispatchLetter_RequestNotesLabel" xml:space="preserve"><value>Request notes</value></data>
+  <data name="DispatchLetter_PreparedByLabel" xml:space="preserve"><value>Preview prepared by</value></data>
+  <data name="DispatchLetter_GeneratedAtLabel" xml:space="preserve"><value>Preview generated at</value></data>
   <data name="DispatchWorkspace_ReopenAction" xml:space="preserve"><value>Reopen dispatch</value></data>
   <data name="DispatchWorkspace_PrintSuccess" xml:space="preserve"><value>Outgoing letter {0} was printed for guarantee {1} (copy {2}).</value></data>
   <data name="DispatchWorkspace_DispatchChannelField" xml:space="preserve"><value>Dispatch channel</value></data>
@@ -927,11 +963,19 @@
   <data name="RequestsWorkspace_State_Cancelled" xml:space="preserve"><value>This request was cancelled and is no longer active.</value></data>
   <data name="RequestsWorkspace_TrackingSummaryTitle" xml:space="preserve"><value>Tracking summary</value></data>
   <data name="RequestsWorkspace_TrackingSummaryHeading" xml:space="preserve"><value>What you need to know now</value></data>
+  <data name="RequestsWorkspace_RequestDetailsTitle" xml:space="preserve"><value>Request details</value></data>
+  <data name="RequestsWorkspace_RequestDetailsSummary" xml:space="preserve"><value>Open this only when you need notes, the last decision, or the linked document details.</value></data>
+  <data name="RequestsWorkspace_InternalSeedNote" xml:space="preserve"><value>Internal trial note</value></data>
   <data name="RequestsWorkspace_TrackingSummaryLedger" xml:space="preserve"><value>Ledger entries recorded: {0}</value></data>
   <data name="RequestsWorkspace_TrackingSummaryCorrespondence" xml:space="preserve"><value>Related correspondence items: {0}</value></data>
   <data name="RequestsWorkspace_TrackingSummaryStage" xml:space="preserve"><value>Current stage: {0}</value></data>
   <data name="RequestsWorkspace_LedgerSummary" xml:space="preserve"><value>Open the full request timeline only when you need the detailed trace.</value></data>
   <data name="RequestsWorkspace_RequestNotesTitle" xml:space="preserve"><value>Request notes</value></data>
+  <data name="RoleName_IntakeOperators" xml:space="preserve"><value>Intake team</value></data>
+  <data name="RoleName_OperationsReviewers" xml:space="preserve"><value>Operations reviewers</value></data>
+  <data name="RoleName_RequestOwners" xml:space="preserve"><value>Request owners</value></data>
+  <data name="RoleName_DispatchOfficers" xml:space="preserve"><value>Dispatch officers</value></data>
+  <data name="RoleName_SystemAdministrator" xml:space="preserve"><value>System administrator</value></data>
   <data name="OperationsQueue_WhyHereTitle" xml:space="preserve"><value>Why this item is here</value></data>
   <data name="OperationsQueue_WhyHereSummary" xml:space="preserve"><value>This review item is waiting for operations to validate the incoming response and close the correct operational transition.</value></data>
   <data name="OperationsQueue_CompleteNowTitle" xml:space="preserve"><value>What completes it now</value></data>

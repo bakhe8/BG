@@ -10,6 +10,13 @@ public interface IDispatchWorkspaceService
         int pageNumber = 1,
         CancellationToken cancellationToken = default);
 
+    Task<OperationResult<DispatchLetterPreviewDto>> GetLetterPreviewAsync(
+        Guid dispatcherUserId,
+        Guid requestId,
+        string? referenceNumber,
+        string? letterDate,
+        CancellationToken cancellationToken = default);
+
     Task<OperationResult<PrintDispatchLetterReceiptDto>> PrintDispatchLetterAsync(
         PrintDispatchLetterCommand command,
         CancellationToken cancellationToken = default);

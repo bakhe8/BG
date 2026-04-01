@@ -10,6 +10,7 @@ using Microsoft.Extensions.Localization;
 namespace BG.Web.Controllers;
 
 [ApiController]
+[AutoValidateAntiforgeryToken]
 [Route("api/admin/identity")]
 public sealed class IdentityAdministrationController : ControllerBase
 {

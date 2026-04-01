@@ -79,7 +79,13 @@ public static class DatabaseInitializationExtensions
         }
 
         await SeedBootstrapAdminAsync(dbContext, configuration, passwordHasher, cancellationToken);
+    }
 
+    public static async Task RunOperationalSeedAsync(
+        this IServiceProvider serviceProvider,
+        CancellationToken cancellationToken = default)
+    {
+        using var scope = serviceProvider.CreateScope();
         var operationalSeedService = scope.ServiceProvider.GetRequiredService<OperationalSeedService>();
         await operationalSeedService.SeedAsync(cancellationToken);
     }

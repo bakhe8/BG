@@ -33,6 +33,26 @@ public sealed class DispatchWorkspaceServiceTests
     }
 
     [Fact]
+    public async Task GetLetterPreviewAsync_returns_preview_for_ready_request()
+    {
+        var fixture = DispatchFixture.Create();
+        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request));
+
+        var result = await service.GetLetterPreviewAsync(
+            fixture.Actor.Id,
+            fixture.Request.Id,
+            "LTR-9000",
+            "2026-03-12");
+
+        Assert.True(result.Succeeded);
+        Assert.NotNull(result.Value);
+        Assert.Equal(fixture.Request.Guarantee.GuaranteeNumber, result.Value!.GuaranteeNumber);
+        Assert.Equal("LTR-9000", result.Value.ReferenceNumber);
+        Assert.Equal(new DateOnly(2026, 3, 12), result.Value.LetterDate);
+        Assert.True(result.Value.IsDraftPreview);
+    }
+
+    [Fact]
     public async Task PrintDispatchLetterAsync_records_print_without_moving_request_out_of_ready_for_dispatch()
     {
         var fixture = DispatchFixture.Create();

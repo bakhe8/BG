@@ -68,7 +68,7 @@ public sealed class HomeDashboardServiceTests
                     "dashboard.user",
                     "Dashboard User",
                     ["Requests"],
-                    ["dashboard.view", "requests.view", "requests.create", "dispatch.view"])));
+                    ["requests.view", "requests.create", "dispatch.view"])));
 
         var snapshot = await service.GetSnapshotAsync(userId);
 
@@ -76,7 +76,7 @@ public sealed class HomeDashboardServiceTests
         Assert.Equal("Dashboard User", snapshot.DisplayName);
         Assert.True(snapshot.CanViewRequests);
         Assert.True(snapshot.CanViewDispatch);
-        Assert.True(snapshot.CanViewIntake);
+        Assert.False(snapshot.CanViewIntake);
         Assert.True(snapshot.CanViewExpiringGuarantees);
         Assert.False(snapshot.CanViewApprovals);
         Assert.False(snapshot.CanViewOperations);
@@ -85,7 +85,7 @@ public sealed class HomeDashboardServiceTests
         Assert.NotNull(repository.LastQuery);
         Assert.True(repository.LastQuery!.IncludeRequests);
         Assert.True(repository.LastQuery.IncludeDispatch);
-        Assert.True(repository.LastQuery.IncludeIntake);
+        Assert.False(repository.LastQuery.IncludeIntake);
         Assert.True(repository.LastQuery.IncludeExpiringGuarantees);
         Assert.False(repository.LastQuery.IncludeApprovals);
         Assert.False(repository.LastQuery.IncludeOperations);

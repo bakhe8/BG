@@ -5,8 +5,46 @@
   align-items: start;
 }
 
+.intake-verify-card,
+.intake-review-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.intake-review-inline {
+  margin-bottom: 0.4rem;
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.intake-review-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+  padding: 0.9rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--border) 76%, white);
+}
+
+.intake-review-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.intake-field-review-note {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #b54708;
+}
+
 @media (max-width: 991.98px) {
   .intake-surface-grid {
     grid-template-columns: 1fr;
+  }
+
+  .intake-review-row {
+    flex-direction: column;
   }
 }

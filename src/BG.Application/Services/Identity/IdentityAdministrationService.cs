@@ -4,6 +4,7 @@ using BG.Application.Contracts.Services;
 using BG.Application.Identity;
 using BG.Application.Models.Identity;
 using BG.Domain.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace BG.Application.Services;
 
@@ -12,13 +13,19 @@ internal sealed class IdentityAdministrationService : IIdentityAdministrationSer
     private const int MinimumPasswordLength = 12;
     private readonly IIdentityAdministrationRepository _repository;
     private readonly ILocalPasswordHasher _passwordHasher;
+    private readonly IExecutionActorAccessor _executionActorAccessor;
+    private readonly ILogger<IdentityAdministrationService> _logger;
 
     public IdentityAdministrationService(
         IIdentityAdministrationRepository repository,
-        ILocalPasswordHasher passwordHasher)
+        ILocalPasswordHasher passwordHasher,
+        IExecutionActorAccessor executionActorAccessor,
+        ILogger<IdentityAdministrationService> logger)
     {
         _repository = repository;
         _passwordHasher = passwordHasher;
+        _executionActorAccessor = executionActorAccessor;
+        _logger = logger;
     }
 
     public async Task<IReadOnlyList<UserSummaryDto>> GetUsersAsync(CancellationToken cancellationToken = default)
@@ -91,6 +98,7 @@ internal sealed class IdentityAdministrationService : IIdentityAdministrationSer
             return OperationResult<UserSummaryDto>.Failure(IdentityErrorCodes.RoleNotFound);
         }
 
+        var now = DateTimeOffset.UtcNow;
         var user = new User(
             command.Username,
             command.DisplayName,
@@ -98,13 +106,14 @@ internal sealed class IdentityAdministrationService : IIdentityAdministrationSer
             externalId: null,
             UserSourceType.Local,
             isActive: true,
-            createdAtUtc: DateTimeOffset.UtcNow);
+            createdAtUtc: now);
 
-        user.SetLocalPassword(_passwordHasher.HashPassword(command.InitialPassword), DateTimeOffset.UtcNow);
+        user.SetLocalPassword(_passwordHasher.HashPassword(command.InitialPassword), now);
         user.AssignRoles(roles);
 
         await _repository.AddUserAsync(user, cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
+        AuditUserCreated(user, roles);
 
         return OperationResult<UserSummaryDto>.Success(MapUser(user));
     }
@@ -132,6 +141,7 @@ internal sealed class IdentityAdministrationService : IIdentityAdministrationSer
 
         user.SetLocalPassword(_passwordHasher.HashPassword(command.NewPassword), DateTimeOffset.UtcNow);
         await _repository.SaveChangesAsync(cancellationToken);
+        AuditPasswordChanged(user);
 
         return OperationResult<UserSummaryDto>.Success(MapUser(user));
     }
@@ -170,8 +180,54 @@ internal sealed class IdentityAdministrationService : IIdentityAdministrationSer
 
         await _repository.AddRoleAsync(role, cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
+        AuditRoleCreated(role, permissionKeys);
 
         return OperationResult<RoleSummaryDto>.Success(MapRole(role));
+    }
+
+    private void AuditUserCreated(User user, IReadOnlyList<Role> roles)
+    {
+        var actor = _executionActorAccessor.GetCurrentActor();
+        var assignedRoles = roles
+            .Select(role => role.Name)
+            .OrderBy(name => name, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        _logger.LogInformation(
+            "Identity audit: local user created and roles assigned. ActorUserId={ActorUserId} ActorUsername={ActorUsername} ActorDisplayName={ActorDisplayName} TargetUserId={TargetUserId} TargetUsername={TargetUsername} AssignedRoles={AssignedRoles}",
+            actor?.UserId,
+            actor?.Username,
+            actor?.DisplayName,
+            user.Id,
+            user.Username,
+            assignedRoles);
+    }
+
+    private void AuditPasswordChanged(User user)
+    {
+        var actor = _executionActorAccessor.GetCurrentActor();
+
+        _logger.LogInformation(
+            "Identity audit: local password changed. ActorUserId={ActorUserId} ActorUsername={ActorUsername} ActorDisplayName={ActorDisplayName} TargetUserId={TargetUserId} TargetUsername={TargetUsername}",
+            actor?.UserId,
+            actor?.Username,
+            actor?.DisplayName,
+            user.Id,
+            user.Username);
+    }
+
+    private void AuditRoleCreated(Role role, IReadOnlyList<string> permissionKeys)
+    {
+        var actor = _executionActorAccessor.GetCurrentActor();
+
+        _logger.LogInformation(
+            "Identity audit: role created. ActorUserId={ActorUserId} ActorUsername={ActorUsername} ActorDisplayName={ActorDisplayName} RoleId={RoleId} RoleName={RoleName} PermissionKeys={PermissionKeys}",
+            actor?.UserId,
+            actor?.Username,
+            actor?.DisplayName,
+            role.Id,
+            role.Name,
+            permissionKeys);
     }
 
     private static UserSummaryDto MapUser(User user)

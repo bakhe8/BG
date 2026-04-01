@@ -4,42 +4,27 @@
 @model BG.Web.Pages.Dispatch.WorkspaceModel
 @{
     ViewData["Title"] = T["DispatchWorkspace_PageTitle"];
-    var headerPills = Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null
-        ? new[]
-        {
-            Model.Snapshot.ActiveActor.DisplayName,
-            T["Pagination_PageSummary", Model.Snapshot.ItemsPage.PageNumber, Model.Snapshot.ItemsPage.TotalPageCount, Model.Snapshot.ItemsPage.TotalItemCount].Value
-        }
-        : Array.Empty<string>();
     var headerModel = new SurfaceHeaderModel(
         T["NavDispatch"].Value,
         T["DispatchWorkspace_Heading"].Value,
-        null,
-        headerPills,
-        "is-split");
-    var statStripModel = new SurfaceStatStripModel(
-        new[]
-        {
-            new SurfaceStatItem(T["DispatchWorkspace_ItemsTitle"].Value, Model.Snapshot.Items.Count),
-            new SurfaceStatItem(T["DispatchWorkspace_PendingDeliveryTitle"].Value, Model.Snapshot.PendingDeliveryItems.Count),
-            new SurfaceStatItem(T["Permission_dispatch.print"].Value, Model.Snapshot.ActiveActor?.CanPrint == true ? T["Shared_Yes"].Value : T["Shared_No"].Value),
-            new SurfaceStatItem(T["Permission_dispatch.record"].Value, Model.Snapshot.ActiveActor?.CanRecord == true ? T["Shared_Yes"].Value : T["Shared_No"].Value),
-            new SurfaceStatItem(T["Permission_dispatch.email"].Value, Model.Snapshot.ActiveActor?.CanEmail == true ? T["Shared_Yes"].Value : T["Shared_No"].Value)
-        });
+        null);
     var noEligibleActorModel = new SurfaceMessageCardModel(
         T["DispatchWorkspace_NoEligibleActor"].Value,
         T["DispatchWorkspace_NoEligibleActorBody"].Value);
+    var emptyWorkspaceModel = new SurfaceMessageCardModel(
+        T["DispatchWorkspace_ItemsTitle"].Value,
+        T["DispatchWorkspace_Empty"].Value);
+    var hasDispatchItems = Model.Snapshot.Items.Count > 0 || Model.Snapshot.PendingDeliveryItems.Count > 0;
+    var showQueueList = Model.Snapshot.Items.Count + Model.Snapshot.PendingDeliveryItems.Count > 1;
+
+    ViewData["HideSupportRail"] = true;
+    ViewData["HideDetailDrawer"] = true;
 }
 
 <section class="section-shell dispatch-surface">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
         <div class="notice-banner is-success">@Model.StatusMessage</div>
-    }
-
-    @if (Model.Snapshot.HasEligibleActor && !string.IsNullOrWhiteSpace(Model.Snapshot.ContextNoticeResourceKey))
-    {
-        <div class="notice-banner is-success">@T[Model.Snapshot.ContextNoticeResourceKey]</div>
     }
 
     <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
@@ -50,26 +35,24 @@
     {
         <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="noEligibleActorModel" />
     }
+    else if (!hasDispatchItems)
+    {
+        <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="emptyWorkspaceModel" />
+    }
     else
     {
-        <partial name="/Pages/Shared/_SurfaceStatStrip.cshtml" model="statStripModel" />
-
-        <div class="dispatch-surface-grid">
-            <partial name="_DispatchQueueList" model="Model" />
-            <partial name="_DispatchActivePanel" model="Model" />
-        </div>
+        @if (showQueueList)
+        {
+            <div class="dispatch-surface-grid">
+                <partial name="_DispatchQueueList" model="Model" />
+                <partial name="_DispatchActivePanel" model="Model" />
+            </div>
+        }
+        else
+        {
+            <div class="dispatch-surface-solo">
+                <partial name="_DispatchActivePanel" model="Model" />
+            </div>
+        }
     }
 </section>
-
-@section SupportRail
-{
-    @if (Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null)
-    {
-        <partial name="_DispatchSupportRail" model="Model" />
-    }
-}
-
-@section DetailDrawer
-{
-    <partial name="_DispatchDetailDrawer" model="Model" />
-}

@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Globalization;
 using BG.Application;
 using BG.Application.Approvals;
+using BG.Application.Contracts.Services;
 using BG.Infrastructure;
 using BG.Infrastructure.Persistence;
 using BG.Integrations;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 
+var runOperationalSeed = args.Any(argument => string.Equals(argument, "--seed-operational-demo", StringComparison.OrdinalIgnoreCase));
 var builder = WebApplication.CreateBuilder(args);
 
 var dataProtectionBuilder = builder.Services.AddDataProtection();
@@ -39,8 +41,12 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddIntegrations(builder.Configuration);
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<IUiConfigurationService, UiConfigurationService>();
 builder.Services.AddScoped<IWorkspaceShellService, WorkspaceShellService>();
+builder.Services.AddScoped<IExecutionActorAccessor, HttpContextExecutionActorAccessor>();
+builder.Services.Configure<LoginLockoutOptions>(builder.Configuration.GetSection(LoginLockoutOptions.SectionName));
+builder.Services.AddSingleton<ILoginAttemptLockoutService, MemoryLoginAttemptLockoutService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 builder.Services
     .AddAuthentication(WorkspaceShellDefaults.AuthenticationScheme)
@@ -78,9 +84,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownNetworks.Clear();
-    options.KnownProxies.Clear();
+    ForwardedHeadersTrustConfiguration.Apply(options, builder.Configuration);
 });
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -105,6 +109,17 @@ var app = builder.Build();
 
 ProductionReadinessValidator.Validate(app.Configuration, app.Environment);
 await app.Services.InitializeInfrastructureAsync();
+
+if (runOperationalSeed)
+{
+    if (app.Environment.IsProduction())
+    {
+        throw new InvalidOperationException("Operational demo seeding cannot run when ASPNETCORE_ENVIRONMENT is Production.");
+    }
+
+    await app.Services.RunOperationalSeedAsync();
+    return;
+}
 
 if (!app.Environment.IsDevelopment())
 {

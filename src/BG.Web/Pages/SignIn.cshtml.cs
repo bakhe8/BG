@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using BG.Application.Contracts.Services;
 using BG.Web.Localization;
+using BG.Web.Security;
 using BG.Web.UI;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -12,13 +13,16 @@ namespace BG.Web.Pages;
 public sealed class SignInModel : PageModel
 {
     private readonly ILocalAuthenticationService _localAuthenticationService;
+    private readonly ILoginAttemptLockoutService _loginAttemptLockoutService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public SignInModel(
         ILocalAuthenticationService localAuthenticationService,
+        ILoginAttemptLockoutService loginAttemptLockoutService,
         IStringLocalizer<SharedResource> localizer)
     {
         _localAuthenticationService = localAuthenticationService;
+        _loginAttemptLockoutService = loginAttemptLockoutService;
         _localizer = localizer;
     }
 
@@ -46,14 +50,29 @@ public sealed class SignInModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
+        var remoteIpAddress = HttpContext.Connection.RemoteIpAddress;
+        var lockoutDecision = _loginAttemptLockoutService.GetDecision(Username, remoteIpAddress);
+        if (lockoutDecision.IsLockedOut)
+        {
+            ModelState.AddModelError(string.Empty, _localizer["identity.login_temporarily_locked"]);
+            return Page();
+        }
+
         var result = await _localAuthenticationService.AuthenticateAsync(
             new BG.Application.Models.Identity.AuthenticateLocalUserCommand(Username, Password),
             cancellationToken);
         if (!result.Succeeded || result.Value is null)
         {
-            ModelState.AddModelError(string.Empty, _localizer[result.ErrorCode ?? "identity.invalid_credentials"]);
+            var updatedDecision = _loginAttemptLockoutService.RegisterFailure(Username, remoteIpAddress);
+            var errorCode = updatedDecision.IsLockedOut
+                ? "identity.login_temporarily_locked"
+                : result.ErrorCode ?? "identity.invalid_credentials";
+
+            ModelState.AddModelError(string.Empty, _localizer[errorCode]);
             return Page();
         }
+
+        _loginAttemptLockoutService.Reset(Username, remoteIpAddress);
 
         var profile = result.Value;
         var claims = new List<Claim>

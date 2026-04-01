@@ -42,12 +42,15 @@ dotnet user-secrets --project src/BG.Web set "Storage:DocumentsRoot" "C:\\BG\\do
 dotnet user-secrets --project src/BG.Web set "Identity:BootstrapAdmin:Password" "your-local-admin-password"
 ```
 
-If you need the seeded operator/demo pack locally, enable it explicitly through `user-secrets` rather than keeping it in tracked configuration:
+If you need the seeded operator/demo pack locally, enable it explicitly through `user-secrets` and then run the explicit seed command:
 
 ```powershell
 dotnet user-secrets --project src/BG.Web set "OperationalSeed:Enabled" "true"
 dotnet user-secrets --project src/BG.Web set "OperationalSeed:SharedPassword" "your-local-seed-password"
+.\scripts\Invoke-BgOperationalSeed.ps1
 ```
+
+The seed pack no longer runs from normal application startup. It is generated only when you call `Invoke-BgOperationalSeed.ps1` or run `dotnet run --project src/BG.Web -- --seed-operational-demo` yourself.
 
 Re-apply migrations locally:
 
@@ -90,6 +93,7 @@ Notes:
 
 - Local development must run with `ASPNETCORE_ENVIRONMENT=Development` so that `user-secrets` are loaded.
 - `OperationalSeed` is disabled by default in tracked configuration. Enable it only through local secrets when you explicitly need seeded users and data.
+- The operational demo pack is now explicit-only. Restarting the app does not regenerate it unless you run the seed command again.
 - `OCR` tests are mandatory now. If `.venv-ocr312` or the worker script is missing, the test suite should fail instead of silently skipping OCR coverage.
 - For repository-wide build and test expectations, follow [testing.instructions.md](../../.github/instructions/testing.instructions.md).
 - For production configuration and IIS deployment, use [PRODUCTION_DEPLOYMENT.md](PRODUCTION_DEPLOYMENT.md) and [PRODUCTION_RUNBOOK.md](PRODUCTION_RUNBOOK.md).

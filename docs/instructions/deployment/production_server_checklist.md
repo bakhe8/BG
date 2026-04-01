@@ -39,6 +39,7 @@ Related documents:
 - `Storage__DocumentsRoot` filled with the persistent path
 - `DataProtection__KeysPath` filled with the persistent path
 - `AllowedHosts` filled with the explicit production host list
+- `ReverseProxy__KnownProxies__*` or `ReverseProxy__KnownNetworks__*` filled with the actual trusted edge topology
 - `OperationalSeed__Enabled=false`
 - `Swagger__Enabled=false`
 - `Ocr__Enabled=false` or explicitly approved for this environment
@@ -56,6 +57,8 @@ Related documents:
 - Python executable path:
 - Worker script path:
 - Timeout seconds:
+- Max file size bytes:
+- Queue capacity:
 - Local OCR dependencies verified:
 
 ## 4. Database And Storage
@@ -83,6 +86,7 @@ Related documents:
 - `.\scripts\Test-BgProductionEnvironment.ps1 -SiteRoot 'C:\inetpub\BG'` passed
 - No placeholder password remains in the connection string
 - No wildcard `*` remains in `AllowedHosts`
+- Reverse proxy trust values match the real proxy IPs or networks
 - `OperationalSeed` confirmed disabled
 - `Swagger` confirmed disabled
 

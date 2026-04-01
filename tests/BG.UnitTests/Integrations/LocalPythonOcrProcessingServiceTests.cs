@@ -237,6 +237,60 @@ public sealed class LocalPythonOcrProcessingServiceTests
         }
     }
 
+    [Fact]
+    public async Task ProcessAsync_rejects_files_that_exceed_the_configured_size_limit()
+    {
+        using var harness = OcrTestHarness.Create();
+
+        var oversizedPdfPath = Path.Combine(Path.GetTempPath(), $"bg-ocr-large-{Guid.NewGuid():N}.pdf");
+
+        try
+        {
+            await File.WriteAllBytesAsync(oversizedPdfPath, new byte[2048]);
+
+            var configuration = new ConfigurationBuilder()
+                .AddInMemoryCollection(
+                    new Dictionary<string, string?>
+                    {
+                        [$"{LocalOcrOptions.SectionName}:Enabled"] = "true",
+                        [$"{LocalOcrOptions.SectionName}:PythonExecutablePath"] = harness.PythonExecutablePath,
+                        [$"{LocalOcrOptions.SectionName}:WorkerScriptPath"] = harness.WorkerScriptPath,
+                        [$"{LocalOcrOptions.SectionName}:TimeoutSeconds"] = "30",
+                        [$"{LocalOcrOptions.SectionName}:MaxFileSizeBytes"] = "1024",
+                        [$"{LocalOcrOptions.SectionName}:QueueCapacity"] = "2"
+                    })
+                .Build();
+
+            var services = new ServiceCollection();
+            services.AddLogging();
+            services.AddIntegrations(configuration);
+
+            using var serviceProvider = services.BuildServiceProvider();
+            var service = serviceProvider.GetRequiredService<BG.Application.Contracts.Services.IOcrDocumentProcessingService>();
+
+            var result = await service.ProcessAsync(
+                CreateRequest(
+                    oversizedPdfPath,
+                    "oversized.pdf",
+                    IntakeScenarioKeys.ExtensionConfirmation,
+                    GuaranteeDocumentFormKeys.BankLetterGeneric,
+                    GuaranteeDocumentBankProfileKeys.Generic,
+                    GuaranteeDocumentFormStructuralClassKeys.AmendmentLetter,
+                    "Generic Bank",
+                    "EXT"));
+
+            Assert.False(result.Succeeded);
+            Assert.Equal("ocr.file_too_large", result.ErrorCode);
+        }
+        finally
+        {
+            if (File.Exists(oversizedPdfPath))
+            {
+                File.Delete(oversizedPdfPath);
+            }
+        }
+    }
+
     [Theory]
     [MemberData(nameof(GetWave1ManifestPages))]
     public async Task ProcessAsync_processes_wave1_subset_pdf_pages(Wave1ManifestPage page)

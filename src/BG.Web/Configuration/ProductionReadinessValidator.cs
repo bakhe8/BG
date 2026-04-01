@@ -17,6 +17,7 @@ public static class ProductionReadinessValidator
         ValidateAllowedHosts(configuration, failures);
         ValidateStorage(configuration, failures);
         ValidateDataProtection(configuration, failures);
+        ValidateReverseProxyTrust(configuration, failures);
         ValidateOperationalSeed(configuration, failures);
         ValidateSwagger(configuration, failures);
         ValidateOcr(configuration, failures);
@@ -107,6 +108,21 @@ public static class ProductionReadinessValidator
         }
     }
 
+    private static void ValidateReverseProxyTrust(IConfiguration configuration, ICollection<string> failures)
+    {
+        try
+        {
+            if (!ForwardedHeadersTrustConfiguration.HasTrustedProxyConfiguration(configuration))
+            {
+                failures.Add("ReverseProxy:KnownProxies or ReverseProxy:KnownNetworks must be configured for production.");
+            }
+        }
+        catch (Exception exception)
+        {
+            failures.Add($"Reverse proxy trust configuration is invalid: {exception.Message}");
+        }
+    }
+
     private static void ValidateOperationalSeed(IConfiguration configuration, ICollection<string> failures)
     {
         if (configuration.GetValue<bool>("OperationalSeed:Enabled"))
@@ -148,6 +164,18 @@ public static class ProductionReadinessValidator
         else if (!File.Exists(ResolveFilePath(workerScriptPath)))
         {
             failures.Add("Ocr:WorkerScriptPath does not exist.");
+        }
+
+        var maxFileSizeBytes = configuration.GetValue<long>("Ocr:MaxFileSizeBytes");
+        if (maxFileSizeBytes <= 0)
+        {
+            failures.Add("Ocr:MaxFileSizeBytes must be greater than zero when OCR is enabled in production.");
+        }
+
+        var queueCapacity = configuration.GetValue<int>("Ocr:QueueCapacity");
+        if (queueCapacity <= 0)
+        {
+            failures.Add("Ocr:QueueCapacity must be greater than zero when OCR is enabled in production.");
         }
     }
 }

@@ -37,7 +37,6 @@ public sealed class PermissionCatalogTests
         Assert.Contains(definitions, definition => definition.Key == "operations.queue.manage" && definition.Area == "Operations");
         Assert.Contains(definitions, definition => definition.Key == "requests.view" && definition.Area == "Requests");
         Assert.Contains(definitions, definition => definition.Key == "requests.create" && definition.Area == "Requests");
-        Assert.Contains(definitions, definition => definition.Key == "workflow.view" && definition.Area == "Workflow");
         Assert.Contains(definitions, definition => definition.Key == "workflow.manage" && definition.Area == "Workflow");
     }
 }

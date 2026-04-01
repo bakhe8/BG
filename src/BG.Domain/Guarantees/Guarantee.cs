@@ -195,6 +195,11 @@ public sealed class Guarantee
         string? requestedByDisplayName = null,
         GuaranteeRequestChannel requestChannel = GuaranteeRequestChannel.RequestWorkspace)
     {
+        if (IsTerminalStatus(Status))
+        {
+            throw new InvalidOperationException("Terminal guarantees cannot accept new requests.");
+        }
+
         ValidateRequestData(requestType, requestedAmount, requestedExpiryDate);
 
         var request = new GuaranteeRequest(
@@ -621,14 +626,7 @@ public sealed class Guarantee
             {
                 request.AttachCorrespondence(correspondence);
             }
-
-            foreach (var ledgerEntry in Events.Where(entry =>
-                         (entry.GuaranteeCorrespondenceId == correspondence.Id ||
-                          (correspondence.ScannedDocumentId.HasValue && entry.GuaranteeDocumentId == correspondence.ScannedDocumentId.Value)) &&
-                         !entry.GuaranteeRequestId.HasValue))
-            {
-                ledgerEntry.LinkToRequest(request);
-            }
+            BackfillIncomingEvidenceRequestLink(request, correspondence);
         }
 
         decimal? previousAmount = null;
@@ -753,10 +751,7 @@ public sealed class Guarantee
             throw new InvalidOperationException("Only completed requests can reopen an applied bank confirmation.");
         }
 
-        if (Requests.Any(candidate =>
-                candidate.Id != request.Id &&
-                candidate.CompletedAtUtc.HasValue &&
-                candidate.CompletedAtUtc.Value > request.CompletedAtUtc.Value))
+        if (HasLaterAppliedBankConfirmationEvent(request.Id, correspondence.Id))
         {
             throw new InvalidOperationException("A later completed request prevents reopening this applied bank confirmation.");
         }
@@ -965,6 +960,45 @@ public sealed class Guarantee
         guaranteeEvent.GuaranteeCorrespondence = correspondence;
         guaranteeEvent.GuaranteeDocument = document;
         Events.Add(guaranteeEvent);
+    }
+
+    private void BackfillIncomingEvidenceRequestLink(GuaranteeRequest request, GuaranteeCorrespondence correspondence)
+    {
+        // Only backfill the orphan evidence entries that directly explain the later bank confirmation.
+        foreach (var ledgerEntry in Events.Where(entry =>
+                     !entry.GuaranteeRequestId.HasValue &&
+                     entry.EventType is GuaranteeEventType.DocumentCaptured or GuaranteeEventType.IncomingCorrespondenceRecorded &&
+                     (entry.GuaranteeCorrespondenceId == correspondence.Id ||
+                      (correspondence.ScannedDocumentId.HasValue && entry.GuaranteeDocumentId == correspondence.ScannedDocumentId.Value))))
+        {
+            ledgerEntry.LinkToRequest(request);
+        }
+    }
+
+    private bool HasLaterAppliedBankConfirmationEvent(Guid requestId, Guid correspondenceId)
+    {
+        var targetEvent = Events
+            .Where(ledgerEntry =>
+                ledgerEntry.GuaranteeRequestId == requestId &&
+                ledgerEntry.GuaranteeCorrespondenceId == correspondenceId &&
+                IsAppliedBankConfirmationEvent(ledgerEntry.EventType))
+            .OrderByDescending(ledgerEntry => ledgerEntry.OccurredAtUtc)
+            .FirstOrDefault();
+
+        if (targetEvent is null)
+        {
+            return false;
+        }
+
+        return Events.Any(ledgerEntry =>
+            ledgerEntry.Id != targetEvent.Id &&
+            IsAppliedBankConfirmationEvent(ledgerEntry.EventType) &&
+            ledgerEntry.OccurredAtUtc > targetEvent.OccurredAtUtc);
+    }
+
+    private static bool IsTerminalStatus(GuaranteeStatus status)
+    {
+        return status is GuaranteeStatus.Released or GuaranteeStatus.Replaced or GuaranteeStatus.Expired or GuaranteeStatus.Cancelled;
     }
 
     private void ValidateRequestData(

@@ -32,9 +32,12 @@
 - `Storage__DocumentsRoot` supplied:
 - `DataProtection__KeysPath` supplied:
 - `AllowedHosts` supplied:
+- `ReverseProxy__KnownProxies__*` or `ReverseProxy__KnownNetworks__*` supplied:
 - `OperationalSeed__Enabled=false` confirmed:
 - `Swagger__Enabled=false` confirmed:
 - `Ocr__Enabled` approved for this environment:
+- `Ocr__MaxFileSizeBytes` supplied when OCR is enabled:
+- `Ocr__QueueCapacity` supplied when OCR is enabled:
 
 ## Migration Plan
 

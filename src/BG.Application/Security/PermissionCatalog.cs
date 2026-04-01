@@ -4,7 +4,6 @@ public static class PermissionCatalog
 {
     public static IReadOnlyList<PermissionDefinition> Definitions { get; } =
     [
-        new("dashboard.view", "Dashboard"),
         new("intake.view", "Intake"),
         new("intake.scan", "Intake"),
         new("intake.verify", "Intake"),
@@ -15,7 +14,6 @@ public static class PermissionCatalog
         new("requests.create", "Requests"),
         new("approvals.queue.view", "Approvals"),
         new("approvals.sign", "Approvals"),
-        new("workflow.view", "Workflow"),
         new("workflow.manage", "Workflow"),
         new("dispatch.view", "Dispatch"),
         new("dispatch.print", "Dispatch"),
@@ -23,11 +21,8 @@ public static class PermissionCatalog
         new("dispatch.email", "Dispatch"),
         new("users.view", "Administration"),
         new("users.manage", "Administration"),
-        new("delegations.view", "Administration"),
         new("delegations.manage", "Administration"),
         new("roles.view", "Administration"),
-        new("roles.manage", "Administration"),
-        new("guarantees.view", "Guarantees"),
-        new("guarantees.manage", "Guarantees")
+        new("roles.manage", "Administration")
     ];
 }

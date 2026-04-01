@@ -6,6 +6,7 @@ using BG.Web.Contracts.Identity;
 using BG.Web.Localization;
 using BG.Web.Security;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
@@ -65,6 +66,15 @@ public sealed class IdentityAdministrationControllerTests
         AssertAuthorizePolicy(nameof(IdentityAdministrationController.GetRoles), PermissionPolicyNames.RolesRead);
         AssertAuthorizePolicy(nameof(IdentityAdministrationController.CreateRole), PermissionPolicyNames.RolesManage);
         AssertAuthorizePolicy(nameof(IdentityAdministrationController.GetPermissions), PermissionPolicyNames.RolesRead);
+    }
+
+    [Fact]
+    public void Identity_administration_controller_requires_antiforgery_for_state_changes()
+    {
+        Assert.Single(
+            typeof(IdentityAdministrationController)
+                .GetCustomAttributes(typeof(AutoValidateAntiforgeryTokenAttribute), inherit: true)
+                .Cast<AutoValidateAntiforgeryTokenAttribute>());
     }
 
     private static void AssertAuthorizePolicy(string methodName, string expectedPolicy)

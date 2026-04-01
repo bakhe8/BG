@@ -1,6 +1,6 @@
+using System.Globalization;
 using System.Diagnostics;
 using System.Text.Json;
-using BG.Application.Contracts.Services;
 using BG.Application.Models.Intake;
 using BG.Integrations.Options;
 using Microsoft.Extensions.Logging;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 
 namespace BG.Integrations.Services;
 
-internal sealed class LocalPythonOcrProcessingService : IOcrDocumentProcessingService
+internal sealed class LocalPythonOcrProcessingService : ILocalOcrWorkerRunner
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const string WorkerPipelineVersion = "wave2-python-worker";
@@ -54,6 +54,25 @@ internal sealed class LocalPythonOcrProcessingService : IOcrDocumentProcessingSe
                 "The staged OCR input file was not found.");
         }
 
+        var maxFileSizeBytes = ResolveMaxFileSizeBytes();
+        var inputFileInfo = new FileInfo(request.FilePath);
+        if (inputFileInfo.Length > maxFileSizeBytes)
+        {
+            _logger.LogWarning(
+                "OCR input file size {FileSizeBytes} bytes exceeded the configured maximum of {MaxFileSizeBytes} bytes.",
+                inputFileInfo.Length,
+                maxFileSizeBytes);
+
+            return new OcrDocumentProcessingResult(
+                false,
+                "bg-python-ocr",
+                WorkerPipelineVersion,
+                [],
+                [],
+                "ocr.file_too_large",
+                $"The OCR input file exceeded the configured size limit of {FormatFileSize(maxFileSizeBytes)}.");
+        }
+
         var pythonExecutablePath = ResolveExecutablePath(_options.PythonExecutablePath);
         if (string.IsNullOrWhiteSpace(pythonExecutablePath) || !File.Exists(pythonExecutablePath))
         {
@@ -83,6 +102,7 @@ internal sealed class LocalPythonOcrProcessingService : IOcrDocumentProcessingSe
         }
 
         var requestFilePath = Path.Combine(Path.GetTempPath(), $"bg-ocr-{Guid.NewGuid():N}.json");
+        Process? process = null;
 
         try
         {
@@ -111,10 +131,11 @@ internal sealed class LocalPythonOcrProcessingService : IOcrDocumentProcessingSe
             startInfo.Environment["PYTHONWARNINGS"] = "ignore";
             startInfo.Environment["HF_HUB_DISABLE_PROGRESS_BARS"] = "1";
 
-            using var process = new Process
+            process = new Process
             {
                 StartInfo = startInfo
             };
+            startInfo.Environment["BG_OCR_MAX_FILE_SIZE_BYTES"] = maxFileSizeBytes.ToString(CultureInfo.InvariantCulture);
 
             process.Start();
 
@@ -207,6 +228,7 @@ internal sealed class LocalPythonOcrProcessingService : IOcrDocumentProcessingSe
         }
         catch (OperationCanceledException)
         {
+            TryKill(process);
             throw;
         }
         catch (Exception exception)
@@ -223,6 +245,7 @@ internal sealed class LocalPythonOcrProcessingService : IOcrDocumentProcessingSe
         }
         finally
         {
+            TryKill(process);
             if (File.Exists(requestFilePath))
             {
                 File.Delete(requestFilePath);
@@ -272,11 +295,28 @@ internal sealed class LocalPythonOcrProcessingService : IOcrDocumentProcessingSe
         return Path.GetFullPath(configuredPath, AppContext.BaseDirectory);
     }
 
-    private static void TryKill(Process process)
+    private long ResolveMaxFileSizeBytes()
+    {
+        return _options.MaxFileSizeBytes > 0
+            ? _options.MaxFileSizeBytes
+            : LocalOcrOptions.DefaultMaxFileSizeBytes;
+    }
+
+    private static string FormatFileSize(long sizeInBytes)
+    {
+        return sizeInBytes switch
+        {
+            >= 1024L * 1024L => $"{sizeInBytes / (1024d * 1024d):0.#} MB",
+            >= 1024L => $"{sizeInBytes / 1024d:0.#} KB",
+            _ => $"{sizeInBytes} bytes"
+        };
+    }
+
+    private static void TryKill(Process? process)
     {
         try
         {
-            if (!process.HasExited)
+            if (process is not null && !process.HasExited)
             {
                 process.Kill(entireProcessTree: true);
             }

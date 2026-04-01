@@ -26,18 +26,21 @@ Use this file when you need to know:
 ## Read Order For Core Work
 
 1. [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
-2. [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
-3. [ROLE_DAILY_CHECKLISTS.md](instructions/ROLE_DAILY_CHECKLISTS.md)
-4. [ROLE_SOPS_AR.md](instructions/ROLE_SOPS_AR.md)
-5. [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
-6. [testing.instructions.md](../.github/instructions/testing.instructions.md)
-7. [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
-8. [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
+2. [AUDIT_REMEDIATION_BACKLOG.md](instructions/AUDIT_REMEDIATION_BACKLOG.md)
+3. [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
+4. [ROLE_DAILY_CHECKLISTS.md](instructions/ROLE_DAILY_CHECKLISTS.md)
+5. [ROLE_SOPS_AR.md](instructions/ROLE_SOPS_AR.md)
+6. [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
+7. [testing.instructions.md](../.github/instructions/testing.instructions.md)
+8. [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
+9. [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
 
 ## Topic Ownership
 
 - Architecture baseline and platform decisions:
   [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
+- Accepted external audit findings and remediation priority:
+  [AUDIT_REMEDIATION_BACKLOG.md](instructions/AUDIT_REMEDIATION_BACKLOG.md)
 - Implemented daily operating model and role-step-decision flow:
   [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
 - Concise day-to-day checklists for active roles:
@@ -64,6 +67,9 @@ Use this file when you need to know:
 - [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
   Status: `source of truth`
   Scope: architecture baseline, platform decisions, quality floor, operational rules.
+- [AUDIT_REMEDIATION_BACKLOG.md](instructions/AUDIT_REMEDIATION_BACKLOG.md)
+  Status: `execution plan`
+  Scope: validated external audit findings, rejection notes, and prioritized remediation backlog.
 - [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
   Status: `source of truth`
   Scope: implemented daily operating model, role-step-decision flow, and live validation boundary.

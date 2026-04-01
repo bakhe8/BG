@@ -71,7 +71,9 @@ public sealed partial class HostedFlowTests
         var queueHtml = await queueResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, queueResponse.StatusCode);
-        Assert.Contains("operations-surface-grid", queueHtml, StringComparison.Ordinal);
+        Assert.True(
+            queueHtml.Contains("operations-surface-grid", StringComparison.Ordinal) ||
+            queueHtml.Contains("operations-surface-solo", StringComparison.Ordinal));
         Assert.Contains(guaranteeNumber, queueHtml, StringComparison.Ordinal);
         Assert.Contains("bank-response.pdf", queueHtml, StringComparison.Ordinal);
     }
@@ -186,7 +188,9 @@ public sealed partial class HostedFlowTests
         var decodedQueueHtml = WebUtility.HtmlDecode(queueHtml);
 
         Assert.Equal(HttpStatusCode.OK, queueResponse.StatusCode);
-        Assert.Contains("operations-surface-grid", queueHtml, StringComparison.Ordinal);
+        Assert.True(
+            queueHtml.Contains("operations-surface-grid", StringComparison.Ordinal) ||
+            queueHtml.Contains("operations-surface-solo", StringComparison.Ordinal));
         Assert.Contains(guaranteeNumber, queueHtml, StringComparison.Ordinal);
         Assert.Contains("محجوب", decodedQueueHtml, StringComparison.Ordinal);
         Assert.Contains("عائلة بنك مختلفة", decodedQueueHtml, StringComparison.Ordinal);
@@ -320,7 +324,9 @@ public sealed partial class HostedFlowTests
         var queueHtml = await queueResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, queueResponse.StatusCode);
-        Assert.Contains("operations-surface-grid", queueHtml, StringComparison.Ordinal);
+        Assert.True(
+            queueHtml.Contains("operations-surface-grid", StringComparison.Ordinal) ||
+            queueHtml.Contains("operations-surface-solo", StringComparison.Ordinal));
         Assert.Contains(guaranteeNumber, queueHtml, StringComparison.Ordinal);
         Assert.Contains("name=\"correctionNote\"", queueHtml, StringComparison.Ordinal);
         Assert.Contains(reviewItemId.ToString(), queueHtml, StringComparison.Ordinal);

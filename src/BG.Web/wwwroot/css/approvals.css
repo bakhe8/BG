@@ -32,16 +32,18 @@
   align-items: start;
 }
 
+.approval-surface-solo {
+  display: grid;
+  gap: 1rem;
+}
+
 .approval-actor-shell,
 .approval-item-card,
 .approval-active-panel,
 .approval-queue-list-card,
 .approval-active-header,
 .approval-active-heading,
-.approval-active-workbench,
-.approval-support-stack,
-.approval-decision-card,
-.approval-dossier-card {
+.approval-decision-card {
   display: grid;
   gap: 1rem;
 }
@@ -64,11 +66,6 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
-}
-
-.approval-active-workbench {
-  grid-template-columns: minmax(0, 1.3fr) minmax(18rem, 0.92fr);
-  align-items: start;
 }
 
 .approval-summary-grid {
@@ -101,74 +98,10 @@
   gap: 0.75rem;
 }
 
-.approval-inline-checklist,
-.approval-timeline-card {
-  border: 1px solid color-mix(in srgb, var(--border) 76%, white);
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--surface) 94%, white);
-  overflow: hidden;
-}
-
-.approval-panel-summary {
+.approval-dossier-shortcut {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem 1.1rem;
-  cursor: pointer;
-  list-style: none;
-}
-
-.approval-panel-summary::-webkit-details-marker {
-  display: none;
-}
-
-.approval-panel-body {
-  display: grid;
-  gap: 0.9rem;
-  padding: 0 1.1rem 1.1rem;
-}
-
-.approval-timeline-list {
-  display: grid;
-  gap: 0.85rem;
-}
-
-.approval-timeline-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.85rem;
-  align-items: start;
-}
-
-.approval-timeline-marker {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--surface-alt) 82%, white);
-  color: var(--accent-strong);
-  border: 1px solid color-mix(in srgb, var(--border) 78%, white);
-  flex-shrink: 0;
-}
-
-.approval-timeline-row.is-complete .approval-timeline-marker {
-  background: color-mix(in srgb, var(--accent) 16%, white);
-  color: var(--accent-strong);
-  border-color: color-mix(in srgb, var(--accent) 32%, white);
-}
-
-.approval-timeline-row.is-active .approval-timeline-marker {
-  background: color-mix(in srgb, #d38b1f 16%, white);
-  color: #8a6110;
-  border-color: color-mix(in srgb, #d38b1f 32%, white);
-}
-
-.approval-timeline-copy {
-  display: grid;
-  gap: 0.2rem;
+  justify-content: flex-end;
 }
 
 @media (max-width: 991.98px) {
@@ -183,10 +116,6 @@
 
   .approval-surface-grid > .approval-active-panel {
     order: 1;
-  }
-
-  .approval-active-workbench {
-    grid-template-columns: 1fr;
   }
 
   .approval-active-meta {

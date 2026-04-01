@@ -1,4 +1,5 @@
 using System.Text.Json;
+using BG.Application.Common;
 using BG.Application.Contracts.Services;
 using BG.Application.Intake;
 using BG.Application.Operations;
@@ -219,14 +220,7 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
 
     private static bool TryParseAmount(string? value, out decimal amount)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            amount = default;
-            return false;
-        }
-
-        return decimal.TryParse(value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture, out amount)
-               || decimal.TryParse(value, System.Globalization.NumberStyles.Number, System.Globalization.CultureInfo.CurrentCulture, out amount);
+        return StructuredInputParser.TryParseAmount(value, out amount);
     }
 
     private sealed record ResponseSignal(

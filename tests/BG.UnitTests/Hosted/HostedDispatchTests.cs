@@ -12,6 +12,7 @@ public sealed partial class HostedFlowTests
     {
         await using var factory = new HostedAppFactory();
         const string guaranteeNumber = "BG-2026-DIS-1001";
+        Guid requestId = Guid.Empty;
 
         await factory.ExecuteDbContextAsync(async (dbContext, serviceProvider) =>
         {
@@ -70,6 +71,7 @@ public sealed partial class HostedFlowTests
             request.SubmitForApproval(process);
             process.ApproveCurrentStage(dispatcher.Id, DateTimeOffset.UtcNow, note: null);
             request.MarkApprovedForDispatch();
+            requestId = request.Id;
 
             await dbContext.Guarantees.AddAsync(guarantee);
         });
@@ -92,8 +94,18 @@ public sealed partial class HostedFlowTests
         var dispatchHtml = await dispatchResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, dispatchResponse.StatusCode);
-        Assert.Contains("dispatch-surface-grid", dispatchHtml, StringComparison.Ordinal);
+        Assert.True(
+            dispatchHtml.Contains("dispatch-surface-grid", StringComparison.Ordinal) ||
+            dispatchHtml.Contains("dispatch-surface-solo", StringComparison.Ordinal));
         Assert.Contains(guaranteeNumber, dispatchHtml, StringComparison.Ordinal);
         Assert.Contains("Dispatch Requester", dispatchHtml, StringComparison.Ordinal);
+
+        var letterResponse = await client.GetAsync($"/Dispatch/Letter?requestId={requestId}&referenceNumber=LTR-1001&letterDate=2026-03-12");
+        var letterHtml = await letterResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, letterResponse.StatusCode);
+        Assert.Contains("LTR-1001", letterHtml, StringComparison.Ordinal);
+        Assert.Contains(guaranteeNumber, letterHtml, StringComparison.Ordinal);
+        Assert.Contains("window.print()", letterHtml, StringComparison.Ordinal);
     }
 }

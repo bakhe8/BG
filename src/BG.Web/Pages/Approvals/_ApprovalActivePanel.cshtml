@@ -43,190 +43,102 @@ else
     var submittedAt = item.SubmittedAtUtc.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture);
     var activeActorName = Model.Snapshot.ActiveActor?.DisplayName ?? T["ApprovalQueue_CurrentUserLabel"].Value;
     var activeActorInitials = BuildInitials(activeActorName);
-    var checklistIdPrefix = item.RequestId.ToString("N");
-    var currentStageLabel = T["RequestsWorkspace_CurrentStageLabel"].Value;
-    var requestedChangeLabel = T["RequestsWorkspace_RequestedChangeTitle"].Value;
     var dossierRoute = Model.BuildDossierRoute(item.RequestId);
 
     <section class="approval-active-panel">
         <div class="approval-active-header">
             <div class="approval-active-heading">
-                <h2 class="fw-bold text-dark m-0">@T["ApprovalQueue_ExecutiveDossierTitle", item.GuaranteeNumber, item.RequesterDisplayName, guaranteeCategoryTitle]</h2>
-                <p class="compact-copy mb-0">@T["ApprovalQueue_DossierSummary"]</p>
+                <section-caption>@T["ApprovalQueue_Heading"]</section-caption>
+                <h2 class="fw-bold text-dark m-0">@item.GuaranteeNumber</h2>
+                <p class="compact-copy mb-0">@T[item.RequestTypeResourceKey] · @guaranteeCategoryTitle</p>
             </div>
-            <div class="approval-active-meta">
-                <bg-badge variant="warning" class="small">@T["ApprovalQueue_PendingMyApprovalBadge", T[item.StatusResourceKey].Value]</bg-badge>
-                <span class="x-small text-muted">@T["ApprovalQueue_MetadataSummary", stageTitle, submittedAt]</span>
-            </div>
+            <bg-badge variant="warning" class="small">@T[item.StatusResourceKey]</bg-badge>
         </div>
 
-        <div class="approval-active-workbench">
-            <article class="approval-decision-card bg-card-premium surface-action-zone @(isBlocked ? "is-blocked" : "is-primary")">
-                <div class="approval-summary-grid">
+        <article class="approval-decision-card bg-card-premium surface-action-zone @(isBlocked ? "is-blocked" : "is-primary")">
+            <div class="approval-summary-grid">
+                <div class="approval-summary-card">
+                    <span class="section-caption x-small mb-0">@T["RequestsWorkspace_CurrentStageLabel"]</span>
+                    <strong>@stageTitle</strong>
+                </div>
+                <div class="approval-summary-card">
+                    <span class="section-caption x-small mb-0">@T["ApprovalQueue_SubmittedAtLabel"]</span>
+                    <strong>@submittedAt</strong>
+                </div>
+                <div class="approval-summary-card">
+                    <span class="section-caption x-small mb-0">@T["ApprovalQueue_RequesterLabel"]</span>
+                    <strong>@item.RequesterDisplayName</strong>
+                </div>
+                <div class="approval-summary-card">
+                    <span class="section-caption x-small mb-0">@T["ApprovalQueue_ApplicationSummaryTitle"]</span>
+                    <strong>@T[item.RequestTypeResourceKey]</strong>
+                    <div class="x-small text-muted">@guaranteeCategoryTitle</div>
+                </div>
+                @if (requestedChange != "-")
+                {
                     <div class="approval-summary-card">
-                        <span class="section-caption x-small mb-0">@currentStageLabel</span>
-                        <strong>@stageTitle</strong>
+                        <span class="section-caption x-small mb-0">@T["RequestsWorkspace_RequestedChangeTitle"]</span>
+                        <strong>@requestedChange</strong>
                     </div>
-                    <div class="approval-summary-card">
-                        <span class="section-caption x-small mb-0">@T["ApprovalQueue_SubmittedAtLabel"]</span>
-                        <strong>@submittedAt</strong>
-                    </div>
-                    <div class="approval-summary-card">
-                        <span class="section-caption x-small mb-0">@T["ApprovalQueue_ApplicationSummaryTitle"]</span>
-                        <strong>@T[item.RequestTypeResourceKey]</strong>
-                        <div class="x-small text-muted">@guaranteeCategoryTitle</div>
-                    </div>
-                    @if (requestedChange != "-")
+                }
+            </div>
+
+            <div class="approval-dossier-shortcut">
+                <a class="btn btn-outline-primary rounded-pill fw-bold small px-4 py-2"
+                   asp-page="/Approvals/Dossier"
+                   asp-all-route-data="dossierRoute">
+                    <i class="bi bi-folder2-open me-2"></i>@T["ApprovalQueue_OpenDossierAction"]
+                </a>
+            </div>
+
+            <form method="post" class="stack-form d-flex flex-column gap-3">
+                <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                <input type="hidden" name="requestId" value="@item.RequestId" />
+                <input type="hidden" name="request" value="@item.RequestId" />
+
+                <div class="surface-action-header">
+                    <span class="surface-action-kicker">@T[isBlocked ? "SurfaceAction_BlockedLabel" : "SurfaceAction_CurrentActionLabel"]</span>
+                    <h3 class="surface-action-title">@(isBlocked ? T["ApprovalQueue_GovernanceBlockedTitle"].Value : T["ApprovalQueue_ActiveStepAwaitingReview"].Value)</h3>
+                    @if (isBlocked)
                     {
-                        <div class="approval-summary-card">
-                            <span class="section-caption x-small mb-0">@requestedChangeLabel</span>
-                            <strong>@requestedChange</strong>
-                        </div>
+                        <p class="surface-action-copy">@T[item.Governance.ReasonResourceKey!]</p>
                     }
                 </div>
 
-                <form method="post" class="stack-form h-100 d-flex flex-column">
-                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                    <input type="hidden" name="requestId" value="@item.RequestId" />
-                    <input type="hidden" name="request" value="@item.RequestId" />
-
-                    <div class="surface-action-header">
-                        <span class="surface-action-kicker">@T[isBlocked ? "SurfaceAction_BlockedLabel" : "SurfaceAction_CurrentActionLabel"]</span>
-                        <h3 class="surface-action-title">@(isBlocked ? T["ApprovalQueue_GovernanceBlockedTitle"].Value : T["ApprovalQueue_ActiveStepAwaitingReview"].Value)</h3>
-                        <p class="surface-action-copy">@T["ApprovalQueue_DossierContextHint"]</p>
-                    </div>
-
-                    <div class="approval-decision-actions d-flex flex-column gap-2">
-                        <bg-button variant="success" class="w-100 py-3 rounded-4" formaction="/Approvals/Queue?handler=Approve" type="submit" disabled="@isBlocked">
-                            <i class="bi bi-check-lg me-2"></i>@T["ApprovalQueue_ApproveAction"]
-                        </bg-button>
-
-                        <bg-button variant="warning" class="w-100 py-3 rounded-4" formaction="/Approvals/Queue?handler=Return" type="submit" disabled="@isBlocked">
-                            <i class="bi bi-pencil-square me-2"></i>@T["ApprovalQueue_ReturnAction"]
-                        </bg-button>
-
-                        <bg-button variant="light" class="w-100 py-3 rounded-4" formaction="/Approvals/Queue?handler=Reject" type="submit" disabled="@isBlocked">
-                            <i class="bi bi-x-lg me-2"></i>@T["ApprovalQueue_RejectAction"]
-                        </bg-button>
-                    </div>
-
-                    <div class="approval-comments-card">
-                        <label class="section-caption x-small mb-3">@T["ApprovalQueue_CommentsTitle"]</label>
-                        <div class="d-flex gap-3 mb-3">
-                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-brand-green text-white fw-bold"
-                                  style="width: 32px; height: 32px;"
-                                  aria-hidden="true">
-                                @activeActorInitials
-                            </span>
-                            <div class="flex-grow-1">
-                                <div class="x-small fw-bold">@activeActorName</div>
-                                <div class="x-small text-muted">@stageTitle</div>
-                            </div>
-                        </div>
-                        <textarea name="note" class="form-control x-small" rows="3" placeholder="@T["ApprovalQueue_CommentPlaceholder"]" disabled="@isBlocked"></textarea>
-                    </div>
-
-                    @if (isBlocked)
-                    {
-                        <div class="notice-banner is-danger">
-                            <strong>@T["ApprovalQueue_GovernanceBlockedTitle"]</strong>
-                            <p class="compact-copy mb-0">@T[item.Governance.ReasonResourceKey!]</p>
-                        </div>
-                    }
-
-                    <details class="approval-inline-checklist mt-auto">
-                        <summary class="approval-panel-summary">
-                            <span class="fw-bold text-dark">@T["ApprovalQueue_ChecklistTitle"]</span>
-                            <i class="bi bi-chevron-down small text-muted"></i>
-                        </summary>
-                        <div class="approval-panel-body">
-                            <div class="d-flex flex-column gap-2">
-                                <div class="form-check x-small">
-                                    <input class="form-check-input" type="checkbox" checked id="chk1-@checklistIdPrefix">
-                                    <label class="form-check-label" for="chk1-@checklistIdPrefix">@T["ApprovalQueue_ChecklistReviewFields"]</label>
-                                </div>
-                                <div class="form-check x-small">
-                                    <input class="form-check-input" type="checkbox" id="chk2-@checklistIdPrefix">
-                                    <label class="form-check-label" for="chk2-@checklistIdPrefix">@T["ApprovalQueue_ChecklistValidateGovernance"]</label>
-                                </div>
-                                <div class="form-check x-small">
-                                    <input class="form-check-input" type="checkbox" id="chk3-@checklistIdPrefix">
-                                    <label class="form-check-label" for="chk3-@checklistIdPrefix">@T["ApprovalQueue_ChecklistRecommendDecision"]</label>
-                                </div>
-                            </div>
-                        </div>
-                    </details>
-                </form>
-            </article>
-
-            <div class="approval-support-stack">
-                <article class="approval-dossier-card bg-card-premium">
-                    <label class="section-caption x-small mb-0">@T["ApprovalQueue_DossierDetailsTitle"]</label>
-                    <div class="approval-summary-card">
-                        <span class="section-caption x-small mb-0">@T["ApprovalQueue_ApplicationSummaryTitle"]</span>
-                        <strong>@T[item.RequestTypeResourceKey]</strong>
-                        <div class="x-small text-muted">@guaranteeCategoryTitle</div>
-                    </div>
-                    @if (requestedChange != "-")
-                    {
-                        <div class="approval-summary-card">
-                            <span class="section-caption x-small mb-0">@requestedChangeLabel</span>
-                            <strong>@requestedChange</strong>
-                        </div>
-                    }
-                    <div class="approval-summary-grid">
-                        <div class="approval-summary-card is-compact">
-                            <span class="section-caption x-small mb-0">@T["ApprovalQueue_PriorSignaturesTitle"]</span>
-                            <strong>@item.PriorSignatures.Count</strong>
-                        </div>
-                        <div class="approval-summary-card is-compact">
-                            <span class="section-caption x-small mb-0">@T["ApprovalQueue_AttachmentsTitle"]</span>
-                            <strong>@item.Attachments.Count</strong>
+                <div class="approval-comments-card">
+                    <label class="section-caption x-small mb-2">@T["ApprovalQueue_CommentsTitle"]</label>
+                    <div class="d-flex gap-3 align-items-start">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-brand-green text-white fw-bold"
+                              style="width: 32px; height: 32px;"
+                              aria-hidden="true">
+                            @activeActorInitials
+                        </span>
+                        <div class="flex-grow-1">
+                            <div class="x-small fw-bold">@activeActorName</div>
+                            <div class="x-small text-muted mb-2">@stageTitle</div>
+                            <textarea name="note"
+                                      class="form-control x-small"
+                                      rows="3"
+                                      placeholder="@T["ApprovalQueue_CommentPlaceholder"]"
+                                      disabled="@isBlocked"></textarea>
                         </div>
                     </div>
-                    <p class="compact-copy mb-0">@T["ApprovalQueue_DossierContextHint"]</p>
-                    <a class="btn btn-success w-100 rounded-pill fw-bold small py-2"
-                       asp-page="/Approvals/Dossier"
-                       asp-all-route-data="dossierRoute">
-                        <i class="bi bi-folder2-open me-2"></i>@T["ApprovalQueue_OpenDossierAction"]
-                    </a>
-                </article>
+                </div>
 
-                <details class="approval-timeline-card bg-card-premium">
-                    <summary class="approval-panel-summary">
-                        <span class="fw-bold text-dark">@T["ApprovalQueue_WorkflowTimelineTitle"]</span>
-                        <i class="bi bi-chevron-down small text-muted"></i>
-                    </summary>
-                    <div class="approval-panel-body">
-                        <div class="approval-timeline-list">
-                            @foreach (var signature in item.PriorSignatures)
-                            {
-                                <div class="approval-timeline-row is-complete">
-                                    <div class="approval-timeline-marker">
-                                        <i class="bi bi-check-lg"></i>
-                                    </div>
-                                    <div class="approval-timeline-copy">
-                                        <strong>@signature.StageTitle</strong>
-                                        <div class="x-small text-muted">@T["ApprovalQueue_ByLabel"] @signature.ActorDisplayName</div>
-                                        <div class="x-small text-muted">@signature.ActedAtUtc.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture)</div>
-                                    </div>
-                                </div>
-                            }
+                <div class="approval-decision-actions d-flex flex-column gap-2">
+                    <bg-button variant="success" class="w-100 py-3 rounded-4" formaction="/Approvals/Queue?handler=Approve" type="submit" disabled="@isBlocked">
+                        <i class="bi bi-check-lg me-2"></i>@T["ApprovalQueue_ApproveAction"]
+                    </bg-button>
 
-                            <div class="approval-timeline-row is-active">
-                                <div class="approval-timeline-marker">
-                                    <i class="bi bi-person-circle"></i>
-                                </div>
-                                <div class="approval-timeline-copy">
-                                    <strong>@stageTitle</strong>
-                                    <div class="x-small text-muted">@T["ApprovalQueue_ActiveStepAwaitingReview"]</div>
-                                    <div class="x-small text-muted">@activeActorName</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </details>
-            </div>
-        </div>
+                    <bg-button variant="warning" class="w-100 py-3 rounded-4" formaction="/Approvals/Queue?handler=Return" type="submit" disabled="@isBlocked">
+                        <i class="bi bi-pencil-square me-2"></i>@T["ApprovalQueue_ReturnAction"]
+                    </bg-button>
+
+                    <bg-button variant="light" class="w-100 py-3 rounded-4" formaction="/Approvals/Queue?handler=Reject" type="submit" disabled="@isBlocked">
+                        <i class="bi bi-x-lg me-2"></i>@T["ApprovalQueue_RejectAction"]
+                    </bg-button>
+                </div>
+            </form>
+        </article>
     </section>
 }

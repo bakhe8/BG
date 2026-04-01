@@ -15,6 +15,8 @@ Use these files when you need the current authoritative guidance for:
 
 - [ARCHITECTURE.md](ARCHITECTURE.md)
   Scope: architecture baseline, platform decisions, quality floor, and core operational rules.
+- [AUDIT_REMEDIATION_BACKLOG.md](AUDIT_REMEDIATION_BACKLOG.md)
+  Scope: accepted findings from external audits, rejected findings, and prioritized remediation order.
 - [DAILY_OPERATIONS_MATRIX.md](DAILY_OPERATIONS_MATRIX.md)
   Scope: implemented daily operating model, role-step-decision flow, and validation boundary.
 - [ROLE_DAILY_CHECKLISTS.md](ROLE_DAILY_CHECKLISTS.md)

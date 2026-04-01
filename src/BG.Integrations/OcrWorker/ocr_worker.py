@@ -854,6 +854,23 @@ def process_request(request_payload: dict) -> dict:
     if not file_path or not os.path.exists(file_path):
         return canonical_result(False, [], warnings, "ocr.file_not_found", "The OCR input file was not found.")
 
+    max_file_size_bytes = os.environ.get("BG_OCR_MAX_FILE_SIZE_BYTES")
+    if max_file_size_bytes:
+        try:
+            max_file_size = int(max_file_size_bytes)
+        except ValueError:
+            max_file_size = 0
+
+        if max_file_size > 0:
+            actual_size = os.path.getsize(file_path)
+            if actual_size > max_file_size:
+                return canonical_result(
+                    False,
+                    [],
+                    warnings,
+                    "ocr.file_too_large",
+                    "The OCR input file exceeded the configured size limit.")
+
     if fitz is None:
         return canonical_result(False, [], warnings, "ocr.pymupdf_missing", "PyMuPDF is not installed.")
 

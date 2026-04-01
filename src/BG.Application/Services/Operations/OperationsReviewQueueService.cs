@@ -452,31 +452,17 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
 
     private static bool TryParseDate(string? value, out DateOnly date)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            date = default;
-            return false;
-        }
-
-        return DateOnly.TryParseExact(value, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date)
-               || DateOnly.TryParse(value, out date);
+        return StructuredInputParser.TryParseDate(value, out date);
     }
 
     private static bool TryParseAmount(string? value, out decimal amount)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            amount = default;
-            return false;
-        }
-
-        return decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out amount)
-               || decimal.TryParse(value, NumberStyles.Number, CultureInfo.CurrentCulture, out amount);
+        return StructuredInputParser.TryParseAmount(value, out amount);
     }
 
     private static string? Normalize(string? value)
     {
-        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        return StructuredInputParser.Normalize(value);
     }
 
     private sealed record SuggestedConfirmationValues(

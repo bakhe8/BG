@@ -93,15 +93,24 @@ public sealed class WorkspaceModel : PageModel
             .Select(category => new GuaranteeCategoryOptionViewModel(category, GuaranteeResourceCatalog.GetGuaranteeCategoryResourceKey(category)))
             .ToArray();
 
+    public IntakeFieldReviewDto? GetReviewField(string fieldKey)
+    {
+        return ReviewFields.FirstOrDefault(field => string.Equals(field.FieldKey, fieldKey, StringComparison.Ordinal));
+    }
+
+    public string ResolveReviewBadgeVariant(IntakeFieldReviewDto reviewField)
+    {
+        return reviewField.RequiresExplicitReview || reviewField.ConfidencePercent < 90
+            ? "error"
+            : reviewField.ConfidencePercent < 95
+                ? "warning"
+                : "success";
+    }
+
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         await LoadWorkspaceAsync(Actor, Scenario, cancellationToken);
         ReviewFields = BuildReviewFields();
-
-        if (IsHtmxRequest())
-        {
-            return Partial("_IntakeDocumentPanel", this);
-        }
 
         return Page();
     }
@@ -139,11 +148,7 @@ public sealed class WorkspaceModel : PageModel
 
         ApplyDraft(result.Value!);
         ReviewFields = BuildReviewFields();
-
-        if (IsHtmxRequest())
-        {
-            return Partial("_IntakeVerificationPanel", this);
-        }
+        StatusMessage = _localizer["IntakeWorkspace_DraftReady"];
 
         return Page();
     }
@@ -159,11 +164,6 @@ public sealed class WorkspaceModel : PageModel
         {
             ModelState.AddModelError(string.Empty, _localizer["IntakeWorkspace_NoEligibleActor"]);
             ReviewFields = BuildReviewFields();
-
-            if (IsHtmxRequest())
-            {
-                return Partial("_IntakeVerificationPanel", this);
-            }
 
             return Page();
         }
@@ -203,11 +203,6 @@ public sealed class WorkspaceModel : PageModel
             : WorkspaceActorContext.TryGetLockedActorUserId(HttpContext);
         IsActorContextLocked = lockedActorId.HasValue;
         return lockedActorId ?? actorId;
-    }
-
-    private bool IsHtmxRequest()
-    {
-        return HttpContext?.Request?.Headers.ContainsKey("HX-Request") == true;
     }
 
     private RedirectToPageResult RedirectToSelf(Guid actorId, string scenarioKey)

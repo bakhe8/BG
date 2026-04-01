@@ -38,7 +38,7 @@ public sealed partial class HostedFlowTests
         var workspaceHtml = await workspaceResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, workspaceResponse.StatusCode);
-        Assert.Contains("request-workspace-grid", workspaceHtml, StringComparison.Ordinal);
+        Assert.Contains("requests-create-column", workspaceHtml, StringComparison.Ordinal);
         Assert.Contains("name=\"Input.GuaranteeNumber\"", workspaceHtml, StringComparison.Ordinal);
         Assert.Contains("Hosted Admin", workspaceHtml, StringComparison.Ordinal);
     }
@@ -124,7 +124,8 @@ public sealed partial class HostedFlowTests
 
         Assert.Equal(HttpStatusCode.OK, homeResponse.StatusCode);
         Assert.Contains("home-workspace-grid", homeHtml, StringComparison.Ordinal);
-        Assert.Contains(guaranteeNumber, homeHtml, StringComparison.Ordinal);
+        Assert.Contains("/Approvals/Queue", homeHtml, StringComparison.Ordinal);
+        Assert.DoesNotContain(guaranteeNumber, homeHtml, StringComparison.Ordinal);
         Assert.DoesNotContain("Architecture decisions", homeHtml, StringComparison.OrdinalIgnoreCase);
     }
 }

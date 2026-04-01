@@ -32,13 +32,12 @@ internal sealed class HomeDashboardService : IHomeDashboardService
         }
 
         var permissions = profile.PermissionKeys.ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var hasDashboardAccess = permissions.Contains("dashboard.view");
         var canViewApprovals = HasAnyPermission(permissions, "approvals.queue.view", "approvals.sign");
         var canViewRequests = HasAnyPermission(permissions, "requests.view", "requests.create");
         var canViewOperations = HasAnyPermission(permissions, "operations.queue.view", "operations.queue.manage");
         var canViewDispatch = HasAnyPermission(permissions, "dispatch.view", "dispatch.print", "dispatch.record", "dispatch.email");
-        var canViewIntake = hasDashboardAccess || HasAnyPermission(permissions, "intake.view", "intake.scan", "intake.verify", "intake.finalize");
-        var canViewExpiringGuarantees = hasDashboardAccess || canViewApprovals || canViewRequests || canViewOperations || canViewDispatch;
+        var canViewIntake = HasAnyPermission(permissions, "intake.view", "intake.scan", "intake.verify", "intake.finalize");
+        var canViewExpiringGuarantees = canViewApprovals || canViewRequests || canViewOperations || canViewDispatch;
 
         var snapshot = await _repository.GetAuthenticatedDashboardAsync(
             new HomeDashboardQuery(

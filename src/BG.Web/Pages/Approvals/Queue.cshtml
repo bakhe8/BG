@@ -4,33 +4,21 @@
 @model BG.Web.Pages.Approvals.QueueModel
 @{
     ViewData["Title"] = T["ApprovalQueue_PageTitle"];
-    var blockedCount = Model.Snapshot.Items.Count(item => item.Governance.IsDecisionBlocked);
-    var delegatedCount = Model.Snapshot.Items.Count(item => !string.IsNullOrWhiteSpace(item.DelegatedByDisplayName));
-    var signatureCount = Model.Snapshot.Items.Count(item => item.RequiresLetterSignature);
-    var headerPills = Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null
-        ? new[]
-        {
-            Model.Snapshot.ActiveActor.DisplayName,
-            T["Pagination_PageSummary", Model.Snapshot.ItemsPage.PageNumber, Model.Snapshot.ItemsPage.TotalPageCount, Model.Snapshot.ItemsPage.TotalItemCount].Value
-        }
-        : Array.Empty<string>();
+    var hasApprovalItems = Model.Snapshot.Items.Count > 0;
+    var showQueueList = Model.Snapshot.Items.Count > 1;
     var headerModel = new SurfaceHeaderModel(
         T["NavApprovals"].Value,
         T["ApprovalQueue_Heading"].Value,
-        null,
-        headerPills,
-        "is-split");
-    var statStripModel = new SurfaceStatStripModel(
-        new[]
-        {
-            new SurfaceStatItem(T["ApprovalQueue_ItemsTitle"].Value, Model.Snapshot.ItemsPage.TotalItemCount),
-            new SurfaceStatItem(T["ApprovalQueue_GovernanceBlockedTitle"].Value, blockedCount),
-            new SurfaceStatItem(T["ApprovalQueue_DelegatedByLabel"].Value, delegatedCount),
-            new SurfaceStatItem(T["ApprovalQueue_LetterSignatureRequired"].Value, signatureCount)
-        });
+        null);
     var noEligibleActorModel = new SurfaceMessageCardModel(
         T["ApprovalQueue_NoEligibleActor"].Value,
         T["ApprovalQueue_NoEligibleActorBody"].Value);
+    var emptyQueueModel = new SurfaceMessageCardModel(
+        T["ApprovalQueue_EmptyStateTitle"].Value,
+        T["ApprovalQueue_EmptyStateBody"].Value);
+
+    ViewData["HideSupportRail"] = true;
+    ViewData["HideDetailDrawer"] = true;
 }
 
 <section class="section-shell approvals-surface">
@@ -41,37 +29,30 @@
 
     <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
-    @if (Model.Snapshot.HasEligibleActor && !string.IsNullOrWhiteSpace(Model.Snapshot.ContextNoticeResourceKey))
-    {
-        <div class="notice-banner is-success">@T[Model.Snapshot.ContextNoticeResourceKey]</div>
-    }
-
     <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
 
     @if (!Model.Snapshot.HasEligibleActor || Model.Snapshot.ActiveActor is null)
     {
         <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="noEligibleActorModel" />
     }
+    else if (!hasApprovalItems)
+    {
+        <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="emptyQueueModel" />
+    }
     else
     {
-        <partial name="/Pages/Shared/_SurfaceStatStrip.cshtml" model="statStripModel" />
-
-        <div class="approval-surface-grid">
-            <partial name="_ApprovalQueueList" model="Model" />
-            <partial name="_ApprovalActivePanel" model="Model" />
-        </div>
+        @if (showQueueList)
+        {
+            <div class="approval-surface-grid">
+                <partial name="_ApprovalQueueList" model="Model" />
+                <partial name="_ApprovalActivePanel" model="Model" />
+            </div>
+        }
+        else
+        {
+            <div class="approval-surface-solo">
+                <partial name="_ApprovalActivePanel" model="Model" />
+            </div>
+        }
     }
 </section>
-
-@section SupportRail
-{
-    @if (Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null)
-    {
-        <partial name="_ApprovalSupportRail" model="Model" />
-    }
-}
-
-@section DetailDrawer
-{
-    <partial name="_ApprovalDetailDrawer" model="Model" />
-}

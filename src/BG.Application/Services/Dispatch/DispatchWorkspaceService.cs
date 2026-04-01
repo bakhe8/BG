@@ -69,6 +69,80 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
             "DispatchWorkspace_ActorScopedNotice");
     }
 
+    public async Task<OperationResult<DispatchLetterPreviewDto>> GetLetterPreviewAsync(
+        Guid dispatcherUserId,
+        Guid requestId,
+        string? referenceNumber,
+        string? letterDate,
+        CancellationToken cancellationToken = default)
+    {
+        if (dispatcherUserId == Guid.Empty)
+        {
+            return OperationResult<DispatchLetterPreviewDto>.Failure(DispatchErrorCodes.DispatcherContextRequired);
+        }
+
+        var actor = await _repository.GetDispatchActorByIdAsync(dispatcherUserId, cancellationToken);
+        if (actor is null)
+        {
+            return OperationResult<DispatchLetterPreviewDto>.Failure(DispatchErrorCodes.DispatcherContextInvalid);
+        }
+
+        var request = await _repository.GetRequestForDispatchAsync(requestId, cancellationToken);
+        if (request is null)
+        {
+            return OperationResult<DispatchLetterPreviewDto>.Failure(DispatchErrorCodes.RequestNotFound);
+        }
+
+        if (request.Status is not GuaranteeRequestStatus.ApprovedForDispatch and not GuaranteeRequestStatus.AwaitingBankResponse)
+        {
+            return OperationResult<DispatchLetterPreviewDto>.Failure(DispatchErrorCodes.RequestNotReady);
+        }
+
+        var latestOutgoingLetter = request.Correspondence
+            .Where(correspondence =>
+                correspondence.Direction == GuaranteeCorrespondenceDirection.Outgoing &&
+                correspondence.Kind == GuaranteeCorrespondenceKind.RequestLetter)
+            .OrderByDescending(correspondence => correspondence.RegisteredAtUtc)
+            .FirstOrDefault();
+
+        var normalizedReferenceNumber = Normalize(referenceNumber) ?? latestOutgoingLetter?.ReferenceNumber;
+        var hasLetterDate = TryParseDate(letterDate, out var parsedLetterDate);
+        var effectiveLetterDate = hasLetterDate
+            ? parsedLetterDate
+            : latestOutgoingLetter?.LetterDate ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
+
+        var effectiveReferenceNumber = string.IsNullOrWhiteSpace(normalizedReferenceNumber)
+            ? $"DRAFT-{request.Guarantee.GuaranteeNumber}"
+            : normalizedReferenceNumber;
+
+        var matchesRecordedLetter = latestOutgoingLetter is not null &&
+                                    string.Equals(latestOutgoingLetter.ReferenceNumber, effectiveReferenceNumber, StringComparison.Ordinal) &&
+                                    latestOutgoingLetter.LetterDate == effectiveLetterDate;
+
+        return OperationResult<DispatchLetterPreviewDto>.Success(
+            new DispatchLetterPreviewDto(
+                request.Id,
+                request.Guarantee.GuaranteeNumber,
+                request.Guarantee.BankName,
+                request.Guarantee.BeneficiaryName,
+                request.Guarantee.PrincipalName,
+                request.Guarantee.CurrencyCode,
+                request.Guarantee.CurrentAmount,
+                request.Guarantee.IssueDate,
+                request.Guarantee.ExpiryDate,
+                request.RequestType,
+                request.RequestedByUser.DisplayName,
+                effectiveReferenceNumber,
+                effectiveLetterDate,
+                request.RequestedAmount,
+                request.RequestedExpiryDate,
+                request.Notes,
+                actor.DisplayName,
+                DateTimeOffset.UtcNow,
+                !matchesRecordedLetter,
+                latestOutgoingLetter?.PrintCount ?? 0));
+    }
+
     public async Task<OperationResult<PrintDispatchLetterReceiptDto>> PrintDispatchLetterAsync(
         PrintDispatchLetterCommand command,
         CancellationToken cancellationToken = default)
@@ -448,21 +522,12 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
 
     private static string? Normalize(string? value)
     {
-        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        return StructuredInputParser.Normalize(value);
     }
 
     private static bool TryParseDate(string? value, out DateOnly date)
     {
-        var normalized = Normalize(value);
-
-        if (string.IsNullOrWhiteSpace(normalized))
-        {
-            date = default;
-            return false;
-        }
-
-        return DateOnly.TryParseExact(normalized, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out date)
-               || DateOnly.TryParse(normalized, out date);
+        return StructuredInputParser.TryParseDate(value, out date);
     }
 
     private static bool HasPermission(User actor, string permissionKey)

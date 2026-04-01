@@ -5,6 +5,7 @@ using BG.Application.Models.Identity;
 using BG.Application.Services;
 using BG.Domain.Identity;
 using BG.Domain.Workflow;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace BG.UnitTests.Application;
 
@@ -14,7 +15,11 @@ public sealed class IdentityAdministrationServiceTests
     public async Task CreateRoleAsync_creates_role_with_selected_permissions()
     {
         var repository = new FakeIdentityAdministrationRepository();
-        var service = new IdentityAdministrationService(repository, new StubLocalPasswordHasher());
+        var service = new IdentityAdministrationService(
+            repository,
+            new StubLocalPasswordHasher(),
+            new StubExecutionActorAccessor(),
+            NullLogger<IdentityAdministrationService>.Instance);
 
         var result = await service.CreateRoleAsync(
             new CreateRoleCommand(
@@ -44,7 +49,11 @@ public sealed class IdentityAdministrationServiceTests
             createdAtUtc: DateTimeOffset.UtcNow));
 
         var hasher = new StubLocalPasswordHasher();
-        var service = new IdentityAdministrationService(repository, hasher);
+        var service = new IdentityAdministrationService(
+            repository,
+            hasher,
+            new StubExecutionActorAccessor(),
+            NullLogger<IdentityAdministrationService>.Instance);
 
         var result = await service.CreateUserAsync(
             new CreateUserCommand(
@@ -67,7 +76,11 @@ public sealed class IdentityAdministrationServiceTests
         repository.Roles.Add(role);
         var hasher = new StubLocalPasswordHasher();
 
-        var service = new IdentityAdministrationService(repository, hasher);
+        var service = new IdentityAdministrationService(
+            repository,
+            hasher,
+            new StubExecutionActorAccessor(),
+            NullLogger<IdentityAdministrationService>.Instance);
 
         var result = await service.CreateUserAsync(
             new CreateUserCommand(
@@ -90,7 +103,11 @@ public sealed class IdentityAdministrationServiceTests
     public async Task CreateUserAsync_rejects_short_passwords()
     {
         var repository = new FakeIdentityAdministrationRepository();
-        var service = new IdentityAdministrationService(repository, new StubLocalPasswordHasher());
+        var service = new IdentityAdministrationService(
+            repository,
+            new StubLocalPasswordHasher(),
+            new StubExecutionActorAccessor(),
+            NullLogger<IdentityAdministrationService>.Instance);
 
         var result = await service.CreateUserAsync(
             new CreateUserCommand(
@@ -117,7 +134,11 @@ public sealed class IdentityAdministrationServiceTests
             isActive: true,
             createdAtUtc: DateTimeOffset.UtcNow);
         repository.Users.Add(user);
-        var service = new IdentityAdministrationService(repository, new StubLocalPasswordHasher());
+        var service = new IdentityAdministrationService(
+            repository,
+            new StubLocalPasswordHasher(),
+            new StubExecutionActorAccessor(),
+            NullLogger<IdentityAdministrationService>.Instance);
 
         var result = await service.SetUserPasswordAsync(new SetLocalUserPasswordCommand(user.Id, "updated-password"));
 
@@ -135,10 +156,9 @@ public sealed class IdentityAdministrationServiceTests
 
         public List<Permission> Permissions { get; } =
         [
-            new("dashboard.view", "Dashboard"),
             new("users.view", "Administration"),
             new("roles.view", "Administration"),
-            new("guarantees.view", "Guarantees")
+            new("requests.view", "Requests")
         ];
 
         public Task<IReadOnlyList<User>> ListUsersAsync(CancellationToken cancellationToken = default)
@@ -241,6 +261,14 @@ public sealed class IdentityAdministrationServiceTests
         public bool VerifyPassword(string passwordHash, string password)
         {
             return passwordHash == HashPassword(password);
+        }
+    }
+
+    private sealed class StubExecutionActorAccessor : IExecutionActorAccessor
+    {
+        public ExecutionActorSnapshot? GetCurrentActor()
+        {
+            return new ExecutionActorSnapshot(Guid.NewGuid(), "admin.local", "System Admin");
         }
     }
 }

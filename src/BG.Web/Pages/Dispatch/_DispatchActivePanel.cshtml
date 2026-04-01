@@ -33,7 +33,7 @@
             </section>
             <section class="surface-stat">
                 <span class="section-caption">@T["DispatchWorkspace_ReadyAtLabel"]</span>
-                <strong>@item.ReadyAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</strong>
+                <strong>@item.ReadyAtUtc.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture)</strong>
             </section>
             <section class="surface-stat">
                 <span class="section-caption">@T["DispatchWorkspace_ReferenceLabel"]</span>
@@ -48,17 +48,7 @@
         @if (!hasAnyDispatchAction)
         {
             <div class="surface-action-zone is-blocked">
-                <div class="surface-action-header">
-                    <span class="surface-action-kicker">@T["SurfaceAction_BlockedLabel"]</span>
-                    <h3 class="surface-action-title">@T["DispatchWorkspace_NoAvailableActionsTitle"]</h3>
-                </div>
-                <p class="surface-action-copy">@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: false)]</p>
-                <div class="pill-list">
-                    @foreach (var permissionResourceKey in Model.GetMissingDispatchPermissionResourceKeys())
-                    {
-                        <span class="pill">@T[permissionResourceKey]</span>
-                    }
-                </div>
+                <p class="surface-action-copy mb-0">@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: false)]</p>
             </div>
         }
         else
@@ -130,6 +120,13 @@
                         </select>
 
                         <div class="action-row">
+                            <button type="submit"
+                                    formmethod="get"
+                                    formaction="@Url.Page("/Dispatch/Letter")"
+                                    formtarget="_blank"
+                                    class="btn btn-outline-secondary action-button">
+                                @T["DispatchLetter_OpenPreviewAction"]
+                            </button>
                             <button type="submit" class="btn btn-outline-primary action-button">@T["DispatchWorkspace_PrintAction"]</button>
                         </div>
                     </form>
@@ -164,24 +161,14 @@
             </section>
             <section class="surface-stat">
                 <span class="section-caption">@T["DispatchWorkspace_DispatchedAtLabel"]</span>
-                <strong>@item.DispatchedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</strong>
+                <strong>@item.DispatchedAtUtc.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture)</strong>
             </section>
         </div>
 
         @if (!hasAnyDispatchAction)
         {
             <div class="surface-action-zone is-blocked">
-                <div class="surface-action-header">
-                    <span class="surface-action-kicker">@T["SurfaceAction_BlockedLabel"]</span>
-                    <h3 class="surface-action-title">@T["DispatchWorkspace_NoAvailableActionsTitle"]</h3>
-                </div>
-                <p class="surface-action-copy">@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: true)]</p>
-                <div class="pill-list">
-                    @foreach (var permissionResourceKey in Model.GetMissingDispatchPermissionResourceKeys())
-                    {
-                        <span class="pill">@T[permissionResourceKey]</span>
-                    }
-                </div>
+                <p class="surface-action-copy mb-0">@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: true)]</p>
             </div>
         }
         else
@@ -236,6 +223,13 @@
                         </select>
 
                         <div class="action-row">
+                            <button type="submit"
+                                    formmethod="get"
+                                    formaction="@Url.Page("/Dispatch/Letter")"
+                                    formtarget="_blank"
+                                    class="btn btn-outline-secondary action-button">
+                                @T["DispatchLetter_OpenPreviewAction"]
+                            </button>
                             <button type="submit" class="btn btn-outline-primary action-button">@T["DispatchWorkspace_ReprintAction"]</button>
                         </div>
                     </form>

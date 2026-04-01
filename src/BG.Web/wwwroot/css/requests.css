@@ -1,10 +1,3 @@
-.requests-focus-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(0, 1.35fr) minmax(19rem, 24rem);
-  align-items: start;
-}
-
 .request-workspace-grid {
   display: grid;
   gap: 1rem;
@@ -33,49 +26,9 @@
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
 }
 
-.requests-focus-main,
-.requests-focus-sidebar {
-  display: grid;
-  gap: 1rem;
-  align-content: start;
-}
-
-.requests-focus-banner {
-  display: grid;
-  gap: 1rem;
-}
-
-.requests-focus-banner-copy {
-  display: grid;
-  gap: 0.65rem;
-}
-
-.requests-focus-banner-copy h2 {
-  margin: 0;
-  font-size: clamp(1.4rem, 2.1vw, 2rem);
-}
-
-.request-surface-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.9fr);
-  align-items: start;
-}
-
-.request-surface-panel {
-  display: grid;
-  gap: 0.9rem;
-  padding: 1rem;
-  border-radius: 18px;
-  border: 1px solid color-mix(in srgb, var(--border) 80%, white);
-  background: color-mix(in srgb, var(--surface) 94%, white);
-}
-
 @media (max-width: 991.98px) {
   .requests-workbench-grid,
-  .request-workspace-grid,
-  .requests-focus-grid,
-  .request-surface-grid {
+  .request-workspace-grid {
     grid-template-columns: 1fr;
   }
 }

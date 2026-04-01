@@ -4,6 +4,7 @@
   <environmentVariable name="Storage__DocumentsRoot" value="C:\BG\documents" />
   <environmentVariable name="DataProtection__KeysPath" value="C:\BG\data-protection" />
   <environmentVariable name="AllowedHosts" value="bg.example.local" />
+  <environmentVariable name="ReverseProxy__KnownProxies__0" value="10.0.0.10" />
   <environmentVariable name="OperationalSeed__Enabled" value="false" />
   <environmentVariable name="Swagger__Enabled" value="false" />
   <environmentVariable name="Ocr__Enabled" value="false" />

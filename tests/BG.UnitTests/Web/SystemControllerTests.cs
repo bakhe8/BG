@@ -1,5 +1,4 @@
 using BG.Application.Models;
-using BG.Integrations.Options;
 using BG.Web.Controllers;
 using BG.Web.Contracts.System;
 using BG.Web.UI;
@@ -7,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
 namespace BG.UnitTests.Web;
 
@@ -16,7 +14,7 @@ public sealed class SystemControllerTests
     [Fact]
     public void Ping_returns_ok_status_and_current_environment()
     {
-        var controller = CreateController(new HospitalApiOptions(), "Test");
+        var controller = CreateController("Test");
 
         var result = controller.Ping();
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -28,17 +26,9 @@ public sealed class SystemControllerTests
     }
 
     [Fact]
-    public void GetArchitecture_returns_profile_and_hospital_api_configuration_state()
+    public void GetArchitecture_returns_profile_and_ui_configuration_state()
     {
-        var controller = CreateController(
-            new HospitalApiOptions
-            {
-                BaseUrl = "https://hospital-api.internal/",
-                TimeoutSeconds = 45,
-                AuthenticationMode = "ApiKey",
-                ApiKeyHeaderName = "X-Api-Key"
-            },
-            "Development");
+        var controller = CreateController("Development");
 
         var result = controller.GetArchitecture();
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -53,15 +43,9 @@ public sealed class SystemControllerTests
         Assert.Contains("en", response.SupportedCultures);
         Assert.Single(response.SupportedThemes);
         Assert.Contains("kfsh", response.SupportedThemes);
-        Assert.True(response.HospitalApi.IsConfigured);
-        Assert.Equal("https://hospital-api.internal/", response.HospitalApi.BaseUrl);
-        Assert.Equal("ApiKey", response.HospitalApi.AuthenticationMode);
-        Assert.Equal(45, response.HospitalApi.TimeoutSeconds);
     }
 
-    private static SystemController CreateController(
-        HospitalApiOptions hospitalApiOptions,
-        string environmentName)
+    private static SystemController CreateController(string environmentName)
     {
         var httpContextAccessor = new HttpContextAccessor
         {
@@ -71,7 +55,6 @@ public sealed class SystemControllerTests
         return new SystemController(
             new StubArchitectureProfileService(),
             new TestHostEnvironment(environmentName),
-            Options.Create(hospitalApiOptions),
             new UiConfigurationService(httpContextAccessor));
     }
 
@@ -86,7 +69,7 @@ public sealed class SystemControllerTests
                 "REST API Controllers",
                 "PostgreSQL",
                 "IIS",
-                "Hospital API Integration Layer");
+                "Internal Integration Layer");
         }
     }
 

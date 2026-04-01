@@ -42,15 +42,10 @@
         string.Equals(item.PagePath, "/Index", StringComparison.OrdinalIgnoreCase)
             ? string.Equals(currentPath, "/", StringComparison.OrdinalIgnoreCase) || string.Equals(currentPath, "/Index", StringComparison.OrdinalIgnoreCase)
             : currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase));
-    var primaryRoleSummary = shell.CurrentUser?.RoleNames.Count switch
-    {
-        > 1 => string.Format(T["WorkspaceShell_RoleCountSummary"], shell.CurrentUser.RoleNames.Count),
-        1 => shell.CurrentUser.RoleNames[0],
-        _ => null
-    };
     var brandInitials = "KF";
     var currentUserInitials = shell.CurrentUser is null ? null : BuildInitials(shell.CurrentUser.DisplayName);
     var navigationDrawerId = "shellSidebar";
+    var showShellSidebar = operationalItems.Length + administrationItems.Length > 1;
 }
 <!DOCTYPE html>
 <html lang="@currentCulture" dir="@currentDirection">
@@ -72,102 +67,124 @@
 </head>
 <body class="theme-@currentTheme" hx-boost="true">
     @{
-        var hasSupportRail = IsSectionDefined("SupportRail");
-        var hasDetailDrawer = IsSectionDefined("DetailDrawer");
-        var hasDossier = IsSectionDefined("Dossier");
+        var suppressSupportRail = ViewData["HideSupportRail"] as bool? == true;
+        var suppressDetailDrawer = ViewData["HideDetailDrawer"] as bool? == true;
+        var suppressDossier = ViewData["HideDossier"] as bool? == true;
+        var hasSupportRail = IsSectionDefined("SupportRail") && !suppressSupportRail;
+        var hasDetailDrawer = IsSectionDefined("DetailDrawer") && !suppressDetailDrawer;
+        var hasDossier = IsSectionDefined("Dossier") && !suppressDossier;
+        if (suppressSupportRail && IsSectionDefined("SupportRail"))
+        {
+            IgnoreSection("SupportRail");
+        }
+
+        if (suppressDetailDrawer && IsSectionDefined("DetailDrawer"))
+        {
+            IgnoreSection("DetailDrawer");
+        }
+
+        if (suppressDossier && IsSectionDefined("Dossier"))
+        {
+            IgnoreSection("Dossier");
+        }
         var stageTitle = activeItem is not null ? T[activeItem.ResourceKey].Value : "BG";
-        var stageSummary = shell.CurrentUser is null
-            ? T["WorkspaceShell_SignInAction"].Value
-            : !string.IsNullOrWhiteSpace(primaryRoleSummary)
-                ? primaryRoleSummary
-                : shell.CurrentUser.DisplayName;
+        string? stageSummary = null;
     }
-    <div class="shell-app">
-        <aside id="@navigationDrawerId"
-               class="shell-sidebar bg-shell-sidebar offcanvas offcanvas-start"
-               tabindex="-1"
-               aria-labelledby="shellSidebarLabel">
-            <div class="offcanvas-header d-lg-none px-4 pt-4 pb-0">
-                <div>
-                    <div id="shellSidebarLabel" class="fw-bold text-white">KFSHRC</div>
-                    <div class="x-small text-white opacity-50">@T["AppBrandSubtitle"]</div>
-                </div>
-                <button type="button"
-                        class="btn btn-sm btn-outline-light rounded-circle border-white border-opacity-25"
-                        data-bs-dismiss="offcanvas"
-                        aria-label="@T["Shared_CloseAction"]">
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-
-            <div class="offcanvas-body shell-sidebar-body">
-                <div class="shell-sidebar-frame">
-                    <div class="shell-brand-block p-4 border-bottom border-white border-opacity-10 mb-3">
-                        <a class="shell-brand d-flex align-items-center gap-2 text-decoration-none" asp-area="" asp-page="/Index">
-                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-white"
-                                  style="width: 32px; height: 32px; background: linear-gradient(135deg, #0f6a4d 0%, #c5a02d 100%);"
-                                  aria-hidden="true">
-                                @brandInitials
-                            </span>
-                            <div class="d-flex flex-column">
-                                <span class="fw-bold text-white small">KFSHRC</span>
-                                <span class="x-small text-white opacity-50">@T["AppBrandSubtitle"]</span>
-                            </div>
-                        </a>
+    <div class="shell-app @(showShellSidebar ? null : "shell-app-no-sidebar")">
+        @if (showShellSidebar)
+        {
+            <aside id="@navigationDrawerId"
+                   class="shell-sidebar bg-shell-sidebar offcanvas offcanvas-start"
+                   tabindex="-1"
+                   aria-labelledby="shellSidebarLabel">
+                <div class="offcanvas-header d-lg-none px-4 pt-4 pb-0">
+                    <div>
+                        <div id="shellSidebarLabel" class="fw-bold text-white">KFSHRC</div>
+                        <div class="x-small text-white opacity-50">@T["AppBrandSubtitle"]</div>
                     </div>
-
-                    @if (operationalItems.Length > 0)
-                    {
-                        <section class="shell-sidebar-section px-3">
-                            <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_WorkspacesLabel"]">
-                                @foreach (var item in operationalItems)
-                                {
-                                    var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
-                                    <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
-                                        <i class="bi bi-circle-fill x-small"></i>
-                                        <span class="small fw-bold">@T[item.ResourceKey]</span>
-                                    </a>
-                                }
-                            </nav>
-                        </section>
-                    }
-
-                    @if (administrationItems.Length > 0)
-                    {
-                        <section class="shell-sidebar-section px-3 mt-4">
-                            <div class="px-3 mb-2 d-flex justify-content-between align-items-center">
-                                <span class="x-small fw-bold text-white opacity-25 text-uppercase letter-spacing-1">@T["WorkspaceShell_AdminLabel"]</span>
-                            </div>
-                            <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_AdminLabel"]">
-                                @foreach (var item in administrationItems)
-                                {
-                                    var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
-                                    <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
-                                        <i class="bi bi-gear x-small"></i>
-                                        <span class="small fw-bold">@T[item.ResourceKey]</span>
-                                    </a>
-                                }
-                            </nav>
-                        </section>
-                    }
+                    <button type="button"
+                            class="btn btn-sm btn-outline-light rounded-circle border-white border-opacity-25"
+                            data-bs-dismiss="offcanvas"
+                            aria-label="@T["Shared_CloseAction"]">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-            </div>
-        </aside>
+
+                <div class="offcanvas-body shell-sidebar-body">
+                    <div class="shell-sidebar-frame">
+                        <div class="shell-brand-block p-4 border-bottom border-white border-opacity-10 mb-3">
+                            <a class="shell-brand d-flex align-items-center gap-2 text-decoration-none" asp-area="" asp-page="/Index">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle fw-bold text-white"
+                                      style="width: 32px; height: 32px; background: linear-gradient(135deg, #0f6a4d 0%, #c5a02d 100%);"
+                                      aria-hidden="true">
+                                    @brandInitials
+                                </span>
+                                <div class="d-flex flex-column">
+                                    <span class="fw-bold text-white small">KFSHRC</span>
+                                    <span class="x-small text-white opacity-50">@T["AppBrandSubtitle"]</span>
+                                </div>
+                            </a>
+                        </div>
+
+                        @if (operationalItems.Length > 0)
+                        {
+                            <section class="shell-sidebar-section px-3">
+                                <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_WorkspacesLabel"]">
+                                    @foreach (var item in operationalItems)
+                                    {
+                                        var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
+                                        <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
+                                            <i class="bi bi-circle-fill x-small"></i>
+                                            <span class="small fw-bold">@T[item.ResourceKey]</span>
+                                        </a>
+                                    }
+                                </nav>
+                            </section>
+                        }
+
+                        @if (administrationItems.Length > 0)
+                        {
+                            <section class="shell-sidebar-section px-3 mt-4">
+                                <div class="px-3 mb-2 d-flex justify-content-between align-items-center">
+                                    <span class="x-small fw-bold text-white opacity-25 text-uppercase letter-spacing-1">@T["WorkspaceShell_AdminLabel"]</span>
+                                </div>
+                                <nav class="nav flex-column gap-1" aria-label="@T["WorkspaceShell_AdminLabel"]">
+                                    @foreach (var item in administrationItems)
+                                    {
+                                        var isActive = currentPath.StartsWith(item.PagePath, StringComparison.OrdinalIgnoreCase);
+                                        <a class="nav-link rounded-4 px-3 py-2 d-flex align-items-center gap-2 @(isActive ? "bg-white bg-opacity-10 text-brand-gold active" : "text-white opacity-75")" href="@item.PagePath">
+                                            <i class="bi bi-gear x-small"></i>
+                                            <span class="small fw-bold">@T[item.ResourceKey]</span>
+                                        </a>
+                                    }
+                                </nav>
+                            </section>
+                        }
+                    </div>
+                </div>
+            </aside>
+        }
 
         <div class="shell-stage bg-shell-content d-flex flex-column p-0">
             <header class="shell-stage-header bg-shell-topbar d-flex justify-content-between align-items-center px-4 py-3 sticky-top shadow-sm">
                 <div class="shell-stage-header-main d-flex align-items-center gap-3">
-                    <button type="button"
-                            class="btn btn-light d-lg-none rounded-circle p-2"
-                            data-bs-toggle="offcanvas"
-                            data-bs-target="#@navigationDrawerId"
-                            aria-controls="@navigationDrawerId"
-                            aria-label="@T["WorkspaceShell_OpenNavigationAction"]">
-                        <i class="bi bi-list"></i>
-                    </button>
+                    @if (showShellSidebar)
+                    {
+                        <button type="button"
+                                class="btn btn-light d-lg-none rounded-circle p-2"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#@navigationDrawerId"
+                                aria-controls="@navigationDrawerId"
+                                aria-label="@T["WorkspaceShell_OpenNavigationAction"]">
+                            <i class="bi bi-list"></i>
+                        </button>
+                    }
                     <div>
                         <h5 class="fw-bold m-0 text-dark">@stageTitle</h5>
-                        <div class="x-small text-muted">@stageSummary</div>
+                        @if (!string.IsNullOrWhiteSpace(stageSummary))
+                        {
+                            <div class="x-small text-muted">@stageSummary</div>
+                        }
                     </div>
                 </div>
 
@@ -195,10 +212,14 @@
                                   aria-label="@shell.CurrentUser.DisplayName">
                                 @currentUserInitials
                             </span>
-                            
-                            <form method="post" asp-page="/SignIn" asp-page-handler="SignOut">
-                                <button type="submit" class="btn btn-light rounded-circle shadow-none border-0" title="@T["WorkspaceShell_SignOutAction"]">
-                                    <i class="bi bi-box-arrow-right text-danger"></i>
+
+                            <form method="post" asp-page="/SignIn" asp-page-handler="SignOut" class="m-0">
+                                <button type="submit"
+                                        class="btn btn-outline-danger btn-sm rounded-pill d-inline-flex align-items-center gap-2 px-3 shell-signout-button"
+                                        title="@T["WorkspaceShell_SignOutAction"]"
+                                        aria-label="@T["WorkspaceShell_SignOutAction"]">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    <span>@T["WorkspaceShell_SignOutAction"]</span>
                                 </button>
                             </form>
                         </div>

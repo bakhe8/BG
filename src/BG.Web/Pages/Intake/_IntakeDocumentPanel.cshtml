@@ -75,8 +75,10 @@
     }
 
     <div class="mt-4 pt-4 border-top d-flex justify-content-end">
-        <bg-button variant="primary" asp-page-handler="Extract" type="submit">
+        <button type="submit"
+                formaction="@Url.Page("/Intake/Workspace", pageHandler: "Extract")"
+                class="bg-btn bg-btn-primary">
             <i class="bi bi-cpu-fill me-2"></i>@T["IntakeWorkspace_ExtractAction"]
-        </bg-button>
+        </button>
     </div>
 </bg-section>

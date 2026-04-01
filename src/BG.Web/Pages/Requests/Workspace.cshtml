@@ -4,49 +4,20 @@
 @model BG.Web.Pages.Requests.WorkspaceModel
 @{
     ViewData["Title"] = T["RequestsWorkspace_PageTitle"];
-
-    var ownedRequests = Model.Snapshot.OwnedRequests;
-    var draftCount = ownedRequests.Count(request => request.StatusResourceKey == "RequestStatus_Draft");
-    var returnedCount = ownedRequests.Count(request => request.StatusResourceKey == "RequestStatus_Returned");
-    var inApprovalCount = ownedRequests.Count(request => request.StatusResourceKey == "RequestStatus_InApproval");
-    var activeFollowUpCount = ownedRequests.Count(
-        request => request.StatusResourceKey is "RequestStatus_ApprovedForDispatch" or "RequestStatus_SubmittedToBank" or "RequestStatus_AwaitingBankResponse");
-    var headerPills = Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null
-        ? new[]
-        {
-            Model.Snapshot.ActiveActor.DisplayName,
-            T["Pagination_PageSummary", Model.Snapshot.OwnedRequestsPage.PageNumber, Model.Snapshot.OwnedRequestsPage.TotalPageCount, Model.Snapshot.OwnedRequestsPage.TotalItemCount].Value
-        }
-        : Array.Empty<string>();
     var headerModel = new SurfaceHeaderModel(
         T["NavRequests"].Value,
         T["RequestsWorkspace_Heading"].Value,
-        null,
-        headerPills,
-        "is-split");
-    var statStripModel = new SurfaceStatStripModel(
-        new[]
-        {
-            new SurfaceStatItem(T["RequestsWorkspace_MetricOwned"].Value, Model.Snapshot.OwnedRequestsPage.TotalItemCount),
-            new SurfaceStatItem(T["RequestStatus_Draft"].Value, draftCount),
-            new SurfaceStatItem(T["RequestStatus_InApproval"].Value, inApprovalCount),
-            new SurfaceStatItem(T["RequestStatus_Returned"].Value, returnedCount),
-            new SurfaceStatItem(T["RequestsWorkspace_TrackingSummaryTitle"].Value, activeFollowUpCount)
-        });
+        null);
     var noEligibleActorModel = new SurfaceMessageCardModel(
         T["RequestsWorkspace_NoEligibleActor"].Value,
         T["RequestsWorkspace_NoEligibleActorBody"].Value);
+    var showTrackingQueue = Model.Snapshot.OwnedRequests.Count > 1;
 }
 
 <section class="section-shell requests-surface">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
         <div class="notice-banner is-success">@Model.StatusMessage</div>
-    }
-
-    @if (Model.Snapshot.HasEligibleActor && !string.IsNullOrWhiteSpace(Model.Snapshot.ContextNoticeResourceKey))
-    {
-        <div class="notice-banner is-success">@T[Model.Snapshot.ContextNoticeResourceKey]</div>
     }
 
     <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
@@ -57,24 +28,34 @@
     }
     else
     {
-        <partial name="/Pages/Shared/_SurfaceStatStrip.cshtml" model="statStripModel" />
+        @if (Model.ActiveRequest is null && Model.Snapshot.OwnedRequests.Count == 0)
+        {
+            <div class="requests-create-column">
+                <partial name="_RequestSupportRail" model="Model" />
+            </div>
+        }
+        else
+        {
+            <div class="request-workspace-grid">
+                <div class="requests-create-column">
+                    <partial name="_RequestSupportRail" model="Model" />
+                </div>
 
-        <div class="request-workspace-grid">
-            <partial name="_RequestQueue" model="Model" />
-            <partial name="_RequestActivePanel" model="Model" />
-        </div>
+                <div class="requests-tracking-column">
+                    @if (Model.ActiveRequest is not null)
+                    {
+                        <partial name="_RequestActivePanel" model="Model" />
+                        @if (showTrackingQueue)
+                        {
+                            <partial name="_RequestQueue" model="Model" />
+                        }
+                    }
+                    else
+                    {
+                        <partial name="_RequestQueue" model="Model" />
+                    }
+                </div>
+            </div>
+        }
     }
 </section>
-
-@section SupportRail
-{
-    @if (Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null)
-    {
-        <partial name="_RequestSupportRail" model="Model" />
-    }
-}
-
-@section DetailDrawer
-{
-    <partial name="_RequestDetailDrawer" model="Model" />
-}

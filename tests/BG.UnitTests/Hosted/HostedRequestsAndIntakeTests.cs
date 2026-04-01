@@ -31,6 +31,10 @@ public sealed partial class HostedFlowTests
         Assert.Equal(HttpStatusCode.OK, intakeResponse.StatusCode);
         Assert.Contains("intake-surface-grid", intakeHtml, StringComparison.Ordinal);
         Assert.Contains("name=\"Input.UploadedDocument\"", intakeHtml, StringComparison.Ordinal);
+        Assert.Contains("id=\"intake-workspace-form\"", intakeHtml, StringComparison.Ordinal);
+        Assert.Contains("hx-boost=\"false\"", intakeHtml, StringComparison.Ordinal);
+        Assert.Contains("handler=Extract", intakeHtml, StringComparison.Ordinal);
+        Assert.Contains("handler=Save", intakeHtml, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -150,7 +154,9 @@ public sealed partial class HostedFlowTests
 
         Assert.Equal(HttpStatusCode.OK, approvalsResponse.StatusCode);
         Assert.Contains(guaranteeNumber, approvalsHtml, StringComparison.Ordinal);
-        Assert.Contains("approval-surface-grid", approvalsHtml, StringComparison.Ordinal);
+        Assert.True(
+            approvalsHtml.Contains("approval-surface-grid", StringComparison.Ordinal) ||
+            approvalsHtml.Contains("approval-surface-solo", StringComparison.Ordinal));
         Assert.Contains($"/Approvals/Dossier/{requestId}", approvalsHtml, StringComparison.Ordinal);
 
         var requestState = await factory.QueryDbContextAsync(

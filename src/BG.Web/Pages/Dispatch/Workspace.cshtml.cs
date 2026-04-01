@@ -326,38 +326,6 @@ public sealed class WorkspaceModel : PageModel
             .ToArray();
     }
 
-    public IReadOnlyList<string> GetMissingDispatchPermissionResourceKeys()
-    {
-        if (Snapshot.ActiveActor is null)
-        {
-            return
-            [
-                "Permission_dispatch.print",
-                "Permission_dispatch.record",
-                "Permission_dispatch.email"
-            ];
-        }
-
-        var missingPermissions = new List<string>();
-
-        if (!Snapshot.ActiveActor.CanPrint)
-        {
-            missingPermissions.Add("Permission_dispatch.print");
-        }
-
-        if (!Snapshot.ActiveActor.CanRecord)
-        {
-            missingPermissions.Add("Permission_dispatch.record");
-        }
-
-        if (!Snapshot.ActiveActor.CanEmail)
-        {
-            missingPermissions.Add("Permission_dispatch.email");
-        }
-
-        return missingPermissions;
-    }
-
     public string ResolveNoActionReasonResourceKey(bool isPendingDelivery)
     {
         return isPendingDelivery

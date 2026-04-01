@@ -10,12 +10,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Localization;
+using System.Text.RegularExpressions;
 
 namespace BG.Web.Pages.Requests;
 
 [Authorize(Policy = PermissionPolicyNames.RequestsWorkspace)]
 public sealed class WorkspaceModel : PageModel
 {
+    private static readonly Regex ResourceTokenRegex = new(@"\b[A-Za-z]+(?:_[A-Za-z0-9]+)+\b", RegexOptions.Compiled);
+    private static readonly Regex SeedNoteRegex = new(@"(?:\s*Note:\s*Seed[^.]+\.?)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private readonly IRequestWorkspaceService _requestWorkspaceService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
@@ -249,14 +252,12 @@ public sealed class WorkspaceModel : PageModel
 
     public string ResolveStageTitle(RequestSummaryDto request)
     {
-        if (!string.IsNullOrWhiteSpace(request.CurrentStageTitle))
+        if (!string.IsNullOrWhiteSpace(request.CurrentStageTitleResourceKey))
         {
-            return request.CurrentStageTitle;
+            return _localizer[request.CurrentStageTitleResourceKey].Value;
         }
 
-        return string.IsNullOrWhiteSpace(request.CurrentStageTitleResourceKey)
-            ? "-"
-            : _localizer[request.CurrentStageTitleResourceKey].Value;
+        return ResolveLocalizedText(request.CurrentStageTitle);
     }
 
     public string ResolveStateSummaryResourceKey(string statusResourceKey)
@@ -320,6 +321,78 @@ public sealed class WorkspaceModel : PageModel
         return parts.Count == 0 ? "-" : string.Join(" · ", parts);
     }
 
+    public string ResolveWorkflowStageTitle(RequestWorkflowStageTemplateDto stage)
+    {
+        if (!string.IsNullOrWhiteSpace(stage.TitleResourceKey))
+        {
+            return _localizer[stage.TitleResourceKey].Value;
+        }
+
+        return ResolveLocalizedText(stage.TitleText);
+    }
+
+    public string ResolveWorkflowStageSummary(RequestWorkflowStageTemplateDto stage)
+    {
+        if (!string.IsNullOrWhiteSpace(stage.SummaryResourceKey))
+        {
+            return _localizer[stage.SummaryResourceKey].Value;
+        }
+
+        return ResolveLocalizedText(stage.SummaryText);
+    }
+
+    public string ResolveRoleDisplayName(string? roleName)
+    {
+        if (string.IsNullOrWhiteSpace(roleName))
+        {
+            return "-";
+        }
+
+        return roleName switch
+        {
+            "Intake Operators" => _localizer["RoleName_IntakeOperators"].Value,
+            "Operations Reviewers" => _localizer["RoleName_OperationsReviewers"].Value,
+            "Request Owners" => _localizer["RoleName_RequestOwners"].Value,
+            "Dispatch Officers" => _localizer["RoleName_DispatchOfficers"].Value,
+            "Guarantees Supervisors" => _localizer["WorkflowStage_GuaranteesSupervisor_Title"].Value,
+            "Department Managers" => _localizer["WorkflowStage_DepartmentManager_Title"].Value,
+            "Program Directors" => _localizer["WorkflowStage_ProgramDirector_Title"].Value,
+            "Deputy Financial Affairs Directors" => _localizer["WorkflowStage_DeputyFinancialAffairsDirector_Title"].Value,
+            "Contracts Signer 1" => _localizer["WorkflowStage_ContractsSigner1_Title"].Value,
+            "Contracts Signer 2" => _localizer["WorkflowStage_ContractsSigner2_Title"].Value,
+            "Contracts Signer 3" => _localizer["WorkflowStage_ContractsSigner3_Title"].Value,
+            "Procurement Signer 1" => _localizer["WorkflowStage_ProcurementSigner1_Title"].Value,
+            "Procurement Signer 2" => _localizer["WorkflowStage_ProcurementSigner2_Title"].Value,
+            "Procurement Signer 3" => _localizer["WorkflowStage_ProcurementSigner3_Title"].Value,
+            "Executive Vice Presidents" => _localizer["WorkflowStage_ExecutiveVicePresident_Title"].Value,
+            "System Administrator" => _localizer["RoleName_SystemAdministrator"].Value,
+            _ => ResolveLocalizedText(roleName)
+        };
+    }
+
+    public string ResolveLedgerSummary(RequestLedgerEntryDto ledgerEntry)
+    {
+        if (string.IsNullOrWhiteSpace(ledgerEntry.Summary))
+        {
+            return "-";
+        }
+
+        var localizedSummary = ResourceTokenRegex.Replace(
+            ledgerEntry.Summary,
+            match => ResolveLocalizedText(match.Value));
+
+        localizedSummary = SeedNoteRegex.Replace(localizedSummary, string.Empty).Trim();
+
+        if (localizedSummary.StartsWith("Seed ", StringComparison.OrdinalIgnoreCase))
+        {
+            return _localizer["RequestsWorkspace_InternalSeedNote"].Value;
+        }
+
+        return string.IsNullOrWhiteSpace(localizedSummary)
+            ? _localizer["RequestsWorkspace_InternalSeedNote"].Value
+            : localizedSummary;
+    }
+
     public bool HasOwnerAction(RequestSummaryDto request)
     {
         return request.CanSubmitForApproval || request.CanRevise || request.CanCancel || request.CanWithdraw;
@@ -342,6 +415,19 @@ public sealed class WorkspaceModel : PageModel
             "RequestStatus_Cancelled" => "RequestsWorkspace_NoOwnerAction_Cancelled",
             _ => "RequestsWorkspace_NextActionMonitor"
         };
+    }
+
+    private string ResolveLocalizedText(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return "-";
+        }
+
+        var localized = _localizer[text].Value;
+        return string.Equals(localized, text, StringComparison.Ordinal)
+            ? text
+            : localized;
     }
 
     private async Task LoadAsync(Guid? actorId, int? pageNumber, Guid? selectedRequestId, CancellationToken cancellationToken)

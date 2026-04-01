@@ -29,7 +29,8 @@ public sealed class ProductionReadinessValidatorTests
             {
                 ["AllowedHosts"] = "*",
                 ["Storage:DocumentsRoot"] = paths.DocumentsRoot,
-                ["DataProtection:KeysPath"] = paths.KeysRoot
+                ["DataProtection:KeysPath"] = paths.KeysRoot,
+                ["ReverseProxy:KnownProxies:0"] = "127.0.0.1"
             });
 
             var exception = Assert.Throws<InvalidOperationException>(
@@ -55,6 +56,7 @@ public sealed class ProductionReadinessValidatorTests
                 ["AllowedHosts"] = "bg.example.internal",
                 ["Storage:DocumentsRoot"] = paths.DocumentsRoot,
                 ["DataProtection:KeysPath"] = paths.KeysRoot,
+                ["ReverseProxy:KnownProxies:0"] = "127.0.0.1",
                 ["OperationalSeed:Enabled"] = "true"
             });
 
@@ -81,9 +83,12 @@ public sealed class ProductionReadinessValidatorTests
                 ["AllowedHosts"] = "bg.example.internal",
                 ["Storage:DocumentsRoot"] = paths.DocumentsRoot,
                 ["DataProtection:KeysPath"] = paths.KeysRoot,
+                ["ReverseProxy:KnownProxies:0"] = "127.0.0.1",
                 ["Ocr:Enabled"] = "true",
                 ["Ocr:PythonExecutablePath"] = Path.Combine(paths.Root, "missing-python.exe"),
-                ["Ocr:WorkerScriptPath"] = Path.Combine(paths.Root, "missing-worker.py")
+                ["Ocr:WorkerScriptPath"] = Path.Combine(paths.Root, "missing-worker.py"),
+                ["Ocr:MaxFileSizeBytes"] = "15728640",
+                ["Ocr:QueueCapacity"] = "4"
             });
 
             var exception = Assert.Throws<InvalidOperationException>(
@@ -110,14 +115,100 @@ public sealed class ProductionReadinessValidatorTests
                 ["AllowedHosts"] = "bg.example.internal",
                 ["Storage:DocumentsRoot"] = paths.DocumentsRoot,
                 ["DataProtection:KeysPath"] = paths.KeysRoot,
+                ["ReverseProxy:KnownProxies:0"] = "127.0.0.1",
                 ["Swagger:Enabled"] = "false",
                 ["OperationalSeed:Enabled"] = "false",
                 ["Ocr:Enabled"] = "true",
                 ["Ocr:PythonExecutablePath"] = paths.PythonExecutablePath,
-                ["Ocr:WorkerScriptPath"] = paths.WorkerScriptPath
+                ["Ocr:WorkerScriptPath"] = paths.WorkerScriptPath,
+                ["Ocr:MaxFileSizeBytes"] = "15728640",
+                ["Ocr:QueueCapacity"] = "4"
             });
 
             ProductionReadinessValidator.Validate(configuration, new StubHostEnvironment("Production"));
+        }
+        finally
+        {
+            paths.Dispose();
+        }
+    }
+
+    [Fact]
+    public void Validate_rejects_non_positive_ocr_limits_when_enabled_in_production()
+    {
+        var paths = CreateProductionPaths(includeOcrRuntime: true);
+
+        try
+        {
+            var configuration = BuildConfiguration(new Dictionary<string, string?>
+            {
+                ["AllowedHosts"] = "bg.example.internal",
+                ["Storage:DocumentsRoot"] = paths.DocumentsRoot,
+                ["DataProtection:KeysPath"] = paths.KeysRoot,
+                ["ReverseProxy:KnownProxies:0"] = "127.0.0.1",
+                ["Ocr:Enabled"] = "true",
+                ["Ocr:PythonExecutablePath"] = paths.PythonExecutablePath,
+                ["Ocr:WorkerScriptPath"] = paths.WorkerScriptPath,
+                ["Ocr:MaxFileSizeBytes"] = "0",
+                ["Ocr:QueueCapacity"] = "0"
+            });
+
+            var exception = Assert.Throws<InvalidOperationException>(
+                () => ProductionReadinessValidator.Validate(configuration, new StubHostEnvironment("Production")));
+
+            Assert.Contains("Ocr:MaxFileSizeBytes", exception.Message, StringComparison.Ordinal);
+            Assert.Contains("Ocr:QueueCapacity", exception.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            paths.Dispose();
+        }
+    }
+
+    [Fact]
+    public void Validate_rejects_missing_reverse_proxy_trust_configuration_in_production()
+    {
+        var paths = CreateProductionPaths();
+
+        try
+        {
+            var configuration = BuildConfiguration(new Dictionary<string, string?>
+            {
+                ["AllowedHosts"] = "bg.example.internal",
+                ["Storage:DocumentsRoot"] = paths.DocumentsRoot,
+                ["DataProtection:KeysPath"] = paths.KeysRoot
+            });
+
+            var exception = Assert.Throws<InvalidOperationException>(
+                () => ProductionReadinessValidator.Validate(configuration, new StubHostEnvironment("Production")));
+
+            Assert.Contains("ReverseProxy", exception.Message, StringComparison.Ordinal);
+        }
+        finally
+        {
+            paths.Dispose();
+        }
+    }
+
+    [Fact]
+    public void Validate_rejects_invalid_reverse_proxy_network_configuration_in_production()
+    {
+        var paths = CreateProductionPaths();
+
+        try
+        {
+            var configuration = BuildConfiguration(new Dictionary<string, string?>
+            {
+                ["AllowedHosts"] = "bg.example.internal",
+                ["Storage:DocumentsRoot"] = paths.DocumentsRoot,
+                ["DataProtection:KeysPath"] = paths.KeysRoot,
+                ["ReverseProxy:KnownNetworks:0"] = "not-a-network"
+            });
+
+            var exception = Assert.Throws<InvalidOperationException>(
+                () => ProductionReadinessValidator.Validate(configuration, new StubHostEnvironment("Production")));
+
+            Assert.Contains("Reverse proxy trust configuration is invalid", exception.Message, StringComparison.Ordinal);
         }
         finally
         {

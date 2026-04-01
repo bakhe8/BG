@@ -26,7 +26,7 @@ public sealed class ApplicationDependencyInjectionTests
         Assert.Equal("REST API Controllers", profile.ApiStyle);
         Assert.Equal("PostgreSQL", profile.Database);
         Assert.Equal("IIS", profile.Hosting);
-        Assert.Equal("Hospital API Integration Layer", profile.IntegrationApproach);
+        Assert.Equal("Internal Integration Layer", profile.IntegrationApproach);
     }
 
     [Fact]

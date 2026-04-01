@@ -126,6 +126,7 @@ Get-Item "cert:\LocalMachine\My\<CERT_THUMBPRINT>" | New-Item "IIS:\SslBindings\
 - `Storage__DocumentsRoot`
 - `DataProtection__KeysPath`
 - `AllowedHosts`
+- `ReverseProxy__KnownProxies__0` or `ReverseProxy__KnownNetworks__0`
 - `OperationalSeed__Enabled=false`
 - `Swagger__Enabled=false`
 
@@ -140,6 +141,7 @@ After `dotnet publish`, edit the generated `web.config` in the publish folder an
   <environmentVariable name="Storage__DocumentsRoot" value="C:\BG\documents" />
   <environmentVariable name="DataProtection__KeysPath" value="C:\BG\data-protection" />
   <environmentVariable name="AllowedHosts" value="bg.example.local" />
+  <environmentVariable name="ReverseProxy__KnownProxies__0" value="10.0.0.10" />
   <environmentVariable name="OperationalSeed__Enabled" value="false" />
   <environmentVariable name="Swagger__Enabled" value="false" />
   <environmentVariable name="Ocr__Enabled" value="false" />
@@ -148,10 +150,16 @@ After `dotnet publish`, edit the generated `web.config` in the publish folder an
 
 You can start from the ready template in [deploy/iis/web.config.environmentVariables.example.xml](../../deploy/iis/web.config.environmentVariables.example.xml).
 
+If the environment uses multiple reverse proxies or load balancers, add more indexed
+entries such as `ReverseProxy__KnownProxies__1` or switch to
+`ReverseProxy__KnownNetworks__0=10.0.0.0/24`.
+
 Before go-live, fill the server handoff checklist in [production_server_checklist.md](deployment/production_server_checklist.md).
 The publish output also includes a ready handoff folder with the checklist,
 environment variable template, release handoff sheet, and post-deploy smoke
 record.
+
+Operational demo seeding is now explicit-only. Do not run `--seed-operational-demo` on production hosts.
 
 ### Optional: Temporary bootstrap admin
 
@@ -177,6 +185,8 @@ If OCR is enabled, also configure:
 <environmentVariable name="Ocr__PythonExecutablePath" value="C:\BG\ocr\.venv\Scripts\python.exe" />
 <environmentVariable name="Ocr__WorkerScriptPath" value="OcrWorker\ocr_worker.py" />
 <environmentVariable name="Ocr__TimeoutSeconds" value="120" />
+<environmentVariable name="Ocr__MaxFileSizeBytes" value="33554432" />
+<environmentVariable name="Ocr__QueueCapacity" value="4" />
 ```
 
 ## 7. Database Migration
@@ -286,6 +296,7 @@ After the application is stable:
 - confirm `OperationalSeed` is still disabled
 - confirm `Swagger` is still disabled
 - confirm `AllowedHosts` is explicit and does not contain `*`
+- confirm reverse proxy trust values still match the actual edge topology
 
 ## 13. Rollback
 

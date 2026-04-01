@@ -11,5 +11,4 @@ public sealed record SystemArchitectureResponse(
     string DefaultCulture,
     IReadOnlyList<string> SupportedCultures,
     string DefaultTheme,
-    IReadOnlyList<string> SupportedThemes,
-    HospitalApiConfigurationResponse HospitalApi);
+    IReadOnlyList<string> SupportedThemes);

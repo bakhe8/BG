@@ -130,7 +130,7 @@ public sealed class DispatchWorkspacePageTests
     }
 
     [Fact]
-    public async Task GetMissingDispatchPermissionResourceKeys_returns_missing_permissions_for_limited_actor()
+    public async Task ResolveNoActionReasonResourceKey_returns_expected_reason_for_each_dispatch_lane()
     {
         var actorId = Guid.NewGuid();
         var model = new WorkspaceModel(
@@ -139,15 +139,6 @@ public sealed class DispatchWorkspacePageTests
 
         await model.OnGetAsync(CancellationToken.None);
 
-        var missingPermissions = model.GetMissingDispatchPermissionResourceKeys();
-
-        Assert.Equal(
-            [
-                "Permission_dispatch.print",
-                "Permission_dispatch.record",
-                "Permission_dispatch.email"
-            ],
-            missingPermissions);
         Assert.Equal("DispatchWorkspace_NoAvailableReadyActionsReason", model.ResolveNoActionReasonResourceKey(isPendingDelivery: false));
         Assert.Equal("DispatchWorkspace_NoAvailablePendingActionsReason", model.ResolveNoActionReasonResourceKey(isPendingDelivery: true));
     }
@@ -228,6 +219,38 @@ public sealed class DispatchWorkspacePageTests
                     new PageInfoDto(pageNumber, 10, 1),
                     true,
                     "DispatchWorkspace_ActorScopedNotice"));
+        }
+
+        public Task<OperationResult<DispatchLetterPreviewDto>> GetLetterPreviewAsync(
+            Guid dispatcherUserId,
+            Guid requestId,
+            string? referenceNumber,
+            string? letterDate,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(
+                OperationResult<DispatchLetterPreviewDto>.Success(
+                    new DispatchLetterPreviewDto(
+                        requestId,
+                        "BG-2026-7101",
+                        "National Bank",
+                        "KFSHRC",
+                        "Prime Contractor",
+                        "SAR",
+                        150000m,
+                        new DateOnly(2026, 1, 1),
+                        new DateOnly(2026, 12, 31),
+                        GuaranteeRequestType.Extend,
+                        "Request Owner",
+                        referenceNumber ?? "LTR-8001",
+                        new DateOnly(2026, 3, 12),
+                        null,
+                        new DateOnly(2027, 6, 30),
+                        "Ready for dispatch",
+                        "Dispatch One",
+                        DateTimeOffset.UtcNow,
+                        true,
+                        0)));
         }
 
         public Task<OperationResult<PrintDispatchLetterReceiptDto>> PrintDispatchLetterAsync(

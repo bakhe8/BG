@@ -4,6 +4,7 @@ using BG.Application.Contracts.Services;
 using BG.Application.Intake;
 using BG.Application.Models.Requests;
 using BG.Application.Operations;
+using BG.Application.Requests;
 using BG.Application.ReferenceData;
 using BG.Application.Services;
 using BG.Domain.Guarantees;
@@ -140,6 +141,34 @@ public sealed class RequestWorkspaceServiceTests
             ledgerEntry => ledgerEntry.EventType == GuaranteeEventType.RequestDocumentLinked &&
                            ledgerEntry.GuaranteeRequestId == request.Id &&
                            ledgerEntry.GuaranteeDocumentId == document.Id);
+    }
+
+    [Fact]
+    public async Task CreateRequestAsync_rejects_terminal_guarantee_states()
+    {
+        var actor = CreateRequestActor("request.a", "Request User A");
+        var guarantee = CreateGuarantee("BG-2026-4102-B");
+        typeof(Guarantee)
+            .GetProperty(nameof(Guarantee.Status))!
+            .SetValue(guarantee, GuaranteeStatus.Released);
+
+        var repository = new StubRequestWorkspaceRepository([actor], guarantee);
+        var service = new RequestWorkspaceService(
+            repository,
+            new StubWorkflowTemplateService(),
+            new StubWorkflowDefinitionRepository());
+
+        var result = await service.CreateRequestAsync(
+            new CreateGuaranteeRequestCommand(
+                actor.Id,
+                guarantee.GuaranteeNumber,
+                GuaranteeRequestType.Release,
+                null,
+                null,
+                "Should fail"));
+
+        Assert.False(result.Succeeded);
+        Assert.Equal(RequestErrorCodes.GuaranteeNotRequestable, result.ErrorCode);
     }
 
     [Fact]

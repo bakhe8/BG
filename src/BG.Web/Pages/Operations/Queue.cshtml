@@ -4,30 +4,22 @@
 @model BG.Web.Pages.Operations.QueueModel
 @{
     ViewData["Title"] = T["OperationsQueue_PageTitle"];
-    var headerPills = Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null
-        ? new[]
-        {
-            Model.Snapshot.ActiveActor.DisplayName,
-            T["Pagination_PageSummary", Model.Snapshot.ItemsPage.PageNumber, Model.Snapshot.ItemsPage.TotalPageCount, Model.Snapshot.ItemsPage.TotalItemCount].Value
-        }
-        : Array.Empty<string>();
     var headerModel = new SurfaceHeaderModel(
         T["NavOperationsQueue"].Value,
         T["OperationsQueue_Heading"].Value,
-        null,
-        headerPills,
-        "is-split");
-    var statStripModel = new SurfaceStatStripModel(
-        new[]
-        {
-            new SurfaceStatItem(T["OperationsQueue_MetricOpen"].Value, Model.Snapshot.OpenItemsCount),
-            new SurfaceStatItem(T["OperationsQueue_MetricPending"].Value, Model.Snapshot.PendingItemsCount),
-            new SurfaceStatItem(T["OperationsReviewStatus_Routed"].Value, Model.Snapshot.RoutedItemsCount),
-            new SurfaceStatItem(T["OperationsQueue_OpenItemsTitle"].Value, Model.Snapshot.ItemsPage.TotalItemCount)
-        });
+        null);
     var noEligibleActorModel = new SurfaceMessageCardModel(
         T["OperationsQueue_NoEligibleActor"].Value,
         T["OperationsQueue_NoEligibleActorBody"].Value);
+    var emptyQueueModel = new SurfaceMessageCardModel(
+        T["OperationsQueue_OpenItemsTitle"].Value,
+        T["OperationsQueue_Empty"].Value);
+    var hasOpenItems = Model.Snapshot.Items.Count > 0;
+    var hasVisibleWorkItem = hasOpenItems || Model.ActiveItem is not null;
+    var showQueueList = Model.Snapshot.Items.Count > 1;
+
+    ViewData["HideSupportRail"] = true;
+    ViewData["HideDetailDrawer"] = true;
 }
 
 <section class="section-shell operations-surface">
@@ -38,37 +30,30 @@
 
     <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
-    @if (Model.Snapshot.HasEligibleActor && !string.IsNullOrWhiteSpace(Model.Snapshot.ContextNoticeResourceKey))
-    {
-        <div class="notice-banner is-success">@T[Model.Snapshot.ContextNoticeResourceKey]</div>
-    }
-
     <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
 
     @if (!Model.Snapshot.HasEligibleActor || Model.Snapshot.ActiveActor is null)
     {
         <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="noEligibleActorModel" />
     }
+    else if (!hasVisibleWorkItem)
+    {
+        <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="emptyQueueModel" />
+    }
     else
     {
-        <partial name="/Pages/Shared/_SurfaceStatStrip.cshtml" model="statStripModel" />
-
-        <div class="operations-surface-grid">
-            <partial name="_OperationsQueueList" model="Model" />
-            <partial name="_OperationsActivePanel" model="Model" />
-        </div>
+        @if (showQueueList)
+        {
+            <div class="operations-surface-grid">
+                <partial name="_OperationsQueueList" model="Model" />
+                <partial name="_OperationsActivePanel" model="Model" />
+            </div>
+        }
+        else
+        {
+            <div class="operations-surface-solo">
+                <partial name="_OperationsActivePanel" model="Model" />
+            </div>
+        }
     }
 </section>
-
-@section SupportRail
-{
-    @if (Model.Snapshot.HasEligibleActor && Model.Snapshot.ActiveActor is not null)
-    {
-        <partial name="_OperationsSupportRail" model="Model" />
-    }
-}
-
-@section DetailDrawer
-{
-    <partial name="_OperationsDetailDrawer" model="Model" />
-}

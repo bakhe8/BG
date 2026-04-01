@@ -29,22 +29,22 @@ internal sealed class OperationalSeedService
 
     private static readonly SeedRoleDefinition[] SeedRoles =
     [
-        new("Intake Operators", "Seed role for intake verification users.", ["dashboard.view", "intake.view", "intake.scan", "intake.verify", "intake.finalize"]),
-        new("Operations Reviewers", "Seed role for operations queue users.", ["dashboard.view", "operations.queue.view", "operations.queue.manage"]),
-        new("Request Owners", "Seed role for request owner users.", ["dashboard.view", "requests.view", "requests.create"]),
-        new("Dispatch Officers", "Seed role for dispatch operators.", ["dashboard.view", "dispatch.view", "dispatch.print", "dispatch.record", "dispatch.email"]),
-        new("Guarantees Supervisors", "Seed approval role for guarantees supervisors.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Department Managers", "Seed approval role for department managers.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Program Directors", "Seed approval role for program directors.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Deputy Financial Affairs Directors", "Seed approval role for deputy financial affairs directors.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Contracts Signer 1", "Seed approval role for first contracts signer.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Contracts Signer 2", "Seed approval role for second contracts signer.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Contracts Signer 3", "Seed approval role for third contracts signer.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Procurement Signer 1", "Seed approval role for first procurement signer.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Procurement Signer 2", "Seed approval role for second procurement signer.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Procurement Signer 3", "Seed approval role for third procurement signer.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("Executive Vice Presidents", "Seed approval role for executive vice presidents.", ["dashboard.view", "approvals.queue.view", "approvals.sign"]),
-        new("System Administrator", "Full system administrator with all permissions.", ["dashboard.view", "intake.view", "intake.scan", "intake.verify", "intake.finalize", "operations.queue.view", "operations.queue.manage", "requests.view", "requests.create", "approvals.queue.view", "approvals.sign", "workflow.view", "workflow.manage", "dispatch.view", "dispatch.print", "dispatch.record", "dispatch.email", "users.view", "users.manage", "delegations.view", "delegations.manage", "roles.view", "roles.manage", "guarantees.view", "guarantees.manage"])
+        new("Intake Operators", "Seed role for intake verification users.", ["intake.view", "intake.scan", "intake.verify", "intake.finalize"]),
+        new("Operations Reviewers", "Seed role for operations queue users.", ["operations.queue.view", "operations.queue.manage"]),
+        new("Request Owners", "Seed role for request owner users.", ["requests.view", "requests.create"]),
+        new("Dispatch Officers", "Seed role for dispatch operators.", ["dispatch.view", "dispatch.print", "dispatch.record", "dispatch.email"]),
+        new("Guarantees Supervisors", "Seed approval role for guarantees supervisors.", ["approvals.queue.view", "approvals.sign"]),
+        new("Department Managers", "Seed approval role for department managers.", ["approvals.queue.view", "approvals.sign"]),
+        new("Program Directors", "Seed approval role for program directors.", ["approvals.queue.view", "approvals.sign"]),
+        new("Deputy Financial Affairs Directors", "Seed approval role for deputy financial affairs directors.", ["approvals.queue.view", "approvals.sign"]),
+        new("Contracts Signer 1", "Seed approval role for first contracts signer.", ["approvals.queue.view", "approvals.sign"]),
+        new("Contracts Signer 2", "Seed approval role for second contracts signer.", ["approvals.queue.view", "approvals.sign"]),
+        new("Contracts Signer 3", "Seed approval role for third contracts signer.", ["approvals.queue.view", "approvals.sign"]),
+        new("Procurement Signer 1", "Seed approval role for first procurement signer.", ["approvals.queue.view", "approvals.sign"]),
+        new("Procurement Signer 2", "Seed approval role for second procurement signer.", ["approvals.queue.view", "approvals.sign"]),
+        new("Procurement Signer 3", "Seed approval role for third procurement signer.", ["approvals.queue.view", "approvals.sign"]),
+        new("Executive Vice Presidents", "Seed approval role for executive vice presidents.", ["approvals.queue.view", "approvals.sign"]),
+        new("System Administrator", "Full system administrator with all permissions.", ["intake.view", "intake.scan", "intake.verify", "intake.finalize", "operations.queue.view", "operations.queue.manage", "requests.view", "requests.create", "approvals.queue.view", "approvals.sign", "workflow.manage", "dispatch.view", "dispatch.print", "dispatch.record", "dispatch.email", "users.view", "users.manage", "delegations.manage", "roles.view", "roles.manage"])
     ];
 
     private static readonly SeedUserDefinition[] SeedUsers =

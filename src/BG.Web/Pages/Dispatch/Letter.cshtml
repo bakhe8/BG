@@ -1,0 +1,409 @@
+@page
+@using System.Globalization
+@using BG.Application.ReferenceData
+@using BG.Domain.Guarantees
+@using BG.Web.UI
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@inject IUiConfigurationService UiConfiguration
+@model BG.Web.Pages.Dispatch.LetterModel
+@{
+    Layout = null;
+    var currentCulture = UiConfiguration.GetCurrentCulture();
+    var currentDirection = UiConfiguration.GetDirection(currentCulture);
+    var pageTitle = T["DispatchLetter_PageTitle"].Value;
+
+    string FormatAmount(decimal amount, string currencyCode) =>
+        string.Format(CultureInfo.CurrentUICulture, "{0:N2} {1}", amount, currencyCode);
+
+    string FormatDate(DateOnly date) => date.ToString("d", CultureInfo.CurrentUICulture);
+
+    string ResolveBody()
+    {
+        if (Model.Letter is null)
+        {
+            return string.Empty;
+        }
+
+        return Model.Letter.RequestType switch
+        {
+            GuaranteeRequestType.Extend when Model.Letter.RequestedExpiryDate.HasValue
+                => T["DispatchLetter_Body_Extend", Model.Letter.GuaranteeNumber, FormatDate(Model.Letter.RequestedExpiryDate.Value)].Value,
+            GuaranteeRequestType.Reduce when Model.Letter.RequestedAmount.HasValue
+                => T["DispatchLetter_Body_Reduce", Model.Letter.GuaranteeNumber, FormatAmount(Model.Letter.RequestedAmount.Value, Model.Letter.CurrencyCode)].Value,
+            GuaranteeRequestType.Release
+                => T["DispatchLetter_Body_Release", Model.Letter.GuaranteeNumber].Value,
+            GuaranteeRequestType.ReplaceWithReducedGuarantee when Model.Letter.RequestedAmount.HasValue
+                => T["DispatchLetter_Body_Replace", Model.Letter.GuaranteeNumber, FormatAmount(Model.Letter.RequestedAmount.Value, Model.Letter.CurrencyCode)].Value,
+            GuaranteeRequestType.VerifyStatus
+                => T["DispatchLetter_Body_VerifyStatus", Model.Letter.GuaranteeNumber].Value,
+            _ => T["DispatchLetter_Body_Generic", Model.Letter.GuaranteeNumber].Value
+        };
+    }
+}
+<!DOCTYPE html>
+<html lang="@currentCulture" dir="@currentDirection">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@pageTitle - BG</title>
+    <style>
+        :root {
+            --brand-green: #0f6a4d;
+            --brand-gold: #c6a03a;
+            --paper: #fffdf8;
+            --ink: #1d2733;
+            --muted: #677489;
+            --line: #d9e2da;
+            --soft: #eef5f0;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "KFSH","Noto Sans Arabic","Segoe UI",sans-serif;
+            background: #eef2f5;
+            color: var(--ink);
+        }
+
+        .letter-shell {
+            max-width: 980px;
+            margin: 24px auto;
+            padding: 0 20px 28px;
+        }
+
+        .letter-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .letter-actions-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .letter-button,
+        .letter-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--brand-green);
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .letter-button {
+            background: var(--brand-green);
+            color: white;
+        }
+
+        .letter-link {
+            background: white;
+            color: var(--brand-green);
+        }
+
+        .letter-notice {
+            margin-bottom: 16px;
+            padding: 14px 18px;
+            border-radius: 18px;
+            background: #fff7e8;
+            border: 1px solid #efd6a6;
+            color: #6f4d00;
+            font-weight: 600;
+        }
+
+        .letter-paper {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            box-shadow: 0 18px 42px rgba(26, 52, 39, 0.08);
+            overflow: hidden;
+        }
+
+        .letter-header {
+            padding: 28px 34px 18px;
+            border-bottom: 1px solid var(--line);
+            background: linear-gradient(180deg, rgba(15,106,77,0.08), rgba(255,253,248,0));
+        }
+
+        .letter-brand {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: start;
+            margin-bottom: 18px;
+        }
+
+        .letter-brand-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--brand-green);
+            margin: 0;
+        }
+
+        .letter-brand-subtitle {
+            margin-top: 6px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .letter-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        .letter-meta-card,
+        .letter-detail-card {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 14px 16px;
+        }
+
+        .letter-label {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .letter-value {
+            font-weight: 800;
+            line-height: 1.5;
+        }
+
+        .letter-content {
+            padding: 28px 34px 34px;
+        }
+
+        .letter-address {
+            margin-bottom: 20px;
+            line-height: 1.9;
+        }
+
+        .letter-subject {
+            margin: 0 0 20px;
+            padding: 16px 18px;
+            border-inline-start: 4px solid var(--brand-gold);
+            background: var(--soft);
+            border-radius: 16px;
+            font-weight: 800;
+        }
+
+        .letter-body {
+            font-size: 17px;
+            line-height: 2;
+            margin-bottom: 22px;
+        }
+
+        .letter-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .letter-notes {
+            margin-top: 8px;
+            padding: 16px 18px;
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            line-height: 1.9;
+        }
+
+        .letter-footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px dashed var(--line);
+            color: var(--muted);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .letter-empty {
+            background: white;
+            border: 1px solid #f0c4c4;
+            color: #7c1f1f;
+            border-radius: 22px;
+            padding: 28px;
+            font-weight: 700;
+        }
+
+        @@media print {
+            body {
+                background: white;
+            }
+
+            .letter-actions,
+            .letter-notice {
+                display: none !important;
+            }
+
+            .letter-shell {
+                max-width: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            .letter-paper {
+                border: none;
+                box-shadow: none;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="letter-shell">
+        <div class="letter-actions">
+            <div class="letter-actions-group">
+                <a class="letter-link" href="@Url.Page("/Dispatch/Workspace", Model.BuildWorkspaceRoute())">@T["DispatchLetter_BackToWorkspace"]</a>
+            </div>
+            @if (Model.Letter is not null)
+            {
+                <div class="letter-actions-group">
+                    <button type="button" class="letter-button" onclick="window.print()">@T["DispatchLetter_PrintAction"]</button>
+                </div>
+            }
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="letter-empty">@Model.ErrorMessage</div>
+        }
+        else if (Model.Letter is not null)
+        {
+            <div class="letter-notice">
+                @(Model.Letter.IsDraftPreview
+                    ? T["DispatchLetter_DraftNotice"]
+                    : T["DispatchLetter_RecordedNotice"])
+            </div>
+
+            <article class="letter-paper">
+                <header class="letter-header">
+                    <div class="letter-brand">
+                        <div>
+                            <h1 class="letter-brand-title">@T["DispatchLetter_Heading"]</h1>
+                            <div class="letter-brand-subtitle">KFSHRC · BG</div>
+                        </div>
+                        <div class="letter-meta-card">
+                            <span class="letter-label">@T["DispatchLetter_RequestTypeLabel"]</span>
+                            <div class="letter-value">@T[GuaranteeResourceCatalog.GetRequestTypeResourceKey(Model.Letter.RequestType)]</div>
+                        </div>
+                    </div>
+
+                    <div class="letter-meta">
+                        <section class="letter-meta-card">
+                            <span class="letter-label">@T["DispatchLetter_ReferenceLabel"]</span>
+                            <div class="letter-value">@Model.Letter.ReferenceNumber</div>
+                        </section>
+                        <section class="letter-meta-card">
+                            <span class="letter-label">@T["DispatchLetter_LetterDateLabel"]</span>
+                            <div class="letter-value">@FormatDate(Model.Letter.LetterDate)</div>
+                        </section>
+                        <section class="letter-meta-card">
+                            <span class="letter-label">@T["DispatchLetter_GuaranteeNumberLabel"]</span>
+                            <div class="letter-value">@Model.Letter.GuaranteeNumber</div>
+                        </section>
+                        <section class="letter-meta-card">
+                            <span class="letter-label">@T["DispatchLetter_PrintCountLabel"]</span>
+                            <div class="letter-value">@Model.Letter.PrintCount</div>
+                        </section>
+                    </div>
+                </header>
+
+                <div class="letter-content">
+                    <div class="letter-address">
+                        <strong>@T["DispatchLetter_ToLabel"]</strong><br />
+                        @Model.Letter.BankName
+                    </div>
+
+                    <div class="letter-subject">
+                        <span>@T["DispatchLetter_SubjectLabel"]</span>
+                        <div>@T["DispatchLetter_Subject", Model.Letter.GuaranteeNumber]</div>
+                    </div>
+
+                    <div class="letter-body">
+                        <p>@T["DispatchLetter_Intro"]</p>
+                        <p>@ResolveBody()</p>
+                        <p>@T["DispatchLetter_Closing"]</p>
+                    </div>
+
+                    <div class="letter-details">
+                        <section class="letter-detail-card">
+                            <span class="letter-label">@T["DispatchLetter_BeneficiaryLabel"]</span>
+                            <div class="letter-value">@Model.Letter.BeneficiaryName</div>
+                        </section>
+                        <section class="letter-detail-card">
+                            <span class="letter-label">@T["DispatchLetter_PrincipalLabel"]</span>
+                            <div class="letter-value">@Model.Letter.PrincipalName</div>
+                        </section>
+                        <section class="letter-detail-card">
+                            <span class="letter-label">@T["DispatchLetter_CurrentAmountLabel"]</span>
+                            <div class="letter-value">@FormatAmount(Model.Letter.CurrentAmount, Model.Letter.CurrencyCode)</div>
+                        </section>
+                        <section class="letter-detail-card">
+                            <span class="letter-label">@T["DispatchLetter_CurrentExpiryDateLabel"]</span>
+                            <div class="letter-value">@FormatDate(Model.Letter.CurrentExpiryDate)</div>
+                        </section>
+                        @if (Model.Letter.RequestedAmount.HasValue)
+                        {
+                            <section class="letter-detail-card">
+                                <span class="letter-label">@T["DispatchLetter_RequestedAmountLabel"]</span>
+                                <div class="letter-value">@FormatAmount(Model.Letter.RequestedAmount.Value, Model.Letter.CurrencyCode)</div>
+                            </section>
+                        }
+                        @if (Model.Letter.RequestedExpiryDate.HasValue)
+                        {
+                            <section class="letter-detail-card">
+                                <span class="letter-label">@T["DispatchLetter_RequestedExpiryDateLabel"]</span>
+                                <div class="letter-value">@FormatDate(Model.Letter.RequestedExpiryDate.Value)</div>
+                            </section>
+                        }
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.Letter.Notes))
+                    {
+                        <section class="letter-notes">
+                            <strong>@T["DispatchLetter_RequestNotesLabel"]</strong>
+                            <div>@Model.Letter.Notes</div>
+                        </section>
+                    }
+
+                    <footer class="letter-footer">
+                        <div>
+                            <span class="letter-label">@T["DispatchLetter_PreparedByLabel"]</span>
+                            <div class="letter-value">@Model.Letter.PreparedByDisplayName</div>
+                        </div>
+                        <div>
+                            <span class="letter-label">@T["DispatchLetter_GeneratedAtLabel"]</span>
+                            <div class="letter-value">@Model.Letter.GeneratedAtUtc.ToLocalTime().ToString("f", CultureInfo.CurrentUICulture)</div>
+                        </div>
+                    </footer>
+                </div>
+            </article>
+        }
+    </div>
+
+    @if (Model.AutoPrint && Model.Letter is not null)
+    {
+        <script>
+            window.addEventListener("load", function () {
+                window.print();
+            });
+        </script>
+    }
+</body>
+</html>

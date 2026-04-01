@@ -5,6 +5,11 @@
   align-items: start;
 }
 
+.dispatch-surface-solo {
+  display: grid;
+  gap: 1rem;
+}
+
 .dispatch-workbench-grid {
   display: grid;
   gap: 1rem;
@@ -24,7 +29,6 @@
 .dispatch-queue-panel,
 .dispatch-active-panel,
 .dispatch-rail-card,
-.dispatch-drawer-card,
 .dispatch-queue-group {
   display: grid;
   gap: 1rem;

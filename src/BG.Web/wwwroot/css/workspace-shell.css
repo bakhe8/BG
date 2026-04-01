@@ -10,6 +10,10 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+.shell-app.shell-app-no-sidebar {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .shell-sidebar {
   padding: 0;
   background: linear-gradient(180deg, #0c5b45 0%, #0a4b38 54%, #07392c 100%);
@@ -228,6 +232,15 @@
   flex-wrap: wrap;
 }
 
+.shell-user-strip {
+  flex-wrap: wrap;
+}
+
+.shell-signout-button {
+  min-height: 2.35rem;
+  font-weight: 700;
+}
+
 .shell-sidebar.offcanvas {
   width: min(88vw, 20rem);
   max-width: min(88vw, 20rem);
@@ -241,6 +254,10 @@
 @media (min-width: 992px) {
   .shell-app {
     grid-template-columns: minmax(14rem, 15rem) minmax(0, 1fr);
+  }
+
+  .shell-app.shell-app-no-sidebar {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .shell-sidebar {
@@ -331,6 +348,11 @@
     margin-inline-start: auto;
     border-inline-start: 0 !important;
     padding-inline-start: 0 !important;
+  }
+
+  .shell-signout-button {
+    width: 100%;
+    justify-content: center;
   }
 
   .shell-stage-main,

@@ -14,6 +14,6 @@ internal sealed class ArchitectureProfileService : IArchitectureProfileService
             "REST API Controllers",
             "PostgreSQL",
             "IIS",
-            "Hospital API Integration Layer");
+            "Internal Integration Layer");
     }
 }

@@ -253,8 +253,7 @@
   grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
 }
 
-.request-active-section,
-.request-drawer-section {
+.request-active-section {
   display: grid;
   gap: 0.5rem;
   padding: 1rem;
@@ -263,8 +262,7 @@
   background: color-mix(in srgb, var(--surface) 96%, white);
 }
 
-.request-active-empty,
-.request-drawer-stack {
+.request-active-empty {
   display: grid;
   gap: 1rem;
 }

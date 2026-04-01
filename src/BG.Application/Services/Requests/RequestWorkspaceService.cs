@@ -437,6 +437,11 @@ internal sealed class RequestWorkspaceService : IRequestWorkspaceService
             return OperationResult<CreateGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.GuaranteeNotFound);
         }
 
+        if (guarantee.Status is GuaranteeStatus.Released or GuaranteeStatus.Replaced or GuaranteeStatus.Expired or GuaranteeStatus.Cancelled)
+        {
+            return OperationResult<CreateGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.GuaranteeNotRequestable);
+        }
+
         if (guarantee.Requests.Any(request =>
                 request.IsOwnedBy(command.RequestedByUserId) &&
                 request.RequestType == command.RequestType &&
@@ -520,8 +525,7 @@ internal sealed class RequestWorkspaceService : IRequestWorkspaceService
             return null;
         }
 
-        if (!decimal.TryParse(value.Trim(), NumberStyles.Number, CultureInfo.InvariantCulture, out var amount) &&
-            !decimal.TryParse(value.Trim(), NumberStyles.Number, CultureInfo.CurrentCulture, out amount))
+        if (!StructuredInputParser.TryParseAmount(value, out var amount))
         {
             errorCode = RequestErrorCodes.RequestedAmountRequired;
             return null;
@@ -548,8 +552,7 @@ internal sealed class RequestWorkspaceService : IRequestWorkspaceService
             return null;
         }
 
-        if (!DateOnly.TryParseExact(value.Trim(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) &&
-            !DateOnly.TryParse(value.Trim(), out date))
+        if (!StructuredInputParser.TryParseDate(value, out var date))
         {
             errorCode = RequestErrorCodes.RequestedExpiryDateRequired;
             return null;

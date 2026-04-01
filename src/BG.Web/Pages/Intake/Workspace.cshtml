@@ -7,34 +7,13 @@
     var headerModel = new SurfaceHeaderModel(
         T["NavIntake"].Value,
         T["IntakeWorkspace_Heading"].Value,
-        null,
-        new[]
-        {
-            T[Model.Workspace.PrimaryRoleResourceKey].Value,
-            T[Model.HasDraft ? "IntakeWorkspace_DraftReady" : "IntakeWorkspace_DraftPending"].Value,
-            T[Model.Workspace.ReviewGateResourceKey].Value
-        },
-        "is-split");
-    var statStripModel = new SurfaceStatStripModel(
-        new[]
-        {
-            new SurfaceStatItem(
-                T["IntakeWorkspace_DraftStatusTitle"].Value,
-                T[Model.HasDraft ? "IntakeWorkspace_DraftReady" : "IntakeWorkspace_DraftPending"].Value),
-            new SurfaceStatItem(
-                T["IntakeWorkspace_DetectedFormTitle"].Value,
-                T[Model.SelectedDocumentForm.TitleResourceKey].Value,
-                T[Model.SelectedDocumentForm.BankResourceKey].Value),
-            new SurfaceStatItem(
-                T["IntakeWorkspace_HandoffTitle"].Value,
-                T[Model.SelectedScenario.SaveOutcomeResourceKey].Value),
-            new SurfaceStatItem(
-                T["IntakeWorkspace_RequiredFieldsTitle"].Value,
-                Model.CriticalReviewFields.Count)
-        });
+        null);
     var noEligibleActorModel = new SurfaceMessageCardModel(
         T["IntakeWorkspace_NoEligibleActor"].Value,
         T["IntakeWorkspace_NoEligibleActorBody"].Value);
+
+    ViewData["HideSupportRail"] = true;
+    ViewData["HideDetailDrawer"] = true;
 }
 
 <section class="intake-surface">
@@ -43,10 +22,7 @@
         <div class="notice-banner is-success mb-4">@Model.StatusMessage</div>
     }
 
-    @* Header Integration *@
-    <div class="mb-4">
-        <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
-    </div>
+    <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
 
     @if (!Model.Workspace.HasEligibleActor)
     {
@@ -54,17 +30,11 @@
     }
     else
     {
-        @* Quick Stats Overlay *@
-        <div class="mb-4">
-            <partial name="/Pages/Shared/_SurfaceStatStrip.cshtml" model="statStripModel" />
-        </div>
-
         <form id="intake-workspace-form" 
               method="post" 
               enctype="multipart/form-data" 
               class="stack-form"
-              hx-target="#verification-panel-container"
-              hx-swap="innerHTML">
+              hx-boost="false">
             
             <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-3"></div>
 
@@ -75,12 +45,10 @@
             <input asp-for="Input.OriginalFileName" type="hidden" />
 
             <div class="intake-surface-grid">
-                @* Left Pane: Document / Input *@
                 <div id="document-panel-container">
                     <partial name="_IntakeDocumentPanel" model="Model" />
                 </div>
 
-                @* Right Pane: Verification / Refinement *@
                 <div id="verification-panel-container">
                     <partial name="_IntakeVerificationPanel" model="Model" />
                 </div>
@@ -88,19 +56,3 @@
         </form>
     }
 </section>
-
-@section SupportRail
-{
-    @if (Model.Workspace.HasEligibleActor)
-    {
-        <partial name="_IntakeSupportRail" model="Model" />
-    }
-}
-
-@section DetailDrawer
-{
-    @if (Model.Workspace.HasEligibleActor)
-    {
-        <partial name="_IntakeDetailDrawer" model="Model" />
-    }
-}

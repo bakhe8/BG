@@ -119,6 +119,33 @@ public sealed partial class HostedFlowTests
     }
 
     [Fact]
+    public async Task Operational_seed_pack_does_not_run_from_startup_even_when_enabled()
+    {
+        await using var factory = new HostedAppFactory(
+            new Dictionary<string, string?>
+            {
+                ["OperationalSeed:Enabled"] = "true",
+                ["OperationalSeed:SharedPassword"] = "HostedSeedPassword!2026"
+            });
+
+        var seededUserCount = await factory.QueryDbContextAsync(
+            dbContext => dbContext.Users.CountAsync(
+                user => user.Username.StartsWith("intake.") ||
+                        user.Username.StartsWith("operations.") ||
+                        user.Username.StartsWith("request.") ||
+                        user.Username.StartsWith("dispatch.") ||
+                        user.Username.StartsWith("guarantees.") ||
+                        user.Username.StartsWith("department.") ||
+                        user.Username.StartsWith("program.") ||
+                        user.Username.StartsWith("deputy.") ||
+                        user.Username.StartsWith("contracts.") ||
+                        user.Username.StartsWith("procurement.") ||
+                        user.Username.StartsWith("executive.")));
+
+        Assert.Equal(0, seededUserCount);
+    }
+
+    [Fact]
     public async Task Operational_seed_pack_creates_realistic_users_workflows_and_scenarios_idempotently()
     {
         await using var factory = new HostedAppFactory(
@@ -128,7 +155,7 @@ public sealed partial class HostedFlowTests
                 ["OperationalSeed:SharedPassword"] = "HostedSeedPassword!2026"
             });
 
-        await factory.Services.InitializeInfrastructureAsync();
+        await factory.Services.RunOperationalSeedAsync();
 
         var seededSnapshot = await factory.QueryDbContextAsync(async dbContext =>
         {
