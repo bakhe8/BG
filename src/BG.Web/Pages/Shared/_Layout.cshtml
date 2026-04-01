@@ -254,13 +254,10 @@
         </div>
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
 
-    @* HTMX & Alpine.js for Modern Interactions (Local) *@
+    @* HTMX for partial workflow updates *@
     <script src="~/lib/htmx/htmx.min.js"></script>
-    <script src="~/lib/alpinejs/alpine.min.js" defer></script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

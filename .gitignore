@@ -338,8 +338,6 @@ __pycache__/
 *.pyc
 .venv-ocr312/
 build_errors.txt
-src/BG.Web/build_output.txt
-src/BG.Web/build_output_clean.txt
 
 # Cake - Uncomment if you are using it
 # tools/**

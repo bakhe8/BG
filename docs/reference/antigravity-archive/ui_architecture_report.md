@@ -105,7 +105,7 @@ The **Reuse Ratio** is a measure of architectural efficiency, calculated as the 
 
 | Metric | Value | Technical Observation |
 | :--- | :--- | :--- |
-| **Centralized Components** | ~2 | `_Layout.cshtml`, `_ValidationScriptsPartial.cshtml` |
+| **Centralized Components** | ~2 | Historic snapshot: `_Layout.cshtml` plus a small shared validation partial |
 | **Recurring UI Patterns** | ~12 | Buttons, Cards, Pills, Form-Groups, Tables, Pipeline-Steps, etc. |
 | **Total ROI on Code reuse** | **17%** | **Critically Low** |
 
@@ -113,4 +113,3 @@ The **Reuse Ratio** is a measure of architectural efficiency, calculated as the 
 At **17%**, the system is in a **"High Duplication"** state. For every 10 UI elements a developer adds, 8 are "hand-crafted" copies of existing elements. This results in high maintenance overhead and a high risk of visual/functional drift.
 
 **Target Ratio**: A healthy enterprise system should aim for **>85%** reuse through the use of **ViewComponents** and **Tag Helpers**.
-
