@@ -183,37 +183,55 @@ internal sealed class RequestWorkspaceRepository : IRequestWorkspaceRepository
 
         var ledgerEntriesQuery = _dbContext.GuaranteeEvents
             .AsNoTracking()
-            .Where(ledgerEntry => ledgerEntry.GuaranteeRequestId.HasValue && requestIds.Contains(ledgerEntry.GuaranteeRequestId.Value))
-            .Select(ledgerEntry => new RequestLedgerEntryReadModel(
-                ledgerEntry.GuaranteeRequestId!.Value,
-                ledgerEntry.Id,
-                ledgerEntry.OccurredAtUtc,
-                ledgerEntry.ActorDisplayName,
-                ledgerEntry.Summary,
-                ledgerEntry.ApprovalStageLabel,
-                ledgerEntry.ApprovalPolicyResourceKey,
-                ledgerEntry.ApprovalResponsibleSignerDisplayName,
-                ledgerEntry.ApprovalExecutionMode,
-                ledgerEntry.DispatchStageResourceKey,
-                ledgerEntry.DispatchMethodResourceKey,
-                ledgerEntry.DispatchPolicyResourceKey,
-                ledgerEntry.OperationsScenarioTitleResourceKey,
-                ledgerEntry.OperationsLaneResourceKey,
-                ledgerEntry.OperationsMatchConfidenceResourceKey,
-                ledgerEntry.OperationsMatchScore,
-                ledgerEntry.OperationsPolicyResourceKey));
+            .Where(ledgerEntry => ledgerEntry.GuaranteeRequestId.HasValue && requestIds.Contains(ledgerEntry.GuaranteeRequestId.Value));
 
         List<RequestLedgerEntryReadModel> ledgerEntries;
         if (RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext))
         {
             ledgerEntries = (await ledgerEntriesQuery.ToListAsync(cancellationToken))
                 .OrderByDescending(ledgerEntry => ledgerEntry.OccurredAtUtc)
+                .Select(ledgerEntry => new RequestLedgerEntryReadModel(
+                    ledgerEntry.GuaranteeRequestId!.Value,
+                    ledgerEntry.Id,
+                    ledgerEntry.OccurredAtUtc,
+                    ledgerEntry.ActorDisplayName,
+                    ledgerEntry.Summary,
+                    ledgerEntry.ApprovalStageLabel,
+                    ledgerEntry.ApprovalPolicyResourceKey,
+                    ledgerEntry.ApprovalResponsibleSignerDisplayName,
+                    ledgerEntry.ApprovalExecutionMode,
+                    ledgerEntry.DispatchStageResourceKey,
+                    ledgerEntry.DispatchMethodResourceKey,
+                    ledgerEntry.DispatchPolicyResourceKey,
+                    ledgerEntry.OperationsScenarioTitleResourceKey,
+                    ledgerEntry.OperationsLaneResourceKey,
+                    ledgerEntry.OperationsMatchConfidenceResourceKey,
+                    ledgerEntry.OperationsMatchScore,
+                    ledgerEntry.OperationsPolicyResourceKey))
                 .ToList();
         }
         else
         {
             ledgerEntries = await ledgerEntriesQuery
                 .OrderByDescending(ledgerEntry => ledgerEntry.OccurredAtUtc)
+                .Select(ledgerEntry => new RequestLedgerEntryReadModel(
+                    ledgerEntry.GuaranteeRequestId!.Value,
+                    ledgerEntry.Id,
+                    ledgerEntry.OccurredAtUtc,
+                    ledgerEntry.ActorDisplayName,
+                    ledgerEntry.Summary,
+                    ledgerEntry.ApprovalStageLabel,
+                    ledgerEntry.ApprovalPolicyResourceKey,
+                    ledgerEntry.ApprovalResponsibleSignerDisplayName,
+                    ledgerEntry.ApprovalExecutionMode,
+                    ledgerEntry.DispatchStageResourceKey,
+                    ledgerEntry.DispatchMethodResourceKey,
+                    ledgerEntry.DispatchPolicyResourceKey,
+                    ledgerEntry.OperationsScenarioTitleResourceKey,
+                    ledgerEntry.OperationsLaneResourceKey,
+                    ledgerEntry.OperationsMatchConfidenceResourceKey,
+                    ledgerEntry.OperationsMatchScore,
+                    ledgerEntry.OperationsPolicyResourceKey))
                 .ToListAsync(cancellationToken);
         }
 
