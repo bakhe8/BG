@@ -61,6 +61,8 @@ Use this file when you need to know:
   [ocr_implementation_plan.md](ocr_implementation_plan.md)
 - Post-stabilization refactor and documentation unification:
   [refactor_roadmap.md](refactor_roadmap.md)
+- External AI runtime layer and prompt orchestration:
+  [../.ai/README.md](../.ai/README.md)
 
 ## Current Source Documents
 
@@ -112,6 +114,9 @@ Use this file when you need to know:
 - [ui-proposals/README.md](ui-proposals/README.md)
   Status: `reference`
   Scope: visual proposal library for shell, workspace, queue, drawer, and dossier patterns.
+- [../.ai/README.md](../.ai/README.md)
+  Status: `reference`
+  Scope: external model runtime prompts and prompt orchestration utilities.
 - [reference/initial-bank-form-sample-catalog.md](reference/initial-bank-form-sample-catalog.md)
   Status: `reference`
   Scope: early real sample baseline for bank forms and OCR direction.
