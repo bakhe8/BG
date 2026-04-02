@@ -2,25 +2,40 @@
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.UI.SurfaceQueueItemLinkModel
 
-<a class="request-queue-link @(Model.IsActive ? "active" : null)"
+<a class="request-queue-link @(Model.IsActive ? "active shadow-sm" : null)"
    aria-current="@(Model.IsActive ? "true" : "false")"
    asp-page="@Model.PagePath"
    asp-all-route-data="Model.RouteValues">
-    <div class="request-queue-copy">
-        <div class="entity-subtitle">@Model.Subtitle</div>
-        <strong>@Model.Title</strong>
-        <p class="compact-copy">@Model.Summary</p>
+    
+    @* Column 1: Reference *@
+    <div class="bg-grid-col">
+        <span class="bg-grid-value">@Model.Title</span>
     </div>
-    <div class="request-queue-meta">
-        @if (Model.IsActive)
-        {
-            <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
-        }
-        <span class="status-badge is-active">@Model.Status</span>
-        <span class="section-caption">@Model.MetaPrimary</span>
-        @if (!string.IsNullOrWhiteSpace(Model.MetaSecondary))
-        {
-            <span class="compact-copy">@Model.MetaSecondary</span>
-        }
+
+    @* Column 2: Entity *@
+    <div class="bg-grid-col">
+        <span class="bg-grid-value text-truncate">@Model.Subtitle</span>
+    </div>
+
+    @* Column 3: Type *@
+    <div class="bg-grid-col">
+        <span class="bg-grid-value">@Model.Summary</span>
+    </div>
+
+    @* Column 4: Value *@
+    <div class="bg-grid-col">
+        <span class="bg-grid-value text-brand-green">@Model.MetaPrimary</span>
+    </div>
+
+    @* Column 5: Date *@
+    <div class="bg-grid-col">
+        <span class="bg-grid-value">@Model.MetaSecondary</span>
+    </div>
+
+    @* Column 6: Status & Action *@
+    <div class="bg-grid-col text-center">
+        <bg-badge class="bg-badge-@(Model.Status.Contains("Pending") || Model.Status.Contains("انتظار") ? "pending" : "returned")">
+            @Model.Status
+        </bg-badge>
     </div>
 </a>

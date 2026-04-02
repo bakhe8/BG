@@ -65,7 +65,11 @@ internal sealed class LocalIntakeOcrExtractor : IIntakeOcrExtractor
 
         var mappedCandidates = ocrResult.Fields
             .Where(field => !string.IsNullOrWhiteSpace(field.FieldKey) && !string.IsNullOrWhiteSpace(field.Value))
-            .Select(field => new IntakeExtractionFieldCandidate(field.FieldKey, field.Value, IntakeFieldValueSource.OcrFallback))
+            .Select(field => new IntakeExtractionFieldCandidate(
+                field.FieldKey,
+                field.Value,
+                ResolveSource(field.SourceLabel),
+                field.ConfidencePercent))
             .ToArray();
 
         if (mappedCandidates.Length == 0)
@@ -76,7 +80,17 @@ internal sealed class LocalIntakeOcrExtractor : IIntakeOcrExtractor
         return mappedCandidates
             .Concat(fallbackCandidates)
             .GroupBy(candidate => candidate.FieldKey, StringComparer.Ordinal)
-            .Select(group => group.First())
+            .Select(group => group
+                .OrderByDescending(candidate => IntakeFieldProvenanceCatalog.GetPriority(candidate.Source))
+                .ThenByDescending(candidate => candidate.ConfidencePercent)
+                .First())
             .ToArray();
+    }
+
+    private static IntakeFieldValueSource ResolveSource(string? sourceLabel)
+    {
+        return string.Equals(sourceLabel, "direct-pdf-text", StringComparison.OrdinalIgnoreCase)
+            ? IntakeFieldValueSource.DirectPdfText
+            : IntakeFieldValueSource.OcrFallback;
     }
 }

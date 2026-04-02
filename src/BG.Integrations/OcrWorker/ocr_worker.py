@@ -60,6 +60,7 @@ DATE_FRAGMENT = r"(?:20\d{2}\s*[-/]\s*(?:0?[1-9]|1[0-2])\s*[-/]\s*(?:0?[1-9]|[12
 
 GUARANTEE_NUMBER_REGEX = re.compile(r"BG-\d{4}-\d{3,6}", re.IGNORECASE)
 GENERIC_GUARANTEE_CODE_REGEX = re.compile(r"\b[A-Z]{1,5}\d{6,16}\b")
+COMPLEX_GUARANTEE_CODE_REGEX = re.compile(r"\b[A-Z]{1,6}(?:/[A-Z]{1,6})[-/]?\d{3,12}\b", re.IGNORECASE)
 GUARANTEE_NUMBER_CONTEXT_REGEXES = [
     re.compile(r"(?:خطاب\s*ضمان\s*رقم|رقم\s*خطاب\s*الضمان|الضمان\s*رقم|ضمان\s*رقم)\s*[:\-]?\s*([A-Z0-9/-]{6,24})", re.IGNORECASE),
     re.compile(r"(?:guarantee\s*(?:number|no\.?|#))\s*[:\-]?\s*([A-Z0-9/-]{6,24})", re.IGNORECASE),
@@ -72,6 +73,15 @@ BANK_REFERENCE_REGEXES = [
 BANK_REFERENCE_CONTEXT_REGEXES = [
     re.compile(r"(?:رقم\s*المرجع(?:\s*المتسلسل)?|المرجع(?:\s*المتسلسل)?|bank\s*reference|reference\s*(?:number|no\.?))\s*[:\-]?\s*([A-Z0-9/-]{5,30})", re.IGNORECASE),
 ]
+BENEFICIARY_CONTEXT_REGEXES = [
+    re.compile(r"(?:اسم\s*المستفيد|المستفيد|beneficiary)\s*[:\-]?\s*([^\n\r]{4,140})", re.IGNORECASE),
+    re.compile(r"(?:السادة|المحترمين|to)\s*[:\-]?\s*(مستشفى[^\n\r]{6,180}|king faisal[^\n\r]{6,180})", re.IGNORECASE),
+]
+PRINCIPAL_CONTEXT_REGEXES = [
+    re.compile(r"(?:اسم\s*(?:العميل|المقاول|المتقدم)|العميل|المقاول|المتقدم|principal|applicant|customer|contractor)\s*[:\-]?\s*([^\n\r]{4,140})", re.IGNORECASE),
+    re.compile(r"(?:عملاءنا\s*السادة|عميلنا\s*السادة|عملائنا\s*السادة)\s*[:\-]?\s*([^\n\r]{6,180})", re.IGNORECASE),
+    re.compile(r"(?:حيث\s+أنكم\s+منحتم\s+عملاءنا\s+السادة)\s*[:\-]?\s*([^\n\r]{6,220})", re.IGNORECASE),
+]
 DATE_REGEX = re.compile(rf"(?<!\d){DATE_FRAGMENT}(?!\d)")
 OFFICIAL_DATE_CONTEXT_REGEXES = [
     re.compile(rf"(?:التاريخ|الموافق|date)\s*[:\-]?\s*({DATE_FRAGMENT})", re.IGNORECASE),
@@ -80,6 +90,25 @@ EXPIRY_DATE_CONTEXT_REGEXES = [
     re.compile(rf"(?:حتي\s*(?:نهاي[هة]\s*اليوم)?|ينتهي|انتهاء|ليصبح\s*ساري(?:\s*المفعول)?\s*حتي|valid\s*until|expiry(?:\s*date)?)\D{{0,50}}({DATE_FRAGMENT})", re.IGNORECASE),
 ]
 AMOUNT_REGEX = re.compile(r"\b\d{2,3}(?:,\d{3})+(?:\.\d{2})?\b|\b\d{5,}(?:\.\d{2})?\b")
+AMOUNT_CONTEXT_REGEXES = [
+    re.compile(r"(?:القيمة|قيمته|قيمة\s*الضمان|قيمة)\s*[:#\-]?\s*(?:SAR\s*)?.{0,80}?([0-9][0-9,]{3,}(?:\.\d{2})?)", re.IGNORECASE),
+    re.compile(r"(?:مبلغ(?:ا)?\s*وقدره|وقدره|بمبلغ|مبلغ)\s*[:#\-]?\s*(?:SAR\s*)?.{0,80}?([0-9][0-9,]{3,}(?:\.\d{2})?)", re.IGNORECASE),
+    re.compile(r"(?:amount(?:\s+of)?|value(?:\s+of)?|sum\s+of)\s*[:#\-]?\s*(?:SAR|USD|EUR|GBP)?.{0,80}?([0-9][0-9,]{3,}(?:\.\d{2})?)", re.IGNORECASE),
+    re.compile(r"#\s*([0-9][0-9,]{3,}(?:\.\d{2})?)\s*#", re.IGNORECASE),
+]
+CURRENCY_CODE_REGEX = re.compile(r"\b(?:SAR|USD|EUR|GBP)\b", re.IGNORECASE)
+
+BANK_HINTS = [
+    ("Saudi National Bank", ["saudi national bank", "snb", "البنك الأهلي السعودي", "الأهلي", "الاهلي"]),
+    ("Riyad Bank", ["riyad bank", "بنك الرياض"]),
+    ("SABB", ["sabb", "saudi awwal bank", "saudi british bank", "الأول", "ساب", "البنك السعودي البريطاني"]),
+    ("Arab National Bank", ["arab national bank", "anb", "بنك العربي الوطني", "العربي الوطني", "البنك العربي الوطني"]),
+    ("Banque Saudi Fransi", ["banque saudi fransi", "bsf", "saudi fransi", "البنك السعودي الفرنسي", "السعودي الفرنسي", "الفرنسي"]),
+    ("Saudi Investment Bank", ["saudi investment bank", "saib", "البنك السعودي للاستثمار", "السعودي للاستثمار", "الاستثمار"]),
+    ("Al Rajhi Bank", ["al rajhi bank", "alrajhi", "مصرف الراجحي", "الراجحي"]),
+    ("Alinma Bank", ["alinma bank", "alinma", "بنك الإنماء", "مصرف الإنماء", "الإنماء", "الانماء"]),
+    ("BNP Paribas", ["bnp paribas", "bnp", "paribas", "بي ان بي باريبا"]),
+]
 
 TEXTUAL_EXPIRY_DATE_REGEX = re.compile(
     r"(?:حتي(?:\s+نهاي[هة])?\s+اليوم|ينتهي|انتهاء|ليصبح\s+ساري(?:\s+المفعول)?\s+حتي|حتي)\s*:?\s*"
@@ -248,6 +277,8 @@ def extract_native_text(document, page_numbers: list[int]) -> tuple[list[tuple[i
 
 def normalize_native_text(text: str) -> str:
     normalized = unicodedata.normalize("NFKC", text or "")
+    normalized = normalized.translate(ARABIC_NUMERAL_TRANSLATION)
+    normalized = normalized.replace("،", ",").replace("٫", ".")
     return re.sub(r"\s+", " ", normalized).strip()
 
 
@@ -497,6 +528,32 @@ def run_ocr(image_path: str, regions: list[tuple[int, int, int, int]] | None = N
         return [], warnings
 
 
+def extract_header_regions(image_path: str) -> tuple[list[tuple[str, str]], list[str]]:
+    warnings: list[str] = []
+    if cv2 is None:
+        warnings.append("opencv-missing")
+        return [], warnings
+
+    image = cv2.imread(image_path)
+    if image is None:
+        warnings.append("header-image-unavailable")
+        return [], warnings
+
+    height, width = image.shape[:2]
+    header_height = max(300, int(height * 0.32))
+    crop = image[0:header_height, 0:width]
+    crop_path = Path(tempfile.gettempdir()) / f"bg-ocr-header-{os.getpid()}-{Path(image_path).name}"
+
+    try:
+        cv2.imwrite(crop_path.as_posix(), crop)
+        results, ocr_warnings = run_ocr(crop_path.as_posix(), None)
+        warnings.extend(ocr_warnings)
+        return results, warnings
+    finally:
+        if crop_path.exists():
+            crop_path.unlink()
+
+
 def find_first(regexes: list[re.Pattern], text: str) -> str | None:
     for regex in regexes:
         match = regex.search(text)
@@ -509,7 +566,32 @@ def looks_like_bank_name(text: str, request_payload: dict) -> str | None:
     canonical_bank_name = (request_payload.get("canonicalBankName") or "").strip()
     if canonical_bank_name and canonical_bank_name.lower() in text.lower():
         return canonical_bank_name
-    return canonical_bank_name or None
+
+    normalized = unicodedata.normalize("NFKC", text or "")
+    normalized = normalized.translate(ARABIC_NUMERAL_TRANSLATION).replace("،", ",").replace("٫", ".")
+    lines = [re.sub(r"\s+", " ", line).strip() for line in normalized.splitlines() if line.strip()]
+    header_text = "\n".join(lines[:8]).lower()
+    leading_header_text = "\n".join(lines[:2]).lower()
+    best_match = None
+    best_score = 0
+
+    for canonical_name, hints in BANK_HINTS:
+        score = 0
+        for hint in hints:
+            normalized_hint = hint.lower()
+            if normalized_hint in header_text:
+                score += max(3, len(normalized_hint.split()))
+            if normalized_hint in leading_header_text:
+                score += 5
+
+        if score > best_score:
+            best_score = score
+            best_match = canonical_name
+
+    if best_match and best_score >= 3:
+        return best_match
+
+    return None
 
 
 ARABIC_NUMERAL_TRANSLATION = str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")
@@ -535,6 +617,102 @@ def find_contextual_value(regexes: list[re.Pattern], text: str) -> str | None:
         if match:
             return match.group(1)
     return None
+
+
+def clean_context_value(value: str | None) -> str | None:
+    if not value:
+        return None
+
+    cleaned = re.sub(r"\s+", " ", value).strip(" :-\t\r\n")
+    cleaned = re.split(r"\s{2,}|(?:\s*[\|•]\s*)", cleaned)[0].strip()
+    cleaned = re.split(r"(?:بعد\s+التحية|حيث\s+أنكم|حيث\s+انكم|حيت\s+انكم|RFQ|PO#|PO\s|REF#|رقم\s+أمر|امر\s+شراء|purchase\s+order)", cleaned, maxsplit=1, flags=re.IGNORECASE)[0].strip(" ,:-")
+    cleaned = re.sub(r"\b(?:المحترمين|الرياض|riyadh|trade finance center|مركز تمويل التجارة)\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned).strip(" ,:-")
+    return cleaned or None
+
+
+def extract_beneficiary_name(text: str) -> str | None:
+    if re.search(r"(?:مستشفى|متشفي|مصتشفى|مستشفي)\s+الملك\s+فيصل", text, re.IGNORECASE):
+        return "مستشفى الملك فيصل التخصصي ومركز الأبحاث"
+
+    if (
+        re.search(r"(?:مستشفى|متشفي|مصتشفى|مستشفي|مستفى)", text, re.IGNORECASE)
+        and ("فيصل" in text or "فصل" in text or "فيمل" in text)
+        and ("مركز" in text and ("الأبح" in text or "الابح" in text or "الابحث" in text))
+    ):
+        return "مستشفى الملك فيصل التخصصي ومركز الأبحاث"
+
+    if "king faisal specialist hospital" in text.lower():
+        return "King Faisal Specialist Hospital & Research Centre"
+
+    return clean_context_value(find_contextual_value(BENEFICIARY_CONTEXT_REGEXES, text))
+
+
+def extract_principal_name(text: str) -> str | None:
+    patterns = [
+        re.compile(r"(?:عملاءنا\s*السادة|عميلنا\s*السادة|عملائنا\s*السادة)\s*[:\-]?\s*(.+?)(?:\n|RFQ|PO#|PO\s|REF#|رقم\s+أمر|امر\s+شراء|purchase\s+order|بد\s+التحية|وذلك)", re.IGNORECASE),
+        re.compile(r"(?:حيث\s+أنكم\s+منحتم\s+عملاءنا\s+السادة)\s*[:\-]?\s*(.+?)(?:\n|RFQ|PO#|PO\s|REF#|رقم\s+أمر|امر\s+شراء|purchase\s+order|وذلك)", re.IGNORECASE),
+        re.compile(r"(?:اسم\s*(?:العميل|المقاول|المتقدم)|العميل|المقاول|المتقدم|principal|applicant|customer|contractor)\s*[:\-]?\s*(.+?)(?:\n|RFQ|PO#|PO\s|REF#|رقم\s+أمر|امر\s+شراء|purchase\s+order|وذلك)", re.IGNORECASE),
+    ]
+
+    for pattern in patterns:
+        match = pattern.search(text)
+        if not match:
+            continue
+
+        principal_name = clean_context_value(match.group(1))
+        if principal_name and len(principal_name) <= 120:
+            return principal_name
+
+    return None
+
+
+def build_page_text(recognized_regions: list[tuple[str, str]]) -> str:
+    lines = []
+    for recognized_text, _ in recognized_regions:
+        cleaned = normalize_native_text(recognized_text.translate(ARABIC_NUMERAL_TRANSLATION))
+        if cleaned:
+            lines.append(cleaned)
+
+    return "\n".join(lines)
+
+
+def extract_contextual_amount(text: str) -> str | None:
+    for regex in AMOUNT_CONTEXT_REGEXES:
+        match = regex.search(text)
+        if match:
+            return match.group(1).replace(",", "")
+
+    amount_candidates = []
+    for line in text.splitlines():
+        normalized_line = normalize_native_text(line)
+        lower_line = normalized_line.lower()
+        if not normalized_line:
+            continue
+
+        if any(marker in lower_line for marker in ["swift", "fax", "tel", "p.o", "po box", "cr ", "unit no"]):
+            continue
+
+        if not any(marker in lower_line for marker in ["مبلغ", "وقدره", "ريال", "sar", "amount", "value", "#"]):
+            continue
+
+        for match in AMOUNT_REGEX.finditer(normalized_line):
+            raw_value = match.group(0).replace(",", "")
+            try:
+                numeric_value = float(raw_value)
+            except ValueError:
+                continue
+
+            if numeric_value < 1000 or numeric_value > 100000000:
+                continue
+
+            amount_candidates.append((numeric_value, raw_value))
+
+    if not amount_candidates:
+        return None
+
+    amount_candidates.sort(key=lambda item: item[0], reverse=True)
+    return amount_candidates[0][1]
 
 
 def extract_dates(text: str) -> list[str]:
@@ -637,7 +815,11 @@ def build_structured_fields(
 
     guarantee_number = find_contextual_value(GUARANTEE_NUMBER_CONTEXT_REGEXES, normalized_text)
     if not guarantee_number:
-        guarantee_number = find_first([GUARANTEE_NUMBER_REGEX, GENERIC_GUARANTEE_CODE_REGEX], normalized_text)
+        top_code_match = re.search(r"\b\d{3}\s+\d{6,8}\s+\d\b", normalized_text)
+        if top_code_match:
+            guarantee_number = re.sub(r"\s+", "", top_code_match.group(0))
+    if not guarantee_number:
+        guarantee_number = find_first([GUARANTEE_NUMBER_REGEX, COMPLEX_GUARANTEE_CODE_REGEX, GENERIC_GUARANTEE_CODE_REGEX], normalized_text)
 
     if guarantee_number:
         fields.append(
@@ -651,7 +833,7 @@ def build_structured_fields(
             )
         )
 
-    bank_name = looks_like_bank_name(normalized_text, request_payload)
+    bank_name = looks_like_bank_name(text, request_payload)
     scenario_key = request_payload.get("scenarioKey", "") or ""
     if bank_name:
         fields.append(
@@ -665,18 +847,35 @@ def build_structured_fields(
             )
         )
 
+    beneficiary_name = extract_beneficiary_name(normalized_text)
+    if beneficiary_name:
+        fields.append(
+            make_field(
+                "IntakeField_Beneficiary",
+                beneficiary_name,
+                78 if source_label == "direct-pdf-text" else 70,
+                page_number,
+                bounding_box,
+                source_label,
+            )
+        )
+
+    principal_name = extract_principal_name(normalized_text)
+    if principal_name:
+        fields.append(
+            make_field(
+                "IntakeField_Principal",
+                principal_name,
+                76 if source_label == "direct-pdf-text" else 68,
+                page_number,
+                bounding_box,
+                source_label,
+            )
+        )
+
     bank_reference = find_contextual_value(BANK_REFERENCE_CONTEXT_REGEXES, normalized_text)
     if not bank_reference:
         bank_reference = find_first(BANK_REFERENCE_REGEXES, normalized_text)
-    if not bank_reference:
-        reference_prefix = (request_payload.get("referencePrefix") or "").strip()
-        if reference_prefix and scenario_key in {
-            "extension-confirmation",
-            "reduction-confirmation",
-            "release-confirmation",
-            "status-verification",
-        }:
-            bank_reference = f"{reference_prefix}-OCR-W1"
 
     if bank_reference:
         fields.append(
@@ -697,6 +896,79 @@ def build_structured_fields(
         date_field_key = "IntakeField_OfficialLetterDate" if scenario_key != "new-guarantee" else "IntakeField_IssueDate"
         fields.append(make_field(date_field_key, normalized_official_date, 85, page_number, bounding_box, source_label))
 
+    amount_value = extract_contextual_amount(normalized_text)
+    if amount_value and scenario_key in {"new-guarantee", "reduction-confirmation"}:
+        fields.append(
+            make_field(
+                "IntakeField_Amount",
+                amount_value.replace(",", ""),
+                84 if source_label == "direct-pdf-text" else 80,
+                page_number,
+                bounding_box,
+                source_label,
+            )
+        )
+
+    currency_code_match = CURRENCY_CODE_REGEX.search(normalized_text)
+    if currency_code_match and scenario_key == "new-guarantee":
+        fields.append(
+            make_field(
+                "IntakeField_CurrencyCode",
+                currency_code_match.group(0).upper(),
+                83 if source_label == "direct-pdf-text" else 78,
+                page_number,
+                bounding_box,
+                source_label,
+            )
+        )
+
+    if scenario_key == "new-guarantee":
+        if re.search(r"purchase\s*order|امر\s*شراء|\bpo\b", normalized_text, re.IGNORECASE):
+            fields.append(
+                make_field(
+                    "IntakeField_GuaranteeCategory",
+                    "PurchaseOrder",
+                    72 if source_label == "direct-pdf-text" else 66,
+                    page_number,
+                    bounding_box,
+                    source_label,
+                )
+            )
+        elif re.search(r"\bcontract\b|عقد", normalized_text, re.IGNORECASE):
+            fields.append(
+                make_field(
+                    "IntakeField_GuaranteeCategory",
+                    "Contract",
+                    72 if source_label == "direct-pdf-text" else 66,
+                    page_number,
+                    bounding_box,
+                    source_label,
+                )
+            )
+
+        expiry_date = find_contextual_value(EXPIRY_DATE_CONTEXT_REGEXES, normalized_text)
+        if not expiry_date:
+            expiry_date = parse_textual_expiry_date(normalized_text)
+        if not expiry_date:
+            later_dates = [
+                candidate for candidate in date_candidates
+                if normalized_official_date is None or candidate > normalized_official_date
+            ]
+            if later_dates:
+                expiry_date = later_dates[-1]
+
+        if expiry_date:
+            fields.append(
+                make_field(
+                    "IntakeField_ExpiryDate",
+                    normalize_date_value(expiry_date),
+                    82 if source_label == "direct-pdf-text" else 76,
+                    page_number,
+                    bounding_box,
+                    source_label,
+                )
+            )
+
     if scenario_key == "extension-confirmation":
         expiry_date = find_contextual_value(EXPIRY_DATE_CONTEXT_REGEXES, normalized_text)
         if not expiry_date:
@@ -715,20 +987,6 @@ def build_structured_fields(
                     "IntakeField_NewExpiryDate",
                     normalize_date_value(expiry_date),
                     82 if source_label == "direct-pdf-text" else 76,
-                    page_number,
-                    bounding_box,
-                    source_label,
-                )
-            )
-
-    if scenario_key == "reduction-confirmation":
-        amount_value = find_first([AMOUNT_REGEX], normalized_text)
-        if amount_value:
-            fields.append(
-                make_field(
-                    "IntakeField_Amount",
-                    amount_value.replace(",", ""),
-                    84 if source_label == "direct-pdf-text" else 80,
                     page_number,
                     bounding_box,
                     source_label,
@@ -794,21 +1052,23 @@ def process_scanned(document, request_payload: dict, page_numbers: list[int], fi
 
             layout_regions, layout_warnings = detect_layout_regions(preprocessed_path)
             warnings.extend(layout_warnings)
+            header_regions, header_warnings = extract_header_regions(preprocessed_path)
+            warnings.extend(header_warnings)
 
             recognized_regions, ocr_warnings = run_ocr(preprocessed_path, layout_regions)
             warnings.extend(ocr_warnings)
 
-            for recognized_text, bounding_box in recognized_regions:
-                if recognized_text.strip():
-                    fields.extend(
-                        build_structured_fields(
-                            recognized_text,
-                            request_payload,
-                            page_number,
-                            "ocr-layout",
-                            bounding_box,
-                        )
+            page_text = build_page_text(header_regions + recognized_regions)
+            if page_text:
+                fields.extend(
+                    build_structured_fields(
+                        page_text,
+                        request_payload,
+                        page_number,
+                        "ocr-layout",
+                        "page",
                     )
+                )
         finally:
             cleanup_file(rendered_path)
             cleanup_file(preprocessed_path)

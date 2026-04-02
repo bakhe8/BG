@@ -1,490 +1,195 @@
-.app-nav {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid color-mix(in srgb, var(--border) 90%, white);
-}
+/* 
+  Institutional Shell Layer: KFSHRC Identity (#006847) 
+  Working Surface Layer: Minimalist Workspace (#FFFFFF)
+*/
 
 .shell-app {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.shell-app.shell-app-no-sidebar {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.shell-sidebar {
-  padding: 0;
-  background: linear-gradient(180deg, #0c5b45 0%, #0a4b38 54%, #07392c 100%);
-}
-
-.shell-sidebar-frame {
-  display: grid;
-  gap: 0.9rem;
-  align-content: start;
-}
-
-.shell-sidebar-body {
-  display: grid;
-  gap: 0.9rem;
-  padding: 0.9rem 0.8rem 1rem;
-}
-
-.shell-stage {
-  min-width: 0;
-  display: grid;
-  gap: 0.9rem;
-  align-content: start;
-  padding: 0.75rem;
-}
-
-.shell-toolbar {
   display: flex;
-  gap: 1rem;
-  align-items: start;
-  justify-content: space-between;
-  padding: 0.95rem 1.15rem;
-  border: 1px solid rgba(9, 79, 60, 0.32);
-  border-radius: 14px;
-  background: linear-gradient(135deg, #0d5b45 0%, #0b644a 52%, #094f3d 100%);
-  box-shadow: 0 14px 28px rgba(6, 35, 24, 0.14);
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-app);
 }
 
-.shell-toolbar-copy {
-  display: grid;
-  gap: 0.35rem;
+.shell-app-no-sidebar .shell-sidebar {
+  display: none !important;
 }
 
-.shell-toolbar-overline {
-  color: rgba(239, 247, 243, 0.72);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.shell-toolbar-copy h1 {
-  margin: 0;
-  font-size: clamp(1.65rem, 3vw, 2.4rem);
-  line-height: 1.05;
-  color: #fff;
-}
-
-.shell-toolbar-copy p {
-  margin: 0;
-  color: rgba(239, 247, 243, 0.82);
-  font-size: 0.88rem;
-}
-
-.shell-brand-block {
-  display: grid;
-  gap: 0.35rem;
-  padding: 0.45rem 0.35rem 0.8rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.shell-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: #fff;
-  font-weight: 800;
-  font-size: 1.2rem;
-  letter-spacing: 0.04em;
-}
-
-.shell-brand:hover {
-  color: #fff;
-}
-
-.shell-brand-mark {
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.84);
-}
-
-.shell-brand-divider {
-  color: rgba(255, 255, 255, 0.4);
-}
-
-.shell-brand-subtitle {
-  color: rgba(239, 247, 243, 0.74);
-  font-size: 0.76rem;
-  font-weight: 600;
-}
-
-.shell-sidebar-section {
-  display: grid;
-  gap: 0.6rem;
-}
-
-.shell-section-label {
-  color: rgba(239, 247, 243, 0.66);
-  font-size: 0.78rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.shell-sidebar-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.shell-sidebar-caption {
-  color: rgba(239, 247, 243, 0.72);
-  font-size: 0.74rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.shell-toolbar-actions,
-.shell-language,
-.shell-nav-stack {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  align-items: center;
-}
-
-.shell-toolbar-actions {
-  justify-content: end;
-}
-
-.shell-nav-stack {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.35rem;
-}
-
-.shell-nav-link {
-  display: flex;
-  align-items: center;
-  min-height: 2.85rem;
-  padding: 0.7rem 0.8rem;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.84);
-  font-weight: 700;
-}
-
-.shell-nav-link.active {
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.16);
-}
-
-.shell-nav-link:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.workspace-shell {
-  display: grid;
-  gap: 1rem;
-  align-items: start;
-}
-
-.workspace-shell.has-support-rail {
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
-}
-
-.workspace-shell.has-detail-drawer:not(.has-support-rail) {
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 20rem);
-}
-
-.workspace-shell.has-support-rail.has-detail-drawer {
-  grid-template-columns: minmax(0, 1fr) minmax(18rem, 20rem) minmax(18rem, 20rem);
-}
-
-.workspace-main,
-.workspace-support-rail,
-.workspace-detail-drawer,
-.workspace-dossier {
-  min-width: 0;
-}
-
-.workspace-support-rail,
-.workspace-detail-drawer,
-.workspace-dossier {
-  display: grid;
-  gap: 1rem;
-  align-content: start;
-}
-
+/* 1️⃣ Institutional Shell: Header (Green Anchor) */
 .shell-stage-header {
-  gap: 1rem;
+  background-color: var(--kfshrc-green) !important;
+  color: white !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 1.5rem;
+  z-index: 1040;
 }
 
-.shell-stage-header-actions {
-  flex-wrap: wrap;
-  justify-content: end;
+.shell-stage-header h5, 
+.shell-stage-header .text-dark {
+  color: white !important;
 }
 
+.shell-stage-header .text-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Topbar Components in the Shell */
 .shell-language-switch {
-  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.shell-language-switch .btn-muted {
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .shell-user-strip {
-  flex-wrap: wrap;
+  border-left-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-.shell-signout-button {
-  min-height: 2.35rem;
-  font-weight: 700;
+html[dir="rtl"] .shell-user-strip {
+  border-left: none !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
 }
 
-.shell-sidebar.offcanvas {
-  width: min(88vw, 20rem);
-  max-width: min(88vw, 20rem);
-  border: 0;
+.shell-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
 }
 
-.shell-sidebar.offcanvas .offcanvas-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+.header-icon-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-@media (min-width: 992px) {
-  .shell-app {
-    grid-template-columns: minmax(14rem, 15rem) minmax(0, 1fr);
-  }
-
-  .shell-app.shell-app-no-sidebar {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .shell-sidebar {
-    position: sticky;
-    top: 0;
-    min-height: 100vh;
-    padding: 0.9rem 0.8rem;
-    border-inline-end: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .shell-sidebar.offcanvas {
-    position: sticky;
-    inset: auto;
-    width: auto;
-    max-width: none;
-    min-height: 100vh;
-    visibility: visible !important;
-    transform: none !important;
-    border-radius: 0;
-    background: linear-gradient(180deg, #0c5b45 0%, #0a4b38 54%, #07392c 100%);
-    box-shadow: none;
-  }
-
-  .shell-sidebar.offcanvas .offcanvas-header {
-    display: none;
-  }
-
-  .shell-sidebar.offcanvas .offcanvas-body {
-    display: block;
-    padding: 0;
-    overflow: visible;
-  }
-
-  .shell-stage {
-    padding: 0.9rem 1rem 1.4rem;
-  }
-}
-
-@media (max-width: 1399.98px) {
-  .workspace-shell.has-support-rail.has-detail-drawer {
-    grid-template-columns: minmax(0, 1fr) minmax(18rem, 20rem);
-  }
-
-  .workspace-shell.has-support-rail.has-detail-drawer .workspace-detail-drawer {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 1199.98px) {
-  .workspace-shell.has-support-rail,
-  .workspace-shell.has-detail-drawer:not(.has-support-rail),
-  .workspace-shell.has-support-rail.has-detail-drawer {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-@media (max-width: 991.98px) {
-  .shell-stage-header {
-    padding: 1rem !important;
-    align-items: start !important;
-    flex-wrap: wrap;
-  }
-
-  .shell-stage-header-main,
-  .shell-stage-header-actions {
-    width: 100%;
-  }
-
-  .shell-stage-header-main {
-    justify-content: space-between;
-  }
-
-  .shell-stage-header-actions {
-    gap: 0.75rem !important;
-    justify-content: space-between;
-  }
-
-  .shell-language-switch {
-    width: 100%;
-    justify-content: stretch;
-  }
-
-  .shell-language-switch .btn {
-    flex: 1 1 0;
-  }
-
-  .shell-user-strip {
-    margin-inline-start: auto;
-    border-inline-start: 0 !important;
-    padding-inline-start: 0 !important;
-  }
-
-  .shell-signout-button {
-    width: 100%;
+.header-btn-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: white !important;
+    display: flex;
+    align-items: center;
     justify-content: center;
-  }
-
-  .shell-stage-main,
-  .shell-stage-footer {
-    padding: 1rem !important;
-  }
-
-  .shell-stage-footer > div {
-    flex-direction: column;
-    align-items: start !important;
-    gap: 0.6rem;
-  }
+    transition: background 0.2s;
+    cursor: pointer;
 }
 
-.shell-toolbar-user {
-  display: grid;
-  gap: 0.1rem;
-  min-width: 10rem;
-  color: #fff;
-  text-align: end;
+.header-btn-circle:hover {
+    background: rgba(255, 255, 255, 0.2);
 }
 
-.shell-toolbar-user strong {
-  font-size: 0.95rem;
+/* 2️⃣ Sidebar: Clean White Navigation */
+.shell-sidebar {
+  width: 280px;
+  background-color: white; /* Workspace surface feel */
+  border-right: 1px solid var(--border-light);
+  transition: transform 0.3s ease;
 }
 
-.shell-toolbar-user span {
-  color: rgba(239, 247, 243, 0.76);
-  font-size: 0.78rem;
+.shell-sidebar-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0;
 }
 
-.app-nav-shell {
-  gap: 1rem;
+.shell-brand-block {
+    background: white; /* Keeping it white as per "Work Surface" sidebar rule */
+    border-bottom: 1px solid var(--border-light) !important;
 }
 
-.app-brand-lockup {
+.shell-brand-block .text-white {
+    color: var(--kfshrc-green) !important;
+}
+
+.shell-brand-block .opacity-50 {
+    opacity: 0.7 !important;
+}
+
+/* Navigation Links: High Focus, No Noise */
+.nav-link {
+  color: #374151; /* Charcoal gray */
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  margin: 0.2rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+    color: #9CA3AF;
+}
+
+.nav-link:hover {
+  background-color: #F3F4F6;
+  color: var(--kfshrc-green);
+}
+
+.nav-link:hover i {
+    color: var(--kfshrc-green);
+}
+
+/* Active State: Institutional Indicator */
+.nav-link.active {
+  background-color: #ECFDF5 !important; /* Green tint */
+  color: var(--kfshrc-green) !important;
+  font-weight: 700;
+  border-left: 4px solid var(--kfshrc-green);
+  border-radius: 4px 12px 12px 4px;
+}
+
+.nav-link.active i {
+  color: var(--kfshrc-green) !important;
+}
+
+html[dir="rtl"] .nav-link.active {
+    border-left: none;
+    border-right: 4px solid var(--kfshrc-green);
+    border-radius: 12px 4px 4px 12px;
+}
+
+
+/* 3️⃣ The Stage: Minimal Content Area */
+.shell-stage {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.app-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin-right: 0;
-  color: var(--accent-strong);
-  font-weight: 800;
-  font-size: 1.4rem;
-  letter-spacing: 0.08em;
+.shell-stage-main {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 2rem !important; /* Spacious whitespace */
+  background-color: var(--bg-app);
 }
 
-.app-brand-mark {
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.app-brand-divider {
-  color: color-mix(in srgb, var(--accent) 50%, white);
-}
-
-.app-brand-text {
-  letter-spacing: 0.08em;
-}
-
-.app-brand-subtitle {
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.app-link {
-  color: var(--muted);
-  font-weight: 600;
-}
-
-.toolbar-group {
+/* Workspace Specifics: Decision-first lists */
+.workspace-shell {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: end;
-  gap: 1rem;
+  gap: 2rem;
 }
 
-.toolbar-block {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  flex-wrap: wrap;
+.workspace-main {
+  flex-grow: 1;
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
-.toolbar-label {
-  color: var(--muted);
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.toolbar-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.toolbar-chip {
-  padding: 0.45rem 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--text);
-  font-size: 0.88rem;
-  font-weight: 700;
-}
-
-.toolbar-chip.active {
-  background: var(--accent-strong);
-  border-color: var(--accent-strong);
-  color: #fff;
-}
-
-.shell-toolbar .toolbar-chip {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.84);
-}
-
-.shell-toolbar .toolbar-chip.active {
-  background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(255, 255, 255, 0.96);
-  color: var(--accent-strong);
+/* Responsive Overrides */
+@media (max-width: 991.98px) {
+  .shell-sidebar {
+    position: fixed;
+    height: 100vh;
+  }
 }

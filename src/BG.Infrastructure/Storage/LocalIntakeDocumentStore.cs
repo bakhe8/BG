@@ -98,6 +98,52 @@ internal sealed class LocalIntakeDocumentStore : IIntakeDocumentStore
         return new PromotedIntakeDocumentDto(metadata.OriginalFileName, relativePath, metadata.FileSize);
     }
 
+    public async Task<StagedIntakeDocumentDto?> GetStagedAsync(
+        string stagedDocumentToken,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(stagedDocumentToken))
+        {
+            return null;
+        }
+
+        var stagingDirectory = GetStagingDirectory();
+        var metadataPath = Path.Combine(stagingDirectory, $"{stagedDocumentToken}.json");
+
+        if (!File.Exists(metadataPath))
+        {
+            return null;
+        }
+
+        var metadata = JsonSerializer.Deserialize<StagedDocumentMetadata>(
+                           await File.ReadAllTextAsync(metadataPath, cancellationToken),
+                           JsonOptions)
+                       ?? throw new FileNotFoundException("The staged document metadata is invalid.", metadataPath);
+
+        var stagedFilePath = Path.Combine(stagingDirectory, $"{stagedDocumentToken}{metadata.Extension}");
+        if (!File.Exists(stagedFilePath))
+        {
+            return null;
+        }
+
+        return new StagedIntakeDocumentDto(
+            stagedDocumentToken,
+            metadata.OriginalFileName,
+            metadata.FileSize,
+            stagedFilePath);
+    }
+
+    public Stream GetDocumentContent(string storagePath)
+    {
+        var fullPath = Path.Combine(_rootPath, storagePath.Replace('/', Path.DirectorySeparatorChar));
+        if (!File.Exists(fullPath))
+        {
+            throw new FileNotFoundException("The requested document was not found.", fullPath);
+        }
+
+        return File.OpenRead(fullPath);
+    }
+
     private string GetStagingDirectory()
     {
         return Path.Combine(_rootPath, "intake", "staging");

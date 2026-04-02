@@ -14,14 +14,44 @@ namespace BG.Application.Services;
 internal sealed class ApprovalQueueService : IApprovalQueueService
 {
     private readonly IApprovalQueueRepository _repository;
+    private readonly IIntakeDocumentStore _documentStore;
     private readonly ApprovalGovernanceOptions _governanceOptions;
 
     public ApprovalQueueService(
         IApprovalQueueRepository repository,
+        IIntakeDocumentStore documentStore,
         IOptions<ApprovalGovernanceOptions> governanceOptions)
     {
         _repository = repository;
+        _documentStore = documentStore;
         _governanceOptions = governanceOptions.Value;
+    }
+
+    public async Task<DocumentContentResult?> GetDocumentContentAsync(Guid requestId, Guid documentId, CancellationToken cancellationToken = default)
+    {
+        var document = await _repository.GetRequestDocumentAsync(requestId, documentId, cancellationToken);
+        if (document is null)
+        {
+            return null;
+        }
+
+        var stream = _documentStore.GetDocumentContent(document.StoragePath);
+        var contentType = ResolveContentType(document.FileName);
+
+        return new DocumentContentResult(document.FileName, stream, contentType);
+    }
+
+    private static string ResolveContentType(string fileName)
+    {
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
+        return extension switch
+        {
+            ".pdf" => "application/pdf",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".tiff" or ".tif" => "image/tiff",
+            _ => "application/octet-stream"
+        };
     }
 
     public async Task<ApprovalQueueSnapshotDto> GetWorkspaceAsync(

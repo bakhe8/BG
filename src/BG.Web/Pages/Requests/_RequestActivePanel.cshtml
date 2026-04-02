@@ -102,56 +102,58 @@
 
             @if (request.CanRevise)
             {
-                <details class="details-panel">
-                    <summary>
-                        <span>@T["RequestsWorkspace_EditRequestTitle"]</span>
-                        <span class="section-caption">@T["RequestsWorkspace_EditRequestSummary"]</span>
-                    </summary>
-                    <div class="details-panel-body">
-                        <form method="post" asp-page-handler="Update" class="row g-4">
+                <article class="bg-card request-revision-card">
+                    <div class="request-revision-header">
+                        <div>
+                            <span class="section-caption">@T["RequestsWorkspace_EditRequestTitle"]</span>
+                            <h3 class="fw-bold text-dark m-0">@T["RequestsWorkspace_EditRequestTitle"]</h3>
+                        </div>
+                        <p class="compact-copy mb-0">@T["RequestsWorkspace_EditRequestSummary"]</p>
+                    </div>
+
+                    <form method="post" asp-page-handler="Update" class="row g-4">
+                        <input type="hidden" name="requestId" value="@request.Id" />
+                        <input type="hidden" name="request" value="@request.Id" />
+                        <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                        <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
+
+                        @if (request.RequiresRequestedAmount)
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold x-small" for="update-amount-@request.Id">@T["RequestsWorkspace_RequestedAmountField"]</label>
+                                <input id="update-amount-@request.Id" name="requestedAmount" class="form-control" inputmode="decimal" value="@request.RequestedAmount" />
+                            </div>
+                        }
+
+                        @if (request.RequiresRequestedExpiryDate)
+                        {
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold x-small" for="update-expiry-@request.Id">@T["RequestsWorkspace_RequestedExpiryDateField"]</label>
+                                <input id="update-expiry-@request.Id" name="requestedExpiryDate" class="form-control" type="date" value="@request.RequestedExpiryDate" />
+                            </div>
+                        }
+
+                        <div class="col-12">
+                            <label class="form-label fw-bold x-small" for="update-notes-@request.Id">@T["RequestsWorkspace_NotesField"]</label>
+                            <textarea id="update-notes-@request.Id" name="notes" class="form-control" rows="3">@request.Notes</textarea>
+                        </div>
+
+                        <div class="col-12 d-flex justify-content-end mt-4">
+                            <bg-button type="submit" variant="secondary">@T["RequestsWorkspace_UpdateAction"]</bg-button>
+                        </div>
+                    </form>
+
+                    @if (request.CanCancel)
+                    {
+                        <form method="post" asp-page-handler="Cancel" class="d-flex justify-content-end">
                             <input type="hidden" name="requestId" value="@request.Id" />
                             <input type="hidden" name="request" value="@request.Id" />
                             <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
                             <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
-
-                            @if (request.RequiresRequestedAmount)
-                            {
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold x-small" for="update-amount-@request.Id">@T["RequestsWorkspace_RequestedAmountField"]</label>
-                                    <input id="update-amount-@request.Id" name="requestedAmount" class="form-control" inputmode="decimal" value="@request.RequestedAmount" />
-                                </div>
-                            }
-
-                            @if (request.RequiresRequestedExpiryDate)
-                            {
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold x-small" for="update-expiry-@request.Id">@T["RequestsWorkspace_RequestedExpiryDateField"]</label>
-                                    <input id="update-expiry-@request.Id" name="requestedExpiryDate" class="form-control" type="date" value="@request.RequestedExpiryDate" />
-                                </div>
-                            }
-
-                            <div class="col-12">
-                                <label class="form-label fw-bold x-small" for="update-notes-@request.Id">@T["RequestsWorkspace_NotesField"]</label>
-                                <textarea id="update-notes-@request.Id" name="notes" class="form-control" rows="3">@request.Notes</textarea>
-                            </div>
-
-                            <div class="col-12 d-flex justify-content-end mt-4">
-                                <bg-button type="submit" variant="secondary">@T["RequestsWorkspace_UpdateAction"]</bg-button>
-                            </div>
+                            <bg-button type="submit" variant="light" class="text-secondary bg-transparent border-0">@T["RequestsWorkspace_CancelAction"]</bg-button>
                         </form>
-
-                        @if (request.CanCancel)
-                        {
-                            <form method="post" asp-page-handler="Cancel">
-                                <input type="hidden" name="requestId" value="@request.Id" />
-                                <input type="hidden" name="request" value="@request.Id" />
-                                <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                                <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
-                                <bg-button type="submit" variant="light" class="text-secondary bg-transparent border-0">@T["RequestsWorkspace_CancelAction"]</bg-button>
-                            </form>
-                        }
-                    </div>
-                </details>
+                    }
+                </article>
             }
 
             <details class="details-panel">

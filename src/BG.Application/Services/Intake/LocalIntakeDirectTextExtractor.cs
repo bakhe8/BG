@@ -68,7 +68,11 @@ internal sealed class LocalIntakeDirectTextExtractor : IIntakeDirectTextExtracto
         var mappedCandidates = processingResult.Fields
             .Where(field => string.Equals(field.SourceLabel, "direct-pdf-text", StringComparison.OrdinalIgnoreCase))
             .Where(field => !string.IsNullOrWhiteSpace(field.FieldKey) && !string.IsNullOrWhiteSpace(field.Value))
-            .Select(field => new IntakeExtractionFieldCandidate(field.FieldKey, field.Value, IntakeFieldValueSource.DirectPdfText))
+            .Select(field => new IntakeExtractionFieldCandidate(
+                field.FieldKey,
+                field.Value,
+                IntakeFieldValueSource.DirectPdfText,
+                field.ConfidencePercent))
             .ToArray();
 
         if (mappedCandidates.Length == 0)
@@ -79,7 +83,10 @@ internal sealed class LocalIntakeDirectTextExtractor : IIntakeDirectTextExtracto
         return mappedCandidates
             .Concat(fallbackCandidates)
             .GroupBy(candidate => candidate.FieldKey, StringComparer.Ordinal)
-            .Select(group => group.First())
+            .Select(group => group
+                .OrderByDescending(candidate => IntakeFieldProvenanceCatalog.GetPriority(candidate.Source))
+                .ThenByDescending(candidate => candidate.ConfidencePercent)
+                .First())
             .ToArray();
     }
 }

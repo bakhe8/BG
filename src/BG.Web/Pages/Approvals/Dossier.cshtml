@@ -5,6 +5,26 @@
 @{
     ViewData["Title"] = T["ApprovalDossier_PageTitle"];
 
+    string BuildInitials(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "BG";
+        }
+
+        var initials = new List<char>(2);
+        foreach (var part in value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            initials.Add(char.ToUpperInvariant(part[0]));
+            if (initials.Count == 2)
+            {
+                break;
+            }
+        }
+
+        return initials.Count == 0 ? "BG" : new string(initials.ToArray());
+    }
+
     string ResolveStageTitle(BG.Application.Models.Approvals.ApprovalQueueItemDto item)
     {
         return !string.IsNullOrWhiteSpace(item.CurrentStageTitle)
@@ -14,13 +34,21 @@
                 : T[item.CurrentStageTitleResourceKey].Value;
     }
 
-    string ResolveConflictingStageTitle(BG.Application.Models.Approvals.ApprovalQueueItemDto item)
+    string ResolveRequestedChange(BG.Application.Models.Approvals.ApprovalQueueItemDto item)
     {
-        return !string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitle)
-            ? item.Governance.ConflictingStageTitle
-            : string.IsNullOrWhiteSpace(item.Governance.ConflictingStageTitleResourceKey)
-                ? item.Governance.ConflictingStageRoleName ?? "-"
-                : T[item.Governance.ConflictingStageTitleResourceKey].Value;
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(item.RequestedAmount))
+        {
+            parts.Add(item.RequestedAmount);
+        }
+
+        if (!string.IsNullOrWhiteSpace(item.RequestedExpiryDate))
+        {
+            parts.Add(item.RequestedExpiryDate);
+        }
+
+        return parts.Count == 0 ? "-" : string.Join(" · ", parts);
     }
 
     var headerModel = new SurfaceHeaderModel(
@@ -60,6 +88,13 @@
 }
 
 <section class="section-shell">
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="notice-banner is-success">@Model.StatusMessage</div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
     @if (Model.Snapshot.HasEligibleActor && !string.IsNullOrWhiteSpace(Model.Snapshot.ContextNoticeResourceKey))
     {
         <div class="notice-banner is-success">@T[Model.Snapshot.ContextNoticeResourceKey]</div>
@@ -94,313 +129,218 @@
         {
             var item = Model.Snapshot.Item;
             var stageTitle = ResolveStageTitle(item);
+            var requestedChange = ResolveRequestedChange(item);
+            var isBlocked = item.Governance.IsDecisionBlocked && !string.IsNullOrWhiteSpace(item.Governance.ReasonResourceKey);
+            var guaranteeCategoryTitle = T[item.GuaranteeCategoryResourceKey].Value;
+            var submittedAt = item.SubmittedAtUtc.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture);
+            var activeActorName = Model.Snapshot.ActiveActor.DisplayName;
+            var activeActorInitials = BuildInitials(activeActorName);
+            var approveAction = Url.Page("/Approvals/Dossier", pageHandler: "Approve", values: new { requestId = Model.RequestId });
+            var returnAction = Url.Page("/Approvals/Dossier", pageHandler: "Return", values: new { requestId = Model.RequestId });
+            var rejectAction = Url.Page("/Approvals/Dossier", pageHandler: "Reject", values: new { requestId = Model.RequestId });
 
-            <article class="info-card full-span">
-                <div class="card-header">
-                    <div>
-                        <h2>@T["ApprovalDossier_RequestTitle"]</h2>
-                    </div>
-                </div>
-
-                <div class="entity-header">
-                    <div>
-                        <h3>@item.GuaranteeNumber</h3>
-                        <div class="entity-subtitle">@T[item.RequestTypeResourceKey] · @T[item.GuaranteeCategoryResourceKey]</div>
-                    </div>
-                    <span class="status-badge is-active">@T[item.StatusResourceKey]</span>
-                </div>
-
-                <dl class="data-pairs">
-                    <div>
-                        <dt>@T["ApprovalQueue_RequesterLabel"]</dt>
-                        <dd>@item.RequesterDisplayName</dd>
-                    </div>
-                    <div>
-                        <dt>@T["ApprovalQueue_RequestChannelLabel"]</dt>
-                        <dd>@T[item.RequestChannelResourceKey]</dd>
-                    </div>
-                    <div>
-                        <dt>@T["ApprovalQueue_SubmittedAtLabel"]</dt>
-                        <dd>@item.SubmittedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                    </div>
-                    <div>
-                        <dt>@T["ApprovalQueue_CreatedAtLabel"]</dt>
-                        <dd>@item.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                    </div>
-                    <div>
-                        <dt>@T["ApprovalQueue_CurrentStageLabel"]</dt>
-                        <dd>@stageTitle</dd>
-                    </div>
-                    <div>
-                        <dt>@T["ApprovalQueue_RoleLabel"]</dt>
-                        <dd>@(string.IsNullOrWhiteSpace(item.CurrentStageRoleName) ? "-" : item.CurrentStageRoleName)</dd>
-                    </div>
-                    <div>
-                        <dt>@T["ApprovalQueue_RequestedAmountLabel"]</dt>
-                        <dd>@(string.IsNullOrWhiteSpace(item.RequestedAmount) ? "-" : item.RequestedAmount)</dd>
-                    </div>
-                    <div>
-                        <dt>@T["ApprovalQueue_RequestedExpiryDateLabel"]</dt>
-                        <dd>@(string.IsNullOrWhiteSpace(item.RequestedExpiryDate) ? "-" : item.RequestedExpiryDate)</dd>
-                    </div>
-                    @if (!string.IsNullOrWhiteSpace(item.DelegatedByDisplayName))
-                    {
-                        <div>
-                            <dt>@T["ApprovalQueue_DelegatedByLabel"]</dt>
-                            <dd>@item.DelegatedByDisplayName</dd>
+            <div class="approval-dossier-grid">
+                <main class="approval-main-column d-flex flex-column gap-4">
+                    <article class="approval-decision-card bg-card-premium surface-action-zone @(isBlocked ? "is-blocked" : "is-primary")">
+                        <div class="approval-active-header">
+                            <div class="approval-active-heading">
+                                <section-caption>@T["SurfaceAction_CurrentActionLabel"]</section-caption>
+                                <h2 class="fw-bold text-dark m-0">@item.GuaranteeNumber</h2>
+                                <p class="compact-copy mb-0">@T[item.RequestTypeResourceKey] · @guaranteeCategoryTitle</p>
+                            </div>
+                            <bg-badge variant="warning" class="small">@T[item.StatusResourceKey]</bg-badge>
                         </div>
-                    }
-                    @if (item.DelegationEndsAtUtc.HasValue)
-                    {
-                        <div>
-                            <dt>@T["ApprovalQueue_DelegationEndsAtLabel"]</dt>
-                            <dd>@item.DelegationEndsAtUtc.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</dd>
-                        </div>
-                    }
-                </dl>
 
-                <div class="surface-stat-grid">
-                    <section class="surface-stat">
-                        <span class="section-caption">@T["ApprovalQueue_PriorSignaturesTitle"]</span>
-                        <strong>@item.PriorSignatures.Count</strong>
-                    </section>
-                    <section class="surface-stat">
-                        <span class="section-caption">@T["ApprovalQueue_AttachmentsTitle"]</span>
-                        <strong>@item.Attachments.Count</strong>
-                    </section>
-                    <section class="surface-stat">
-                        <span class="section-caption">@T["ApprovalQueue_TimelineTitle"]</span>
-                        <strong>@item.TimelineEntries.Count</strong>
-                    </section>
-                </div>
+                        <form method="post" class="stack-form d-flex flex-column gap-3">
+                            <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
+                            <input type="hidden" name="requestId" value="@item.RequestId" />
+                            <input type="hidden" name="page" value="@(Model.PageNumber ?? 1)" />
 
-                <div class="pill-section">
-                    <span class="section-caption">@T["ApprovalQueue_RequestNotesTitle"]</span>
-                    <p class="compact-copy">@(string.IsNullOrWhiteSpace(item.Notes) ? T["ApprovalQueue_NoNotes"].Value : item.Notes)</p>
-                </div>
-
-                @if (!string.IsNullOrWhiteSpace(item.DelegationReason))
-                {
-                    <div class="pill-section">
-                        <span class="section-caption">@T["ApprovalQueue_DelegationReasonLabel"]</span>
-                        <p class="compact-copy">@item.DelegationReason</p>
-                    </div>
-                }
-
-                <div class="pill-section">
-                    <span class="section-caption">@T["ApprovalDossier_GovernanceTitle"]</span>
-                    @if (item.Governance.IsDecisionBlocked && !string.IsNullOrWhiteSpace(item.Governance.ReasonResourceKey))
-                    {
-                        var conflictingStageTitle = ResolveConflictingStageTitle(item);
-
-                        <div class="notice-banner is-warning">
-                            <strong>@T["ApprovalQueue_GovernanceBlockedTitle"]</strong>
-                            @if (!string.IsNullOrWhiteSpace(item.Governance.PolicyResourceKey))
-                            {
-                                <p class="compact-copy">@T["ApprovalQueue_GovernancePolicyLabel"]: @T[item.Governance.PolicyResourceKey]</p>
-                            }
-                            <p class="compact-copy">@T[item.Governance.ReasonResourceKey]</p>
-                            <div class="pill-list">
-                                @if (!string.IsNullOrWhiteSpace(conflictingStageTitle))
+                            <div class="surface-action-header">
+                                <span class="surface-action-kicker">@T[isBlocked ? "SurfaceAction_BlockedLabel" : "SurfaceAction_CurrentActionLabel"]</span>
+                                <h3 class="surface-action-title">@(isBlocked ? T["ApprovalQueue_GovernanceBlockedTitle"].Value : T["ApprovalQueue_ActiveStepAwaitingReview"].Value)</h3>
+                                @if (isBlocked)
                                 {
-                                    <span class="pill">@T["ApprovalQueue_GovernanceBlockedStageLabel"]: @conflictingStageTitle</span>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(item.Governance.ConflictingActorDisplayName))
-                                {
-                                    <span class="pill">@T["ApprovalQueue_GovernanceBlockedActorLabel"]: @item.Governance.ConflictingActorDisplayName</span>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(item.Governance.ConflictingResponsibleSignerDisplayName))
-                                {
-                                    <span class="pill">@T["ApprovalQueue_GovernanceBlockedResponsibleSignerLabel"]: @item.Governance.ConflictingResponsibleSignerDisplayName</span>
+                                    <p class="surface-action-copy">@T[item.Governance.ReasonResourceKey!]</p>
                                 }
                             </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="compact-copy">@T["ApprovalDossier_GovernanceClear"]</p>
-                    }
-                </div>
 
-                <div class="pill-section">
-                    <span class="section-caption">@T["ApprovalQueue_PriorSignaturesTitle"]</span>
-
-                    @if (item.PriorSignatures.Count == 0)
-                    {
-                        <p class="compact-copy">@T["ApprovalQueue_PriorSignaturesEmpty"]</p>
-                    }
-                    else
-                    {
-                        <div class="workflow-stage-list">
-                            @foreach (var signature in item.PriorSignatures)
-                            {
-                                var signatureStageTitle = !string.IsNullOrWhiteSpace(signature.StageTitle)
-                                    ? signature.StageTitle
-                                    : string.IsNullOrWhiteSpace(signature.StageTitleResourceKey)
-                                        ? signature.StageRoleName ?? "-"
-                                        : T[signature.StageTitleResourceKey].Value;
-
-                                <section class="workflow-stage">
-                                    <span class="pipeline-index">@signature.Sequence</span>
-                                    <div>
-                                        <strong>@signatureStageTitle</strong>
-                                        <div class="pill-list">
-                                            <span class="pill">@T["ApprovalQueue_PriorSignatureSignedAtLabel"]: @signature.ActedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
-                                            <span class="pill">@T["ApprovalQueue_PriorSignatureActorLabel"]: @(string.IsNullOrWhiteSpace(signature.ActorDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : signature.ActorDisplayName)</span>
-                                            <span class="pill">@T["ApprovalQueue_PriorSignatureResponsibleSignerLabel"]: @(string.IsNullOrWhiteSpace(signature.ResponsibleSignerDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : signature.ResponsibleSignerDisplayName)</span>
-                                            @if (signature.WasDelegated)
-                                            {
-                                                <span class="pill">@T["ApprovalQueue_PriorSignatureDelegatedBadge"]</span>
-                                            }
-                                        </div>
+                            <div class="approval-comments-card">
+                                <label class="section-caption x-small mb-2">@T["ApprovalQueue_CommentsTitle"]</label>
+                                <div class="d-flex gap-3 align-items-start">
+                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-brand-green text-white fw-bold"
+                                          style="width: 32px; height: 32px;"
+                                          aria-hidden="true">
+                                        @activeActorInitials
+                                    </span>
+                                    <div class="flex-grow-1">
+                                        <div class="x-small fw-bold">@activeActorName</div>
+                                        <div class="x-small text-muted mb-2">@stageTitle</div>
+                                        <textarea name="note"
+                                                  class="form-control x-small"
+                                                  rows="3"
+                                                  placeholder="@T["ApprovalQueue_CommentPlaceholder"]"
+                                                  disabled="@isBlocked"></textarea>
                                     </div>
-                                </section>
-                            }
+                                </div>
+                            </div>
+
+                            <div class="approval-decision-actions d-flex flex-column gap-2">
+                                <bg-button variant="success" class="w-100 py-3 rounded-4" formaction="@approveAction" type="submit" disabled="@isBlocked">
+                                    <i class="bi bi-check-lg me-2"></i>@T["ApprovalQueue_ApproveAction"]
+                                </bg-button>
+
+                                <bg-button variant="warning" class="w-100 py-3 rounded-4" formaction="@returnAction" type="submit" disabled="@isBlocked">
+                                    <i class="bi bi-pencil-square me-2"></i>@T["ApprovalQueue_ReturnAction"]
+                                </bg-button>
+
+                                <bg-button variant="light" class="w-100 py-3 rounded-4" formaction="@rejectAction" type="submit" disabled="@isBlocked">
+                                    <i class="bi bi-x-lg me-2"></i>@T["ApprovalQueue_RejectAction"]
+                                </bg-button>
+                            </div>
+                        </form>
+                    </article>
+
+                    <article class="info-card">
+                        <div class="card-header pb-3 mb-3 border-bottom">
+                            <h2 class="h5 fw-bold m-0">@T["ApprovalDossier_RequestTitle"]</h2>
                         </div>
-                    }
-                </div>
 
-                <div class="pill-section">
-                    <span class="section-caption">@T["ApprovalQueue_AttachmentsTitle"]</span>
-
-                    @if (item.Attachments.Count == 0)
-                    {
-                        <p class="compact-copy">@T["ApprovalQueue_AttachmentsEmpty"]</p>
-                    }
-                    else
-                    {
-                        <div class="workflow-stage-list">
-                            @foreach (var attachment in item.Attachments)
-                            {
-                                <section class="workflow-stage">
-                                    <span class="pipeline-index">#</span>
-                                    <div>
-                                        <strong>@attachment.FileName</strong>
-                                        <p class="compact-copy">@T[attachment.DocumentTypeResourceKey]</p>
-                                        <div class="pill-list">
-                                            @if (attachment.DocumentForm is not null)
-                                            {
-                                                <span class="pill">@T[attachment.DocumentForm.TitleResourceKey]</span>
-                                                <span class="pill">@T[attachment.DocumentForm.BankResourceKey]</span>
-                                            }
-                                            <span class="pill">@T["ApprovalQueue_AttachmentLinkedAtLabel"]: @attachment.LinkedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
-                                            <span class="pill">@T["ApprovalQueue_AttachmentLinkedByLabel"]: @(string.IsNullOrWhiteSpace(attachment.LinkedByDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : attachment.LinkedByDisplayName)</span>
-                                            <span class="pill">@T["ApprovalQueue_AttachmentCapturedAtLabel"]: @attachment.CapturedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
-                                            <span class="pill">@T["ApprovalQueue_AttachmentCapturedByLabel"]: @(string.IsNullOrWhiteSpace(attachment.CapturedByDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : attachment.CapturedByDisplayName)</span>
-                                            <span class="pill">@T["ApprovalQueue_AttachmentCaptureChannelLabel"]: @T[attachment.CaptureChannelResourceKey]</span>
-                                            @if (!string.IsNullOrWhiteSpace(attachment.SourceSystemName))
-                                            {
-                                                <span class="pill">@T["ApprovalQueue_AttachmentSourceSystemLabel"]: @attachment.SourceSystemName</span>
-                                            }
-                                            @if (!string.IsNullOrWhiteSpace(attachment.SourceReference))
-                                            {
-                                                <span class="pill">@T["ApprovalQueue_AttachmentSourceReferenceLabel"]: @attachment.SourceReference</span>
-                                            }
-                                        </div>
-                                    </div>
-                                </section>
-                            }
+                        <div class="entity-header mb-4">
+                            <div>
+                                <h3 class="h4 fw-bold">@item.GuaranteeNumber</h3>
+                                <div class="text-muted small">@T[item.RequestTypeResourceKey] · @T[item.GuaranteeCategoryResourceKey]</div>
+                            </div>
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">@T[item.StatusResourceKey]</span>
                         </div>
-                    }
-                </div>
 
-                <div class="pill-section">
-                    <span class="section-caption">@T["ApprovalQueue_TimelineTitle"]</span>
+                        <div class="pill-section mb-4">
+                            <span class="section-caption d-block mb-3">@T["ApprovalQueue_AttachmentsTitle"]</span>
 
-                    @if (item.TimelineEntries.Count == 0)
-                    {
-                        <p class="compact-copy">@T["ApprovalQueue_TimelineEmpty"]</p>
-                    }
-                    else
-                    {
-                        <div class="workflow-stage-list">
-                            @foreach (var entry in item.TimelineEntries)
+                            @if (item.Attachments.Count == 0)
                             {
-                                <section class="workflow-stage">
-                                    <span class="pipeline-index">#</span>
-                                    <div>
-                                        <strong>@entry.OccurredAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</strong>
-                                        <p class="compact-copy">
-                                            @T["RequestsWorkspace_LedgerActorLabel"]:
-                                            @(string.IsNullOrWhiteSpace(entry.ActorDisplayName)
-                                                ? T["RequestsWorkspace_LedgerSystemActor"].Value
-                                                : entry.ActorDisplayName)
-                                        </p>
-                                        <p class="compact-copy">@entry.Summary</p>
-                                        @if (!string.IsNullOrWhiteSpace(entry.ApprovalStageLabel) ||
-                                             !string.IsNullOrWhiteSpace(entry.ApprovalPolicyResourceKey) ||
-                                             !string.IsNullOrWhiteSpace(entry.ApprovalExecutionModeResourceKey) ||
-                                             !string.IsNullOrWhiteSpace(entry.ApprovalResponsibleSignerDisplayName) ||
-                                             !string.IsNullOrWhiteSpace(entry.DispatchStageResourceKey) ||
-                                             !string.IsNullOrWhiteSpace(entry.DispatchMethodResourceKey) ||
-                                             !string.IsNullOrWhiteSpace(entry.DispatchPolicyResourceKey) ||
-                                             !string.IsNullOrWhiteSpace(entry.OperationsScenarioTitleResourceKey) ||
-                                             !string.IsNullOrWhiteSpace(entry.OperationsLaneResourceKey) ||
-                                             !string.IsNullOrWhiteSpace(entry.OperationsMatchConfidenceResourceKey) ||
-                                             entry.OperationsMatchScore.HasValue ||
-                                             !string.IsNullOrWhiteSpace(entry.OperationsPolicyResourceKey))
-                                        {
-                                            <div class="pill-list">
-                                                @if (!string.IsNullOrWhiteSpace(entry.ApprovalStageLabel))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerStageLabel"]: @entry.ApprovalStageLabel</span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.ApprovalPolicyResourceKey))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerPolicyLabel"]: @T[entry.ApprovalPolicyResourceKey]</span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.ApprovalExecutionModeResourceKey))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerExecutionModeLabel"]: @T[entry.ApprovalExecutionModeResourceKey]</span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.ApprovalResponsibleSignerDisplayName))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerResponsibleSignerLabel"]: @entry.ApprovalResponsibleSignerDisplayName</span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.DispatchStageResourceKey))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerDispatchStageLabel"]: @T[entry.DispatchStageResourceKey]</span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.DispatchMethodResourceKey))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerDispatchMethodLabel"]: @T[entry.DispatchMethodResourceKey]</span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.DispatchPolicyResourceKey))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerDispatchPolicyLabel"]: @T[entry.DispatchPolicyResourceKey]</span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.OperationsScenarioTitleResourceKey))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerOperationsScenarioLabel"]: @T[entry.OperationsScenarioTitleResourceKey]</span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.OperationsLaneResourceKey))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerOperationsLaneLabel"]: @T[entry.OperationsLaneResourceKey]</span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.OperationsMatchConfidenceResourceKey))
-                                                {
-                                                    <span class="pill">
-                                                        @T["RequestsWorkspace_LedgerOperationsConfidenceLabel"]:
-                                                        @T[entry.OperationsMatchConfidenceResourceKey]
-                                                        @if (entry.OperationsMatchScore.HasValue)
+                                <p class="compact-copy">@T["ApprovalQueue_AttachmentsEmpty"]</p>
+                            }
+                            else
+                            {
+                                <div class="workflow-stage-list">
+                                    @foreach (var attachment in item.Attachments)
+                                    {
+                                        <section class="workflow-stage p-3 border rounded-4 mb-3 bg-white">
+                                            <div class="d-flex justify-content-between align-items-start w-100">
+                                                <div class="flex-grow-1">
+                                                    <div class="fw-bold mb-1">@attachment.FileName</div>
+                                                    <div class="x-small text-muted mb-2">@T[attachment.DocumentTypeResourceKey]</div>
+                                                    <div class="pill-list d-flex flex-wrap gap-2">
+                                                        @if (attachment.DocumentForm is not null)
                                                         {
-                                                            @($" ({entry.OperationsMatchScore.Value})")
+                                                            <span class="badge bg-light text-dark fw-normal border">@T[attachment.DocumentForm.TitleResourceKey]</span>
                                                         }
-                                                    </span>
-                                                }
-                                                @if (!string.IsNullOrWhiteSpace(entry.OperationsPolicyResourceKey))
-                                                {
-                                                    <span class="pill">@T["RequestsWorkspace_LedgerOperationsPolicyLabel"]: @T[entry.OperationsPolicyResourceKey]</span>
-                                                }
+                                                        <span class="badge bg-light text-muted fw-normal border">@attachment.CapturedAtUtc.ToLocalTime().ToString("g")</span>
+                                                    </div>
+                                                </div>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                                        onclick="openDetailDrawer('@Url.Page("/Approvals/Dossier", "PreviewAttachment", new { requestId = Model.RequestId, attachmentId = attachment.DocumentId })', '@attachment.FileName')">
+                                                    <i class="bi bi-eye me-1"></i> @T["IntakeWorkspace_OpenDocumentAction"]
+                                                </button>
                                             </div>
-                                        }
-                                    </div>
-                                </section>
+                                        </section>
+                                    }
+                                </div>
                             }
                         </div>
-                    }
-                </div>
-            </article>
+                    </article>
+                </main>
+
+                <aside class="approval-support-rail">
+                    <div class="rail-card">
+                        <section-caption class="mb-3 d-block text-uppercase small fw-bold">@T["ApprovalQueue_ApplicationSummaryTitle"]</section-caption>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="approval-summary-card shadow-none border-0 p-0">
+                                <span class="section-caption x-small mb-1">@T["RequestsWorkspace_CurrentStageLabel"]</span>
+                                <strong>@stageTitle</strong>
+                            </div>
+                            <div class="approval-summary-card shadow-none border-0 p-0">
+                                <span class="section-caption x-small mb-1">@T["ApprovalQueue_SubmittedAtLabel"]</span>
+                                <strong>@submittedAt</strong>
+                            </div>
+                            <div class="approval-summary-card shadow-none border-0 p-0">
+                                <span class="section-caption x-small mb-1">@T["ApprovalQueue_RequesterLabel"]</span>
+                                <strong>@item.RequesterDisplayName</strong>
+                            </div>
+                            @if (requestedChange != "-")
+                            {
+                                <div class="approval-summary-card shadow-none border-0 p-0">
+                                    <span class="section-caption x-small mb-1">@T["RequestsWorkspace_RequestedChangeTitle"]</span>
+                                    <strong>@requestedChange</strong>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="rail-card">
+                        <section-caption class="mb-3 d-block text-uppercase small fw-bold">@T["ApprovalQueue_TimelineTitle"]</section-caption>
+                        @if (item.TimelineEntries.Count == 0)
+                        {
+                            <p class="compact-copy">@T["ApprovalQueue_TimelineEmpty"]</p>
+                        }
+                        else
+                        {
+                            <div class="timeline-compact">
+                                @foreach (var entry in item.TimelineEntries.OrderByDescending(e => e.OccurredAtUtc).Take(5))
+                                {
+                                    <div class="mb-3 pb-3 border-bottom last-child-no-border">
+                                        <div class="x-small fw-bold text-primary">@entry.OccurredAtUtc.ToLocalTime().ToString("g")</div>
+                                        <div class="small fw-semibold mt-1">@entry.Summary</div>
+                                        <div class="x-small text-muted">@entry.ActorDisplayName</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </aside>
+            </div>
         }
     }
 </section>
+
+@* Detail Drawer Components (C-SURF-04) *@
+<div id="detailDrawerBackdrop" class="detail-drawer-backdrop" onclick="closeDetailDrawer()"></div>
+<div id="detailDrawer" class="detail-drawer-overlay">
+    <div class="detail-drawer-header">
+        <h4 id="detailDrawerTitle" class="m-0 h5 fw-bold"></h4>
+        <button type="button" class="btn-close" onclick="closeDetailDrawer()"></button>
+    </div>
+    <div class="detail-drawer-body">
+        <iframe id="detailDrawerFrame" class="w-100 h-100 border-0" title="Detail Preview"></iframe>
+    </div>
+</div>
+
+<script>
+    function openDetailDrawer(url, title) {
+        const drawer = document.getElementById('detailDrawer');
+        const backdrop = document.getElementById('detailDrawerBackdrop');
+        const frame = document.getElementById('detailDrawerFrame');
+        const titleEl = document.getElementById('detailDrawerTitle');
+
+        titleEl.innerText = title;
+        frame.src = url;
+        
+        drawer.classList.add('is-active');
+        backdrop.classList.add('is-active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetailDrawer() {
+        const drawer = document.getElementById('detailDrawer');
+        const backdrop = document.getElementById('detailDrawerBackdrop');
+        const frame = document.getElementById('detailDrawerFrame');
+        
+        drawer.classList.remove('is-active');
+        backdrop.classList.remove('is-active');
+        document.body.style.overflow = '';
+        
+        setTimeout(() => { frame.src = ''; }, 400);
+    }
+</script>

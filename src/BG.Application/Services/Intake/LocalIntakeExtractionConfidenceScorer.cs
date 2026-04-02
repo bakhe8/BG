@@ -5,17 +5,20 @@ namespace BG.Application.Services;
 
 internal sealed class LocalIntakeExtractionConfidenceScorer : IIntakeExtractionConfidenceScorer
 {
-    public int Score(IntakeFieldReviewDto sampleField, IntakeFieldValueSource source)
+    public int Score(IntakeFieldReviewDto sampleField, IntakeExtractionFieldCandidate candidate)
     {
         ArgumentNullException.ThrowIfNull(sampleField);
+        ArgumentNullException.ThrowIfNull(candidate);
 
-        return source switch
+        var boundedConfidence = Math.Clamp(candidate.ConfidencePercent, 0, 100);
+
+        return candidate.Source switch
         {
-            IntakeFieldValueSource.FilenamePattern => 99,
-            IntakeFieldValueSource.DirectPdfText => Math.Max(sampleField.ConfidencePercent, 95),
-            IntakeFieldValueSource.OcrFallback => Math.Max(sampleField.ConfidencePercent, 90),
-            IntakeFieldValueSource.ScenarioSample => sampleField.ConfidencePercent,
-            _ => sampleField.ConfidencePercent
+            IntakeFieldValueSource.FilenamePattern => Math.Min(boundedConfidence, 65),
+            IntakeFieldValueSource.DirectPdfText => Math.Max(boundedConfidence, 0),
+            IntakeFieldValueSource.OcrFallback => Math.Max(boundedConfidence, 0),
+            IntakeFieldValueSource.ScenarioSample => Math.Min(boundedConfidence, 25),
+            _ => boundedConfidence
         };
     }
 }

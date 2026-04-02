@@ -2,6 +2,7 @@ using BG.Domain.Guarantees;
 using BG.Domain.Identity;
 using BG.Domain.Operations;
 using BG.Domain.Workflow;
+using BG.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -47,6 +48,8 @@ public sealed class BgDbContext : DbContext
     public DbSet<RequestApprovalProcess> RequestApprovalProcesses => Set<RequestApprovalProcess>();
 
     public DbSet<RequestApprovalStage> RequestApprovalStages => Set<RequestApprovalStage>();
+
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

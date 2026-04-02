@@ -1,4 +1,4 @@
-﻿# Frontend Interface Reconstruction Plan — BG Application
+# Frontend Interface Reconstruction Plan — BG Application
 
 ## Document Role
 

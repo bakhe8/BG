@@ -195,6 +195,14 @@ internal sealed class ApprovalQueueRepository : IApprovalQueueRepository
             .SingleOrDefaultAsync(request => request.Id == requestId, cancellationToken);
     }
 
+    public async Task<GuaranteeDocument?> GetRequestDocumentAsync(Guid requestId, Guid documentId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.GuaranteeRequestDocuments
+            .Where(link => link.GuaranteeRequestId == requestId && link.GuaranteeDocumentId == documentId)
+            .Select(link => link.GuaranteeDocument)
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return _dbContext.SaveChangesAsync(cancellationToken);

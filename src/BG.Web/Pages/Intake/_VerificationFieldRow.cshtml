@@ -1,0 +1,51 @@
+@*
+    _VerificationFieldRow.cshtml — structural pattern for a single intake field review row.
+
+    This partial renders the meta and state rows (label + confidence + review signal).
+    The __input slot is provided by the caller after the partial invocation.
+
+    Expected model (anonymous object):
+        Label          string   — localized field label
+        Confidence     int?     — extracted confidence percent; null when no extraction
+        BadgeVariant   string?  — badge CSS variant key; null when no extraction
+        ReviewRequired bool     — true when explicit human confirmation is needed
+
+    Usage:
+        @{
+            var fieldReview = Model.GetReviewField(IntakeFieldKeys.GuaranteeNumber);
+        }
+        <article class="intake-field-row">
+            <partial name="_VerificationFieldRow" model='@((object)new {
+                Label          = T["IntakeField_GuaranteeNumber"].Value,
+                Confidence     = (int?)fieldReview?.ConfidencePercent,
+                BadgeVariant   = fieldReview != null ? Model.ResolveReviewBadgeVariant(fieldReview) : null,
+                ReviewRequired = fieldReview?.RequiresExplicitReview ?? false
+            })' />
+            <div class="intake-field-row__input">
+                <input asp-for="Input.GuaranteeNumber" class="form-control" maxlength="64" />
+            </div>
+        </article>
+*@
+@model dynamic
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+
+@{
+    int? confidence = Model.Confidence;
+    string? badgeVariant = Model.BadgeVariant;
+    bool reviewRequired = Model.ReviewRequired ?? false;
+}
+
+<div class="intake-field-row__meta">
+    <div class="intake-field-row__label">@Model.Label</div>
+    @if (confidence.HasValue)
+    {
+        <div class="intake-field-row__confidence">
+            <bg-badge variant="@badgeVariant">@confidence%</bg-badge>
+        </div>
+    }
+</div>
+@if (reviewRequired)
+{
+    <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+}

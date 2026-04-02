@@ -21,15 +21,18 @@ internal sealed class IntakeSubmissionService : IIntakeSubmissionService
     private readonly IIntakeRepository _repository;
     private readonly IIntakeDocumentStore _documentStore;
     private readonly IIntakeExtractionEngine _extractionEngine;
+    private readonly INotificationService _notificationService;
 
     public IntakeSubmissionService(
         IIntakeRepository repository,
         IIntakeDocumentStore documentStore,
-        IIntakeExtractionEngine extractionEngine)
+        IIntakeExtractionEngine extractionEngine,
+        INotificationService notificationService)
     {
         _repository = repository;
         _documentStore = documentStore;
         _extractionEngine = extractionEngine;
+        _notificationService = notificationService;
     }
 
     public async Task<OperationResult<IntakeExtractionDraftDto>> BeginExtractionAsync(
@@ -190,6 +193,11 @@ internal sealed class IntakeSubmissionService : IIntakeSubmissionService
             return OperationResult<IntakeSubmissionReceiptDto>.Failure(IntakeErrorCodes.ExpiryDateRequired);
         }
 
+        if (expiryDate < issueDate)
+        {
+            return OperationResult<IntakeSubmissionReceiptDto>.Failure(IntakeErrorCodes.ExpiryDateBeforeIssueDate);
+        }
+
         var guarantee = Guarantee.RegisterNew(
             guaranteeNumber,
             bankName,
@@ -234,6 +242,13 @@ internal sealed class IntakeSubmissionService : IIntakeSubmissionService
                 scenario),
             cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
+
+        await _notificationService.SendNotificationAsync(
+            $"New guarantee registration request #{guarantee.GuaranteeNumber} waiting for review.",
+            $"/Operations/Queue",
+            "permission.operations.queue",
+            null,
+            cancellationToken);
 
         return OperationResult<IntakeSubmissionReceiptDto>.Success(
             new IntakeSubmissionReceiptDto(
@@ -351,6 +366,13 @@ internal sealed class IntakeSubmissionService : IIntakeSubmissionService
                 scenario),
             cancellationToken);
         await _repository.SaveChangesAsync(cancellationToken);
+
+        await _notificationService.SendNotificationAsync(
+            $"New correspondence/guarantee request #{guarantee.GuaranteeNumber} waiting for review.",
+            $"/Operations/Queue",
+            "permission.operations.queue",
+            null,
+            cancellationToken);
 
         return OperationResult<IntakeSubmissionReceiptDto>.Success(
             new IntakeSubmissionReceiptDto(

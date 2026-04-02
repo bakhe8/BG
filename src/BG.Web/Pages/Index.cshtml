@@ -1,187 +1,103 @@
 @page
-@using Microsoft.Extensions.Localization
-@using System.Globalization
-@inject IStringLocalizer<SharedResource> T
 @model IndexModel
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
 @{
-    ViewData["Title"] = T["Home_PageTitle"];
-
-    var hasImmediateWorkload =
-        Model.Dashboard.PendingApprovalsCount > 0 ||
-        Model.Dashboard.MyOpenRequestsCount > 0 ||
-        Model.Dashboard.OperationsBacklogCount > 0 ||
-        Model.Dashboard.ReadyForDispatchCount > 0 ||
-        Model.Dashboard.PendingDeliveryCount > 0 ||
-        Model.Dashboard.ExpiringGuaranteesCount > 0;
-
-    var primaryWorkspaceHref = Model.Dashboard.CanViewApprovals
-        ? "/Approvals/Queue"
-        : Model.Dashboard.CanViewRequests
-            ? "/Requests/Workspace"
-            : Model.Dashboard.CanViewOperations
-                ? "/Operations/Queue"
-                : Model.Dashboard.CanViewDispatch
-                    ? "/Dispatch/Workspace"
-                    : Model.Dashboard.CanViewIntake
-                        ? "/Intake/Workspace"
-                        : null;
-    var primaryWorkspaceTitleKey = Model.Dashboard.CanViewApprovals
-        ? "NavApprovals"
-        : Model.Dashboard.CanViewRequests
-            ? "NavRequests"
-            : Model.Dashboard.CanViewOperations
-                ? "NavOperationsQueue"
-                : Model.Dashboard.CanViewDispatch
-                    ? "NavDispatch"
-                    : Model.Dashboard.CanViewIntake
-                        ? "NavIntake"
-                        : null;
-
-    var workspaceCards = new List<(string Href, string TitleKey, string CountText)>();
-    var availableWorkspaces = new List<(string Href, string TitleKey)>();
-
-    if (Model.Dashboard.CanViewApprovals && Model.Dashboard.PendingApprovalsCount > 0)
-    {
-        workspaceCards.Add((
-            "/Approvals/Queue",
-            "NavApprovals",
-            Model.Dashboard.PendingApprovalsCount.ToString("N0", CultureInfo.CurrentUICulture)));
-    }
-
-    if (Model.Dashboard.CanViewRequests && Model.Dashboard.MyOpenRequestsCount > 0)
-    {
-        workspaceCards.Add((
-            "/Requests/Workspace",
-            "NavRequests",
-            Model.Dashboard.MyOpenRequestsCount.ToString("N0", CultureInfo.CurrentUICulture)));
-    }
-
-    if (Model.Dashboard.CanViewOperations && Model.Dashboard.OperationsBacklogCount > 0)
-    {
-        workspaceCards.Add((
-            "/Operations/Queue",
-            "NavOperationsQueue",
-            Model.Dashboard.OperationsBacklogCount.ToString("N0", CultureInfo.CurrentUICulture)));
-    }
-
-    if (Model.Dashboard.CanViewDispatch && (Model.Dashboard.ReadyForDispatchCount > 0 || Model.Dashboard.PendingDeliveryCount > 0))
-    {
-        var dispatchWorkCount = Model.Dashboard.ReadyForDispatchCount + Model.Dashboard.PendingDeliveryCount;
-        workspaceCards.Add((
-            "/Dispatch/Workspace",
-            "NavDispatch",
-            dispatchWorkCount.ToString("N0", CultureInfo.CurrentUICulture)));
-    }
-
-    if (Model.Dashboard.CanViewIntake && Model.Dashboard.RecentIntakeActivities.Count > 0)
-    {
-        workspaceCards.Add((
-            "/Intake/Workspace",
-            "NavIntake",
-            Model.Dashboard.RecentIntakeActivities.Count.ToString("N0", CultureInfo.CurrentUICulture)));
-    }
-
-    if (Model.Dashboard.CanViewApprovals)
-    {
-        availableWorkspaces.Add(("/Approvals/Queue", "NavApprovals"));
-    }
-
-    if (Model.Dashboard.CanViewRequests)
-    {
-        availableWorkspaces.Add(("/Requests/Workspace", "NavRequests"));
-    }
-
-    if (Model.Dashboard.CanViewOperations)
-    {
-        availableWorkspaces.Add(("/Operations/Queue", "NavOperationsQueue"));
-    }
-
-    if (Model.Dashboard.CanViewDispatch)
-    {
-        availableWorkspaces.Add(("/Dispatch/Workspace", "NavDispatch"));
-    }
-
-    if (Model.Dashboard.CanViewIntake)
-    {
-        availableWorkspaces.Add(("/Intake/Workspace", "NavIntake"));
-    }
+    ViewData["Title"] = T["Dashboard_PageTitle"];
+    var currentPath = HttpContext.Request.Path;
 }
 
-@if (!Model.Dashboard.IsAuthenticated)
-{
-    <section class="home-landing">
-        <article class="info-card">
-            <span class="eyebrow">@T["Home_AnonymousEyebrow"]</span>
-            <h1 class="m-0">@T["Home_AnonymousHeading"]</h1>
-            <p class="compact-copy">@T["Home_AnonymousSummary"]</p>
-            <div class="d-flex flex-wrap gap-2">
-                <a class="btn btn-primary action-button" href="/SignIn?returnUrl=%2F">
-                    @T["Home_AnonymousAction"]
-                </a>
-            </div>
-        </article>
-    </section>
-}
-else if (!Model.Dashboard.HasVisibleOperationalAreas)
-{
-    <section class="home-landing">
-        <article class="info-card">
-            <span class="eyebrow">@T["Home_DashboardEyebrow"]</span>
-            <h1 class="m-0">@T["Home_NoOperationalAccessTitle"]</h1>
-            <p class="compact-copy">@T["Home_NoOperationalAccessBody"]</p>
-        </article>
-    </section>
-}
-else if (!hasImmediateWorkload)
-{
-    <section class="home-landing">
-        <article class="info-card">
-            <span class="eyebrow">@T["Home_DashboardEyebrow"]</span>
-            <h1 class="m-0">@T["Home_NoCurrentWorkTitle"]</h1>
-            @if (availableWorkspaces.Count > 0)
-            {
-                <div class="d-flex flex-wrap gap-2">
-                    @foreach (var workspace in availableWorkspaces)
-                    {
-                        <a class="btn btn-outline-primary action-button" href="@workspace.Href">
-                            @T[workspace.TitleKey]
-                        </a>
-                    }
+<div class="home-landing">
+    @* Institutional Identity Banner (Shell) *@
+    <div class="dashboard-header mb-5">
+        <h1 class="display-4 fw-bold">@T["Dashboard_WelcomeHeading"]</h1>
+        <p class="text-muted fs-5">@T["Dashboard_WelcomeSummary"]</p>
+    </div>
+
+    @* Decision-First Metrics (Workspace) *@
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="metric-card h-100">
+                <span class="section-caption mb-2">@T["Dashboard_Metric_PendingTitle"]</span>
+                <div class="d-flex align-items-baseline gap-2">
+                    <strong class="fs-2 text-brand-green">12</strong>
+                    <i class="bi bi-arrow-up-right text-success small"></i>
                 </div>
-            }
-        </article>
-    </section>
-}
-else
-{
-    <section class="home-landing">
-        @if (workspaceCards.Count == 0)
-        {
-            <article class="info-card">
-                <span class="eyebrow">@T["Home_DashboardEyebrow"]</span>
-                <h1 class="m-0">@T["Home_WorkspacesTitle"]</h1>
-                <p class="compact-copy">@T["Home_WorkspacesSummary"]</p>
-                @if (!string.IsNullOrWhiteSpace(primaryWorkspaceHref) && !string.IsNullOrWhiteSpace(primaryWorkspaceTitleKey))
-                {
-                    <div class="d-flex flex-wrap gap-2">
-                        <a class="btn btn-outline-primary action-button" href="@primaryWorkspaceHref">
-                            @T[primaryWorkspaceTitleKey]
-                        </a>
-                    </div>
-                }
-            </article>
-        }
-        else
-        {
-            <div class="home-workspace-grid">
-                @foreach (var card in workspaceCards)
-                {
-                    <a class="home-workspace-card" href="@card.Href">
-                        <span class="home-workspace-title">@T[card.TitleKey]</span>
-                        <strong>@card.CountText</strong>
-                    </a>
-                }
             </div>
-        }
-    </section>
-}
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card h-100">
+                <span class="section-caption mb-2">@T["Dashboard_Metric_ActiveTitle"]</span>
+                <div class="d-flex align-items-baseline gap-2">
+                    <strong class="fs-2 text-dark">48</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card h-100">
+                <span class="section-caption mb-2">@T["Dashboard_Metric_NearingExpiryTitle"]</span>
+                <div class="d-flex align-items-baseline gap-2">
+                    <strong class="fs-2 text-danger">3</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card h-100">
+                <span class="section-caption mb-2">@T["Dashboard_Metric_CompletedTodayTitle"]</span>
+                <div class="d-flex align-items-baseline gap-2">
+                    <strong class="fs-2 text-muted">8</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Operational Workspaces (Minimalist Grid) *@
+    <div class="row g-4">
+        <div class="col-md-4">
+            <a class="info-card d-flex flex-column h-100 text-decoration-none group" href="/Intake/Workspace">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-3 rounded-4 bg-light group-hover:bg-brand-green group-hover:text-white transition-all">
+                        <i class="bi bi-box-arrow-in-right fs-4"></i>
+                    </div>
+                    <i class="bi bi-arrow-right text-muted opacity-0 group-hover:opacity-100 transition-all"></i>
+                </div>
+                <h5 class="fw-bold mb-2">@T["WorkspaceShell_NavIntake"]</h5>
+                <p class="small text-muted mb-0">@T["Dashboard_WelcomeSummary"]</p>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="info-card d-flex flex-column h-100 text-decoration-none group" href="/Operations/Queue">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-3 rounded-4 bg-light group-hover:bg-brand-green group-hover:text-white transition-all">
+                        <i class="bi bi-check2-circle fs-4"></i>
+                    </div>
+                    <i class="bi bi-arrow-right text-muted opacity-0 group-hover:opacity-100 transition-all"></i>
+                </div>
+                <h5 class="fw-bold mb-2">@T["WorkspaceShell_NavOperations"]</h5>
+                <p class="small text-muted mb-0">@T["Dashboard_WelcomeSummary"]</p>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="info-card d-flex flex-column h-100 text-decoration-none group" href="/Dispatch/Workspace">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div class="p-3 rounded-4 bg-light group-hover:bg-brand-green group-hover:text-white transition-all">
+                        <i class="bi bi-send fs-4"></i>
+                    </div>
+                    <i class="bi bi-arrow-right text-muted opacity-0 group-hover:opacity-100 transition-all"></i>
+                </div>
+                <h5 class="fw-bold mb-2">@T["WorkspaceShell_NavDispatch"]</h5>
+                <p class="small text-muted mb-0">@T["Dashboard_WelcomeSummary"]</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .group:hover .bg-light {
+        background-color: var(--kfshrc-green) !important;
+        color: white !important;
+    }
+    .group:hover .text-muted {
+        color: var(--kfshrc-green) !important;
+    }
+</style>

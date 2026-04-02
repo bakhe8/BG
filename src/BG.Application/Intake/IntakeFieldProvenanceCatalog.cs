@@ -18,9 +18,9 @@ internal static class IntakeFieldProvenanceCatalog
     {
         return source switch
         {
-            IntakeFieldValueSource.FilenamePattern => 400,
-            IntakeFieldValueSource.DirectPdfText => 300,
-            IntakeFieldValueSource.OcrFallback => 200,
+            IntakeFieldValueSource.DirectPdfText => 400,
+            IntakeFieldValueSource.OcrFallback => 300,
+            IntakeFieldValueSource.FilenamePattern => 200,
             IntakeFieldValueSource.ScenarioSample => 100,
             _ => 0
         };

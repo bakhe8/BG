@@ -338,6 +338,15 @@ __pycache__/
 *.pyc
 .venv-ocr312/
 build_errors.txt
+.agents/
+.config/.store/
+
+# Local developer secrets — must never be committed
+secrets.txt
+**/secrets.txt
+
+# Developer query scripts — contain hardcoded credentials
+scripts/QueryApp/
 
 # Cake - Uncomment if you are using it
 # tools/**

@@ -1,0 +1,33 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+
+<div class="dropdown me-3 border-end pe-4 h-100 d-flex align-items-center">
+    <button class="btn btn-light rounded-circle p-2 position-relative shadow-sm" 
+            type="button" 
+            id="notificationDropdown" 
+            data-bs-toggle="dropdown" 
+            aria-expanded="false">
+        <i class="bi bi-bell-fill fs-5 text-brand-green"></i>
+        <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+            0
+            <span class="visually-hidden">@T["Notifications_UnreadCount"]</span>
+        </span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border-0 rounded-4" 
+         aria-labelledby="notificationDropdown" 
+         style="width: 320px; overflow: hidden;">
+        <div class="p-3 bg-brand-green text-white d-flex justify-content-between align-items-center">
+            <h6 class="m-0 fw-bold">@T["Notifications_Title"]</h6>
+            <span class="x-small opacity-75">@DateTimeOffset.UtcNow.ToString("d MMM")</span>
+        </div>
+        <div id="notification-list" class="overflow-auto" style="max-height: 400px;">
+            <div class="text-center text-muted p-4">
+                <i class="bi bi-bell-slash fs-1 opacity-25 d-block mb-2"></i>
+                <span class="small">@T["Notifications_EmptyState"]</span>
+            </div>
+        </div>
+        <div class="p-2 border-top text-center">
+            <a href="#" class="btn btn-link btn-sm x-small text-decoration-none text-brand-green fw-bold">@T["Notifications_ViewAll"]</a>
+        </div>
+    </div>
+</div>

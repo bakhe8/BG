@@ -9,7 +9,7 @@ namespace BG.UnitTests.Application;
 public sealed class LocalIntakeOcrExtractorTests
 {
     [Fact]
-    public async Task ExtractAsync_uses_worker_fields_when_available_and_merges_fallback_fields()
+    public async Task ExtractAsync_uses_worker_fields_when_available_without_fabricating_missing_values()
     {
         var extractor = new LocalIntakeOcrExtractor(
             new StubOcrDocumentProcessingService(
@@ -36,7 +36,7 @@ public sealed class LocalIntakeOcrExtractorTests
             GuaranteeDocumentFormCatalog.Find(GuaranteeDocumentFormKeys.BankLetterGeneric)!);
 
         Assert.Contains(result, candidate => candidate.FieldKey == IntakeFieldKeys.GuaranteeNumber && candidate.Value == "BG-2026-9999");
-        Assert.Contains(result, candidate => candidate.FieldKey == IntakeFieldKeys.BankReference);
+        Assert.DoesNotContain(result, candidate => candidate.FieldKey == IntakeFieldKeys.BankReference);
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public sealed class LocalIntakeOcrExtractorTests
             new StagedIntakeDocumentDto("token-1", "scan.jpg", 256, typeof(LocalIntakeOcrExtractorTests).Assembly.Location),
             GuaranteeDocumentFormCatalog.Find(GuaranteeDocumentFormKeys.BankLetterGeneric)!);
 
-        Assert.Contains(result, candidate => candidate.FieldKey == IntakeFieldKeys.BankReference);
+        Assert.Empty(result);
         Assert.DoesNotContain(result, candidate => candidate.FieldKey == IntakeFieldKeys.GuaranteeNumber && candidate.Value == "BG-2026-9999");
     }
 

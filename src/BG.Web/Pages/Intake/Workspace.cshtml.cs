@@ -9,6 +9,7 @@ using BG.Web.UI;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Localization;
 
 namespace BG.Web.Pages.Intake;
@@ -16,17 +17,21 @@ namespace BG.Web.Pages.Intake;
 [Authorize(Policy = PermissionPolicyNames.IntakeWorkspace)]
 public sealed class WorkspaceModel : PageModel
 {
+    private static readonly FileExtensionContentTypeProvider ContentTypeProvider = new();
     private readonly IIntakeWorkspaceService _intakeWorkspaceService;
     private readonly IIntakeSubmissionService _intakeSubmissionService;
+    private readonly IIntakeDocumentStore _intakeDocumentStore;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public WorkspaceModel(
         IIntakeWorkspaceService intakeWorkspaceService,
         IIntakeSubmissionService intakeSubmissionService,
+        IIntakeDocumentStore intakeDocumentStore,
         IStringLocalizer<SharedResource> localizer)
     {
         _intakeWorkspaceService = intakeWorkspaceService;
         _intakeSubmissionService = intakeSubmissionService;
+        _intakeDocumentStore = intakeDocumentStore;
         _localizer = localizer;
     }
 
@@ -115,6 +120,26 @@ public sealed class WorkspaceModel : PageModel
         return Page();
     }
 
+    public async Task<IActionResult> OnGetPreviewAsync(string token, CancellationToken cancellationToken)
+    {
+        var stagedDocument = await _intakeDocumentStore.GetStagedAsync(token, cancellationToken);
+        if (stagedDocument is null || string.IsNullOrWhiteSpace(stagedDocument.StagedFilePath))
+        {
+            return NotFound();
+        }
+
+        if (!ContentTypeProvider.TryGetContentType(stagedDocument.OriginalFileName, out var contentType))
+        {
+            contentType = "application/octet-stream";
+        }
+
+        var stream = System.IO.File.OpenRead(stagedDocument.StagedFilePath);
+        return new FileStreamResult(stream, contentType)
+        {
+            EnableRangeProcessing = true
+        };
+    }
+
     public async Task<IActionResult> OnPostExtractAsync(CancellationToken cancellationToken)
     {
         await LoadWorkspaceAsync(
@@ -146,8 +171,10 @@ public sealed class WorkspaceModel : PageModel
             return Page();
         }
 
-        ApplyDraft(result.Value!);
-        ReviewFields = BuildReviewFields();
+        var draft = result.Value!;
+        ApplyDraft(draft);
+        ModelState.Clear();
+        ReviewFields = BuildReviewFields(draft.Fields);
         StatusMessage = _localizer["IntakeWorkspace_DraftReady"];
 
         return Page();
@@ -274,11 +301,12 @@ public sealed class WorkspaceModel : PageModel
         }
     }
 
-    private IReadOnlyList<IntakeFieldReviewDto> BuildReviewFields()
+    private IReadOnlyList<IntakeFieldReviewDto> BuildReviewFields(IReadOnlyList<IntakeFieldReviewDto>? sourceFields = null)
     {
         var expectedFieldKeys = SelectedDocumentForm.ExpectedFieldKeys.ToHashSet(StringComparer.Ordinal);
+        var reviewFields = sourceFields ?? SelectedScenario.SampleFields;
 
-        return SelectedScenario.SampleFields
+        return reviewFields
             .Select(
                 field => field with
                 {

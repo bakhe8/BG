@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.RegularExpressions;
 using BG.Domain.Guarantees;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +36,53 @@ public sealed partial class HostedFlowTests
         Assert.Contains("hx-boost=\"false\"", intakeHtml, StringComparison.Ordinal);
         Assert.Contains("handler=Extract", intakeHtml, StringComparison.Ordinal);
         Assert.Contains("handler=Save", intakeHtml, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Intake_extract_populates_verified_fields_in_returned_page()
+    {
+        await using var factory = new HostedAppFactory();
+        var client = factory.CreateAppClient();
+
+        var signInResponse = await client.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FIntake%2FWorkspace",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "hosted.admin",
+                ["Password"] = "HostedAdmin123!",
+                ["ReturnUrl"] = "/Intake/Workspace"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, signInResponse.StatusCode);
+
+        var extractResponse = await client.PostMultipartWithAntiforgeryAsync(
+            "/Intake/Workspace",
+            "/Intake/Workspace?handler=Extract",
+            new Dictionary<string, string?>
+            {
+                ["Input.ScenarioKey"] = "new-guarantee"
+            },
+            "Input.UploadedDocument",
+            "BG-2026-0666.pdf",
+            "scan"u8.ToArray());
+
+        var extractHtml = await extractResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, extractResponse.StatusCode);
+        Assert.Contains("value=\"BG-2026-0666\"", extractHtml, StringComparison.Ordinal);
+        Assert.Contains("BG-2026-0666.pdf", extractHtml, StringComparison.Ordinal);
+
+        var stagedTokenMatch = Regex.Match(
+            extractHtml,
+            "name=\"Input\\.StagedDocumentToken\"[^>]*value=\"([^\"]+)\"",
+            RegexOptions.IgnoreCase);
+        Assert.True(stagedTokenMatch.Success);
+
+        var previewResponse = await client.GetAsync($"/Intake/Workspace?handler=Preview&token={Uri.EscapeDataString(stagedTokenMatch.Groups[1].Value)}");
+
+        Assert.Equal(HttpStatusCode.OK, previewResponse.StatusCode);
+        Assert.Equal("application/pdf", previewResponse.Content.Headers.ContentType?.MediaType);
     }
 
     [Fact]
@@ -166,5 +214,151 @@ public sealed partial class HostedFlowTests
 
         Assert.Equal(GuaranteeRequestStatus.InApproval, requestState.Status);
         Assert.NotNull(requestState.ApprovalProcess);
+    }
+
+    [Fact]
+    public async Task Approval_dossier_allows_return_decision_without_leaving_the_file_view()
+    {
+        await using var factory = new HostedAppFactory();
+        Guid requesterId = Guid.Empty;
+        Guid approverId = Guid.Empty;
+        const string guaranteeNumber = "BG-2026-E2E-2001";
+
+        await factory.ExecuteDbContextAsync(async (dbContext, serviceProvider) =>
+        {
+            var requester = await SeedLocalUserAsync(
+                dbContext,
+                serviceProvider,
+                "e2e.requester.dossier",
+                "E2E Requester Dossier",
+                "E2ERequester123!",
+                ("E2E Requester Role Dossier", ["requests.view", "requests.create"]));
+            var approvalRole = await EnsureRoleAsync(
+                dbContext,
+                "E2E Approval Role Dossier",
+                ["approvals.queue.view", "approvals.sign"]);
+            var approver = await SeedLocalUserAsync(
+                dbContext,
+                serviceProvider,
+                "e2e.approver.dossier",
+                "E2E Approver Dossier",
+                "E2EApprover123!",
+                ("E2E Approval Role Dossier", ["approvals.queue.view", "approvals.sign"]));
+
+            var guarantee = Guarantee.RegisterNew(
+                guaranteeNumber,
+                "National Bank",
+                "KFSHRC",
+                "Main Contractor",
+                GuaranteeCategory.Contract,
+                150000m,
+                "SAR",
+                new DateOnly(2026, 1, 1),
+                new DateOnly(2026, 12, 31),
+                DateTimeOffset.UtcNow);
+            await dbContext.Guarantees.AddAsync(guarantee);
+
+            var definition = await dbContext.RequestWorkflowDefinitions
+                .Include(item => item.Stages)
+                .SingleAsync(item => item.RequestType == GuaranteeRequestType.Extend && item.GuaranteeCategory == null);
+
+            foreach (var stage in definition.Stages.OrderBy(stage => stage.Sequence))
+            {
+                definition.UpdateStage(stage.Id, approvalRole.Id, customTitle: null, customSummary: null, DateTimeOffset.UtcNow);
+            }
+
+            requesterId = requester.Id;
+            approverId = approver.Id;
+        });
+
+        var requesterClient = factory.CreateAppClient();
+        var requesterLogin = await requesterClient.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FRequests%2FWorkspace",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "e2e.requester.dossier",
+                ["Password"] = "E2ERequester123!",
+                ["ReturnUrl"] = "/Requests/Workspace"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, requesterLogin.StatusCode);
+
+        var createResponse = await requesterClient.PostFormWithAntiforgeryAsync(
+            "/Requests/Workspace",
+            "/Requests/Workspace",
+            new Dictionary<string, string?>
+            {
+                ["Input.GuaranteeNumber"] = guaranteeNumber,
+                ["Input.RequestType"] = GuaranteeRequestType.Extend.ToString(),
+                ["Input.RequestedExpiryDate"] = "2027-12-31",
+                ["Input.Notes"] = "Hosted dossier return"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, createResponse.StatusCode);
+
+        var requestId = await factory.QueryDbContextAsync(async dbContext =>
+        {
+            return await dbContext.GuaranteeRequests
+                .Where(request => request.RequestedByUserId == requesterId && request.Guarantee.GuaranteeNumber == guaranteeNumber)
+                .Select(request => request.Id)
+                .SingleAsync();
+        });
+
+        var submitResponse = await requesterClient.PostFormWithAntiforgeryAsync(
+            "/Requests/Workspace",
+            "/Requests/Workspace?handler=Submit",
+            new Dictionary<string, string?>
+            {
+                ["requestId"] = requestId.ToString(),
+                ["actorId"] = requesterId.ToString(),
+                ["page"] = "1"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, submitResponse.StatusCode);
+
+        var approverClient = factory.CreateAppClient();
+        var approverLogin = await approverClient.PostFormWithAntiforgeryAsync(
+            "/SignIn?returnUrl=%2FApprovals%2FQueue",
+            "/SignIn",
+            new Dictionary<string, string?>
+            {
+                ["Username"] = "e2e.approver.dossier",
+                ["Password"] = "E2EApprover123!",
+                ["ReturnUrl"] = "/Approvals/Queue"
+            });
+        Assert.Equal(HttpStatusCode.Redirect, approverLogin.StatusCode);
+
+        var dossierPath = $"/Approvals/Dossier/{requestId}";
+        var dossierResponse = await approverClient.GetAsync(dossierPath);
+        var dossierHtml = await dossierResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, dossierResponse.StatusCode);
+        Assert.Contains("?handler=Approve", dossierHtml, StringComparison.Ordinal);
+        Assert.Contains("?handler=Return", dossierHtml, StringComparison.Ordinal);
+        Assert.Contains("?handler=Reject", dossierHtml, StringComparison.Ordinal);
+
+        var returnResponse = await approverClient.PostFormWithAntiforgeryAsync(
+            dossierPath,
+            $"{dossierPath}?handler=Return",
+            new Dictionary<string, string?>
+            {
+                ["actorId"] = approverId.ToString(),
+                ["requestId"] = requestId.ToString(),
+                ["page"] = "1",
+                ["note"] = "Need clarification"
+            });
+
+        Assert.Equal(HttpStatusCode.Redirect, returnResponse.StatusCode);
+        Assert.StartsWith("/Approvals/Queue", returnResponse.Headers.Location?.OriginalString, StringComparison.Ordinal);
+
+        var requestState = await factory.QueryDbContextAsync(
+            dbContext => dbContext.GuaranteeRequests.SingleAsync(request => request.Id == requestId));
+
+        Assert.Equal(GuaranteeRequestStatus.Returned, requestState.Status);
+
+        var requesterWorkspaceResponse = await requesterClient.GetAsync("/Requests/Workspace");
+        var requesterWorkspaceHtml = await requesterWorkspaceResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, requesterWorkspaceResponse.StatusCode);
+        Assert.Contains("request-revision-card", requesterWorkspaceHtml, StringComparison.Ordinal);
+        Assert.Contains("handler=Update", requesterWorkspaceHtml, StringComparison.Ordinal);
     }
 }

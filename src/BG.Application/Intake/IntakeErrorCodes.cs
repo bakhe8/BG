@@ -21,6 +21,7 @@ public static class IntakeErrorCodes
     public const string CurrencyRequired = "intake.currency_required";
     public const string IssueDateRequired = "intake.issue_date_required";
     public const string ExpiryDateRequired = "intake.expiry_date_required";
+    public const string ExpiryDateBeforeIssueDate = "intake.expiry_date_before_issue_date";
     public const string LetterDateRequired = "intake.letter_date_required";
     public const string BankReferenceRequired = "intake.bank_reference_required";
     public const string NewExpiryDateRequired = "intake.new_expiry_date_required";

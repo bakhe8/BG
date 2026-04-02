@@ -4,5 +4,5 @@ namespace BG.Application.Intake;
 
 internal interface IIntakeExtractionConfidenceScorer
 {
-    int Score(IntakeFieldReviewDto sampleField, IntakeFieldValueSource source);
+    int Score(IntakeFieldReviewDto sampleField, IntakeExtractionFieldCandidate candidate);
 }

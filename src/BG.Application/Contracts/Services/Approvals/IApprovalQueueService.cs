@@ -20,4 +20,8 @@ public interface IApprovalQueueService
     Task<OperationResult<ApprovalDecisionReceiptDto>> ReturnAsync(ApprovalDecisionCommand command, CancellationToken cancellationToken = default);
 
     Task<OperationResult<ApprovalDecisionReceiptDto>> RejectAsync(ApprovalDecisionCommand command, CancellationToken cancellationToken = default);
+
+    Task<DocumentContentResult?> GetDocumentContentAsync(Guid requestId, Guid documentId, CancellationToken cancellationToken = default);
 }
+
+public sealed record DocumentContentResult(string FileName, Stream ContentStream, string ContentType);

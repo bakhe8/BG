@@ -1,0 +1,141 @@
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Intake.WorkspaceModel
+@{
+    var previewUrl = Model.HasDraft && !string.IsNullOrWhiteSpace(Model.Input.StagedDocumentToken)
+        ? Url.Page("/Intake/Workspace", pageHandler: "Preview", values: new { token = Model.Input.StagedDocumentToken })
+        : null;
+    var previewExtension = System.IO.Path.GetExtension(Model.Input.OriginalFileName ?? string.Empty).ToLowerInvariant();
+    var canPreviewPdf = previewExtension == ".pdf";
+    var canPreviewImage = previewExtension is ".png" or ".jpg" or ".jpeg";
+}
+
+<section class="intake-panel intake-panel--capture">
+
+    <div class="intake-panel__header">
+        <i class="bi bi-file-earmark-text"></i>
+        <span>@T[Model.SelectedScenario.TitleResourceKey]</span>
+    </div>
+
+    <div class="intake-status-strip">
+        <div class="row g-3">
+            <div class="col-6">
+                <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_DetectedFormTitle"]</span>
+                <strong class="d-block">@T[Model.SelectedDocumentForm.TitleResourceKey]</strong>
+            </div>
+            <div class="col-6 border-start ps-3">
+                <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_HandoffTitle"]</span>
+                <strong class="d-block">@T[Model.SelectedScenario.SaveOutcomeResourceKey]</strong>
+            </div>
+        </div>
+        <div class="mt-2">
+            <bg-badge class="bg-badge-@(Model.HasDraft ? "success" : "warning")">
+                <i class="bi @(Model.HasDraft ? "bi-check-circle" : "bi-clock-history") me-2"></i>
+                @T[Model.HasDraft ? "IntakeWorkspace_DraftReady" : "IntakeWorkspace_DraftPending"]
+            </bg-badge>
+        </div>
+    </div>
+
+    <div class="intake-upload-block">
+        @if (Model.HasDraft)
+        {
+            <details>
+                <summary class="d-flex align-items-center gap-2 cursor-pointer small fw-bold text-uppercase text-primary">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    @T["IntakeWorkspace_UpdateDocumentAction"]
+                </summary>
+                <div class="mt-3 p-3 border border-dashed rounded-3 bg-light">
+                    <input asp-for="Input.UploadedDocument" class="form-control mb-3 bg-white" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff" />
+                    <button type="submit" formaction="@Url.Page("/Intake/Workspace", pageHandler: "Extract")" class="bg-btn bg-btn-secondary w-100">
+                        <i class="bi bi-stars me-2"></i>@T["IntakeWorkspace_BeginExtractAction"]
+                    </button>
+                </div>
+            </details>
+        }
+        else
+        {
+            <div>
+                <label class="form-label small fw-bold d-block mb-2" asp-for="Input.UploadedDocument">@T["IntakeWorkspace_FileField"]</label>
+                <input asp-for="Input.UploadedDocument" class="form-control mb-3" type="file" accept=".pdf,.png,.jpg,.jpeg,.tif,.tiff" />
+                <button type="submit" formaction="@Url.Page("/Intake/Workspace", pageHandler: "Extract")" class="bg-btn bg-btn-primary w-100">
+                    <i class="bi bi-stars me-2"></i>@T["IntakeWorkspace_BeginExtractAction"]
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (Model.HasDraft)
+    {
+        <div class="intake-next-step">
+            <div class="intake-document-preview-card">
+                <div class="intake-document-preview-header">
+                    <span class="x-small fw-bold text-muted text-uppercase">@T["IntakeWorkspace_DocumentPreviewTitle"]</span>
+                    <div class="d-flex gap-2 align-items-center">
+                        @if (canPreviewImage)
+                        {
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-secondary" onclick="document.querySelector('.intake-document-preview-image').classList.toggle('rotate-90')">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="document.querySelector('.intake-document-preview-image').classList.toggle('zoom-in')">
+                                    <i class="bi bi-zoom-in"></i>
+                                </button>
+                            </div>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(previewUrl))
+                        {
+                            <a class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                               href="@previewUrl"
+                               target="_blank"
+                               rel="noopener">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>@T["IntakeWorkspace_OpenDocumentAction"]
+                            </a>
+                        }
+                    </div>
+                </div>
+
+                <div class="preview-viewport-container bg-light rounded-3 overflow-hidden border">
+                    @if (canPreviewPdf && !string.IsNullOrWhiteSpace(previewUrl))
+                    {
+                        <iframe class="intake-document-preview-frame w-100"
+                                src="@(previewUrl + "#toolbar=0&navpanes=0")"
+                                title="@T["IntakeWorkspace_DocumentPreviewFrameTitle"]"
+                                style="min-height: 800px; border: none;"></iframe>
+                    }
+                    else if (canPreviewImage && !string.IsNullOrWhiteSpace(previewUrl))
+                    {
+                        <div class="image-preview-wrapper p-4 d-flex justify-content-center align-items-center bg-white" style="min-height: 500px;">
+                            <img class="intake-document-preview-image img-fluid rounded"
+                                 src="@previewUrl"
+                                 alt="@T["IntakeWorkspace_DocumentPreviewFrameTitle"]"
+                                 style="transition: transform 0.3s ease; max-height: 80vh; transform-origin: center;" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="p-5 text-center">
+                            <i class="bi bi-exclamation-circle fs-3 text-muted d-block mb-2"></i>
+                            <span class="text-muted small">@T["IntakeWorkspace_DocumentPreviewUnavailable"]</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-12">
+                        <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_FileNameLabel"]</span>
+                        <span class="fw-bold text-truncate d-block">@Model.Input.OriginalFileName</span>
+                    </div>
+                    <div class="col-6">
+                        <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_CaptureChannelLabel"]</span>
+                        <span class="fw-bold d-block">@T[Model.CaptureChannelHintResourceKey]</span>
+                    </div>
+                    <div class="col-6">
+                        <span class="d-block x-small text-muted text-uppercase mb-1">@T["IntakeWorkspace_CapturedAtLabel"]</span>
+                        <span class="fw-bold d-block">@DateTime.Now.ToString("g")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+</section>

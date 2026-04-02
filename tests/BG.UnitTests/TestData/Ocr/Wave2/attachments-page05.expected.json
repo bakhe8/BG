@@ -1,0 +1,29 @@
+{
+  "pipelineVersion": "wave2-scan-route",
+  "requiredFields": [
+    {
+      "fieldKey": "IntakeField_BankName",
+      "value": "Banque Saudi Fransi"
+    },
+    {
+      "fieldKey": "IntakeField_GuaranteeNumber",
+      "value": "R130378-001"
+    },
+    {
+      "fieldKey": "IntakeField_Beneficiary",
+      "value": "KING FAISAL SPECIALIST HOSPITAL AND RESEARCH CENTER"
+    },
+    {
+      "fieldKey": "IntakeField_Principal",
+      "value": "THABAT CONSTRUCTION COMPANY LTD."
+    },
+    {
+      "fieldKey": "IntakeField_OfficialLetterDate",
+      "value": "2025-02-25"
+    },
+    {
+      "fieldKey": "IntakeField_NewExpiryDate",
+      "value": "2026-03-15"
+    }
+  ]
+}

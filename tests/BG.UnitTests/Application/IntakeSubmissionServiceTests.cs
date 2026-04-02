@@ -388,6 +388,14 @@ public sealed class IntakeSubmissionServiceTests
             return Task.FromResult(new StagedIntakeDocumentDto("token-1", originalFileName, 256));
         }
 
+        public Task<StagedIntakeDocumentDto?> GetStagedAsync(string stagedDocumentToken, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<StagedIntakeDocumentDto?>(
+                string.Equals(stagedDocumentToken, "token-1", StringComparison.Ordinal)
+                    ? new StagedIntakeDocumentDto("token-1", "scan.pdf", 256, "C:\\staging\\scan.pdf")
+                    : null);
+        }
+
         public Task<PromotedIntakeDocumentDto> PromoteAsync(string stagedDocumentToken, string guaranteeNumber, CancellationToken cancellationToken = default)
         {
             if (!string.Equals(stagedDocumentToken, "token-1", StringComparison.Ordinal))

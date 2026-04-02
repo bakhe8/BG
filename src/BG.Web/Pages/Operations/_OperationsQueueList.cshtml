@@ -8,16 +8,30 @@
         T["OperationsQueue_OpenItemsSummary"].Value);
 }
 
-<article class="info-card operations-queue-panel">
+<article class="operations-queue-panel bg-white border rounded-4 overflow-hidden shadow-sm h-100 d-flex flex-column">
     <partial name="/Pages/Shared/_SurfacePanelHeader.cshtml" model="panelHeaderModel" />
 
     @if (Model.Snapshot.Items.Count == 0)
     {
-        <p class="compact-copy">@T["OperationsQueue_Empty"]</p>
+        <div class="p-5 text-center text-muted flex-grow-1 d-flex flex-column justify-content-center">
+            <i class="bi bi-inbox fs-1 mb-3"></i>
+            <p class="compact-copy mb-0 fw-bold">@T["OperationsQueue_Empty"]</p>
+        </div>
     }
     else
     {
-        <div class="request-queue-list">
+        @* Table Header Matching *@
+        <div class="px-4 py-3 border-bottom bg-light bg-opacity-50 small fw-bold text-muted d-grid gap-3" 
+             style="grid-template-columns: 140px 1fr 140px 140px 140px 40px; text-transform: uppercase; letter-spacing: 0.05em;">
+            <div>@T["OperationsQueue_Header_Reference"]</div>
+            <div>@T["OperationsQueue_Header_Entity"]</div>
+            <div>@T["OperationsQueue_Header_Type"]</div>
+            <div>@T["OperationsQueue_Header_Value"]</div>
+            <div>@T["OperationsQueue_Header_Date"]</div>
+            <div class="text-center">@T["OperationsQueue_Header_Action"]</div>
+        </div>
+
+        <div class="request-queue-list flex-grow-1 overflow-auto">
             @foreach (var item in Model.Snapshot.Items)
             {
                 var isActive = Model.ActiveItem?.Id == item.Id;

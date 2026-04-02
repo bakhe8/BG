@@ -8,6 +8,7 @@ using BG.Domain.Guarantees;
 using BG.Web.Localization;
 using BG.Web.Pages.Intake;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
 namespace BG.UnitTests.Web;
@@ -49,6 +50,8 @@ public sealed class IntakeWorkspacePageTests
         model.Input.IntakeActorUserId = actor.Id;
         model.Input.ScenarioKey = IntakeScenarioKeys.NewGuarantee;
         model.Input.UploadedDocument = CreateFormFile("BG-2026-0666.pdf");
+        model.ModelState.SetModelValue("Input.GuaranteeNumber", string.Empty, string.Empty);
+        model.ModelState.SetModelValue("Input.BankName", string.Empty, string.Empty);
 
         var result = await model.OnPostExtractAsync(CancellationToken.None);
 
@@ -57,7 +60,18 @@ public sealed class IntakeWorkspacePageTests
         Assert.Equal("token-1", model.Input.StagedDocumentToken);
         Assert.Equal(GuaranteeDocumentFormKeys.GuaranteeInstrumentSnb, model.Input.DocumentFormKey);
         Assert.Equal("BG-2026-0666", model.Input.GuaranteeNumber);
-        Assert.Contains(model.ReviewFields, field => field.FieldKey == IntakeFieldKeys.GuaranteeNumber && field.IsExpectedByDocumentForm);
+        Assert.DoesNotContain("Input.GuaranteeNumber", model.ModelState.Keys);
+        Assert.DoesNotContain("Input.BankName", model.ModelState.Keys);
+        Assert.Contains(
+            model.ReviewFields,
+            field => field.FieldKey == IntakeFieldKeys.GuaranteeNumber
+                     && field.Value == "BG-2026-0666"
+                     && field.IsExpectedByDocumentForm);
+        Assert.Contains(
+            model.ReviewFields,
+            field => field.FieldKey == IntakeFieldKeys.BankName
+                     && field.Value == "Saudi National Bank"
+                     && field.IsExpectedByDocumentForm);
     }
 
     [Fact]
@@ -83,11 +97,24 @@ public sealed class IntakeWorkspacePageTests
         Assert.Contains("BG-2026-0001", model.StatusMessage);
     }
 
+    [Fact]
+    public async Task OnGetPreviewAsync_returns_staged_document_stream_for_known_token()
+    {
+        var actor = new IntakeActorSummaryDto(Guid.NewGuid(), "intake.specialist", "Intake Specialist");
+        var model = CreateModel(actor);
+
+        var result = await model.OnGetPreviewAsync("token-1", CancellationToken.None);
+
+        var fileResult = Assert.IsType<FileStreamResult>(result);
+        Assert.Equal("application/pdf", fileResult.ContentType);
+    }
+
     private static WorkspaceModel CreateModel(IntakeActorSummaryDto actor)
     {
         return new WorkspaceModel(
             new StubIntakeWorkspaceService(actor),
             new StubIntakeSubmissionService(),
+            new StubIntakeDocumentStore(),
             new StubStringLocalizer());
     }
 
@@ -248,6 +275,27 @@ public sealed class IntakeWorkspacePageTests
                         Guid.NewGuid(),
                         command.ScenarioKey,
                         "IntakeScenario_Attachment_Handoff")));
+        }
+    }
+
+    private sealed class StubIntakeDocumentStore : IIntakeDocumentStore
+    {
+        public Task<StagedIntakeDocumentDto> StageAsync(string originalFileName, Stream content, CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Task<StagedIntakeDocumentDto?> GetStagedAsync(string stagedDocumentToken, CancellationToken cancellationToken = default)
+        {
+            var tempPath = Path.GetTempFileName();
+            File.WriteAllBytes(tempPath, "%PDF-1.4\n%BG test\n"u8.ToArray());
+            return Task.FromResult<StagedIntakeDocumentDto?>(
+                new StagedIntakeDocumentDto(stagedDocumentToken, "preview.pdf", 16, tempPath));
+        }
+
+        public Task<PromotedIntakeDocumentDto> PromoteAsync(string stagedDocumentToken, string guaranteeNumber, CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
         }
     }
 

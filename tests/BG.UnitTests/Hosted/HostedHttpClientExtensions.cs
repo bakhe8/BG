@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.StaticFiles;
 
 namespace BG.UnitTests.Hosted;
 
@@ -22,6 +23,42 @@ internal static partial class HostedHttpClientExtensions
         using var request = new HttpRequestMessage(HttpMethod.Post, postPath)
         {
             Content = new FormUrlEncodedContent(payload)
+        };
+        request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
+
+        return await client.SendAsync(request);
+    }
+
+    public static async Task<HttpResponseMessage> PostMultipartWithAntiforgeryAsync(
+        this HttpClient client,
+        string getPath,
+        string postPath,
+        IEnumerable<KeyValuePair<string, string?>> formValues,
+        string fileFieldName,
+        string fileName,
+        byte[] fileBytes)
+    {
+        var token = await client.GetAntiforgeryTokenAsync(getPath);
+
+        using var content = new MultipartFormDataContent();
+        content.Add(new StringContent(token), AntiForgeryFieldName);
+
+        foreach (var entry in formValues.Where(entry => entry.Value is not null))
+        {
+            content.Add(new StringContent(entry.Value!), entry.Key);
+        }
+
+        var provider = new FileExtensionContentTypeProvider();
+        var fileContent = new ByteArrayContent(fileBytes);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(
+            provider.TryGetContentType(fileName, out var contentType)
+                ? contentType
+                : "application/octet-stream");
+        content.Add(fileContent, fileFieldName, fileName);
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, postPath)
+        {
+            Content = content
         };
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
 

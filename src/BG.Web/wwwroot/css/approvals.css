@@ -11,7 +11,9 @@
   gap: 0.9rem;
   padding: 1rem;
   border-radius: 18px;
+  border: 1px solid var(--border);
   border: 1px solid color-mix(in srgb, var(--border) 80%, white);
+  background: #fdfdfd;
   background: color-mix(in srgb, var(--surface) 94%, white);
 }
 
@@ -79,7 +81,9 @@
   gap: 0.3rem;
   padding: 0.95rem 1rem;
   border-radius: 16px;
+  border: 1px solid var(--border);
   border: 1px solid color-mix(in srgb, var(--border) 82%, white);
+  background: #f4f8f5;
   background: color-mix(in srgb, var(--surface-alt) 82%, white);
 }
 
@@ -121,4 +125,89 @@
   .approval-active-meta {
     align-items: start;
   }
+}
+
+/* Dossier Support Rail (C-SURF-09) */
+.approval-dossier-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr 360px;
+    align-items: start;
+}
+
+.approval-support-rail {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: sticky;
+    top: 1rem;
+}
+
+.rail-card {
+    background: white;
+    border: 1px solid var(--border);
+    border: 1px solid color-mix(in srgb, var(--border) 80%, white);
+    border-radius: 1.25rem;
+    padding: 1.25rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Detail Drawer (C-SURF-04) */
+.detail-drawer-overlay {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 600px;
+    height: 100%;
+    background: white;
+    z-index: 1050;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-drawer-overlay.is-active {
+    right: 0;
+}
+
+.detail-drawer-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    z-index: 1040;
+    display: none;
+}
+
+.detail-drawer-backdrop.is-active {
+    display: block;
+}
+
+.detail-drawer-header {
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-drawer-body {
+    flex: 1;
+    overflow: auto;
+    background: #f8fafc;
+}
+
+@media (max-width: 1200px) {
+    .approval-dossier-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .detail-drawer-overlay {
+        width: 100%;
+    }
 }

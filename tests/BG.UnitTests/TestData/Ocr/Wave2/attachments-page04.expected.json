@@ -1,0 +1,25 @@
+{
+  "pipelineVersion": "wave2-scan-route",
+  "requiredFields": [
+    {
+      "fieldKey": "IntakeField_BankName",
+      "value": "Saudi National Bank"
+    },
+    {
+      "fieldKey": "IntakeField_GuaranteeNumber",
+      "value": "B320029"
+    },
+    {
+      "fieldKey": "IntakeField_Beneficiary",
+      "value": "مستشفى الملك فيصل التخصصي ومركز الأبحاث"
+    },
+    {
+      "fieldKey": "IntakeField_IssueDate",
+      "value": "2025-05-24"
+    },
+    {
+      "fieldKey": "IntakeField_Amount",
+      "value": "20500000.00"
+    }
+  ]
+}

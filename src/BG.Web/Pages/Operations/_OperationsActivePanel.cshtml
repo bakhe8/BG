@@ -3,198 +3,116 @@
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.Pages.Operations.QueueModel
 
-<article class="info-card operations-active-panel">
+<article class="operations-active-panel h-100 d-flex flex-column bg-white border rounded-4 overflow-hidden shadow-sm">
     @if (Model.ActiveItem is null)
     {
-        <div class="request-active-empty">
-            <span class="eyebrow">@T["OperationsQueue_OpenItemsTitle"]</span>
-            <h2>@T["OperationsQueue_Empty"]</h2>
+        <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5">
+            <div class="bg-light rounded-circle p-4 mb-4">
+                <i class="bi bi-inbox text-muted fs-1"></i>
+            </div>
+            <h4 class="fw-bold">@T["OperationsQueue_NoSelectionTitle"]</h4>
+            <p class="text-muted small">@T["OperationsQueue_NoSelectionSubtitle"]</p>
         </div>
     }
     else
     {
         var item = Model.ActiveItem;
-        var primarySuggestion = item.MatchSuggestions.FirstOrDefault(suggestion => !suggestion.IsSelectionBlocked)
-                                ?? item.MatchSuggestions.FirstOrDefault();
-        var applyBlockedReasonResourceKey = Model.ResolveApplyBlockedReasonResourceKey(item);
-
-        <div class="request-active-header">
-            <div>
-                <span class="eyebrow">@T["OperationsQueue_CompleteNowTitle"]</span>
-                <h2>@item.GuaranteeNumber</h2>
-                <p class="compact-copy">@T[item.ScenarioTitleResourceKey]</p>
+        
+        @* 1. Institutional Header (Matching Image 5) *@
+        <div class="p-4 border-bottom bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">@item.GuaranteeNumber</span>
+                    <bg-badge class="bg-badge-@(item.StatusResourceKey.Contains("Pending") || item.StatusResourceKey.Contains("انتظار") ? "pending" : "returned")">
+                        @T[item.StatusResourceKey]
+                    </bg-badge>
+                </div>
+                <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
-            <span class="status-badge is-active">@T[item.StatusResourceKey]</span>
+            <h3 class="fw-bold text-dark mb-2">@T[item.ScenarioTitleResourceKey]</h3>
+            <div class="d-flex align-items-center gap-2 text-muted small">
+                <img src="/img/bank-logo-placeholder.png" alt="Bank" style="height: 24px;" class="opacity-75" />
+                <span class="fw-medium">@(string.IsNullOrWhiteSpace(item.BankReference) ? "SNB - البنك الأهلي السعودي" : item.BankReference)</span>
+            </div>
         </div>
 
-        <div class="request-active-facts">
-            <section class="surface-stat">
-                <span class="section-caption">@T["OperationsQueue_RecommendedLaneLabel"]</span>
-                <strong>@T[item.RecommendedLaneResourceKey]</strong>
-            </section>
-            <section class="surface-stat">
-                <span class="section-caption">@T["OperationsQueue_DocumentLabel"]</span>
-                <strong>@item.FileName</strong>
-            </section>
-            <section class="surface-stat">
-                <span class="section-caption">@T["OperationsQueue_CreatedAtLabel"]</span>
-                <strong>@item.CapturedAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</strong>
-            </section>
-            <section class="surface-stat">
-                <span class="section-caption">@T["OperationsQueue_BankReferenceLabel"]</span>
-                <strong>@(string.IsNullOrWhiteSpace(item.BankReference) ? T["OperationsQueue_NotAvailable"].Value : item.BankReference)</strong>
-            </section>
-            @if (item.CompletedAtUtc.HasValue)
-            {
-                <section class="surface-stat">
-                    <span class="section-caption">@T["OperationsQueue_CompletedAtLabel"]</span>
-                    <strong>@item.CompletedAtUtc.Value.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</strong>
-                </section>
-            }
+        @* 2. Scrollable Work Surface (Matching Image 5) *@
+        <div class="flex-grow-1 overflow-auto p-4">
+            
+            @* Primary Metrics Grid *@
+            <div class="row g-4 mb-5">
+                <div class="col-6">
+                    <div class="bg-light p-4 rounded-4 border border-white">
+                        <div class="bg-grid-label mb-2">@T["OperationsQueue_Header_Value"]</div>
+                        <div class="bg-grid-value fs-4 text-brand-green">SAR @(item.SuggestedConfirmedAmount.HasValue ? item.SuggestedConfirmedAmount.Value.ToString("N0") : "0")</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light p-4 rounded-4 border border-white">
+                        <div class="bg-grid-label mb-2">@T["OperationsQueue_Header_Date"]</div>
+                        <div class="bg-grid-value fs-4">@item.SuggestedConfirmedExpiryDate</div>
+                    </div>
+                </div>
+            </div>
+
+            @* Internal Navigation Pills *@
+            <div class="bg-light p-1 rounded-pill d-flex mb-5" style="border: 1px solid #E5E7EB;">
+                <button class="btn btn-sm rounded-pill flex-grow-1 py-2 bg-white shadow-sm fw-bold">@T["OperationsQueue_TabSummary"]</button>
+                <button class="btn btn-sm rounded-pill flex-grow-1 py-2 text-muted fw-bold">@T["OperationsQueue_TabDocuments"]</button>
+                <button class="btn btn-sm rounded-pill flex-grow-1 py-2 text-muted fw-bold">@T["OperationsQueue_TabHistory"]</button>
+            </div>
+
+            @* Detailed Attributes List *@
+            <div class="bg-light rounded-4 p-1 overflow-hidden border border-white">
+                <div class="bg-white p-3 d-flex justify-content-between align-items-center border-bottom">
+                    <span class="text-muted small fw-bold">@T["OperationsQueue_DocumentLabel"]</span>
+                    <span class="fw-bold small">@item.FileName</span>
+                </div>
+                <div class="bg-white p-3 d-flex justify-content-between align-items-center border-bottom">
+                    <span class="text-muted small fw-bold">@T["OperationsQueue_CreatedAtLabel"]</span>
+                    <span class="fw-bold small text-muted">@item.CapturedAtUtc.ToLocalTime().ToString("d")</span>
+                </div>
+                <div class="bg-white p-3 d-flex justify-content-between align-items-center">
+                    <span class="text-muted small fw-bold">@T["OperationsQueue_RecommendedLaneLabel"]</span>
+                    <bg-badge class="bg-badge-success">@T[item.RecommendedLaneResourceKey]</bg-badge>
+                </div>
+            </div>
+            
+            @* Notes Area *@
+            <div class="mt-5">
+                <div class="bg-grid-label mb-2">@T["OperationsQueue_NotesTitle"]</div>
+                <div class="bg-light p-3 rounded-4 border border-white italic text-muted small">
+                    @item.SuggestedStatusStatement
+                </div>
+            </div>
         </div>
 
-        <div class="surface-action-stack">
-            @if (primarySuggestion is not null)
-            {
-                <section class="surface-action-zone is-secondary operations-evidence-card">
-                    <div class="surface-action-header">
-                        <span class="surface-action-kicker">@T["OperationsQueue_SystemMatchesTitle"]</span>
-                        <h3 class="surface-action-title">@T[primarySuggestion.RequestTypeResourceKey]</h3>
-                    </div>
+        @* 3. Institutional Action Bar (Matching Image 5) *@
+        <div class="p-4 border-top bg-white">
+            <form method="post" id="decision-form" class="m-0">
+                <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                <input type="hidden" name="reviewItemId" value="@item.Id" />
+                
+                <div class="d-flex gap-3">
+                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Apply")" 
+                            class="bg-btn bg-btn-primary flex-grow-1 py-3 shadow-sm">
+                        <i class="bi bi-check2-circle fs-5"></i>
+                        <span>@T["OperationsQueue_Action_Approve"]</span>
+                    </button>
+                    
+                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Return")" 
+                            class="bg-btn flex-grow-1 py-3 border" style="background-color: #FEF3C7; color: #92400E !important;">
+                        <i class="bi bi-arrow-left-right fs-5"></i>
+                        <span>@T["OperationsQueue_Action_Return"]</span>
+                    </button>
 
-                    <div class="pill-list">
-                        <span class="pill">@T[primarySuggestion.StatusResourceKey]</span>
-                        <span class="pill">@T[primarySuggestion.ConfidenceResourceKey]</span>
-                        @if (primarySuggestion.SubmittedToBankAtUtc.HasValue)
-                        {
-                            <span class="pill">
-                                @T["OperationsQueue_SubmittedToBankLabel"]:
-                                @primarySuggestion.SubmittedToBankAtUtc.Value.ToLocalTime().ToString("d", CultureInfo.CurrentCulture)
-                            </span>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(primarySuggestion.OutgoingReferenceNumber))
-                        {
-                            <span class="pill">
-                                @T["OperationsQueue_OutgoingReferenceLabel"]:
-                                @primarySuggestion.OutgoingReferenceNumber
-                            </span>
-                        }
-                        @if (primarySuggestion.RequestDocumentForm is not null)
-                        {
-                            <span class="pill">@T[primarySuggestion.RequestDocumentForm.TitleResourceKey]</span>
-                            <span class="pill">@T[primarySuggestion.RequestDocumentForm.BankResourceKey]</span>
-                        }
-                        @if (primarySuggestion.IsSelectionBlocked && !string.IsNullOrWhiteSpace(primarySuggestion.BlockingReasonResourceKey))
-                        {
-                            <span class="pill is-warning">@T["OperationsQueue_BlockedSuggestionLabel"]</span>
-                            <span class="pill is-warning">@T[primarySuggestion.BlockingReasonResourceKey]</span>
-                        }
-                        @foreach (var reason in primarySuggestion.ReasonResourceKeys)
-                        {
-                            <span class="pill">@T[reason]</span>
-                        }
-                    </div>
-                </section>
-            }
-
-            @if (item.CompletedAtUtc.HasValue)
-            {
-                <form method="post" asp-page-handler="ReopenApplied" class="stack-form operations-apply-form surface-action-zone is-danger">
-                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                    <input type="hidden" name="reviewItemId" value="@item.Id" />
-                    <input type="hidden" name="item" value="@item.Id" />
-                    <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
-
-                    <div class="surface-action-header">
-                        <span class="surface-action-kicker">@T["SurfaceAction_CurrentActionLabel"]</span>
-                        <h3 class="surface-action-title">@T["OperationsQueue_ReopenAction"]</h3>
-                    </div>
-
-                    <label class="form-label" for="reopen-note-@item.Id">@T["OperationsQueue_ReopenNoteField"]</label>
-                    <textarea id="reopen-note-@item.Id"
-                              name="correctionNote"
-                              class="form-control"
-                              rows="3"></textarea>
-
-                    <div class="action-row">
-                        <button type="submit" class="btn btn-outline-danger action-button">
-                            @T["OperationsQueue_ReopenAction"]
-                        </button>
-                    </div>
-                </form>
-            }
-            else if (!item.SupportsRequestMatching)
-            {
-                <div class="surface-action-zone is-blocked">
-                    <p class="surface-action-copy mb-0">@T["OperationsQueue_NoApplyActionSummary"]</p>
+                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Reject")" 
+                            class="bg-btn flex-grow-1 py-3 border" style="background-color: #FEE2E2; color: #991B1B !important;">
+                        <i class="bi bi-x-circle fs-5"></i>
+                        <span>@T["OperationsQueue_Action_Reject"]</span>
+                    </button>
                 </div>
-            }
-            else if (item.MatchSuggestions.Count == 0)
-            {
-                <div class="surface-action-zone is-blocked">
-                    <p class="surface-action-copy mb-0">@T["OperationsQueue_NoMatchSuggestions"]</p>
-                </div>
-            }
-            else if (!string.IsNullOrWhiteSpace(applyBlockedReasonResourceKey))
-            {
-                <div class="surface-action-zone is-blocked">
-                    <p class="surface-action-copy mb-0">@T[applyBlockedReasonResourceKey]</p>
-                </div>
-            }
-            else
-            {
-                <form method="post" asp-page-handler="Apply" class="stack-form operations-apply-form surface-action-zone is-primary">
-                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                    <input type="hidden" name="reviewItemId" value="@item.Id" />
-                    <input type="hidden" name="item" value="@item.Id" />
-                    <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
-
-                    <div class="surface-action-header">
-                        <span class="surface-action-kicker">@T["SurfaceAction_CurrentActionLabel"]</span>
-                        <h3 class="surface-action-title">@T["OperationsQueue_ApplyResponseAction"]</h3>
-                    </div>
-
-                    <label class="form-label" for="request-@item.Id">@T["OperationsQueue_RequestMatchField"]</label>
-                    <select id="request-@item.Id" name="requestId" class="form-control">
-                        @foreach (var suggestion in Model.GetSelectionSuggestions(item))
-                        {
-                            <option value="@suggestion.RequestId" disabled="@suggestion.IsSelectionBlocked">@Model.ResolveSuggestionOptionLabel(suggestion)</option>
-                        }
-                    </select>
-
-                    @if (item.RequiresConfirmedExpiryDate)
-                    {
-                        <label class="form-label" for="expiry-@item.Id">@T["OperationsQueue_ConfirmedExpiryDateField"]</label>
-                        <input id="expiry-@item.Id"
-                               name="confirmedExpiryDate"
-                               class="form-control"
-                               type="date"
-                               value="@item.SuggestedConfirmedExpiryDate" />
-                    }
-
-                    @if (item.RequiresConfirmedAmount)
-                    {
-                        <label class="form-label" for="amount-@item.Id">@T["OperationsQueue_ConfirmedAmountField"]</label>
-                        <input id="amount-@item.Id"
-                               name="confirmedAmount"
-                               class="form-control"
-                               inputmode="decimal"
-                               value="@item.SuggestedConfirmedAmount" />
-                    }
-
-                    <label class="form-label" for="note-@item.Id">@T["OperationsQueue_ConfirmationNoteField"]</label>
-                    <textarea id="note-@item.Id"
-                              name="note"
-                              class="form-control"
-                              rows="3">@item.SuggestedStatusStatement</textarea>
-
-                    <div class="action-row">
-                        <button type="submit" class="btn btn-primary action-button">
-                            @T["OperationsQueue_ApplyResponseAction"]
-                        </button>
-                    </div>
-                </form>
-            }
+            </form>
         </div>
     }
 </article>

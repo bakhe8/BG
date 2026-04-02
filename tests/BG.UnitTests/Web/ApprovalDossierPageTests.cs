@@ -1,9 +1,12 @@
 using BG.Application.Contracts.Services;
 using BG.Application.Models.Approvals;
+using BG.Web.Localization;
 using BG.Web.Pages.Approvals;
 using BG.Web.UI;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 
 namespace BG.UnitTests.Web;
@@ -16,7 +19,7 @@ public sealed class ApprovalDossierPageTests
         var actorId = Guid.NewGuid();
         var requestId = Guid.NewGuid();
         var service = new StubApprovalQueueService(actorId);
-        var model = new DossierModel(service)
+        var model = new DossierModel(service, new PassThroughLocalizer())
         {
             Actor = actorId,
             PageNumber = 2
@@ -37,7 +40,7 @@ public sealed class ApprovalDossierPageTests
         var lockedActorId = Guid.NewGuid();
         var requestId = Guid.NewGuid();
         var service = new StubApprovalQueueService(lockedActorId);
-        var model = new DossierModel(service)
+        var model = new DossierModel(service, new PassThroughLocalizer())
         {
             PageNumber = 4
         };
@@ -51,6 +54,45 @@ public sealed class ApprovalDossierPageTests
         Assert.Equal(lockedActorId, service.LastDossierActorId);
         Assert.Equal("4", route["page"]);
         Assert.False(route.ContainsKey("actor"));
+    }
+
+    [Fact]
+    public async Task OnPostReturnAsync_redirects_back_to_queue_for_actor()
+    {
+        var actorId = Guid.NewGuid();
+        var requestId = Guid.NewGuid();
+        var service = new StubApprovalQueueService(actorId);
+        var model = new DossierModel(service, new PassThroughLocalizer());
+
+        var result = await model.OnPostReturnAsync(actorId, requestId, "Need clarification", 3, CancellationToken.None);
+
+        var redirect = Assert.IsType<RedirectToPageResult>(result);
+        Assert.Equal("/Approvals/Queue", redirect.PageName);
+        Assert.Equal(actorId, redirect.RouteValues!["actor"]);
+        Assert.Equal("3", redirect.RouteValues["page"]?.ToString());
+        Assert.Equal(requestId, service.LastCommand!.RequestId);
+        Assert.Equal(actorId, service.LastCommand.ApproverUserId);
+        Assert.Equal("ApprovalQueue_DecisionSuccess", model.StatusMessage);
+    }
+
+    [Fact]
+    public async Task OnPostApproveAsync_stays_on_dossier_when_governance_blocks_the_decision()
+    {
+        var actorId = Guid.NewGuid();
+        var requestId = Guid.NewGuid();
+        var service = new StubApprovalQueueService(actorId)
+        {
+            ApproveResult = BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto>.Failure("approvals.governance_policy_blocked")
+        };
+        var model = new DossierModel(service, new PassThroughLocalizer());
+
+        var result = await model.OnPostApproveAsync(actorId, requestId, "Approve", 2, CancellationToken.None);
+
+        Assert.IsType<PageResult>(result);
+        Assert.False(model.ModelState.IsValid);
+        Assert.Null(model.StatusMessage);
+        Assert.Equal(requestId, service.LastCommand!.RequestId);
+        Assert.Equal(actorId, service.LastCommand.ApproverUserId);
     }
 
     private static void AttachAuthenticatedUser(PageModel model, Guid userId)
@@ -77,6 +119,12 @@ public sealed class ApprovalDossierPageTests
         {
             _actorId = actorId;
         }
+
+        public ApprovalDecisionCommand? LastCommand { get; private set; }
+
+        public BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto> ApproveResult { get; set; } =
+            BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto>.Success(
+                new ApprovalDecisionReceiptDto(Guid.NewGuid(), "BG-2026-6101", "ApprovalDecision_Approved"));
 
         public Guid? LastDossierActorId { get; private set; }
 
@@ -150,21 +198,45 @@ public sealed class ApprovalDossierPageTests
             ApprovalDecisionCommand command,
             CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException();
+            LastCommand = command;
+            return Task.FromResult(ApproveResult);
         }
 
         public Task<BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto>> ReturnAsync(
             ApprovalDecisionCommand command,
             CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException();
+            LastCommand = command;
+            return Task.FromResult(
+                BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto>.Success(
+                    new ApprovalDecisionReceiptDto(command.RequestId, "BG-2026-6101", "ApprovalDecision_Returned")));
         }
 
         public Task<BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto>> RejectAsync(
             ApprovalDecisionCommand command,
             CancellationToken cancellationToken = default)
         {
-            throw new NotSupportedException();
+            LastCommand = command;
+            return Task.FromResult(
+                BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto>.Success(
+                    new ApprovalDecisionReceiptDto(command.RequestId, "BG-2026-6101", "ApprovalDecision_Rejected")));
+        }
+    }
+
+    private sealed class PassThroughLocalizer : IStringLocalizer<SharedResource>
+    {
+        public LocalizedString this[string name] => new(name, name);
+
+        public LocalizedString this[string name, params object[] arguments] => new(name, string.Format(name, arguments));
+
+        public IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures)
+        {
+            return Array.Empty<LocalizedString>();
+        }
+
+        public IStringLocalizer WithCulture(System.Globalization.CultureInfo culture)
+        {
+            return this;
         }
     }
 }

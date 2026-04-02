@@ -1,4 +1,5 @@
 using BG.Application.Contracts.Persistence;
+using BG.Application.Contracts.Persistence.Notifications;
 using BG.Application.Contracts.Services;
 using BG.Infrastructure.HealthChecks;
 using BG.Infrastructure.Persistence;
@@ -37,6 +38,7 @@ public static class DependencyInjection
         services.AddScoped<IApprovalQueueRepository, ApprovalQueueRepository>();
         services.AddScoped<IDispatchWorkspaceRepository, DispatchWorkspaceRepository>();
         services.AddScoped<IWorkflowDefinitionRepository, WorkflowDefinitionRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IIntakeDocumentStore, LocalIntakeDocumentStore>();
         services.AddSingleton<ILocalPasswordHasher, Pbkdf2LocalPasswordHasher>();
         services.AddScoped<OperationalSeedService>();

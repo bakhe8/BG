@@ -16,7 +16,7 @@
     ViewData["HideDetailDrawer"] = true;
 }
 
-<section class="intake-surface">
+<section class="intake-workspace">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
         <div class="notice-banner is-success mb-4">@Model.StatusMessage</div>
@@ -30,12 +30,12 @@
     }
     else
     {
-        <form id="intake-workspace-form" 
-              method="post" 
-              enctype="multipart/form-data" 
+        <form id="intake-workspace-form"
+              method="post"
+              enctype="multipart/form-data"
               class="stack-form"
               hx-boost="false">
-            
+
             <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-3"></div>
 
             <input asp-for="Input.ScenarioKey" type="hidden" />
@@ -44,15 +44,19 @@
             <input asp-for="Input.PageCount" type="hidden" />
             <input asp-for="Input.OriginalFileName" type="hidden" />
 
-            <div class="intake-surface-grid">
-                <div id="document-panel-container">
-                    <partial name="_IntakeDocumentPanel" model="Model" />
-                </div>
-
-                <div id="verification-panel-container">
-                    <partial name="_IntakeVerificationPanel" model="Model" />
-                </div>
+            <div class="intake-workspace__grid">
+                <partial name="_CapturePanel" model="Model" />
+                <partial name="_VerificationPanel" model="Model" />
             </div>
+
+            <footer class="intake-action-footer">
+                <button type="submit"
+                        formaction="@Url.Page("/Intake/Workspace", pageHandler: "Save")"
+                        class="bg-btn bg-btn-primary"
+                        disabled="@(Model.CanFinalize ? null : "disabled")">
+                    <i class="bi bi-check-all me-2"></i>@T["IntakeWorkspace_SaveAction"]
+                </button>
+            </footer>
         </form>
     }
 </section>

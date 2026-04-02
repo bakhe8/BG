@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
+  build-test-audit:
     runs-on: windows-latest
 
     steps:
@@ -19,11 +19,32 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Restore
+      - name: Restore Tools
+        run: dotnet tool restore
+
+      - name: Restore Packages
         run: dotnet restore BG.sln
+
+      - name: Linting Check (CSharpier)
+        run: dotnet tool run csharpier --check .
+
+      - name: Security Audit
+        run: |
+          dotnet list package --vulnerable --include-transitive 2>&1 | tee vuln-report.txt
+          if Select-String -Path vuln-report.txt -Pattern "(Critical|High)" -Quiet { exit 1 }
+        shell: pwsh
 
       - name: Build
         run: dotnet build BG.sln --configuration Release --no-restore
 
       - name: Test
         run: dotnet test BG.sln --configuration Release --no-build
+
+      - name: Publish Web App (Release)
+        run: dotnet publish src/BG.Web/BG.Web.csproj --configuration Release --output ./publish --no-build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bg-web-release
+          path: ./publish

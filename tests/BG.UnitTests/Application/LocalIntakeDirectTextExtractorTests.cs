@@ -79,7 +79,7 @@ public sealed class LocalIntakeDirectTextExtractorTests
                 GuaranteeDocumentFormCatalog.Find(GuaranteeDocumentFormKeys.BankLetterGeneric)!);
 
             Assert.DoesNotContain(result, candidate => candidate.FieldKey == IntakeFieldKeys.GuaranteeNumber && candidate.Value == "BG-2026-7777");
-            Assert.Contains(result, candidate => candidate.FieldKey == IntakeFieldKeys.BankReference);
+            Assert.Empty(result);
         }
         finally
         {

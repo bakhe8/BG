@@ -30,6 +30,7 @@ internal sealed class LocalIntakeFieldReviewProjector : IIntakeFieldReviewProjec
                 group => group.Key,
                 group => group
                     .OrderByDescending(candidate => IntakeFieldProvenanceCatalog.GetPriority(candidate.Source))
+                    .ThenByDescending(candidate => candidate.ConfidencePercent)
                     .First(),
                 StringComparer.Ordinal);
 
@@ -41,7 +42,7 @@ internal sealed class LocalIntakeFieldReviewProjector : IIntakeFieldReviewProjec
                     return sampleField with
                     {
                         Value = candidate.Value,
-                        ConfidencePercent = _confidenceScorer.Score(sampleField, candidate.Source),
+                        ConfidencePercent = _confidenceScorer.Score(sampleField, candidate),
                         ProvenanceResourceKey = IntakeFieldProvenanceCatalog.GetResourceKey(candidate.Source),
                         IsExpectedByDocumentForm = expectedFieldKeys.Contains(sampleField.FieldKey)
                     };
@@ -49,8 +50,10 @@ internal sealed class LocalIntakeFieldReviewProjector : IIntakeFieldReviewProjec
 
                 return sampleField with
                 {
-                    ConfidencePercent = _confidenceScorer.Score(sampleField, IntakeFieldValueSource.ScenarioSample),
-                    ProvenanceResourceKey = IntakeFieldProvenanceCatalog.GetResourceKey(IntakeFieldValueSource.ScenarioSample),
+                    Value = string.Empty,
+                    ConfidencePercent = 0,
+                    RequiresExplicitReview = true,
+                    ProvenanceResourceKey = null,
                     IsExpectedByDocumentForm = expectedFieldKeys.Contains(sampleField.FieldKey)
                 };
             })

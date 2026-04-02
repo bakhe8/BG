@@ -1,158 +1,179 @@
-/* KFSH&RC Aligned Component System - GLOBAL MANDATORY BRANDING */
-:root {
-    --bg-brand-green: #005A32 !important;
-    --bg-brand-green-700: #004526 !important;
-    --bg-brand-green-800: #00361C !important;
-    --bg-brand-gold: #C5A02D !important;
-    --bg-brand-gold-700: #AB8B25 !important;
-    --bg-brand-gold-light: #F4EED8;
-    --bg-brand-gold-soft: #FDFBEE;
-    
-    --bg-text-primary: #0F172A;
-    --bg-text-secondary: #475569;
-    --bg-surface-white: #FFFFFF;
-    --bg-surface-light: #F1F5F9; /* Mandatory light gray for content background */
-    --bg-border-color: rgba(0, 90, 50, 0.12);
-    --bg-shadow-sm: 0 4px 6px -1px rgb(0 90 50 / 0.05), 0 2px 4px -2px rgb(0 90 50 / 0.05);
-    --bg-shadow-md: 0 10px 15px -3px rgb(0 90 50 / 0.1), 0 4px 6px -4px rgb(0 90 50 / 0.1);
-    
-    /* Layout Tokens - Premium Radius (MANDATORY) */
-    --bg-radius-lg: 24px !important;
-    --bg-radius-md: 16px !important;
-    --bg-radius-sm: 12px !important;
-}
+/* 
+  BG Institutional UI Components (KFSHRC Standard)
+  Minimalist - High Speed - Decision-first
+*/
 
-/* --- Global Shell Elements --- */
-.bg-shell-sidebar {
-    background-color: var(--bg-brand-green) !important;
-    color: white !important;
-    border-right: 1px solid rgba(255,255,255,0.1) !important;
-}
-
-.bg-shell-topbar {
-    background: white !important;
-    border-bottom: 1px solid var(--bg-border-color) !important;
-    padding: 1rem 2rem !important;
-}
-
-.bg-shell-content {
-    background-color: var(--bg-surface-light) !important;
-    padding: 2rem !important;
-    min-height: calc(100vh - 80px);
-}
-
-/* --- Buttons --- */
+/* Buttons: Institutional Modern */
 .bg-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.8rem 2rem !important;
-    font-weight: 700 !important;
-    border-radius: var(--bg-radius-sm) !important;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1.5px solid transparent !important;
+    padding: 0.75rem 1.75rem;
+    border-radius: 99px; /* Official Pill-Shape */
+    font-weight: 700;
+    font-family: var(--font-heading);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
-    font-size: 0.95rem !important;
-    letter-spacing: -0.01em;
+    border: none;
+    gap: 8px;
+    font-size: 0.95rem;
 }
 
 .bg-btn-primary {
-    background-color: var(--bg-brand-green) !important;
-    border-color: var(--bg-brand-green) !important;
+    background-color: var(--kfshrc-green);
     color: white !important;
 }
 
 .bg-btn-primary:hover {
-    background-color: var(--bg-brand-green-700) !important;
-    transform: translateY(-2px);
+    background-color: var(--brand-green-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 104, 71, 0.25);
 }
 
 .bg-btn-secondary {
-    background-color: var(--bg-surface-white) !important;
-    color: var(--bg-brand-green) !important;
-    border-color: var(--bg-brand-green) !important;
+    background-color: #F3F4F6;
+    color: #374151 !important;
 }
 
-.bg-btn-success { background-color: #2D7D46 !important; border-color: #2D7D46 !important; color: white !important; }
-.bg-btn-warning { background-color: #C29B40 !important; border-color: #C29B40 !important; color: white !important; }
-.bg-btn-light { background-color: #E2E8F0 !important; border-color: #E2E8F0 !important; color: #475569 !important; }
+.bg-btn-secondary:hover {
+    background-color: #E5E7EB;
+}
 
-/* --- Badges --- */
+.bg-btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--border-light);
+    color: #4B5563 !important;
+}
+
+.bg-btn-outline:hover {
+    border-color: var(--kfshrc-green);
+    color: var(--kfshrc-green) !important;
+}
+
+/* Institutional Badges */
 .bg-badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.35rem 1rem;
-    font-weight: 700;
-    font-size: 0.75rem;
-    border-radius: 9999px !important;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* --- Sections & Cards --- */
-.bg-section-shell {
-    background: var(--bg-surface-white) !important;
-    border: 1px solid var(--bg-border-color) !important;
-    border-radius: var(--bg-radius-lg) !important;
-    overflow: hidden !important;
-    margin-bottom: 2rem;
-    box-shadow: var(--bg-shadow-sm) !important;
-}
-
-.bg-card {
-    background: white !important;
-    border: 1px solid var(--bg-border-color) !important;
-    border-radius: var(--bg-radius-md) !important;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.bg-card-premium {
-    background: #FFFFFF !important;
-    border: 1px solid rgba(0,0,0,0.05) !important;
-    border-radius: var(--bg-radius-lg) !important;
-    box-shadow: 0 4px 12px rgba(0, 90, 50, 0.04) !important;
-    padding: 2rem !important;
-}
-
-.bg-section-header {
-    background: linear-gradient(135deg, var(--bg-brand-green) 0%, var(--bg-brand-green-700) 100%) !important;
-    padding: 1.5rem 2rem !important;
-    border-bottom: 3px solid var(--bg-brand-gold) !important;
-}
-
-.bg-section-title {
-    margin: 0;
-    font-size: 1.25rem !important;
-    font-weight: 800 !important;
-    color: white !important;
-    text-transform: uppercase;
-}
-
-/* Internal Section Captions (Step Markers) */
-.section-caption {
-    display: inline-flex;
-    align-items: center;
+    padding: 0.35rem 0.85rem;
+    border-radius: 99px;
     font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
-    color: var(--bg-brand-green) !important;
-    background: var(--bg-brand-gold-soft);
-    padding: 0.4rem 1rem;
-    border-radius: 6px;
-    border-left: 4px solid var(--bg-brand-gold);
-    margin-bottom: 1.25rem !important;
+    letter-spacing: 0.05em;
+    border: 1px solid transparent;
 }
 
-/* --- Timeline / Workflow --- */
-.bg-timeline { position: relative; padding-left: 2.5rem; }
-.bg-timeline::before { content: ''; position: absolute; left: 0.75rem; top: 0; bottom: 0; width: 2px; background: #E2E8F0; z-index: 1; }
-.bg-timeline-item { position: relative; padding-bottom: 2rem; }
-.bg-timeline-icon { position: absolute; left: -2.5rem; width: 1.5rem; height: 1.5rem; background: white; border-radius: 50%; border: 2px solid #E2E8F0; z-index: 2; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
-.bg-timeline-item.active .bg-timeline-icon { border-color: var(--bg-brand-gold); box-shadow: 0 0 0 4px var(--bg-brand-gold-soft); }
-.bg-timeline-item.completed .bg-timeline-icon { background: #2D7D46; border-color: #2D7D46; color: white; }
-.bg-timeline-title { font-weight: 700; font-size: 0.9rem; color: var(--bg-text-primary); }
-.bg-timeline-meta { font-size: 0.75rem; color: var(--bg-text-secondary); }
+/* Matching Status Badges (Official Soft Palette) */
+.bg-badge-pending {
+    background-color: #E0F2FE !important; /* Cyan Soft */
+    color: #0369A1 !important;
+}
 
-/* --- Layout Utils --- */
-.bg-surface-grid-3 { display: grid; grid-template-columns: 1.2fr 1.5fr 1fr; gap: 1.5rem; }
+.bg-badge-returned {
+    background-color: #FFEDD5 !important; /* Orange Soft */
+    color: #C2410C !important;
+}
+
+.bg-badge-rejected {
+    background-color: #FEE2E2 !important; /* Red Soft */
+    color: #991B1B !important;
+}
+
+.bg-badge-success {
+    background-color: #D1FAE5 !important; /* Green Soft */
+    color: #065F46 !important;
+}
+
+/* Institutional Cards (Decision-first) */
+.bg-card {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: box-shadow 0.2s ease;
+}
+
+.bg-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Open Listing Pattern (Matching Grid Alignment) */
+.bg-list-item, .request-queue-link {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #F3F4F6;
+    display: grid;
+    grid-template-columns: 140px 1fr 140px 140px 140px 40px;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: #374151;
+    background: white;
+}
+
+.request-queue-link .bi-chevron-left,
+.request-queue-link .bi-chevron-right {
+    opacity: 0.3;
+    font-size: 0.85rem;
+}
+
+html[dir="rtl"] .request-queue-link {
+    grid-template-columns: 140px 1fr 140px 140px 140px 40px;
+}
+
+.bg-list-item:hover, .request-queue-link:hover {
+    background-color: #F9FAFB;
+    box-shadow: inset 0 0 0 1px var(--kfshrc-green);
+    z-index: 1;
+}
+
+.request-queue-link.active {
+    background-color: #F0FDF4 !important;
+    border-right: 4px solid var(--kfshrc-green);
+    border-bottom-color: transparent;
+}
+
+html[dir="ltr"] .request-queue-link.active {
+    border-left: 4px solid var(--kfshrc-green);
+    border-right: none;
+}
+
+/* Institutional Inputs */
+.bg-input {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    background-color: #F9FAFB;
+    font-family: var(--font-body);
+    transition: all 0.2s ease;
+}
+
+.bg-input:focus {
+    outline: none;
+    border-color: var(--kfshrc-green);
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(0, 104, 71, 0.1);
+}
+
+/* Decision Fields (Matching Grid Alignment) */
+.bg-grid-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.bg-grid-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+}
+
+.bg-grid-value {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #111827;
+}

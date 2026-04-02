@@ -30,5 +30,7 @@ public interface IApprovalQueueRepository
 
     Task<GuaranteeRequest?> GetRequestForApprovalAsync(Guid requestId, CancellationToken cancellationToken = default);
 
+    Task<GuaranteeDocument?> GetRequestDocumentAsync(Guid requestId, Guid documentId, CancellationToken cancellationToken = default);
+
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

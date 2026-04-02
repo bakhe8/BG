@@ -22,6 +22,17 @@
   gap: 1rem;
 }
 
+.request-revision-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.request-revision-header {
+  display: grid;
+  gap: 0.5rem;
+}
+
 .request-summary-facts {
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
 }

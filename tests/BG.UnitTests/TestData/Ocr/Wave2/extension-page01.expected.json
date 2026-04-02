@@ -1,0 +1,25 @@
+{
+  "pipelineVersion": "wave2-scan-route",
+  "requiredFields": [
+    {
+      "fieldKey": "IntakeField_BankName",
+      "value": "Riyad Bank"
+    },
+    {
+      "fieldKey": "IntakeField_GuaranteeNumber",
+      "value": "RLG6901112"
+    },
+    {
+      "fieldKey": "IntakeField_Beneficiary",
+      "value": "مستشفى الملك فيصل التخصصي ومركز الأبحاث"
+    },
+    {
+      "fieldKey": "IntakeField_IssueDate",
+      "value": "2025-02-02"
+    },
+    {
+      "fieldKey": "IntakeField_Amount",
+      "value": "18216.00"
+    }
+  ]
+}

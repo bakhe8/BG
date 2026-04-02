@@ -9,8 +9,14 @@ public interface IIntakeDocumentStore
         Stream content,
         CancellationToken cancellationToken = default);
 
+    Task<StagedIntakeDocumentDto?> GetStagedAsync(
+        string stagedDocumentToken,
+        CancellationToken cancellationToken = default);
+
     Task<PromotedIntakeDocumentDto> PromoteAsync(
         string stagedDocumentToken,
         string guaranteeNumber,
         CancellationToken cancellationToken = default);
+
+    Stream GetDocumentContent(string storagePath);
 }

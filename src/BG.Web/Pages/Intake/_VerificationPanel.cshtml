@@ -1,0 +1,367 @@
+@using BG.Application.Intake
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Intake.WorkspaceModel
+
+<section class="intake-panel intake-panel--verification">
+
+    <div class="intake-panel__header">
+        <i class="bi bi-shield-check"></i>
+        <span>@T["IntakeWorkspace_VerifiedFieldsTitle"]</span>
+    </div>
+
+    @if (Model.HasDraft && Model.CriticalReviewFields.Count > 0)
+    {
+        <div class="intake-review-banner">
+            <i class="bi bi-exclamation-triangle me-2"></i>@T["IntakeWorkspace_ReviewRequired"]
+        </div>
+    }
+    else if (!Model.HasDraft)
+    {
+        <div class="intake-review-banner intake-review-banner--pending">
+            @T["IntakeWorkspace_ReviewCardPendingBody"]
+        </div>
+    }
+
+    <div class="intake-field-list">
+
+        @{
+            var guaranteeNumberReview = Model.GetReviewField(IntakeFieldKeys.GuaranteeNumber);
+        }
+        <article class="intake-field-row">
+            <div class="intake-field-row__meta">
+                <div class="intake-field-row__label">@T["IntakeField_GuaranteeNumber"]</div>
+                @if (guaranteeNumberReview is not null)
+                {
+                    <div class="intake-field-row__confidence">
+                        <bg-badge variant="@Model.ResolveReviewBadgeVariant(guaranteeNumberReview)">@guaranteeNumberReview.ConfidencePercent%</bg-badge>
+                    </div>
+                }
+            </div>
+            @if (guaranteeNumberReview?.RequiresExplicitReview == true)
+            {
+                <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+            }
+            <div class="intake-field-row__input">
+                <input asp-for="Input.GuaranteeNumber" class="form-control" maxlength="64" />
+            </div>
+        </article>
+
+        @if (Model.IsNewGuaranteeScenario)
+        {
+            @{
+                var bankNameReview = Model.GetReviewField(IntakeFieldKeys.BankName);
+            }
+            <article class="intake-field-row">
+                <div class="intake-field-row__meta">
+                    <div class="intake-field-row__label">@T["IntakeField_BankName"]</div>
+                    @if (bankNameReview is not null)
+                    {
+                        <div class="intake-field-row__confidence">
+                            <bg-badge variant="@Model.ResolveReviewBadgeVariant(bankNameReview)">@bankNameReview.ConfidencePercent%</bg-badge>
+                        </div>
+                    }
+                </div>
+                @if (bankNameReview?.RequiresExplicitReview == true)
+                {
+                    <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                }
+                <div class="intake-field-row__input">
+                    <input asp-for="Input.BankName" class="form-control" maxlength="128" />
+                </div>
+            </article>
+
+            @{
+                var beneficiaryReview = Model.GetReviewField(IntakeFieldKeys.Beneficiary);
+            }
+            <article class="intake-field-row">
+                <div class="intake-field-row__meta">
+                    <div class="intake-field-row__label">@T["IntakeField_Beneficiary"]</div>
+                    @if (beneficiaryReview is not null)
+                    {
+                        <div class="intake-field-row__confidence">
+                            <bg-badge variant="@Model.ResolveReviewBadgeVariant(beneficiaryReview)">@beneficiaryReview.ConfidencePercent%</bg-badge>
+                        </div>
+                    }
+                </div>
+                @if (beneficiaryReview?.RequiresExplicitReview == true)
+                {
+                    <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                }
+                <div class="intake-field-row__input">
+                    <input asp-for="Input.BeneficiaryName" class="form-control" maxlength="256" />
+                </div>
+            </article>
+
+            @{
+                var principalReview = Model.GetReviewField(IntakeFieldKeys.Principal);
+            }
+            <article class="intake-field-row">
+                <div class="intake-field-row__meta">
+                    <div class="intake-field-row__label">@T["IntakeField_Principal"]</div>
+                    @if (principalReview is not null)
+                    {
+                        <div class="intake-field-row__confidence">
+                            <bg-badge variant="@Model.ResolveReviewBadgeVariant(principalReview)">@principalReview.ConfidencePercent%</bg-badge>
+                        </div>
+                    }
+                </div>
+                @if (principalReview?.RequiresExplicitReview == true)
+                {
+                    <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                }
+                <div class="intake-field-row__input">
+                    <input asp-for="Input.PrincipalName" class="form-control" maxlength="256" />
+                </div>
+            </article>
+
+            @{
+                var categoryReview = Model.GetReviewField(IntakeFieldKeys.GuaranteeCategory);
+            }
+            <article class="intake-field-row">
+                <div class="intake-field-row__meta">
+                    <div class="intake-field-row__label">@T["IntakeField_GuaranteeCategory"]</div>
+                    @if (categoryReview is not null)
+                    {
+                        <div class="intake-field-row__confidence">
+                            <bg-badge variant="@Model.ResolveReviewBadgeVariant(categoryReview)">@categoryReview.ConfidencePercent%</bg-badge>
+                        </div>
+                    }
+                </div>
+                @if (categoryReview?.RequiresExplicitReview == true)
+                {
+                    <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                }
+                <div class="intake-field-row__input">
+                    <select asp-for="Input.GuaranteeCategory" class="form-control">
+                        <option value="">@T["IntakeWorkspace_SelectGuaranteeCategory"]</option>
+                        @foreach (var option in Model.GuaranteeCategoryOptions)
+                        {
+                            <option value="@option.Value">@T[option.ResourceKey]</option>
+                        }
+                    </select>
+                </div>
+            </article>
+
+            @{
+                var amountReview = Model.GetReviewField(IntakeFieldKeys.Amount);
+                var currencyReview = Model.GetReviewField(IntakeFieldKeys.CurrencyCode);
+            }
+            <article class="intake-field-row">
+                <div class="intake-field-row__meta">
+                    <div class="intake-field-row__label">@T["IntakeField_Amount"]</div>
+                    @if (amountReview is not null)
+                    {
+                        <div class="intake-field-row__confidence">
+                            <bg-badge variant="@Model.ResolveReviewBadgeVariant(amountReview)">@amountReview.ConfidencePercent%</bg-badge>
+                        </div>
+                    }
+                </div>
+                @if (amountReview?.RequiresExplicitReview == true)
+                {
+                    <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                }
+                <div class="intake-field-row__input row g-2">
+                    <div class="col-8">
+                        <input asp-for="Input.Amount" class="form-control" inputmode="decimal" />
+                    </div>
+                    <div class="col-4">
+                        @if (currencyReview is not null)
+                        {
+                            <bg-badge variant="@Model.ResolveReviewBadgeVariant(currencyReview)" class="d-block mb-1">@currencyReview.ConfidencePercent%</bg-badge>
+                        }
+                        <input asp-for="Input.CurrencyCode" class="form-control" maxlength="3" placeholder="@T["IntakeField_CurrencyCode"]" />
+                    </div>
+                </div>
+            </article>
+
+            @{
+                var issueDateReview = Model.GetReviewField(IntakeFieldKeys.IssueDate);
+                var expiryDateReview = Model.GetReviewField(IntakeFieldKeys.ExpiryDate);
+            }
+            <article class="intake-field-row">
+                <div class="intake-field-row__meta">
+                    <div class="intake-field-row__label">@T["IntakeField_IssueDate"]</div>
+                    @if (issueDateReview is not null)
+                    {
+                        <div class="intake-field-row__confidence">
+                            <bg-badge variant="@Model.ResolveReviewBadgeVariant(issueDateReview)">@issueDateReview.ConfidencePercent%</bg-badge>
+                        </div>
+                    }
+                </div>
+                @if (issueDateReview?.RequiresExplicitReview == true)
+                {
+                    <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                }
+                <div class="intake-field-row__input row g-2">
+                    <div class="col-6">
+                        <input asp-for="Input.IssueDate" class="form-control" type="date" />
+                    </div>
+                    <div class="col-6">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="x-small text-muted text-uppercase">@T["IntakeField_ExpiryDate"]</span>
+                            @if (expiryDateReview is not null)
+                            {
+                                <bg-badge variant="@Model.ResolveReviewBadgeVariant(expiryDateReview)">@expiryDateReview.ConfidencePercent%</bg-badge>
+                            }
+                        </div>
+                        @if (expiryDateReview?.RequiresExplicitReview == true)
+                        {
+                            <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                        }
+                        <input asp-for="Input.ExpiryDate" class="form-control" type="date" />
+                    </div>
+                </div>
+            </article>
+        }
+        else
+        {
+            if (!Model.IsAttachmentScenario)
+            {
+                @{
+                    var officialLetterDateReview = Model.GetReviewField(IntakeFieldKeys.OfficialLetterDate);
+                    var bankReferenceReview = Model.GetReviewField(IntakeFieldKeys.BankReference);
+                }
+                <article class="intake-field-row">
+                    <div class="intake-field-row__meta">
+                        <div class="intake-field-row__label">@T["IntakeField_OfficialLetterDate"]</div>
+                        @if (officialLetterDateReview is not null)
+                        {
+                            <div class="intake-field-row__confidence">
+                                <bg-badge variant="@Model.ResolveReviewBadgeVariant(officialLetterDateReview)">@officialLetterDateReview.ConfidencePercent%</bg-badge>
+                            </div>
+                        }
+                    </div>
+                    @if (officialLetterDateReview?.RequiresExplicitReview == true)
+                    {
+                        <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                    }
+                    <div class="intake-field-row__input">
+                        <input asp-for="Input.OfficialLetterDate" class="form-control" type="date" />
+                    </div>
+                </article>
+
+                <article class="intake-field-row">
+                    <div class="intake-field-row__meta">
+                        <div class="intake-field-row__label">@T["IntakeField_BankReference"]</div>
+                        @if (bankReferenceReview is not null)
+                        {
+                            <div class="intake-field-row__confidence">
+                                <bg-badge variant="@Model.ResolveReviewBadgeVariant(bankReferenceReview)">@bankReferenceReview.ConfidencePercent%</bg-badge>
+                            </div>
+                        }
+                    </div>
+                    @if (bankReferenceReview?.RequiresExplicitReview == true)
+                    {
+                        <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                    }
+                    <div class="intake-field-row__input">
+                        <input asp-for="Input.BankReference" class="form-control" maxlength="64" />
+                    </div>
+                </article>
+            }
+
+            if (Model.IsExtensionScenario)
+            {
+                @{
+                    var newExpiryDateReview = Model.GetReviewField(IntakeFieldKeys.NewExpiryDate);
+                }
+                <article class="intake-field-row">
+                    <div class="intake-field-row__meta">
+                        <div class="intake-field-row__label">@T["IntakeField_NewExpiryDate"]</div>
+                        @if (newExpiryDateReview is not null)
+                        {
+                            <div class="intake-field-row__confidence">
+                                <bg-badge variant="@Model.ResolveReviewBadgeVariant(newExpiryDateReview)">@newExpiryDateReview.ConfidencePercent%</bg-badge>
+                            </div>
+                        }
+                    </div>
+                    @if (newExpiryDateReview?.RequiresExplicitReview == true)
+                    {
+                        <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                    }
+                    <div class="intake-field-row__input">
+                        <input asp-for="Input.NewExpiryDate" class="form-control" type="date" />
+                    </div>
+                </article>
+            }
+
+            if (Model.IsReductionScenario)
+            {
+                @{
+                    var confirmedAmountReview = Model.GetReviewField(IntakeFieldKeys.Amount);
+                }
+                <article class="intake-field-row">
+                    <div class="intake-field-row__meta">
+                        <div class="intake-field-row__label">@T["IntakeField_Amount"]</div>
+                        @if (confirmedAmountReview is not null)
+                        {
+                            <div class="intake-field-row__confidence">
+                                <bg-badge variant="@Model.ResolveReviewBadgeVariant(confirmedAmountReview)">@confirmedAmountReview.ConfidencePercent%</bg-badge>
+                            </div>
+                        }
+                    </div>
+                    @if (confirmedAmountReview?.RequiresExplicitReview == true)
+                    {
+                        <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                    }
+                    <div class="intake-field-row__input">
+                        <input asp-for="Input.Amount" class="form-control" inputmode="decimal" />
+                    </div>
+                </article>
+            }
+
+            if (Model.IsStatusScenario)
+            {
+                @{
+                    var statusStatementReview = Model.GetReviewField(IntakeFieldKeys.StatusStatement);
+                }
+                <article class="intake-field-row">
+                    <div class="intake-field-row__meta">
+                        <div class="intake-field-row__label">@T["IntakeField_StatusStatement"]</div>
+                        @if (statusStatementReview is not null)
+                        {
+                            <div class="intake-field-row__confidence">
+                                <bg-badge variant="@Model.ResolveReviewBadgeVariant(statusStatementReview)">@statusStatementReview.ConfidencePercent%</bg-badge>
+                            </div>
+                        }
+                    </div>
+                    @if (statusStatementReview?.RequiresExplicitReview == true)
+                    {
+                        <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                    }
+                    <div class="intake-field-row__input">
+                        <textarea asp-for="Input.StatusStatement" class="form-control" rows="4"></textarea>
+                    </div>
+                </article>
+            }
+
+            if (Model.IsAttachmentScenario)
+            {
+                @{
+                    var attachmentNoteReview = Model.GetReviewField(IntakeFieldKeys.AttachmentNote);
+                }
+                <article class="intake-field-row">
+                    <div class="intake-field-row__meta">
+                        <div class="intake-field-row__label">@T["IntakeField_AttachmentNote"]</div>
+                        @if (attachmentNoteReview is not null)
+                        {
+                            <div class="intake-field-row__confidence">
+                                <bg-badge variant="@Model.ResolveReviewBadgeVariant(attachmentNoteReview)">@attachmentNoteReview.ConfidencePercent%</bg-badge>
+                            </div>
+                        }
+                    </div>
+                    @if (attachmentNoteReview?.RequiresExplicitReview == true)
+                    {
+                        <div class="intake-field-row__state">@T["IntakeWorkspace_ReviewRequired"]</div>
+                    }
+                    <div class="intake-field-row__input">
+                        <textarea asp-for="Input.AttachmentNote" class="form-control" rows="4"></textarea>
+                    </div>
+                </article>
+            }
+        }
+
+    </div>
+
+</section>

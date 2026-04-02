@@ -22,6 +22,7 @@ public static class DependencyInjection
         AddOperationsServices(services);
         AddDispatchServices(services);
         AddAdministrationServices(services);
+        AddNotificationServices(services);
 
         return services;
     }
@@ -99,5 +100,10 @@ public static class DependencyInjection
     {
         services.AddScoped<IWorkflowAdministrationService, WorkflowAdministrationService>();
         services.AddScoped<IWorkflowTemplateService, WorkflowTemplateService>();
+    }
+
+    private static void AddNotificationServices(IServiceCollection services)
+    {
+        services.AddScoped<INotificationService, NotificationService>();
     }
 }
