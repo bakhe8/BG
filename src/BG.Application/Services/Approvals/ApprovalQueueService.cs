@@ -16,15 +16,18 @@ internal sealed class ApprovalQueueService : IApprovalQueueService
     private readonly IApprovalQueueRepository _repository;
     private readonly IIntakeDocumentStore _documentStore;
     private readonly ApprovalGovernanceOptions _governanceOptions;
+    private readonly INotificationService _notificationService;
 
     public ApprovalQueueService(
         IApprovalQueueRepository repository,
         IIntakeDocumentStore documentStore,
-        IOptions<ApprovalGovernanceOptions> governanceOptions)
+        IOptions<ApprovalGovernanceOptions> governanceOptions,
+        INotificationService notificationService)
     {
         _repository = repository;
         _documentStore = documentStore;
         _governanceOptions = governanceOptions.Value;
+        _notificationService = notificationService;
     }
 
     public async Task<DocumentContentResult?> GetDocumentContentAsync(Guid requestId, Guid documentId, CancellationToken cancellationToken = default)
@@ -276,11 +279,57 @@ internal sealed class ApprovalQueueService : IApprovalQueueService
 
         await _repository.SaveChangesAsync(cancellationToken);
 
+        await SendApprovalNotificationAsync(outcome, approvalCompleted, request, cancellationToken);
+
         return OperationResult<ApprovalDecisionReceiptDto>.Success(
             new ApprovalDecisionReceiptDto(
                 request.Id,
                 request.Guarantee.GuaranteeNumber,
                 ApprovalDecisionCatalog.GetResourceKey(outcome)));
+    }
+
+    private async Task SendApprovalNotificationAsync(
+        ApprovalDecisionOutcome outcome,
+        bool approvalCompleted,
+        GuaranteeRequest request,
+        CancellationToken cancellationToken)
+    {
+        switch (outcome)
+        {
+            case ApprovalDecisionOutcome.Approved when approvalCompleted:
+                await _notificationService.SendNotificationAsync(
+                    NotificationMessageCatalog.RequestApprovedForDispatch,
+                    "/Dispatch/Workspace",
+                    "dispatch.view",
+                    cancellationToken: cancellationToken);
+                break;
+
+            case ApprovalDecisionOutcome.Approved:
+                await _notificationService.SendNotificationAsync(
+                    NotificationMessageCatalog.StageAdvancedToNextApprover,
+                    "/Approvals/Queue",
+                    "approvals.queue.view",
+                    cancellationToken: cancellationToken);
+                break;
+
+            case ApprovalDecisionOutcome.Returned:
+                await _notificationService.SendNotificationAsync(
+                    NotificationMessageCatalog.RequestReturnedToOwner,
+                    "/Requests/Workspace",
+                    "requests.view",
+                    targetUserId: request.RequestedByUserId,
+                    cancellationToken: cancellationToken);
+                break;
+
+            case ApprovalDecisionOutcome.Rejected:
+                await _notificationService.SendNotificationAsync(
+                    NotificationMessageCatalog.RequestRejectedToOwner,
+                    "/Requests/Workspace",
+                    "requests.view",
+                    targetUserId: request.RequestedByUserId,
+                    cancellationToken: cancellationToken);
+                break;
+        }
     }
 
     private ApprovalQueueItemDto MapItem(

@@ -24,15 +24,18 @@ internal sealed class RequestWorkspaceService : IRequestWorkspaceService
     private readonly IRequestWorkspaceRepository _repository;
     private readonly IWorkflowTemplateService _workflowTemplateService;
     private readonly IWorkflowDefinitionRepository _workflowDefinitionRepository;
+    private readonly INotificationService _notificationService;
 
     public RequestWorkspaceService(
         IRequestWorkspaceRepository repository,
         IWorkflowTemplateService workflowTemplateService,
-        IWorkflowDefinitionRepository workflowDefinitionRepository)
+        IWorkflowDefinitionRepository workflowDefinitionRepository,
+        INotificationService notificationService)
     {
         _repository = repository;
         _workflowTemplateService = workflowTemplateService;
         _workflowDefinitionRepository = workflowDefinitionRepository;
+        _notificationService = notificationService;
     }
 
     public async Task<RequestWorkspaceSnapshotDto> GetWorkspaceAsync(
@@ -397,6 +400,12 @@ internal sealed class RequestWorkspaceService : IRequestWorkspaceService
         }
 
         await _repository.SaveChangesAsync(cancellationToken);
+
+        await _notificationService.SendNotificationAsync(
+            NotificationMessageCatalog.RequestSubmittedForApproval,
+            "/Approvals/Queue",
+            "approvals.queue.view",
+            cancellationToken: cancellationToken);
 
         var currentStage = approvalProcess.GetCurrentStage();
 

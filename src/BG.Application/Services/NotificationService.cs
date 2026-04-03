@@ -38,6 +38,7 @@ public sealed class NotificationService : INotificationService
             notification.Link,
             notification.RequiredPermission,
             notification.CreatedAtUtc,
+            notification.TargetUserId,
             cancellationToken);
     }
 

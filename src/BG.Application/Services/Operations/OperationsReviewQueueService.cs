@@ -16,15 +16,18 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
     private readonly IOperationsReviewRepository _repository;
     private readonly IWorkflowTemplateService _workflowTemplateService;
     private readonly IOperationsReviewMatchingService _matchingService;
+    private readonly INotificationService _notificationService;
 
     public OperationsReviewQueueService(
         IOperationsReviewRepository repository,
         IWorkflowTemplateService workflowTemplateService,
-        IOperationsReviewMatchingService matchingService)
+        IOperationsReviewMatchingService matchingService,
+        INotificationService notificationService)
     {
         _repository = repository;
         _workflowTemplateService = workflowTemplateService;
         _matchingService = matchingService;
+        _notificationService = notificationService;
     }
 
     public async Task<OperationsReviewQueueSnapshotDto> GetSnapshotAsync(
@@ -227,6 +230,13 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
         }
 
         await _repository.SaveChangesAsync(cancellationToken);
+
+        await _notificationService.SendNotificationAsync(
+            NotificationMessageCatalog.BankResponseApplied,
+            "/Requests/Workspace",
+            "requests.view",
+            targetUserId: request.RequestedByUserId,
+            cancellationToken: cancellationToken);
 
         return OperationResult<ApplyBankResponseReceiptDto>.Success(
             new ApplyBankResponseReceiptDto(

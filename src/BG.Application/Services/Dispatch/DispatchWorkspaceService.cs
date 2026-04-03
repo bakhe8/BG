@@ -14,10 +14,12 @@ namespace BG.Application.Services;
 internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
 {
     private readonly IDispatchWorkspaceRepository _repository;
+    private readonly INotificationService _notificationService;
 
-    public DispatchWorkspaceService(IDispatchWorkspaceRepository repository)
+    public DispatchWorkspaceService(IDispatchWorkspaceRepository repository, INotificationService notificationService)
     {
         _repository = repository;
+        _notificationService = notificationService;
     }
 
     public async Task<DispatchWorkspaceSnapshotDto> GetWorkspaceAsync(
@@ -93,7 +95,7 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
             return OperationResult<DispatchLetterPreviewDto>.Failure(DispatchErrorCodes.RequestNotFound);
         }
 
-        if (request.Status is not GuaranteeRequestStatus.ApprovedForDispatch and not GuaranteeRequestStatus.AwaitingBankResponse)
+        if (request.Status is not GuaranteeRequestStatus.ApprovedForDispatch and not GuaranteeRequestStatus.AwaitingBankResponse and not GuaranteeRequestStatus.SubmittedToBank)
         {
             return OperationResult<DispatchLetterPreviewDto>.Failure(DispatchErrorCodes.RequestNotReady);
         }
@@ -311,6 +313,12 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
 
             await _repository.SaveChangesAsync(cancellationToken);
 
+            await _notificationService.SendNotificationAsync(
+                NotificationMessageCatalog.LetterDispatched,
+                "/Operations/Workspace",
+                "operations.queue.view",
+                cancellationToken: cancellationToken);
+
             return OperationResult<RecordDispatchReceiptDto>.Success(
                 new RecordDispatchReceiptDto(
                     request.Id,
@@ -353,7 +361,7 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
             return OperationResult<ConfirmDispatchDeliveryReceiptDto>.Failure(DispatchErrorCodes.RequestNotFound);
         }
 
-        if (request.Status != GuaranteeRequestStatus.AwaitingBankResponse)
+        if (request.Status is not GuaranteeRequestStatus.AwaitingBankResponse and not GuaranteeRequestStatus.SubmittedToBank)
         {
             return OperationResult<ConfirmDispatchDeliveryReceiptDto>.Failure(DispatchErrorCodes.DeliveryNotPending);
         }
@@ -375,6 +383,12 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
                 actor.DisplayName);
 
             await _repository.SaveChangesAsync(cancellationToken);
+
+            await _notificationService.SendNotificationAsync(
+                NotificationMessageCatalog.DeliveryConfirmed,
+                "/Operations/Workspace",
+                "operations.queue.view",
+                cancellationToken: cancellationToken);
 
             var correspondence = request.Correspondence.SingleOrDefault(item => item.Id == command.CorrespondenceId);
             if (correspondence is null)
@@ -426,7 +440,7 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
             return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.RequestNotFound);
         }
 
-        if (request.Status != GuaranteeRequestStatus.AwaitingBankResponse)
+        if (request.Status is not GuaranteeRequestStatus.AwaitingBankResponse and not GuaranteeRequestStatus.SubmittedToBank)
         {
             return OperationResult<ReopenDispatchReceiptDto>.Failure(DispatchErrorCodes.ReopenDispatchNotAllowed);
         }
