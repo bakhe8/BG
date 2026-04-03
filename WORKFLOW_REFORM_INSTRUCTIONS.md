@@ -1,8 +1,50 @@
 # BG Workflow Reform Instructions
 
 Status: Active
-Last Updated: 2026-04-03
+Last Updated: 2026-04-04
 Audience: Product, UX, Engineering, QA, Operations Stakeholders
+
+## Completion Tracking (Mandatory)
+
+Every executed workflow-reform batch must be marked as completed in this file.
+
+Required update format:
+
+- Date
+- Phase
+- Primary lever
+- Surfaces changed
+- Status = Completed
+
+### Completion Log
+
+- 2026-04-03 | Phase 1 (P0) | Levers: Visual Sequencing, Reduce Parallelism, Reduce Decision Density | Surfaces: Intake verification panel, Operations active panel | Status: Completed
+- 2026-04-03 | Phase 1 (P0) | Levers: Reduce Parallelism, Reduce Decision Density | Surfaces: Requests active panel, Dispatch active panel | Status: Completed
+- 2026-04-03 | Phase 3 (P1) | Lever: Decision Weighting in Queues | Surfaces: Approvals queue list, Operations queue list | Status: Completed
+- 2026-04-03 | Phase 3 (P1) | Lever: Contextual Entry | Surfaces: Index routing, shell-aware landing selection | Status: Completed
+- 2026-04-03 | Phase 2 (P0/P1) | Lever: Silent Alternative Path | Surfaces: Approvals queue handlers, Requests workspace handlers | Status: Completed
+- 2026-04-03 | Phase 2 (P0/P1) | Principle: Show Governance Early | Surfaces: Approvals dossier routing, Intake workspace save fallback | Status: Completed
+- 2026-04-03 | Phase 2 (P0/P1) | Principle: Show Governance Early | Surfaces: Requests workspace action handlers (submit/update/cancel/withdraw/create) | Status: Completed
+- 2026-04-03 | Phase 2 (P0/P1) | Principle: Show Governance Early | Surfaces: Requests active panel + queue pre-shaping (single primary path, actionable priority emphasis) | Status: Completed
+- 2026-04-03 | Phase 1/2 (P0/P1) | Levers: Reduce Parallelism + Show Governance Early | Surfaces: Approvals active panel (single primary action + structured secondary actions) | Status: Completed
+- 2026-04-03 | Phase 1/2 (P0/P1) | Levers: Reduce Parallelism + Show Governance Early | Surfaces: Dispatch active panel (single state-based primary action + structured secondary actions) | Status: Completed
+- 2026-04-03 | Phase 2 (P0/P1) | Principle: Show Governance Early | Surfaces: Dispatch handlers (silent fallback for ineligible actor/stale selection/unauthorized action) | Status: Completed
+- 2026-04-03 | Phase 2 (P0/P1) | Principle: Show Governance Early | Surfaces: Operations handlers (silent fallback for ineligible actor/stale selection/blocked apply) | Status: Completed
+- 2026-04-03 | Phase 2 (P0/P1) | Consolidation | Surfaces: Approvals queue handler + cross-surface silent-fallback alignment check | Status: Completed
+- 2026-04-03 | Phase 2 (P0/P1) | QA Verification Pass | Surfaces: Cross-surface handler audit + build/runtime smoke verification | Status: Completed
+- 2026-04-03 | Phase 4 (Governance Closure) | PR Packaging Pass | Surfaces: PR evidence artifact + merge-readiness validation capture | Status: Completed
+- 2026-04-03 | Phase 4 (Governance Closure) | Final merge-readiness handoff package prepared | Surfaces: Reviewer walkthrough artifact + CI gate checklist linkage | Status: Completed
+- 2026-04-03 | Phase 4 (Validation Closure) | Test remediation wave completed (Web + Hosted + Domain/Application dispatch lifecycle alignment) | Surfaces: Unit tests, hosted tests, dispatch lifecycle guards, pending-delivery repository filter | Status: Completed
+- 2026-04-04 | Phase 4 (Validation Governance) | Non-OCR validation baseline ratified; OCR stream deferred by explicit operator decision | Surfaces: Unit-test execution policy, audit handoff posture, merge-readiness narrative | Status: Completed
+
+## Execution Compass (Mandatory)
+
+Keep this section updated after every completed batch to preserve direction and avoid drift.
+
+- Current objective: Deterministic operational UI (single clear next step, policy shown before action)
+- Active phase: Phase 4 (Governance Closure and merge-readiness handoff)
+- Next intended batch: Reviewer walkthrough execution and CI gate confirmation (OCR stream remains deferred until explicitly resumed)
+- Definition of progression: Completion Log updated + PR template completion acknowledgment checked
 
 ## 1) Purpose
 
@@ -402,9 +444,7 @@ For any PR that touches listed surfaces:
 2. PR must state which cognitive-load source was removed.
 3. PR must include before/after rationale in behavioral terms, not only visual terms.
 4. PR review should reject changes that add guidance text without adding structural constraint.
-5. Non-draft PRs are CI-validated for template compliance via:
-	- .github/workflows/pr-workflow-reform-gate.yml
-	- scripts/ci/validate_pr_workflow_reform.py
+5. Non-draft PRs are CI-validated for template compliance via `.github/workflows/pr-workflow-reform-gate.yml` and `scripts/ci/validate_pr_workflow_reform.py`.
 
 ## 15) Current State Snapshot (as of 2026-04-03)
 
