@@ -15,6 +15,8 @@ Use these files when you need the current authoritative guidance for:
 
 - [ARCHITECTURE.md](ARCHITECTURE.md)
   Scope: architecture baseline, platform decisions, quality floor, and core operational rules.
+- [../../WORKFLOW_REFORM_INSTRUCTIONS.md](../../WORKFLOW_REFORM_INSTRUCTIONS.md)
+  Scope: mandatory workflow UX reform contracts, lever matrix, implementation checklists, and PR requirements.
 - [AUDIT_REMEDIATION_BACKLOG.md](AUDIT_REMEDIATION_BACKLOG.md)
   Scope: accepted findings from external audits, rejected findings, and prioritized remediation order.
 - [DAILY_OPERATIONS_MATRIX.md](DAILY_OPERATIONS_MATRIX.md)
@@ -39,4 +41,4 @@ Use these files when you need the current authoritative guidance for:
 ## Related Documents
 
 - [../README.md](../README.md)
-- [../../.github/instructions/testing.instructions.md](../../.github/instructions/testing.instructions.md)
+- [../../CONTRIBUTING.md](../../CONTRIBUTING.md)

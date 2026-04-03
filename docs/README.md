@@ -26,12 +26,12 @@ Use this file when you need to know:
 ## Read Order For Core Work
 
 1. [ARCHITECTURE.md](instructions/ARCHITECTURE.md)
-2. [AUDIT_REMEDIATION_BACKLOG.md](instructions/AUDIT_REMEDIATION_BACKLOG.md)
-3. [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
-4. [ROLE_DAILY_CHECKLISTS.md](instructions/ROLE_DAILY_CHECKLISTS.md)
-5. [ROLE_SOPS_AR.md](instructions/ROLE_SOPS_AR.md)
-6. [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
-7. [testing.instructions.md](../.github/instructions/testing.instructions.md)
+2. [../WORKFLOW_REFORM_INSTRUCTIONS.md](../WORKFLOW_REFORM_INSTRUCTIONS.md)
+3. [AUDIT_REMEDIATION_BACKLOG.md](instructions/AUDIT_REMEDIATION_BACKLOG.md)
+4. [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
+5. [ROLE_DAILY_CHECKLISTS.md](instructions/ROLE_DAILY_CHECKLISTS.md)
+6. [ROLE_SOPS_AR.md](instructions/ROLE_SOPS_AR.md)
+7. [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
 8. [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
 9. [PRODUCTION_RUNBOOK.md](instructions/PRODUCTION_RUNBOOK.md)
 
@@ -43,14 +43,14 @@ Use this file when you need to know:
   [AUDIT_REMEDIATION_BACKLOG.md](instructions/AUDIT_REMEDIATION_BACKLOG.md)
 - Implemented daily operating model and role-step-decision flow:
   [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
+- Mandatory workflow UX and behavior reform contracts:
+  [../WORKFLOW_REFORM_INSTRUCTIONS.md](../WORKFLOW_REFORM_INSTRUCTIONS.md)
 - Concise day-to-day checklists for active roles:
   [ROLE_DAILY_CHECKLISTS.md](instructions/ROLE_DAILY_CHECKLISTS.md)
 - Arabic short-form SOPs for day-to-day operator use:
   [ROLE_SOPS_AR.md](instructions/ROLE_SOPS_AR.md)
 - Local machine setup, local secrets, migrations, and OCR local environment:
   [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
-- Repository-wide testing policy and verification gates:
-  [testing.instructions.md](../.github/instructions/testing.instructions.md)
 - Production configuration baseline and runtime guards:
   [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
 - Production deployment execution procedure:
@@ -75,6 +75,9 @@ Use this file when you need to know:
 - [DAILY_OPERATIONS_MATRIX.md](instructions/DAILY_OPERATIONS_MATRIX.md)
   Status: `source of truth`
   Scope: implemented daily operating model, role-step-decision flow, and live validation boundary.
+- [../WORKFLOW_REFORM_INSTRUCTIONS.md](../WORKFLOW_REFORM_INSTRUCTIONS.md)
+  Status: `source of truth`
+  Scope: mandatory behavior-first workflow design rules, implementation contracts, and PR enforcement checklist.
 - [ROLE_DAILY_CHECKLISTS.md](instructions/ROLE_DAILY_CHECKLISTS.md)
   Status: `source of truth`
   Scope: concise daily execution checklists for each active role.
@@ -84,9 +87,6 @@ Use this file when you need to know:
 - [LOCAL_DEVELOPMENT.md](instructions/LOCAL_DEVELOPMENT.md)
   Status: `source of truth`
   Scope: local prerequisites, secrets, migrations, OCR local setup.
-- [testing.instructions.md](../.github/instructions/testing.instructions.md)
-  Status: `source of truth`
-  Scope: testing policy, definition of done, test priorities, and commands.
 - [PRODUCTION_DEPLOYMENT.md](instructions/PRODUCTION_DEPLOYMENT.md)
   Status: `source of truth`
   Scope: production configuration baseline and runtime guards.
