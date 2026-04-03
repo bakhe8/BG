@@ -1,5 +1,7 @@
 using BG.Application.Common;
 using BG.Application.Contracts.Persistence;
+using BG.Application.Contracts.Services;
+using BG.Application.Models.Intake;
 using BG.Application.Models.Approvals;
 using BG.Application.Services;
 using BG.Application.Approvals;
@@ -289,7 +291,10 @@ public sealed class ApprovalQueueServiceTests
         IApprovalQueueRepository repository,
         ApprovalGovernanceOptions? options = null)
     {
-        return new ApprovalQueueService(repository, Options.Create(options ?? new ApprovalGovernanceOptions()));
+        return new ApprovalQueueService(
+            repository,
+            new StubIntakeDocumentStore(),
+            Options.Create(options ?? new ApprovalGovernanceOptions()));
     }
 
     private static Role CreateRole(string name, params string[] permissionKeys)
@@ -388,6 +393,20 @@ public sealed class ApprovalQueueServiceTests
             return Task.FromResult(requestId == _request.Id ? _request : null);
         }
 
+        public Task<GuaranteeDocument?> GetRequestDocumentAsync(Guid requestId, Guid documentId, CancellationToken cancellationToken = default)
+        {
+            if (requestId != _request.Id)
+            {
+                return Task.FromResult<GuaranteeDocument?>(null);
+            }
+
+            var document = _request.RequestDocuments
+                .FirstOrDefault(link => link.GuaranteeDocumentId == documentId)
+                ?.GuaranteeDocument;
+
+            return Task.FromResult(document);
+        }
+
         public Task SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             SaveChangesCalled = true;
@@ -475,6 +494,29 @@ public sealed class ApprovalQueueServiceTests
                 request.ApprovalProcess.FinalSignatureDelegationPolicy,
                 request.ApprovalProcess.DelegationAmountThreshold,
                 currentStage?.DelegationPolicy ?? ApprovalDelegationPolicy.Inherit);
+        }
+    }
+
+    private sealed class StubIntakeDocumentStore : IIntakeDocumentStore
+    {
+        public Task<StagedIntakeDocumentDto> StageAsync(string originalFileName, Stream content, CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Task<StagedIntakeDocumentDto?> GetStagedAsync(string stagedDocumentToken, CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Task<PromotedIntakeDocumentDto> PromoteAsync(string stagedDocumentToken, string guaranteeNumber, CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
+        }
+
+        public Stream GetDocumentContent(string storagePath)
+        {
+            return new MemoryStream();
         }
     }
 

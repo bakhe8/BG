@@ -126,8 +126,11 @@ public sealed class IndexPageTests
                         _userId,
                         "request.user",
                         "Request User",
+                        null,
                         ["Requester"],
-                        ["requests.view", "requests.create"]),
+                        ["requests.view", "requests.create"],
+                        null,
+                        null),
                     Array.Empty<WorkspaceUserOptionDto>(),
                     _navigationItems));
         }

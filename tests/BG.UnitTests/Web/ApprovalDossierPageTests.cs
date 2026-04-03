@@ -221,6 +221,11 @@ public sealed class ApprovalDossierPageTests
                 BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto>.Success(
                     new ApprovalDecisionReceiptDto(command.RequestId, "BG-2026-6101", "ApprovalDecision_Rejected")));
         }
+
+        public Task<DocumentContentResult?> GetDocumentContentAsync(Guid requestId, Guid documentId, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<DocumentContentResult?>(null);
+        }
     }
 
     private sealed class PassThroughLocalizer : IStringLocalizer<SharedResource>

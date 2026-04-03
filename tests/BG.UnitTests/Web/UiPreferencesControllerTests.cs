@@ -1,5 +1,6 @@
 using BG.Web.Controllers;
 using BG.Web.UI;
+using BG.Application.Models.Identity;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,7 +46,9 @@ public sealed class UiPreferencesControllerTests
     private static UiPreferencesController CreateController(HttpContext httpContext)
     {
         var controller = new UiPreferencesController(
-            new UiConfigurationService(new HttpContextAccessor { HttpContext = httpContext }))
+            new UiConfigurationService(
+                new HttpContextAccessor { HttpContext = httpContext },
+                new StubWorkspaceShellService()))
         {
             ControllerContext = new ControllerContext
             {
@@ -54,5 +57,25 @@ public sealed class UiPreferencesControllerTests
         };
 
         return controller;
+    }
+
+    private sealed class StubWorkspaceShellService : IWorkspaceShellService
+    {
+        public Guid? GetAuthenticatedUserId() => null;
+
+        public Task<WorkspaceShellSnapshot> GetSnapshotAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new WorkspaceShellSnapshot(null, Array.Empty<WorkspaceUserOptionDto>(), Array.Empty<WorkspaceShellNavigationItem>()));
+        }
+
+        public Task<bool> CurrentUserHasAnyPermissionAsync(IEnumerable<string> permissionKeys, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public IReadOnlyList<string> GetRequiredPermissionKeys(PathString path)
+        {
+            return Array.Empty<string>();
+        }
     }
 }

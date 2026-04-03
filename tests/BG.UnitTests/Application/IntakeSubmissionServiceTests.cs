@@ -6,6 +6,7 @@ using BG.Application.ReferenceData;
 using BG.Application.Services;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
+using BG.Domain.Notifications;
 using BG.Domain.Operations;
 
 namespace BG.UnitTests.Application;
@@ -298,7 +299,8 @@ public sealed class IntakeSubmissionServiceTests
         return new IntakeSubmissionService(
             repository ?? new StubIntakeRepository(CreateActor()),
             documentStore ?? new StubDocumentStore(),
-            extractionEngine ?? new LocalIntakeExtractionEngine());
+            extractionEngine ?? new LocalIntakeExtractionEngine(),
+            new StubNotificationService());
     }
 
     private static User CreateActor()
@@ -408,6 +410,34 @@ public sealed class IntakeSubmissionServiceTests
                     "scan.pdf",
                     $"guarantees/{guaranteeNumber}/scan.pdf",
                     256));
+        }
+
+        public Stream GetDocumentContent(string storagePath)
+        {
+            if (File.Exists(storagePath))
+            {
+                return File.OpenRead(storagePath);
+            }
+
+            return new MemoryStream();
+        }
+    }
+
+    private sealed class StubNotificationService : INotificationService
+    {
+        public Task SendNotificationAsync(string message, string? link, string requiredPermission, Guid? targetUserId = null, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
+
+        public Task<IEnumerable<Notification>> GetUserNotificationsAsync(Guid userId, string[] userPermissions, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult<IEnumerable<Notification>>([]);
+        }
+
+        public Task MarkAsReadAsync(Guid notificationId, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
         }
     }
 }

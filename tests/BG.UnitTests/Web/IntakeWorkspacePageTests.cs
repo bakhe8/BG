@@ -297,6 +297,16 @@ public sealed class IntakeWorkspacePageTests
         {
             throw new NotSupportedException();
         }
+
+        public Stream GetDocumentContent(string storagePath)
+        {
+            if (File.Exists(storagePath))
+            {
+                return File.OpenRead(storagePath);
+            }
+
+            return new MemoryStream("%PDF-1.4\n%BG test\n"u8.ToArray());
+        }
     }
 
     private sealed class StubStringLocalizer : IStringLocalizer<SharedResource>

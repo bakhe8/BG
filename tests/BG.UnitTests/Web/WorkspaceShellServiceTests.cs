@@ -60,8 +60,19 @@ public sealed class WorkspaceShellServiceTests
                     _userId,
                     "request.user",
                     "Request User",
+                    null,
                     ["Requester"],
-                    ["requests.view", "requests.create"]));
+                    ["requests.view", "requests.create"],
+                    null,
+                    null));
+        }
+
+        public Task<BG.Application.Common.OperationResult<UserAccessProfileDto>> UpdateProfileAsync(
+            Guid userId,
+            UpdateProfileCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(BG.Application.Common.OperationResult<UserAccessProfileDto>.Failure("not_supported"));
         }
     }
 }

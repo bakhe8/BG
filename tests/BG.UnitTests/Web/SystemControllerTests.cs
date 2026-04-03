@@ -1,4 +1,5 @@
 using BG.Application.Models;
+using BG.Application.Models.Identity;
 using BG.Web.Controllers;
 using BG.Web.Contracts.System;
 using BG.Web.UI;
@@ -55,7 +56,27 @@ public sealed class SystemControllerTests
         return new SystemController(
             new StubArchitectureProfileService(),
             new TestHostEnvironment(environmentName),
-            new UiConfigurationService(httpContextAccessor));
+            new UiConfigurationService(httpContextAccessor, new StubWorkspaceShellService()));
+    }
+
+    private sealed class StubWorkspaceShellService : IWorkspaceShellService
+    {
+        public Guid? GetAuthenticatedUserId() => null;
+
+        public Task<WorkspaceShellSnapshot> GetSnapshotAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new WorkspaceShellSnapshot(null, Array.Empty<WorkspaceUserOptionDto>(), Array.Empty<WorkspaceShellNavigationItem>()));
+        }
+
+        public Task<bool> CurrentUserHasAnyPermissionAsync(IEnumerable<string> permissionKeys, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(false);
+        }
+
+        public IReadOnlyList<string> GetRequiredPermissionKeys(PathString path)
+        {
+            return Array.Empty<string>();
+        }
     }
 
     private sealed class StubArchitectureProfileService : BG.Application.Contracts.Services.IArchitectureProfileService

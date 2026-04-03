@@ -67,8 +67,11 @@ public sealed class HomeDashboardServiceTests
                     userId,
                     "dashboard.user",
                     "Dashboard User",
+                    null,
                     ["Requests"],
-                    ["requests.view", "requests.create", "dispatch.view"])));
+                    ["requests.view", "requests.create", "dispatch.view"],
+                    null,
+                    null)));
 
         var snapshot = await service.GetSnapshotAsync(userId);
 
@@ -126,6 +129,14 @@ public sealed class HomeDashboardServiceTests
         public Task<UserAccessProfileDto?> GetProfileAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_profile);
+        }
+
+        public Task<BG.Application.Common.OperationResult<UserAccessProfileDto>> UpdateProfileAsync(
+            Guid userId,
+            UpdateProfileCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(BG.Application.Common.OperationResult<UserAccessProfileDto>.Failure("not_supported"));
         }
     }
 }

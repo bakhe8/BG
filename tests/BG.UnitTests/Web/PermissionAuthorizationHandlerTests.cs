@@ -17,8 +17,11 @@ public sealed class PermissionAuthorizationHandlerTests
                 userId,
                 "request.user",
                 "Request User",
+                null,
                 ["Requester"],
-                ["requests.view", "requests.create"])));
+                ["requests.view", "requests.create"],
+                null,
+                null)));
         var requirement = new PermissionAuthorizationRequirement(["requests.view"]);
         var context = new AuthorizationHandlerContext(
             [requirement],
@@ -42,8 +45,11 @@ public sealed class PermissionAuthorizationHandlerTests
                 userId,
                 "request.user",
                 "Request User",
+                null,
                 ["Requester"],
-                ["requests.view"])));
+                ["requests.view"],
+                null,
+                null)));
         var requirement = new PermissionAuthorizationRequirement(["approvals.sign"]);
         var context = new AuthorizationHandlerContext(
             [requirement],
@@ -75,6 +81,14 @@ public sealed class PermissionAuthorizationHandlerTests
         public Task<UserAccessProfileDto?> GetProfileAsync(Guid userId, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_profile?.Id == userId ? _profile : null);
+        }
+
+        public Task<BG.Application.Common.OperationResult<UserAccessProfileDto>> UpdateProfileAsync(
+            Guid userId,
+            UpdateProfileCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(BG.Application.Common.OperationResult<UserAccessProfileDto>.Failure("not_supported"));
         }
     }
 }
