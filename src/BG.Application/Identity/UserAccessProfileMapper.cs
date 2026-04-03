@@ -11,6 +11,7 @@ internal static class UserAccessProfileMapper
             user.Id,
             user.Username,
             user.DisplayName,
+            user.Email,
             user.UserRoles
                 .Select(userRole => userRole.Role.Name)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -21,6 +22,8 @@ internal static class UserAccessProfileMapper
                 .Select(rolePermission => rolePermission.PermissionKey)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(permissionKey => permissionKey, StringComparer.OrdinalIgnoreCase)
-                .ToArray());
+                .ToArray(),
+            user.PreferredCulture,
+            user.PreferredTheme);
     }
 }

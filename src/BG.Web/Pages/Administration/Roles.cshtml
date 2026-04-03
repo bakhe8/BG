@@ -30,23 +30,26 @@
         <h1 class="fw-bold text-dark m-0">@T["RolesPageHeading"]</h1>
     </div>
 
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["RolesListTitle"]</div>
-                <div class="display-6 fw-bold text-dark">@Model.Roles.Count</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-brand-green opacity-10" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["RolesListTitle"]</span>
+                <div class="bg-grid-value fs-2 mt-2">@Model.Roles.Count</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["PermissionsField"]</div>
-                <div class="display-6 fw-bold text-brand-green">@permissionCount</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-brand-green opacity-25" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["PermissionsField"]</span>
+                <div class="bg-grid-value fs-2 mt-2 text-brand-green">@permissionCount</div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["PermissionGroup_Administration"]</div>
-                <div class="display-6 fw-bold text-dark">@Model.PermissionGroups.Count</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-info opacity-10" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["PermissionGroup_Administration"]</span>
+                <div class="bg-grid-value fs-2 mt-2 text-info">@Model.PermissionGroups.Count</div>
             </div>
         </div>
     </div>
@@ -79,18 +82,21 @@
 
                             <a asp-page="/Administration/Roles"
                                asp-all-route-data="Model.BuildSelectionRoute(role.Id)"
-                               class="request-queue-link admin-role-link @(isActive ? "active" : null)">
-                                <div class="request-queue-copy">
-                                    <strong>@role.Name</strong>
-                                    <div class="entity-subtitle">@(string.IsNullOrWhiteSpace(role.Description) ? T["RolesPage_NoDescription"].Value : role.Description)</div>
-                                </div>
-                                <div class="request-queue-meta">
-                                    @if (isActive)
-                                    {
-                                        <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
-                                    }
-                                    <bg-badge variant="light">@role.PermissionKeys.Count @T["PermissionsField"]</bg-badge>
-                                    <span class="section-caption">@permissionGroupCount @T["PermissionGroup_Administration"]</span>
+                               class="request-queue-link border-bottom py-3 px-1 @(isActive ? "active" : null)">
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <div class="request-queue-copy">
+                                        <div class="entity-subtitle x-small text-muted text-uppercase fw-bold mb-1">@T["RolesListTitle"]</div>
+                                        <strong class="d-block text-dark">@role.Name</strong>
+                                        <div class="x-small text-muted">@(string.IsNullOrWhiteSpace(role.Description) ? T["RolesPage_NoDescription"].Value : role.Description)</div>
+                                    </div>
+                                    <div class="request-queue-meta text-end">
+                                        <div class="mb-2">
+                                            <bg-badge class="bg-badge-success">
+                                                @role.PermissionKeys.Count @T["PermissionsField"]
+                                            </bg-badge>
+                                        </div>
+                                        <span class="x-small text-muted">@permissionGroupCount @T["PermissionGroup_Administration"]</span>
+                                    </div>
                                 </div>
                             </a>
                         }

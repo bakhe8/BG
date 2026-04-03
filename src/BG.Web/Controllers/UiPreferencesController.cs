@@ -1,9 +1,11 @@
 using BG.Web.UI;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BG.Web.Controllers;
 
+[Authorize]
 [Route("ui/preferences")]
 public sealed class UiPreferencesController : Controller
 {
@@ -14,6 +16,7 @@ public sealed class UiPreferencesController : Controller
         _uiConfigurationService = uiConfigurationService;
     }
 
+    [AllowAnonymous]
     [HttpGet("culture")]
     public IActionResult SetCulture(string culture, string? returnUrl = "/")
     {
@@ -35,6 +38,7 @@ public sealed class UiPreferencesController : Controller
         return LocalRedirect(safeReturnUrl);
     }
 
+    [AllowAnonymous]
     [HttpGet("theme")]
     public IActionResult SetTheme(string theme, string? returnUrl = "/")
     {

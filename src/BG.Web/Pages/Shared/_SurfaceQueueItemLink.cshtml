@@ -2,39 +2,45 @@
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.UI.SurfaceQueueItemLinkModel
 
-<a class="request-queue-link @(Model.IsActive ? "active shadow-sm" : null)"
+<a class="request-queue-link @(Model.IsActive ? "active" : null)"
    aria-current="@(Model.IsActive ? "true" : "false")"
    asp-page="@Model.PagePath"
    asp-all-route-data="Model.RouteValues">
     
     @* Column 1: Reference *@
     <div class="bg-grid-col">
-        <span class="bg-grid-value">@Model.Title</span>
+        <strong class="bg-grid-value text-dark d-block">@Model.Title</strong>
     </div>
 
     @* Column 2: Entity *@
-    <div class="bg-grid-col">
-        <span class="bg-grid-value text-truncate">@Model.Subtitle</span>
+    <div class="bg-grid-col overflow-hidden">
+        <span class="bg-grid-value text-dark opacity-75 text-truncate d-block">@Model.Subtitle</span>
     </div>
 
     @* Column 3: Type *@
     <div class="bg-grid-col">
-        <span class="bg-grid-value">@Model.Summary</span>
+        <span class="bg-grid-value x-small text-muted text-uppercase fw-bold">@Model.Summary</span>
     </div>
 
-    @* Column 4: Value *@
+    @* Column 4: Value (Optional Meta) *@
     <div class="bg-grid-col">
-        <span class="bg-grid-value text-brand-green">@Model.MetaPrimary</span>
+        <span class="bg-grid-value fw-bold text-brand-green">@Model.MetaPrimary</span>
     </div>
 
     @* Column 5: Date *@
     <div class="bg-grid-col">
-        <span class="bg-grid-value">@Model.MetaSecondary</span>
+        <span class="bg-grid-value small text-muted">@Model.MetaSecondary</span>
     </div>
 
-    @* Column 6: Status & Action *@
+    @* Column 6: Status & Action Indicator *@
     <div class="bg-grid-col text-center">
-        <bg-badge class="bg-badge-@(Model.Status.Contains("Pending") || Model.Status.Contains("انتظار") ? "pending" : "returned")">
+        @{
+            var badgeClass = "bg-badge-pending";
+            if (Model.Status.Contains("Approved") || Model.Status.Contains("Success") || Model.Status.Contains("مقبول")) badgeClass = "bg-badge-success";
+            if (Model.Status.Contains("Returned") || Model.Status.Contains("Rejected") || Model.Status.Contains("مرفوض")) badgeClass = "bg-badge-returned";
+            if (Model.Status.Contains("Draft")) badgeClass = "bg-badge-draft";
+        }
+        <bg-badge class="@badgeClass">
             @Model.Status
         </bg-badge>
     </div>

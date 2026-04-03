@@ -69,6 +69,7 @@ BANK_REFERENCE_REGEXES = [
     re.compile(r"\b(?:EXT|RED|REL|STAT)-[A-Z0-9-]{3,}\b", re.IGNORECASE),
     re.compile(r"\b[A-Z]{2,6}-OCR-W1\b", re.IGNORECASE),
     re.compile(r"\bCRT\d{6,12}\b", re.IGNORECASE),
+    re.compile(r"\bRFQ\d{5,14}\b", re.IGNORECASE),
 ]
 BANK_REFERENCE_CONTEXT_REGEXES = [
     re.compile(r"(?:رقم\s*المرجع(?:\s*المتسلسل)?|المرجع(?:\s*المتسلسل)?|bank\s*reference|reference\s*(?:number|no\.?))\s*[:\-]?\s*([A-Z0-9/-]{5,30})", re.IGNORECASE),
@@ -160,7 +161,6 @@ ARABIC_MONTH_VALUE_MAP = {
     "مارس": 3,
     "ما رس": 3,
     "ابريل": 4,
-    "ابريل": 4,
     "ابرايل": 4,
     "مايو": 5,
     "يونيو": 6,
@@ -217,6 +217,18 @@ ARABIC_NUMBER_VALUE_MAP = {
 }
 
 PADDLE_OCR_INSTANCE = None
+
+DISALLOWED_GUARANTEE_PREFIXES = {
+    "RFQ",
+    "PO",
+    "REF",
+    "EXT",
+    "RED",
+    "REL",
+    "STAT",
+    "INV",
+    "VAT",
+}
 
 
 def canonical_result(succeeded: bool, fields: list[dict], warnings: list[str], error_code=None, error_message=None, pipeline_version="wave2-pdf-first"):
@@ -594,7 +606,7 @@ def looks_like_bank_name(text: str, request_payload: dict) -> str | None:
     return None
 
 
-ARABIC_NUMERAL_TRANSLATION = str.maketrans("٠١٢٣٤٥٦٧٨٩", "0123456789")
+ARABIC_NUMERAL_TRANSLATION = str.maketrans("٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹", "01234567890123456789")
 
 
 def normalize_date_value(raw_value: str) -> str:
@@ -629,6 +641,40 @@ def clean_context_value(value: str | None) -> str | None:
     cleaned = re.sub(r"\b(?:المحترمين|الرياض|riyadh|trade finance center|مركز تمويل التجارة)\b", "", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\s{2,}", " ", cleaned).strip(" ,:-")
     return cleaned or None
+
+
+def normalize_identifier(value: str | None) -> str | None:
+    if not value:
+        return None
+
+    normalized = unicodedata.normalize("NFKC", value)
+    normalized = normalized.translate(ARABIC_NUMERAL_TRANSLATION)
+    normalized = re.sub(r"\s+", "", normalized)
+    normalized = normalized.strip(".,;:#|[]{}()")
+    return normalized or None
+
+
+def is_likely_guarantee_number(value: str | None) -> bool:
+    normalized = normalize_identifier(value)
+    if not normalized:
+        return False
+
+    upper = normalized.upper()
+
+    # Common procurement references are frequently misread as guarantee numbers.
+    if any(upper.startswith(prefix) for prefix in DISALLOWED_GUARANTEE_PREFIXES):
+        return False
+
+    if re.fullmatch(r"\d{6,16}", upper):
+        return True
+
+    if re.fullmatch(r"[A-Z]{1,6}\d{3,16}", upper):
+        return True
+
+    if re.fullmatch(r"[A-Z0-9]{1,8}[-/][A-Z0-9-]{3,20}", upper):
+        return True
+
+    return False
 
 
 def extract_beneficiary_name(text: str) -> str | None:
@@ -821,11 +867,12 @@ def build_structured_fields(
     if not guarantee_number:
         guarantee_number = find_first([GUARANTEE_NUMBER_REGEX, COMPLEX_GUARANTEE_CODE_REGEX, GENERIC_GUARANTEE_CODE_REGEX], normalized_text)
 
-    if guarantee_number:
+    normalized_guarantee_number = normalize_identifier(guarantee_number)
+    if is_likely_guarantee_number(normalized_guarantee_number):
         fields.append(
             make_field(
                 "IntakeField_GuaranteeNumber",
-                guarantee_number.upper(),
+                normalized_guarantee_number.upper(),
                 99 if source_label == "direct-pdf-text" else 92,
                 page_number,
                 bounding_box,
@@ -877,11 +924,12 @@ def build_structured_fields(
     if not bank_reference:
         bank_reference = find_first(BANK_REFERENCE_REGEXES, normalized_text)
 
-    if bank_reference:
+    normalized_bank_reference = normalize_identifier(bank_reference)
+    if normalized_bank_reference:
         fields.append(
             make_field(
                 "IntakeField_BankReference",
-                bank_reference.upper(),
+                normalized_bank_reference.upper(),
                 94 if source_label == "direct-pdf-text" else 86,
                 page_number,
                 bounding_box,

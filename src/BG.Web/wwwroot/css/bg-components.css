@@ -20,14 +20,14 @@
 }
 
 .bg-btn-primary {
-    background-color: var(--kfshrc-green);
+    background: linear-gradient(180deg, #007D56 0%, #006847 100%); /* Institutional Depth */
     color: white !important;
 }
 
 .bg-btn-primary:hover {
-    background-color: var(--brand-green-hover);
+    background: linear-gradient(180deg, #008F62 0%, #007D56 100%);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 104, 71, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 104, 71, 0.2);
 }
 
 .bg-btn-secondary {
@@ -64,24 +64,29 @@
 }
 
 /* Matching Status Badges (Official Soft Palette) */
-.bg-badge-pending {
-    background-color: #E0F2FE !important; /* Cyan Soft */
-    color: #0369A1 !important;
+.bg-badge-pending, .bg-badge-waiting {
+    background-color: #ECFDF5 !important; /* Soft Green */
+    color: #065F46 !important;
 }
 
 .bg-badge-returned {
-    background-color: #FFEDD5 !important; /* Orange Soft */
-    color: #C2410C !important;
+    background-color: #FEF3C7 !important; /* Soft Yellow/Amber */
+    color: #92400E !important;
 }
 
 .bg-badge-rejected {
-    background-color: #FEE2E2 !important; /* Red Soft */
+    background-color: #FEE2E2 !important; /* Soft Red */
     color: #991B1B !important;
 }
 
 .bg-badge-success {
     background-color: #D1FAE5 !important; /* Green Soft */
     color: #065F46 !important;
+}
+
+.bg-badge-info {
+    background-color: #E0F2FE !important; /* Cyan Soft */
+    color: #0369A1 !important;
 }
 
 /* Institutional Cards (Decision-first) */
@@ -130,13 +135,8 @@ html[dir="rtl"] .request-queue-link {
 
 .request-queue-link.active {
     background-color: #F0FDF4 !important;
-    border-right: 4px solid var(--kfshrc-green);
+    border-inline-start: 4px solid var(--kfshrc-green);
     border-bottom-color: transparent;
-}
-
-html[dir="ltr"] .request-queue-link.active {
-    border-left: 4px solid var(--kfshrc-green);
-    border-right: none;
 }
 
 /* Institutional Inputs */
@@ -163,13 +163,14 @@ html[dir="ltr"] .request-queue-link.active {
     flex-direction: column;
 }
 
-.bg-grid-label {
+.bg-grid-label, .section-caption, .form-label {
     font-size: 0.65rem;
     font-weight: 800;
     color: #9CA3AF;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
+    display: block;
 }
 
 .bg-grid-value {
@@ -177,3 +178,87 @@ html[dir="ltr"] .request-queue-link.active {
     font-weight: 700;
     color: #111827;
 }
+
+/* 4️⃣ Institutional Decision Helpers */
+
+/* Sticky Decision Bar (Image 1, 3) */
+.bg-sticky-action-bar {
+    position: sticky;
+    bottom: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    background: white;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border-light);
+    box-shadow: 0 -10px 15px -3px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+    margin: 0 -2rem -2rem -2rem; /* Offset parent padding */
+}
+
+/* File Attachment Item (Image 1) */
+.bg-file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #F9FAFB;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    text-decoration: none !important;
+}
+
+.bg-file-item:hover {
+    background: #F3F4F6;
+    border-color: #E5E7EB;
+}
+
+.bg-file-icon-pdf {
+    width: 40px;
+    height: 40px;
+    background: #FEE2E2;
+    color: #DC2626;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.bg-file-info {
+    flex-grow: 1;
+}
+
+.bg-file-name {
+    display: block;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #111827;
+}
+
+.bg-file-meta {
+    font-size: 0.75rem;
+    color: #6B7280;
+}
+
+/* Validation Status Indicators (Image 5) */
+.field-verification-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.field-status-icon {
+    position: absolute;
+    inset-inline-end: 12px;
+    font-size: 1.1rem;
+    pointer-events: none;
+}
+
+.status-success { color: #059669; }
+.status-warning { color: #D97706; }
+.status-error   { color: #DC2626; }
+
+.bg-input-success { border-color: #059669 !important; background-color: #F0FDF4 !important; }
+.bg-input-warning { border-color: #D97706 !important; background-color: #FFFBEB !important; }
+.bg-input-error   { border-color: #DC2626 !important; background-color: #FEF2F2 !important; }

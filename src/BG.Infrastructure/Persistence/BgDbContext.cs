@@ -4,6 +4,7 @@ using BG.Domain.Operations;
 using BG.Domain.Workflow;
 using BG.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
 
 namespace BG.Infrastructure.Persistence;
@@ -70,127 +71,120 @@ public sealed class BgDbContext : DbContext
 
     private void TrackPendingAggregateChildren()
     {
-        var existenceCache = new Dictionary<Type, PersistedEntityCache>();
+        var candidatesByType = new Dictionary<Type, List<(object Entity, Guid Id, EntityEntry Entry)>>();
 
+        // 1. Collect all detached or potentially untracked children from all relevant aggregates
         foreach (var guaranteeEntry in ChangeTracker.Entries<Guarantee>()
                      .Where(entry => entry.State is not EntityState.Detached and not EntityState.Deleted))
         {
-            TrackAggregateChildren(guaranteeEntry.Entity.Requests, GuaranteeRequests, request => request.Id, existenceCache);
-            TrackAggregateChildren(guaranteeEntry.Entity.Documents, GuaranteeDocuments, document => document.Id, existenceCache);
-            TrackAggregateChildren(guaranteeEntry.Entity.Correspondence, GuaranteeCorrespondence, correspondence => correspondence.Id, existenceCache);
-            TrackAggregateChildren(guaranteeEntry.Entity.Events, GuaranteeEvents, ledgerEvent => ledgerEvent.Id, existenceCache);
+            CollectCandidates(guaranteeEntry.Entity.Requests, request => request.Id, candidatesByType);
+            CollectCandidates(guaranteeEntry.Entity.Documents, document => document.Id, candidatesByType);
+            CollectCandidates(guaranteeEntry.Entity.Correspondence, correspondence => correspondence.Id, candidatesByType);
+            CollectCandidates(guaranteeEntry.Entity.Events, ledgerEvent => ledgerEvent.Id, candidatesByType);
         }
 
         foreach (var requestEntry in ChangeTracker.Entries<GuaranteeRequest>()
                      .Where(entry => entry.State is not EntityState.Detached and not EntityState.Deleted))
         {
-            TrackAggregateChildren(requestEntry.Entity.RequestDocuments, GuaranteeRequestDocuments, link => link.Id, existenceCache);
-            TrackAggregateChildren(requestEntry.Entity.Correspondence, GuaranteeCorrespondence, correspondence => correspondence.Id, existenceCache);
+            CollectCandidates(requestEntry.Entity.RequestDocuments, link => link.Id, candidatesByType);
+            CollectCandidates(requestEntry.Entity.Correspondence, correspondence => correspondence.Id, candidatesByType);
 
             if (requestEntry.Entity.ApprovalProcess is not null)
             {
-                TrackAggregateChildren([requestEntry.Entity.ApprovalProcess], RequestApprovalProcesses, process => process.Id, existenceCache);
-                TrackAggregateChildren(requestEntry.Entity.ApprovalProcess.Stages, RequestApprovalStages, stage => stage.Id, existenceCache);
+                CollectCandidates([requestEntry.Entity.ApprovalProcess], process => process.Id, candidatesByType);
+                CollectCandidates(requestEntry.Entity.ApprovalProcess.Stages, stage => stage.Id, candidatesByType);
+            }
+        }
+
+        if (candidatesByType.Count == 0) return;
+
+        // 2. Process each type in a batched manner
+        foreach (var (type, candidates) in candidatesByType)
+        {
+            ProcessTypeBatch(type, candidates);
+        }
+    }
+
+    private void CollectCandidates<T>(IEnumerable<T> entities, Func<T, Guid> idSelector, Dictionary<Type, List<(object Entity, Guid Id, EntityEntry Entry)>> candidatesByType) where T : class
+    {
+        var type = typeof(T);
+        if (!candidatesByType.TryGetValue(type, out var list))
+        {
+            list = new List<(object Entity, Guid Id, EntityEntry Entry)>();
+            candidatesByType[type] = list;
+        }
+
+        foreach (var entity in entities)
+        {
+            var entry = Entry(entity);
+            if (entry.State == EntityState.Detached)
+            {
+                entry.State = EntityState.Added;
+                continue;
+            }
+
+            if (entry.State is EntityState.Unchanged or EntityState.Modified)
+            {
+                list.Add((entity, idSelector(entity), entry));
             }
         }
     }
 
-    private void TrackAggregateChildren<T>(
-        IEnumerable<T> entities,
-        DbSet<T> dbSet,
-        Expression<Func<T, Guid>> keySelectorExpression,
-        IDictionary<Type, PersistedEntityCache> existenceCache)
-        where T : class
+    private void ProcessTypeBatch(Type entityType, List<(object Entity, Guid Id, EntityEntry Entry)> candidates)
     {
-        var trackedEntries = entities
-            .Select(entity => (Entity: entity, Entry: Entry(entity)))
-            .ToArray();
+        if (candidates.Count == 0) return;
 
-        foreach (var tracked in trackedEntries.Where(tracked => tracked.Entry.State == EntityState.Detached))
-        {
-            tracked.Entry.State = EntityState.Added;
-        }
-
-        var persistedCandidates = trackedEntries
-            .Where(tracked => tracked.Entry.State is EntityState.Unchanged or EntityState.Modified)
-            .ToArray();
-
-        if (persistedCandidates.Length == 0)
-        {
-            return;
-        }
-
-        var keySelector = keySelectorExpression.Compile();
-        var persistedEntityCache = GetPersistedEntityCache(typeof(T), existenceCache);
-        var candidateIds = persistedCandidates
-            .Select(tracked => keySelector(tracked.Entity))
+        var unknownIds = candidates
+            .Select(c => c.Id)
+            .Where(id => id != Guid.Empty)
             .Distinct()
             .ToArray();
 
-        foreach (var candidateId in candidateIds.Where(candidateId => candidateId == Guid.Empty))
+        if (unknownIds.Length == 0)
         {
-            persistedEntityCache.MissingIds.Add(candidateId);
+            // If all are Guid.Empty, they are all Missing (Added)
+            foreach (var candidate in candidates) candidate.Entry.State = EntityState.Added;
+            return;
         }
 
-        var unknownCandidateIds = candidateIds
-            .Where(candidateId =>
-                candidateId != Guid.Empty &&
-                !persistedEntityCache.ExistingIds.Contains(candidateId) &&
-                !persistedEntityCache.MissingIds.Contains(candidateId))
-            .ToArray();
+        // Perform ONE query for the unknown IDs of this type
+        var dbSet = GetDbSet(entityType);
+        var parameter = Expression.Parameter(entityType, "e");
+        var property = Expression.Property(parameter, "Id");
+        var containsMethod = typeof(Enumerable).GetMethods()
+            .First(m => m.Name == "Contains" && m.GetParameters().Length == 2)
+            .MakeGenericMethod(typeof(Guid));
+        var body = Expression.Call(null, containsMethod, Expression.Constant(unknownIds), property);
+        var predicate = Expression.Lambda(body, parameter);
 
-        if (unknownCandidateIds.Length > 0)
+        var query = (IQueryable)dbSet.GetType().GetMethod("AsNoTracking")!.Invoke(dbSet, null)!;
+        var whereMethod = typeof(Queryable).GetMethods()
+            .First(m => m.Name == "Where" && m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2)
+            .MakeGenericMethod(entityType);
+        query = (IQueryable)whereMethod.Invoke(null, [query, predicate])!;
+
+        var selectMethod = typeof(Queryable).GetMethods()
+            .First(m => m.Name == "Select" && m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2)
+            .MakeGenericMethod(entityType, typeof(Guid));
+        var selectLambda = Expression.Lambda(property, parameter);
+        var existingIdsQuery = (IQueryable<Guid>)selectMethod.Invoke(null, [query, selectLambda])!;
+
+        var existingIds = existingIdsQuery.ToHashSet();
+
+        foreach (var candidate in candidates)
         {
-            var parameter = keySelectorExpression.Parameters[0];
-            var containsExpression = Expression.Call(
-                typeof(Enumerable),
-                nameof(Enumerable.Contains),
-                [typeof(Guid)],
-                Expression.Constant(unknownCandidateIds),
-                keySelectorExpression.Body);
-            var predicate = Expression.Lambda<Func<T, bool>>(containsExpression, parameter);
-
-            var existingIds = dbSet
-                .AsNoTracking()
-                .Where(predicate)
-                .Select(keySelectorExpression)
-                .ToHashSet();
-
-            foreach (var existingId in existingIds)
+            if (candidate.Id == Guid.Empty || !existingIds.Contains(candidate.Id))
             {
-                persistedEntityCache.ExistingIds.Add(existingId);
+                candidate.Entry.State = EntityState.Added;
             }
-
-            foreach (var candidateId in unknownCandidateIds.Where(candidateId => !existingIds.Contains(candidateId)))
-            {
-                persistedEntityCache.MissingIds.Add(candidateId);
-            }
-        }
-
-        foreach (var tracked in persistedCandidates.Where(tracked => persistedEntityCache.MissingIds.Contains(keySelector(tracked.Entity))))
-        {
-            tracked.Entry.State = EntityState.Added;
         }
     }
 
-    private static PersistedEntityCache GetPersistedEntityCache(
-        Type entityType,
-        IDictionary<Type, PersistedEntityCache> existenceCache)
+    private object GetDbSet(Type type)
     {
-        if (existenceCache.TryGetValue(entityType, out var cache))
-        {
-            return cache;
-        }
-
-        cache = new PersistedEntityCache();
-        existenceCache[entityType] = cache;
-        return cache;
-    }
-
-    private sealed class PersistedEntityCache
-    {
-        public HashSet<Guid> ExistingIds { get; } = [];
-
-        public HashSet<Guid> MissingIds { get; } = [];
+        return GetType().GetMethods()
+            .First(m => m.Name == "Set" && m.IsGenericMethod && m.GetParameters().Length == 0)
+            .MakeGenericMethod(type)
+            .Invoke(this, null)!;
     }
 }

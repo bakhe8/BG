@@ -85,7 +85,7 @@ public sealed class GuaranteeRequest
         }
 
         SubmittedToBankAtUtc ??= submittedAtUtc;
-        Status = GuaranteeRequestStatus.AwaitingBankResponse;
+        Status = GuaranteeRequestStatus.SubmittedToBank;
     }
 
     internal void ReopenForDispatch()

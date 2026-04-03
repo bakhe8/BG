@@ -4,100 +4,253 @@
 @inject IStringLocalizer<SharedResource> T
 @{
     ViewData["Title"] = T["Dashboard_PageTitle"];
-    var currentPath = HttpContext.Request.Path;
 }
 
-<div class="home-landing">
-    @* Institutional Identity Banner (Shell) *@
-    <div class="dashboard-header mb-5">
-        <h1 class="display-4 fw-bold">@T["Dashboard_WelcomeHeading"]</h1>
-        <p class="text-muted fs-5">@T["Dashboard_WelcomeSummary"]</p>
+<div class="dashboard-container py-4">
+    @* --- Top Banner: Institutional Greeting & Hero Metrics --- *@
+    <div class="welcome-hero mb-5 p-5 rounded-5 position-relative overflow-hidden shadow-sm">
+        <div class="hero-glass-overlay"></div>
+        <div class="position-relative z-1 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-5 fw-bold text-white mb-2">@T["Dashboard_WelcomeHeading"]</h1>
+                <p class="text-white opacity-75 fs-5">@T["Dashboard_WelcomeSummary"]</p>
+            </div>
+            <div class="d-none d-lg-block">
+                <i class="bi bi-shield-check text-white opacity-25" style="font-size: 8rem;"></i>
+            </div>
+        </div>
+
+        @* Hero Quick Stats *@
+        <div class="row g-4 mt-4 position-relative z-1">
+            <div class="col-md-3">
+                <div class="metric-glass p-3 rounded-4">
+                    <span class="text-white opacity-50 small mb-1 d-block">@T["Dashboard_Metric_PendingTitle"]</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <h2 class="text-white fw-bold mb-0">@Model.Dashboard.PendingApprovalsCount</h2>
+                        <span class="badge bg-white bg-opacity-20 text-white small">@T["Dashboard_Metric_Approvals_Sub"]</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-glass p-3 rounded-4">
+                    <span class="text-white opacity-50 small mb-1 d-block">@T["Dashboard_Metric_ActiveTitle"]</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <h2 class="text-white fw-bold mb-0">@Model.Dashboard.MyOpenRequestsCount</h2>
+                        <span class="badge bg-white bg-opacity-20 text-white small">@T["Dashboard_Metric_Requests_Sub"]</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-glass p-3 rounded-4">
+                    <span class="text-white opacity-50 small mb-1 d-block">@T["Dashboard_Metric_CompletedTodayTitle"]</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <h2 class="text-white fw-bold mb-0">@Model.Dashboard.OperationsBacklogCount</h2>
+                        <span class="badge bg-white bg-opacity-20 text-white small">@T["Dashboard_Metric_Operations_Sub"]</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="metric-glass p-3 rounded-4 border-danger">
+                    <span class="text-white opacity-50 small mb-1 d-block">@T["Dashboard_Metric_NearingExpiryTitle"]</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <h2 class="text-white fw-bold mb-0">@Model.Dashboard.ExpiringGuaranteesCount</h2>
+                        <span class="badge bg-danger bg-opacity-50 text-white small">@T["Dashboard_Metric_Expiring_Sub"]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    @* Decision-First Metrics (Workspace) *@
-    <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <div class="metric-card h-100">
-                <span class="section-caption mb-2">@T["Dashboard_Metric_PendingTitle"]</span>
-                <div class="d-flex align-items-baseline gap-2">
-                    <strong class="fs-2 text-brand-green">12</strong>
-                    <i class="bi bi-arrow-up-right text-success small"></i>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card h-100">
-                <span class="section-caption mb-2">@T["Dashboard_Metric_ActiveTitle"]</span>
-                <div class="d-flex align-items-baseline gap-2">
-                    <strong class="fs-2 text-dark">48</strong>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card h-100">
-                <span class="section-caption mb-2">@T["Dashboard_Metric_NearingExpiryTitle"]</span>
-                <div class="d-flex align-items-baseline gap-2">
-                    <strong class="fs-2 text-danger">3</strong>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card h-100">
-                <span class="section-caption mb-2">@T["Dashboard_Metric_CompletedTodayTitle"]</span>
-                <div class="d-flex align-items-baseline gap-2">
-                    <strong class="fs-2 text-muted">8</strong>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @* Operational Workspaces (Minimalist Grid) *@
     <div class="row g-4">
-        <div class="col-md-4">
-            <a class="info-card d-flex flex-column h-100 text-decoration-none group" href="/Intake/Workspace">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="p-3 rounded-4 bg-light group-hover:bg-brand-green group-hover:text-white transition-all">
-                        <i class="bi bi-box-arrow-in-right fs-4"></i>
-                    </div>
-                    <i class="bi bi-arrow-right text-muted opacity-0 group-hover:opacity-100 transition-all"></i>
+        @* --- Left Side: Priority Action Feed --- *@
+        <div class="col-lg-8">
+            <div class="section-card h-100 p-4 rounded-5 bg-white shadow-sm border-0">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-lightning-charge-fill text-warning"></i>
+                        @T["Dashboard_Section_PriorityTasks"]
+                    </h5>
+                    <span class="badge bg-light text-muted rounded-pill fs-7 px-3">@(Model.Dashboard.PendingApprovalsCount + Model.Dashboard.MyOpenRequestsCount)</span>
                 </div>
-                <h5 class="fw-bold mb-2">@T["WorkspaceShell_NavIntake"]</h5>
-                <p class="small text-muted mb-0">@T["Dashboard_WelcomeSummary"]</p>
-            </a>
+
+                @if (!Model.Dashboard.PendingApprovals.Any() && !Model.Dashboard.OpenRequests.Any())
+                {
+                    <div class="text-center py-5">
+                        <div class="empty-state-icon mb-3">
+                            <i class="bi bi-stack text-muted opacity-25" style="font-size: 4rem;"></i>
+                        </div>
+                        <p class="text-muted">@T["Dashboard_Empty_NoTasks"]</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="priority-feed">
+                        @foreach (var approval in Model.Dashboard.PendingApprovals)
+                        {
+                            <a href="/Approvals/Queue?requestId=@approval.RequestId" class="task-item d-flex align-items-center p-3 rounded-4 mb-3 text-decoration-none group">
+                                <div class="task-icon p-3 rounded-4 bg-light transition-all me-3">
+                                    <i class="bi bi-check2-circle fs-5"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-baseline">
+                                        <h6 class="fw-bold mb-1 text-dark">@approval.GuaranteeNumber</h6>
+                                        <span class="small text-muted">@approval.SubmittedAtUtc.ToLocalTime().ToString("d")</span>
+                                    </div>
+                                    <p class="small text-muted mb-0">@(approval.StageTitleText ?? T[approval.StageTitleResourceKey ?? ""].Value)</p>
+                                </div>
+                                <i class="bi bi-chevron-right rtl-flip text-muted opacity-25 ms-3"></i>
+                            </a>
+                        }
+                        @foreach (var req in Model.Dashboard.OpenRequests)
+                        {
+                            <a href="/Requests/Workspace?requestId=@req.RequestId" class="task-item d-flex align-items-center p-3 rounded-4 mb-3 text-decoration-none group">
+                                <div class="task-icon p-3 rounded-4 bg-light transition-all me-3">
+                                    <i class="bi bi-file-earmark-text fs-5"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-baseline">
+                                        <h6 class="fw-bold mb-1 text-dark">@req.GuaranteeNumber</h6>
+                                        <span class="small text-muted">@req.CreatedAtUtc.ToLocalTime().ToString("d")</span>
+                                    </div>
+                                    <p class="small text-muted mb-0">@T[$"RequestType_{req.RequestType}"]</p>
+                                </div>
+                                <i class="bi bi-chevron-right rtl-flip text-muted opacity-25 ms-3"></i>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
         </div>
-        <div class="col-md-4">
-            <a class="info-card d-flex flex-column h-100 text-decoration-none group" href="/Operations/Queue">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="p-3 rounded-4 bg-light group-hover:bg-brand-green group-hover:text-white transition-all">
-                        <i class="bi bi-check2-circle fs-4"></i>
+
+        @* --- Right Side: Recent Activity & Role Links --- *@
+        <div class="col-lg-4">
+            <div class="d-flex flex-column gap-4">
+                @* Role Quick Navigation *@
+                <div class="section-card p-4 rounded-5 bg-white shadow-sm border-0">
+                    <h6 class="fw-bold text-dark mb-4 px-1">@T["Dashboard_Action_Navigate"]</h6>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="/Intake/Workspace" class="nav-tile p-3 rounded-4 text-center text-decoration-none group d-block border h-100">
+                                <i class="bi bi-box-arrow-in-right d-block fs-3 mb-2 text-muted group-hover:text-brand-green"></i>
+                                <span class="small fw-bold text-dark d-block">@T["WorkspaceShell_NavIntake"]</span>
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="/Operations/Queue" class="nav-tile p-3 rounded-4 text-center text-decoration-none group d-block border h-100">
+                                <i class="bi bi-check2-circle d-block fs-3 mb-2 text-muted group-hover:text-brand-green"></i>
+                                <span class="small fw-bold text-dark d-block">@T["WorkspaceShell_NavOperations"]</span>
+                            </a>
+                        </div>
                     </div>
-                    <i class="bi bi-arrow-right text-muted opacity-0 group-hover:opacity-100 transition-all"></i>
                 </div>
-                <h5 class="fw-bold mb-2">@T["WorkspaceShell_NavOperations"]</h5>
-                <p class="small text-muted mb-0">@T["Dashboard_WelcomeSummary"]</p>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a class="info-card d-flex flex-column h-100 text-decoration-none group" href="/Dispatch/Workspace">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="p-3 rounded-4 bg-light group-hover:bg-brand-green group-hover:text-white transition-all">
-                        <i class="bi bi-send fs-4"></i>
-                    </div>
-                    <i class="bi bi-arrow-right text-muted opacity-0 group-hover:opacity-100 transition-all"></i>
+
+                @* System Activity Feed *@
+                <div class="section-card p-4 rounded-5 bg-white shadow-sm border-0 flex-grow-1">
+                    <h6 class="fw-bold text-dark mb-4 px-1">@T["Dashboard_Section_RecentActivity"]</h6>
+                    @if (!Model.Dashboard.RecentIntakeActivities.Any())
+                    {
+                        <p class="small text-muted px-1">@T["Dashboard_Empty_NoActivity"]</p>
+                    }
+                    else
+                    {
+                        <div class="activity-timeline ps-2">
+                            @foreach (var activity in Model.Dashboard.RecentIntakeActivities)
+                            {
+                                <div class="activity-item position-relative pb-4 ps-4">
+                                    <div class="activity-dot"></div>
+                                    <span class="activity-time d-block small text-muted mb-1">@activity.CapturedAtUtc.ToLocalTime().ToString("g")</span>
+                                    <span class="activity-text small text-dark">@activity.GuaranteeNumber — @T[activity.ScenarioTitleResourceKey]</span>
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
-                <h5 class="fw-bold mb-2">@T["WorkspaceShell_NavDispatch"]</h5>
-                <p class="small text-muted mb-0">@T["Dashboard_WelcomeSummary"]</p>
-            </a>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .group:hover .bg-light {
-        background-color: var(--kfshrc-green) !important;
-        color: white !important;
+    :root {
+        --brand-green: #006847;
+        --brand-light: #F3FBF8;
     }
-    .group:hover .text-muted {
-        color: var(--kfshrc-green) !important;
+
+    /* Welcome Hero with Glassmorphism */
+    .welcome-hero {
+        background: linear-gradient(135deg, #006847 0%, #004D35 100%);
+        border: 1px solid rgba(255,255,255,0.1);
     }
+    .hero-glass-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at top right, rgba(255,255,255,0.1) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .metric-glass {
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.15);
+        transition: transform 0.3s ease;
+    }
+    .metric-glass:hover {
+        transform: translateY(-3px);
+        background: rgba(255,255,255,0.12);
+    }
+
+    /* Task Items */
+    .task-item {
+        background: var(--brand-light);
+        border: 1px solid transparent;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .task-item:hover {
+        background: white;
+        border-color: var(--brand-green);
+        box-shadow: 0 10px 20px -10px rgba(0, 104, 71, 0.15);
+    }
+
+    html[dir="ltr"] .task-item:hover { transform: translateX(8px); }
+    html[dir="rtl"] .task-item:hover { transform: translateX(-8px); }
+    .group-hover\:bg-brand-green:hover { background-color: var(--brand-green) !important; }
+    .group-hover\:text-white:hover { color: white !important; }
+    .group-hover\:text-brand-green:hover { color: var(--brand-green) !important; }
+
+    /* Nav Tiles */
+    .nav-tile {
+        background: #fdfdfd;
+        transition: all 0.2s ease;
+    }
+    .nav-tile:hover {
+        background: white;
+        border-color: var(--brand-green) !important;
+        transform: translateY(-2px);
+    }
+
+    /* Activity Timeline */
+    .activity-timeline {
+        border-inline-start: 1px dashed #E5E7EB;
+    }
+    .activity-item::before {
+        content: '';
+        position: absolute;
+        top: 4px;
+        inset-inline-start: -5px;
+        width: 9px;
+        height: 9px;
+        background: #D1D5DB;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+    .activity-item:first-child::before {
+        background: var(--brand-green);
+        box-shadow: 0 0 0 4px rgba(0, 104, 71, 0.1);
+    }
+
+    /* General Polish */
+    .section-card {
+        border: 1px solid #F3F4F6 !important;
+    }
+    .fs-7 { font-size: 0.85rem; }
+    .transition-all { transition: all 0.3s ease; }
 </style>

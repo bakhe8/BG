@@ -1,10 +1,12 @@
 using BG.Application.Contracts.Services;
 using BG.Web.Contracts.System;
 using BG.Web.UI;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BG.Web.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/system")]
 public sealed class SystemController : ControllerBase

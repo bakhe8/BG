@@ -33,6 +33,7 @@
   <data name="Shared_CloseAction" xml:space="preserve"><value>إغلاق</value></data>
   <data name="Shared_Yes" xml:space="preserve"><value>نعم</value></data>
   <data name="Shared_No" xml:space="preserve"><value>لا</value></data>
+  <data name="Shared_SignOut" xml:space="preserve"><value>تسجيل الخروج</value></data>
   <data name="Home_PageTitle" xml:space="preserve"><value>لوحة التشغيل</value></data>
   <data name="Home_AnonymousEyebrow" xml:space="preserve"><value>بيئة BG</value></data>
   <data name="Home_AnonymousHeading" xml:space="preserve"><value>عمل الضمانات البنكية يبدأ من الطوابير الفعلية لا من تفاصيل الإطار التقني.</value></data>
@@ -903,15 +904,7 @@
   <data name="WorkspaceShell_SignOutAction" xml:space="preserve"><value>تسجيل الخروج</value></data>
   <data name="WorkspaceShell_SignInRequired" xml:space="preserve"><value>سجل الدخول لفتح هذه المساحة.</value></data>
   <data name="WorkspaceShell_InvalidSignInUser" xml:space="preserve"><value>اختر مستخدمًا صالحًا لتسجيل الدخول.</value></data>
-  <data name="SignIn_PageTitle" xml:space="preserve"><value>تسجيل الدخول</value></data>
-  <data name="SignIn_Eyebrow" xml:space="preserve"><value>الوصول إلى المساحات</value></data>
-  <data name="SignIn_Heading" xml:space="preserve"><value>تسجيل الدخول بالحساب المحلي</value></data>
-  <data name="SignIn_Summary" xml:space="preserve"><value>سجل الدخول ببيانات الاعتماد المحلية المخصصة لك حتى تُقفل الواجهة على أدوارك وصلاحياتك.</value></data>
-  <data name="SignIn_FormTitle" xml:space="preserve"><value>بدء جلسة آمنة</value></data>
-  <data name="SignIn_UserField" xml:space="preserve"><value>المستخدم</value></data>
-  <data name="SignIn_SelectUser" xml:space="preserve"><value>اختر مستخدمًا</value></data>
-  <data name="SignIn_NoUsersBody" xml:space="preserve"><value>لا توجد حسابات نشطة متاحة لتسجيل الدخول.</value></data>
-  <data name="SignIn_SubmitAction" xml:space="preserve"><value>تسجيل الدخول</value></data>
+
   <data name="ApprovalQueue_WhyHereTitle" xml:space="preserve"><value>لماذا هذا الطلب هنا</value></data>
   <data name="ApprovalQueue_WhyHereSummary" xml:space="preserve"><value>هذا الطلب ينتظر حاليًا الموقّع المسؤول عن المرحلة النشطة الموضحة أدناه.</value></data>
   <data name="ApprovalQueue_WhatToConfirmTitle" xml:space="preserve"><value>ما الذي يجب تأكيده الآن</value></data>
@@ -1089,9 +1082,7 @@
   <data name="DocumentFormCue_OfficialLetterDate" xml:space="preserve"><value>تاريخ الخطاب الرسمي</value></data>
   <data name="DocumentFormCue_BankReference" xml:space="preserve"><value>مرجع البنك</value></data>
   <data name="DocumentFormCue_AttachmentPurpose" xml:space="preserve"><value>غرض الملحق أو ملاحظة المستند</value></data>
-  <data name="Privacy_PageTitle" xml:space="preserve"><value>سياسة الخصوصية</value></data>
   <data name="Privacy_PageBody" xml:space="preserve"><value>هذه الصفحة مخصصة لعرض إشعار الخصوصية والتزامات التعامل مع البيانات لمستخدمي النظام.</value></data>
-  <data name="Footer_HelpCenter" xml:space="preserve"><value>مركز المساعدة</value></data>
   <data name="Error_PageTitle" xml:space="preserve"><value>خطأ</value></data>
   <data name="Error_Heading" xml:space="preserve"><value>حدث خطأ</value></data>
   <data name="Error_Summary" xml:space="preserve"><value>حدث خطأ أثناء معالجة طلبك.</value></data>
@@ -1140,4 +1131,39 @@
   <data name="ApprovalQueue_ChecklistReviewFields" xml:space="preserve"><value>مراجعة تفاصيل الطلب والحقول الداعمة</value></data>
   <data name="ApprovalQueue_ChecklistValidateGovernance" xml:space="preserve"><value>التحقق من متطلبات الحوكمة والتوقيع</value></data>
   <data name="ApprovalQueue_ChecklistRecommendDecision" xml:space="preserve"><value>القرار جاهز للاعتماد</value></data>
+  <data name="Dashboard_Section_PriorityTasks" xml:space="preserve"><value>المهام والاعتمادات العاجلة</value></data>
+  <data name="Dashboard_Section_RecentActivity" xml:space="preserve"><value>آخر نشاطات النظام</value></data>
+  <data name="Dashboard_Empty_NoTasks" xml:space="preserve"><value>لا توجد مهام عاجلة بانتظارك حالياً.</value></data>
+  <data name="Dashboard_Empty_NoActivity" xml:space="preserve"><value>لا يوجد نشاط مسجل مؤخراً.</value></data>
+  <data name="Dashboard_Metric_Approvals_Sub" xml:space="preserve"><value>يتطلب إجراء</value></data>
+  <data name="Dashboard_Metric_Requests_Sub" xml:space="preserve"><value>قيد التنفيذ</value></data>
+  <data name="Dashboard_Metric_Operations_Sub" xml:space="preserve"><value>المتراكم</value></data>
+  <data name="Dashboard_Metric_Expiring_Sub" xml:space="preserve"><value>تنبيه مخاطر</value></data>
+  <data name="Navigation_Home" xml:space="preserve"><value>الرئيسية</value></data>
+  <data name="Dashboard_PageTitle" xml:space="preserve"><value>لوحة التشغيل</value></data>
+  <data name="Dashboard_WelcomeHeading" xml:space="preserve"><value>مرحباً بك في عمليات BG</value></data>
+  <data name="Dashboard_WelcomeSummary" xml:space="preserve"><value>ابدأ من مساحات العمل المعينة لك، ثم افتح قائمة المهام التي تتطلب إجراءً فورياً.</value></data>
+  <data name="Dashboard_Metric_PendingTitle" xml:space="preserve"><value>اعتمادات معلقة</value></data>
+  <data name="Dashboard_Metric_ActiveTitle" xml:space="preserve"><value>طلبات نشطة</value></data>
+  <data name="Dashboard_Metric_CompletedTodayTitle" xml:space="preserve"><value>المتراكم الفني</value></data>
+  <data name="Dashboard_Metric_NearingExpiryTitle" xml:space="preserve"><value>ضمانات قاربت الانتهاء</value></data>
+  <data name="Dashboard_Action_Navigate" xml:space="preserve"><value>روابط سريعة</value></data>
+  <data name="NavProfile" xml:space="preserve"><value>ملفي الشخصي</value></data>
+  <data name="AccountSettings_Caption" xml:space="preserve"><value>إعدادات الحساب</value></data>
+  <data name="Profile_PersonalDetails" xml:space="preserve"><value>البيانات الشخصية</value></data>
+  <data name="Profile_Preferences" xml:space="preserve"><value>تفضيلات الواجهة</value></data>
+  <data name="LanguageField" xml:space="preserve"><value>اللغة المفضلة</value></data>
+  <data name="ThemeField" xml:space="preserve"><value>السمة المفضلة</value></data>
+  <data name="Profile_SaveAction" xml:space="preserve"><value>حفظ التغييرات</value></data>
+  <data name="Profile_UpdateSuccess" xml:space="preserve"><value>تمت عملية تحديث ملفك الشخصي بنجاح.</value></data>
+  <data name="Footer_HelpCenter" xml:space="preserve"><value>مركز المساعدة</value></data>
+  <data name="Privacy_PageTitle" xml:space="preserve"><value>سياسة الخصوصية</value></data>
+  <data name="WorkspaceShell_NavIntake" xml:space="preserve"><value>مساحة عمل الإدخال</value></data>
+  <data name="WorkspaceShell_NavOperations" xml:space="preserve"><value>قائمة العمليات</value></data>
+  <data name="SignIn_PageTitle" xml:space="preserve"><value>تسجيل الدخول</value></data>
+  <data name="SignIn_Heading" xml:space="preserve"><value>بوابة الضمانات الداخلية</value></data>
+  <data name="SignIn_Eyebrow" xml:space="preserve"><value>نظام الضمانات البنكية</value></data>
+  <data name="Shared_UsernameLabel" xml:space="preserve"><value>اسم المستخدم</value></data>
+  <data name="Shared_PasswordLabel" xml:space="preserve"><value>كلمة المرور</value></data>
+  <data name="SignIn_SubmitAction" xml:space="preserve"><value>تسجيل الدخول</value></data>
 </root>

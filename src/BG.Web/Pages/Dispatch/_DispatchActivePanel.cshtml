@@ -6,257 +6,201 @@
                                 (Model.Snapshot.ActiveActor.CanPrint || Model.Snapshot.ActiveActor.CanRecord || Model.Snapshot.ActiveActor.CanEmail);
 }
 
-<article class="info-card dispatch-active-panel">
-    @if (Model.ActiveReadyItem is null && Model.ActivePendingDeliveryItem is null)
-    {
-        <div class="request-active-empty">
-            <span class="eyebrow">@T["DispatchWorkspace_ItemsTitle"]</span>
-            <h2>@T["DispatchWorkspace_Empty"]</h2>
+@if (Model.ActiveReadyItem is null && Model.ActivePendingDeliveryItem is null)
+{
+    <article class="bg-card shadow-sm p-5 text-center">
+        <div class="py-5">
+            <i class="bi bi-send fs-1 text-muted opacity-25 d-block mb-3"></i>
+            <h2 class="fw-bold text-dark">@T["DispatchWorkspace_Empty"]</h2>
+            <p class="text-secondary">@T["DispatchWorkspace_ItemsTitle"]</p>
         </div>
-    }
-    else if (Model.ActiveReadyItem is not null)
-    {
-        var item = Model.ActiveReadyItem;
+    </article>
+}
+else if (Model.ActiveReadyItem is not null)
+{
+    var item = Model.ActiveReadyItem;
 
-        <div class="request-active-header">
-            <div>
-                <span class="eyebrow">@T["DispatchWorkspace_ReadyStateTitle"]</span>
-                <h2>@item.GuaranteeNumber</h2>
+    <article class="dispatch-active-panel h-100 d-flex flex-column bg-white border rounded-4 overflow-hidden shadow-sm">
+        @* 1. Institutional Header *@
+        <div class="p-4 border-bottom bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">@item.GuaranteeNumber</span>
+                    <bg-badge class="bg-badge-success">@T[item.StatusResourceKey]</bg-badge>
+                </div>
+                <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
-            <span class="status-badge is-active">@T[item.StatusResourceKey]</span>
-        </div>
-
-        <div class="request-active-facts">
-            <section class="surface-stat">
-                <span class="section-caption">@T["DispatchWorkspace_RequesterLabel"]</span>
-                <strong>@item.RequesterDisplayName</strong>
-            </section>
-            <section class="surface-stat">
-                <span class="section-caption">@T["DispatchWorkspace_ReadyAtLabel"]</span>
-                <strong>@item.ReadyAtUtc.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture)</strong>
-            </section>
-            <section class="surface-stat">
-                <span class="section-caption">@T["DispatchWorkspace_ReferenceLabel"]</span>
-                <strong>@(string.IsNullOrWhiteSpace(item.OutgoingReferenceNumber) ? T["OperationsQueue_NotAvailable"].Value : item.OutgoingReferenceNumber)</strong>
-            </section>
-            <section class="surface-stat">
-                <span class="section-caption">@T["DispatchWorkspace_PrintCountLabel"]</span>
-                <strong>@item.PrintCount</strong>
-            </section>
-        </div>
-
-        @if (!hasAnyDispatchAction)
-        {
-            <div class="surface-action-zone is-blocked">
-                <p class="surface-action-copy mb-0">@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: false)]</p>
+            <h3 class="fw-bold text-dark mb-2">@T["DispatchWorkspace_ReadyStateTitle"]</h3>
+            <div class="d-flex align-items-center gap-2 text-muted x-small text-uppercase fw-bold">
+                <i class="bi bi-person-circle"></i>
+                <span>@item.RequesterDisplayName</span>
+                <span class="mx-1">·</span>
+                <i class="bi bi-calendar3"></i>
+                <span>@item.ReadyAtUtc.ToLocalTime().ToString("g")</span>
             </div>
-        }
-        else
-        {
-            <div class="surface-action-stack">
-                @if (Model.Snapshot.ActiveActor!.CanRecord || Model.Snapshot.ActiveActor.CanEmail)
-                {
-                    <form method="post" asp-page-handler="Dispatch" class="stack-form dispatch-action-form surface-action-zone is-primary">
-                        <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
-                        <input type="hidden" name="requestId" value="@item.RequestId" />
-                        <input type="hidden" name="request" value="@item.RequestId" />
-                        <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
+        </div>
 
-                        <div class="surface-action-header">
-                            <span class="surface-action-kicker">@T["SurfaceAction_CurrentActionLabel"]</span>
-                            <h3 class="surface-action-title">@T["DispatchWorkspace_DispatchAction"]</h3>
+        @* 2. Scrollable Work Surface *@
+        <div class="flex-grow-1 overflow-auto p-4">
+            
+            @* Stats Grid *@
+            <div class="row g-4 mb-5">
+                <div class="col-6">
+                    <div class="bg-light p-4 rounded-4 border-0">
+                        <div class="bg-grid-label">@T["DispatchWorkspace_ReferenceLabel"]</div>
+                        <div class="bg-grid-value fs-5 mt-1">@(string.IsNullOrWhiteSpace(item.OutgoingReferenceNumber) ? T["OperationsQueue_NotAvailable"].Value : item.OutgoingReferenceNumber)</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light p-4 rounded-4 border-0">
+                        <div class="bg-grid-label">@T["DispatchWorkspace_PrintCountLabel"]</div>
+                        <div class="bg-grid-value fs-5 mt-1">@item.PrintCount</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (hasAnyDispatchAction)
+            {
+                <form method="post" id="dispatch-form" class="stack-form d-flex flex-column gap-4">
+                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                    <input type="hidden" name="requestId" value="@item.RequestId" />
+                    
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label x-small text-muted text-uppercase fw-bold" for="dispatch-reference">@T["DispatchWorkspace_ReferenceField"]</label>
+                            <input id="dispatch-reference" name="referenceNumber" class="form-control rounded-3" maxlength="64" value="@item.OutgoingReferenceNumber" />
                         </div>
+                        <div class="col-6">
+                            <label class="form-label x-small text-muted text-uppercase fw-bold" for="dispatch-letter-date">@T["DispatchWorkspace_LetterDateField"]</label>
+                            <input id="dispatch-letter-date" name="letterDate" class="form-control rounded-3" type="date" value="@(item.OutgoingLetterDate?.ToString("yyyy-MM-dd"))" />
+                        </div>
+                    </div>
 
-                        <label class="form-label" for="dispatch-reference-@item.RequestId">@T["DispatchWorkspace_ReferenceField"]</label>
-                        <input id="dispatch-reference-@item.RequestId" name="referenceNumber" class="form-control" maxlength="64" value="@item.OutgoingReferenceNumber" />
-
-                        <label class="form-label" for="dispatch-letter-date-@item.RequestId">@T["DispatchWorkspace_LetterDateField"]</label>
-                        <input id="dispatch-letter-date-@item.RequestId" name="letterDate" class="form-control" type="date" value="@(item.OutgoingLetterDate?.ToString("yyyy-MM-dd"))" />
-
-                        <label class="form-label" for="dispatch-channel-@item.RequestId">@T["DispatchWorkspace_DispatchChannelField"]</label>
-                        <select id="dispatch-channel-@item.RequestId" name="dispatchChannel" class="form-control">
+                    <div>
+                        <label class="form-label x-small text-muted text-uppercase fw-bold" for="dispatch-channel">@T["DispatchWorkspace_DispatchChannelField"]</label>
+                        <select id="dispatch-channel" name="dispatchChannel" class="form-control rounded-3">
                             @foreach (var option in Model.GetAvailableDispatchChannelOptions())
                             {
                                 <option value="@option.Channel">@T[option.ResourceKey]</option>
                             }
                         </select>
+                    </div>
 
-                        <label class="form-label" for="dispatch-tracking-@item.RequestId">@T["DispatchWorkspace_DispatchReferenceField"]</label>
-                        <input id="dispatch-tracking-@item.RequestId" name="dispatchReference" class="form-control" maxlength="128" />
-
-                        <label class="form-label" for="dispatch-note-@item.RequestId">@T["DispatchWorkspace_NoteField"]</label>
-                        <textarea id="dispatch-note-@item.RequestId" name="note" class="form-control" rows="2"></textarea>
-
-                        <div class="action-row">
-                            <button type="submit" class="btn btn-primary action-button">@T["DispatchWorkspace_DispatchAction"]</button>
-                        </div>
-                    </form>
-                }
-
-                @if (Model.Snapshot.ActiveActor.CanPrint)
-                {
-                    <form method="post" asp-page-handler="Print" class="stack-form dispatch-action-form surface-action-zone is-secondary">
-                        <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
-                        <input type="hidden" name="requestId" value="@item.RequestId" />
-                        <input type="hidden" name="request" value="@item.RequestId" />
-                        <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
-
-                        <div class="surface-action-header">
-                            <h3 class="surface-action-title">@T["DispatchWorkspace_PrintAction"]</h3>
-                        </div>
-
-                        <label class="form-label" for="print-reference-@item.RequestId">@T["DispatchWorkspace_ReferenceField"]</label>
-                        <input id="print-reference-@item.RequestId" name="referenceNumber" class="form-control" maxlength="64" value="@item.OutgoingReferenceNumber" />
-
-                        <label class="form-label" for="print-letter-date-@item.RequestId">@T["DispatchWorkspace_LetterDateField"]</label>
-                        <input id="print-letter-date-@item.RequestId" name="letterDate" class="form-control" type="date" value="@(item.OutgoingLetterDate?.ToString("yyyy-MM-dd"))" />
-
-                        <label class="form-label" for="print-mode-@item.RequestId">@T["DispatchWorkspace_PrintModeField"]</label>
-                        <select id="print-mode-@item.RequestId" name="printMode" class="form-control">
-                            @foreach (var option in Model.PrintModeOptions)
-                            {
-                                <option value="@option.Mode">@T[option.ResourceKey]</option>
-                            }
-                        </select>
-
-                        <div class="action-row">
-                            <button type="submit"
-                                    formmethod="get"
-                                    formaction="@Url.Page("/Dispatch/Letter")"
-                                    formtarget="_blank"
-                                    class="btn btn-outline-secondary action-button">
-                                @T["DispatchLetter_OpenPreviewAction"]
-                            </button>
-                            <button type="submit" class="btn btn-outline-primary action-button">@T["DispatchWorkspace_PrintAction"]</button>
-                        </div>
-                    </form>
-                }
-            </div>
-        }
-    }
-    else if (Model.ActivePendingDeliveryItem is not null)
-    {
-        var item = Model.ActivePendingDeliveryItem;
-
-        <div class="request-active-header">
-            <div>
-                <span class="eyebrow">@T["DispatchWorkspace_PendingDeliveryTitle"]</span>
-                <h2>@item.GuaranteeNumber</h2>
-            </div>
-            <span class="status-badge is-active">@T["DispatchWorkspace_PendingDeliveryBadge"]</span>
+                    <div>
+                        <label class="form-label x-small text-muted text-uppercase fw-bold" for="dispatch-note">@T["DispatchWorkspace_NoteField"]</label>
+                        <textarea id="dispatch-note" name="note" class="form-control rounded-3" rows="3"></textarea>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-light border-0 shadow-none small italic">
+                    <i class="bi bi-info-circle me-2"></i>@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: false)]
+                </div>
+            }
         </div>
 
-        <div class="request-active-facts">
-            <section class="surface-stat">
-                <span class="section-caption">@T["DispatchWorkspace_RequesterLabel"]</span>
-                <strong>@item.RequesterDisplayName</strong>
-            </section>
-            <section class="surface-stat">
-                <span class="section-caption">@T["DispatchWorkspace_ReferenceLabel"]</span>
-                <strong>@item.ReferenceNumber</strong>
-            </section>
-            <section class="surface-stat">
-                <span class="section-caption">@T["DispatchWorkspace_DispatchChannelLabel"]</span>
-                <strong>@T[item.DispatchChannelResourceKey]</strong>
-            </section>
-            <section class="surface-stat">
-                <span class="section-caption">@T["DispatchWorkspace_DispatchedAtLabel"]</span>
-                <strong>@item.DispatchedAtUtc.ToLocalTime().ToString("g", System.Globalization.CultureInfo.CurrentCulture)</strong>
-            </section>
+        @if (hasAnyDispatchAction)
+        {
+            @* 3. Institutional Action Bar *@
+            <div class="bg-sticky-action-bar">
+                <div class="d-flex gap-2">
+                    <button type="submit" form="dispatch-form" formaction="/Dispatch/Workspace?handler=Dispatch" class="bg-btn bg-btn-primary px-4 py-3 shadow-none flex-grow-1">
+                        <i class="bi bi-send-check-fill me-2 rotate-rtl"></i>@T["DispatchWorkspace_DispatchAction"]
+                    </button>
+                    @if (Model.Snapshot.ActiveActor!.CanPrint)
+                    {
+                        <button type="submit" form="dispatch-form" formaction="/Dispatch/Workspace?handler=Print" class="bg-btn bg-btn-secondary px-4 py-3 border flex-grow-1">
+                            <i class="bi bi-printer me-2"></i>@T["DispatchWorkspace_PrintAction"]
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </article>
+}
+else if (Model.ActivePendingDeliveryItem is not null)
+{
+    var item = Model.ActivePendingDeliveryItem;
+
+    <article class="dispatch-active-panel h-100 d-flex flex-column bg-white border rounded-4 overflow-hidden shadow-sm">
+        @* 1. Institutional Header *@
+        <div class="p-4 border-bottom bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">@item.GuaranteeNumber</span>
+                    <bg-badge class="bg-badge-info">@T["DispatchWorkspace_PendingDeliveryBadge"]</bg-badge>
+                </div>
+                <button type="button" class="btn-close" aria-label="Close"></button>
+            </div>
+            <h3 class="fw-bold text-dark mb-2">@T["DispatchWorkspace_PendingDeliveryTitle"]</h3>
+            <div class="d-flex align-items-center gap-2 text-muted x-small text-uppercase fw-bold">
+                <i class="bi bi-person-circle"></i>
+                <span>@item.RequesterDisplayName</span>
+                <span class="mx-1">·</span>
+                <i class="bi bi-send"></i>
+                <span>@item.DispatchedAtUtc.ToLocalTime().ToString("g")</span>
+            </div>
         </div>
 
-        @if (!hasAnyDispatchAction)
+        @* 2. Scrollable Work Surface *@
+        <div class="flex-grow-1 overflow-auto p-4">
+            
+            @* Stats Grid *@
+            <div class="row g-4 mb-5">
+                <div class="col-6">
+                    <div class="bg-light p-4 rounded-4 border-0">
+                        <div class="bg-grid-label">@T["DispatchWorkspace_ReferenceLabel"]</div>
+                        <div class="bg-grid-value fs-5 mt-1">@item.ReferenceNumber</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light p-4 rounded-4 border-0">
+                        <div class="bg-grid-label">@T["DispatchWorkspace_DispatchChannelLabel"]</div>
+                        <div class="bg-grid-value fs-5 mt-1">@T[item.DispatchChannelResourceKey]</div>
+                    </div>
+                </div>
+            </div>
+
+            @if (hasAnyDispatchAction)
+            {
+                <form method="post" id="delivery-form" class="stack-form d-flex flex-column gap-4">
+                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                    <input type="hidden" name="requestId" value="@item.RequestId" />
+                    <input type="hidden" name="correspondenceId" value="@item.CorrespondenceId" />
+
+                    <div>
+                        <label class="form-label x-small text-muted text-uppercase fw-bold" for="delivery-reference">@T["DispatchWorkspace_DeliveryReferenceField"]</label>
+                        <input id="delivery-reference" name="deliveryReference" class="form-control rounded-3" maxlength="128" />
+                    </div>
+
+                    <div>
+                        <label class="form-label x-small text-muted text-uppercase fw-bold" for="delivery-note">@T["DispatchWorkspace_DeliveryNoteField"]</label>
+                        <textarea id="delivery-note" name="deliveryNote" class="form-control rounded-3" rows="3"></textarea>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="alert alert-light border-0 shadow-none small italic">
+                    <i class="bi bi-info-circle me-2"></i>@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: true)]
+                </div>
+            }
+        </div>
+
+        @if (hasAnyDispatchAction)
         {
-            <div class="surface-action-zone is-blocked">
-                <p class="surface-action-copy mb-0">@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: true)]</p>
+            @* 3. Institutional Action Bar *@
+            <div class="bg-sticky-action-bar">
+                <div class="d-flex gap-2">
+                    <button type="submit" form="delivery-form" formaction="/Dispatch/Workspace?handler=ConfirmDelivery" class="bg-btn bg-btn-primary px-4 py-3 shadow-none flex-grow-1">
+                        <i class="bi bi-check-circle-fill me-2"></i>@T["DispatchWorkspace_ConfirmDeliveryAction"]
+                    </button>
+                    <button type="submit" form="delivery-form" formaction="/Dispatch/Workspace?handler=ReopenDispatch" class="bg-btn bg-btn-secondary px-4 py-3 border flex-grow-1" style="background-color: #FEE2E2; color: #991B1B !important; border: 1px solid #FECACA;">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>@T["DispatchWorkspace_ReopenAction"]
+                    </button>
+                </div>
             </div>
         }
-        else
-        {
-            <div class="surface-action-stack">
-                @if (Model.Snapshot.ActiveActor!.CanRecord || Model.Snapshot.ActiveActor.CanEmail)
-                {
-                    <form method="post" asp-page-handler="ConfirmDelivery" class="stack-form dispatch-action-form surface-action-zone is-primary">
-                        <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
-                        <input type="hidden" name="requestId" value="@item.RequestId" />
-                        <input type="hidden" name="request" value="@item.RequestId" />
-                        <input type="hidden" name="correspondenceId" value="@item.CorrespondenceId" />
-                        <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
-
-                        <div class="surface-action-header">
-                            <span class="surface-action-kicker">@T["SurfaceAction_CurrentActionLabel"]</span>
-                            <h3 class="surface-action-title">@T["DispatchWorkspace_ConfirmDeliveryAction"]</h3>
-                        </div>
-
-                        <label class="form-label" for="delivery-reference-@item.CorrespondenceId">@T["DispatchWorkspace_DeliveryReferenceField"]</label>
-                        <input id="delivery-reference-@item.CorrespondenceId" name="deliveryReference" class="form-control" maxlength="128" />
-
-                        <label class="form-label" for="delivery-note-@item.CorrespondenceId">@T["DispatchWorkspace_DeliveryNoteField"]</label>
-                        <textarea id="delivery-note-@item.CorrespondenceId" name="deliveryNote" class="form-control" rows="2"></textarea>
-
-                        <div class="action-row">
-                            <button type="submit" class="btn btn-primary action-button">@T["DispatchWorkspace_ConfirmDeliveryAction"]</button>
-                        </div>
-                    </form>
-                }
-
-                @if (Model.Snapshot.ActiveActor.CanPrint)
-                {
-                    <form method="post" asp-page-handler="Print" class="stack-form dispatch-action-form surface-action-zone is-secondary">
-                        <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
-                        <input type="hidden" name="requestId" value="@item.RequestId" />
-                        <input type="hidden" name="request" value="@item.RequestId" />
-                        <input type="hidden" name="referenceNumber" value="@item.ReferenceNumber" />
-                        <input type="hidden" name="letterDate" value="@item.LetterDate.ToString("yyyy-MM-dd")" />
-                        <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
-
-                        <div class="surface-action-header">
-                            <h3 class="surface-action-title">@T["DispatchWorkspace_ReprintAction"]</h3>
-                        </div>
-
-                        <label class="form-label" for="pending-print-mode-@item.CorrespondenceId">@T["DispatchWorkspace_PrintModeField"]</label>
-                        <select id="pending-print-mode-@item.CorrespondenceId" name="printMode" class="form-control">
-                            @foreach (var option in Model.PrintModeOptions)
-                            {
-                                <option value="@option.Mode">@T[option.ResourceKey]</option>
-                            }
-                        </select>
-
-                        <div class="action-row">
-                            <button type="submit"
-                                    formmethod="get"
-                                    formaction="@Url.Page("/Dispatch/Letter")"
-                                    formtarget="_blank"
-                                    class="btn btn-outline-secondary action-button">
-                                @T["DispatchLetter_OpenPreviewAction"]
-                            </button>
-                            <button type="submit" class="btn btn-outline-primary action-button">@T["DispatchWorkspace_ReprintAction"]</button>
-                        </div>
-                    </form>
-                }
-
-                @if (Model.Snapshot.ActiveActor.CanRecord || Model.Snapshot.ActiveActor.CanEmail)
-                {
-                    <form method="post" asp-page-handler="ReopenDispatch" class="stack-form dispatch-action-form surface-action-zone is-danger">
-                        <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor.Id" />
-                        <input type="hidden" name="requestId" value="@item.RequestId" />
-                        <input type="hidden" name="request" value="@item.RequestId" />
-                        <input type="hidden" name="correspondenceId" value="@item.CorrespondenceId" />
-                        <input type="hidden" name="page" value="@Model.Snapshot.ItemsPage.PageNumber" />
-
-                        <div class="surface-action-header">
-                            <h3 class="surface-action-title">@T["DispatchWorkspace_ReopenAction"]</h3>
-                        </div>
-
-                        <label class="form-label" for="reopen-note-@item.CorrespondenceId">@T["DispatchWorkspace_ReopenNoteField"]</label>
-                        <textarea id="reopen-note-@item.CorrespondenceId" name="correctionNote" class="form-control" rows="2"></textarea>
-
-                        <div class="action-row">
-                            <button type="submit" class="btn btn-outline-danger action-button">@T["DispatchWorkspace_ReopenAction"]</button>
-                        </div>
-                    </form>
-                }
-            </div>
-        }
-    }
-</article>
+    </article>
+}

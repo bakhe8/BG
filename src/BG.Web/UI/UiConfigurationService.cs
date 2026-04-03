@@ -20,10 +20,14 @@ public sealed class UiConfigurationService : IUiConfigurationService
     };
 
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IWorkspaceShellService _shellService;
 
-    public UiConfigurationService(IHttpContextAccessor httpContextAccessor)
+    public UiConfigurationService(
+        IHttpContextAccessor httpContextAccessor,
+        IWorkspaceShellService shellService)
     {
         _httpContextAccessor = httpContextAccessor;
+        _shellService = shellService;
     }
 
     public IReadOnlyList<UiCultureOption> SupportedCultures => CultureOptions;
@@ -36,11 +40,26 @@ public sealed class UiConfigurationService : IUiConfigurationService
 
     public string GetCurrentCulture()
     {
+        // Check session snapshot for authenticated user preference
+        var shellTask = _shellService.GetSnapshotAsync();
+        if (shellTask.IsCompletedSuccessfully && shellTask.Result.CurrentUser?.PreferredCulture is { } preferred)
+        {
+            return NormalizeCulture(preferred);
+        }
+
         return NormalizeCulture(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
     }
 
     public string GetCurrentTheme()
     {
+        // 1. Check session snapshot for authenticated user preference
+        var shellTask = _shellService.GetSnapshotAsync();
+        if (shellTask.IsCompletedSuccessfully && shellTask.Result.CurrentUser?.PreferredTheme is { } preferred)
+        {
+            return NormalizeTheme(preferred);
+        }
+
+        // 2. Fallback to cookie for anonymous or unsynced state
         var theme = _httpContextAccessor.HttpContext?.Request.Cookies[ThemeCookieName];
         return NormalizeTheme(theme);
     }

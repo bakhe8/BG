@@ -2,6 +2,23 @@
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.Pages.Intake.WorkspaceModel
+@{
+    var guaranteeNumberReview  = Model.GetReviewField(IntakeFieldKeys.GuaranteeNumber);
+    var bankNameReview         = Model.GetReviewField(IntakeFieldKeys.BankName);
+    var beneficiaryReview      = Model.GetReviewField(IntakeFieldKeys.Beneficiary);
+    var principalReview        = Model.GetReviewField(IntakeFieldKeys.Principal);
+    var categoryReview         = Model.GetReviewField(IntakeFieldKeys.GuaranteeCategory);
+    var amountReview           = Model.GetReviewField(IntakeFieldKeys.Amount);
+    var currencyReview         = Model.GetReviewField(IntakeFieldKeys.CurrencyCode);
+    var issueDateReview        = Model.GetReviewField(IntakeFieldKeys.IssueDate);
+    var expiryDateReview       = Model.GetReviewField(IntakeFieldKeys.ExpiryDate);
+    var officialLetterDateReview = Model.GetReviewField(IntakeFieldKeys.OfficialLetterDate);
+    var bankReferenceReview    = Model.GetReviewField(IntakeFieldKeys.BankReference);
+    var newExpiryDateReview    = Model.GetReviewField(IntakeFieldKeys.NewExpiryDate);
+    var confirmedAmountReview  = Model.GetReviewField(IntakeFieldKeys.Amount);
+    var statusStatementReview  = Model.GetReviewField(IntakeFieldKeys.StatusStatement);
+    var attachmentNoteReview   = Model.GetReviewField(IntakeFieldKeys.AttachmentNote);
+}
 
 <section class="intake-panel intake-panel--verification">
 
@@ -25,9 +42,6 @@
 
     <div class="intake-field-list">
 
-        @{
-            var guaranteeNumberReview = Model.GetReviewField(IntakeFieldKeys.GuaranteeNumber);
-        }
         <article class="intake-field-row">
             <div class="intake-field-row__meta">
                 <div class="intake-field-row__label">@T["IntakeField_GuaranteeNumber"]</div>
@@ -49,9 +63,6 @@
 
         @if (Model.IsNewGuaranteeScenario)
         {
-            @{
-                var bankNameReview = Model.GetReviewField(IntakeFieldKeys.BankName);
-            }
             <article class="intake-field-row">
                 <div class="intake-field-row__meta">
                     <div class="intake-field-row__label">@T["IntakeField_BankName"]</div>
@@ -71,9 +82,6 @@
                 </div>
             </article>
 
-            @{
-                var beneficiaryReview = Model.GetReviewField(IntakeFieldKeys.Beneficiary);
-            }
             <article class="intake-field-row">
                 <div class="intake-field-row__meta">
                     <div class="intake-field-row__label">@T["IntakeField_Beneficiary"]</div>
@@ -93,9 +101,6 @@
                 </div>
             </article>
 
-            @{
-                var principalReview = Model.GetReviewField(IntakeFieldKeys.Principal);
-            }
             <article class="intake-field-row">
                 <div class="intake-field-row__meta">
                     <div class="intake-field-row__label">@T["IntakeField_Principal"]</div>
@@ -115,9 +120,6 @@
                 </div>
             </article>
 
-            @{
-                var categoryReview = Model.GetReviewField(IntakeFieldKeys.GuaranteeCategory);
-            }
             <article class="intake-field-row">
                 <div class="intake-field-row__meta">
                     <div class="intake-field-row__label">@T["IntakeField_GuaranteeCategory"]</div>
@@ -143,10 +145,6 @@
                 </div>
             </article>
 
-            @{
-                var amountReview = Model.GetReviewField(IntakeFieldKeys.Amount);
-                var currencyReview = Model.GetReviewField(IntakeFieldKeys.CurrencyCode);
-            }
             <article class="intake-field-row">
                 <div class="intake-field-row__meta">
                     <div class="intake-field-row__label">@T["IntakeField_Amount"]</div>
@@ -175,10 +173,6 @@
                 </div>
             </article>
 
-            @{
-                var issueDateReview = Model.GetReviewField(IntakeFieldKeys.IssueDate);
-                var expiryDateReview = Model.GetReviewField(IntakeFieldKeys.ExpiryDate);
-            }
             <article class="intake-field-row">
                 <div class="intake-field-row__meta">
                     <div class="intake-field-row__label">@T["IntakeField_IssueDate"]</div>
@@ -218,10 +212,6 @@
         {
             if (!Model.IsAttachmentScenario)
             {
-                @{
-                    var officialLetterDateReview = Model.GetReviewField(IntakeFieldKeys.OfficialLetterDate);
-                    var bankReferenceReview = Model.GetReviewField(IntakeFieldKeys.BankReference);
-                }
                 <article class="intake-field-row">
                     <div class="intake-field-row__meta">
                         <div class="intake-field-row__label">@T["IntakeField_OfficialLetterDate"]</div>
@@ -263,9 +253,6 @@
 
             if (Model.IsExtensionScenario)
             {
-                @{
-                    var newExpiryDateReview = Model.GetReviewField(IntakeFieldKeys.NewExpiryDate);
-                }
                 <article class="intake-field-row">
                     <div class="intake-field-row__meta">
                         <div class="intake-field-row__label">@T["IntakeField_NewExpiryDate"]</div>
@@ -288,9 +275,6 @@
 
             if (Model.IsReductionScenario)
             {
-                @{
-                    var confirmedAmountReview = Model.GetReviewField(IntakeFieldKeys.Amount);
-                }
                 <article class="intake-field-row">
                     <div class="intake-field-row__meta">
                         <div class="intake-field-row__label">@T["IntakeField_Amount"]</div>
@@ -313,9 +297,6 @@
 
             if (Model.IsStatusScenario)
             {
-                @{
-                    var statusStatementReview = Model.GetReviewField(IntakeFieldKeys.StatusStatement);
-                }
                 <article class="intake-field-row">
                     <div class="intake-field-row__meta">
                         <div class="intake-field-row__label">@T["IntakeField_StatusStatement"]</div>
@@ -338,9 +319,6 @@
 
             if (Model.IsAttachmentScenario)
             {
-                @{
-                    var attachmentNoteReview = Model.GetReviewField(IntakeFieldKeys.AttachmentNote);
-                }
                 <article class="intake-field-row">
                     <div class="intake-field-row__meta">
                         <div class="intake-field-row__label">@T["IntakeField_AttachmentNote"]</div>

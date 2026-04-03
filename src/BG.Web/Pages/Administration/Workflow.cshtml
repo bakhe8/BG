@@ -25,29 +25,33 @@
         <h1 class="fw-bold text-dark m-0">@T["WorkflowAdmin_Heading"]</h1>
     </div>
 
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["WorkflowAdmin_DirectoryTitle"]</div>
-                <div class="display-6 fw-bold text-dark">@definitionCount</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-brand-green opacity-10" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["WorkflowAdmin_DirectoryTitle"]</span>
+                <div class="bg-grid-value fs-2 mt-2">@definitionCount</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["WorkflowAdmin_StatusReady"]</div>
-                <div class="display-6 fw-bold text-brand-green">@readyCount</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-brand-green opacity-25" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["WorkflowAdmin_StatusReady"]</span>
+                <div class="bg-grid-value fs-2 mt-2 text-brand-green">@readyCount</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["WorkflowAdmin_StatusNeedsConfiguration"]</div>
-                <div class="display-6 fw-bold text-danger">@issueCount</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-danger opacity-10" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["WorkflowAdmin_StatusNeedsConfiguration"]</span>
+                <div class="bg-grid-value fs-2 mt-2 text-danger">@issueCount</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["WorkflowAdmin_CurrentStagesTitle"]</div>
-                <div class="display-6 fw-bold text-dark">@stageCount</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-secondary opacity-10" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["WorkflowAdmin_CurrentStagesTitle"]</span>
+                <div class="bg-grid-value fs-2 mt-2">@stageCount</div>
             </div>
         </div>
     </div>
@@ -81,28 +85,21 @@
 
                             <a asp-page="/Administration/Workflow"
                                asp-all-route-data="Model.BuildSelectionRoute(definition.Id)"
-                               class="request-queue-link admin-workflow-link @(isActive ? "active" : null)">
-                                <div class="request-queue-copy">
-                                    <strong>@T[definition.TitleResourceKey]</strong>
-                                    <div class="entity-subtitle">@T[$"RequestType_{definition.RequestType}"]</div>
-                                    <p class="compact-copy mb-0">@T[definition.SummaryResourceKey]</p>
-                                </div>
-                                <div class="request-queue-meta">
-                                    @if (isActive)
-                                    {
-                                        <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
-                                    }
-
-                                    <bg-badge variant="@statusVariant">
-                                        @T[definition.IsActive ? "WorkflowAdmin_StatusReady" : "WorkflowAdmin_StatusNeedsConfiguration"]
-                                    </bg-badge>
-
-                                    <span class="section-caption">@T["WorkflowAdmin_StageCountBadge", definition.Stages.Count]</span>
-
-                                    @if (!string.IsNullOrWhiteSpace(definition.GuaranteeCategoryResourceKey))
-                                    {
-                                        <bg-badge variant="light">@T[definition.GuaranteeCategoryResourceKey]</bg-badge>
-                                    }
+                               class="request-queue-link border-bottom py-3 px-1 @(isActive ? "active" : null)">
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <div class="request-queue-copy">
+                                        <div class="entity-subtitle x-small text-muted text-uppercase fw-bold mb-1">@T[$"RequestType_{definition.RequestType}"]</div>
+                                        <strong class="d-block text-dark">@T[definition.TitleResourceKey]</strong>
+                                        <div class="x-small text-muted">@T[definition.SummaryResourceKey]</div>
+                                    </div>
+                                    <div class="request-queue-meta text-end">
+                                        <div class="mb-2">
+                                            <bg-badge class="bg-badge-@(definition.IsActive ? "success" : "returned")">
+                                                @T[definition.IsActive ? "WorkflowAdmin_StatusReady" : "WorkflowAdmin_StatusNeedsConfiguration"]
+                                            </bg-badge>
+                                        </div>
+                                        <span class="x-small text-muted">@T["WorkflowAdmin_StageCountBadge", definition.Stages.Count]</span>
+                                    </div>
                                 </div>
                             </a>
                         }
@@ -217,8 +214,10 @@
                                     </div>
                                 </div>
 
-                                <div class="col-12 d-flex justify-content-end">
-                                    <bg-button type="submit" variant="secondary" size="md">@T["WorkflowAdmin_SaveGovernanceAction"]</bg-button>
+                                <div class="col-12 d-flex justify-content-end mt-4">
+                                    <button type="submit" class="bg-btn bg-btn-primary px-5 py-3 shadow-none">
+                                        <i class="bi bi-shield-check me-2"></i>@T["WorkflowAdmin_SaveGovernanceAction"]
+                                    </button>
                                 </div>
                             </form>
 
@@ -332,7 +331,9 @@
                                                     <input id="requires-signature-@stage.Id" class="form-check-input" type="checkbox" name="requiresLetterSignature" value="true" checked="@(stage.RequiresLetterSignature ? "checked" : null)" />
                                                     <label class="form-check-label x-small fw-bold" for="requires-signature-@stage.Id">@T["WorkflowAdmin_RequiresSignatureField"]</label>
                                                 </div>
-                                                <bg-button type="submit" variant="primary">@T["WorkflowAdmin_SaveStageAction"]</bg-button>
+                                                <button type="submit" class="bg-btn bg-btn-primary w-100 py-3 shadow-none">
+                                                    <i class="bi bi-save2 me-2"></i>@T["WorkflowAdmin_SaveStageAction"]
+                                                </button>
                                             </div>
                                         </form>
 
@@ -407,7 +408,9 @@
                                     <input id="add-requires-signature-@activeDefinition.Id" class="form-check-input" type="checkbox" name="requiresLetterSignature" value="true" checked="checked" />
                                     <label class="form-check-label x-small fw-bold" for="add-requires-signature-@activeDefinition.Id">@T["WorkflowAdmin_RequiresSignatureField"]</label>
                                 </div>
-                                <bg-button type="submit" variant="primary">@T["WorkflowAdmin_AddStageAction"]</bg-button>
+                                <button type="submit" class="bg-btn bg-btn-primary w-100 py-3 shadow-none">
+                                    <i class="bi bi-plus-circle me-2"></i>@T["WorkflowAdmin_AddStageAction"]
+                                </button>
                             </div>
                         </form>
                     </section>

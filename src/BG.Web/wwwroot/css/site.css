@@ -109,7 +109,18 @@ a:hover {
 .x-small { font-size: 0.75rem; }
 .letter-spacing-1 { letter-spacing: 0.05em; }
 
-/* RTL Adjustments */
+/* RTL: Switch to Cairo font for full Arabic rendering */
 html[dir="rtl"] body {
-    text-align: right;
+    font-family: var(--font-heading); /* Cairo covers Arabic script */
+    text-align: start;
+}
+
+html[dir="ltr"] body {
+    text-align: start;
+}
+
+/* Directional chevron: add class rtl-flip to auto-mirror icons in RTL */
+html[dir="rtl"] .rtl-flip {
+    transform: scaleX(-1);
+    display: inline-block;
 }

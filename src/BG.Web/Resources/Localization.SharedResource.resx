@@ -33,6 +33,7 @@
   <data name="Shared_CloseAction" xml:space="preserve"><value>Close</value></data>
   <data name="Shared_Yes" xml:space="preserve"><value>Yes</value></data>
   <data name="Shared_No" xml:space="preserve"><value>No</value></data>
+  <data name="Shared_SignOut" xml:space="preserve"><value>Sign Out</value></data>
   <data name="Home_PageTitle" xml:space="preserve"><value>Operational dashboard</value></data>
   <data name="Home_AnonymousEyebrow" xml:space="preserve"><value>BG workspace</value></data>
   <data name="Home_AnonymousHeading" xml:space="preserve"><value>Bank guarantee work starts from queues, not framework details.</value></data>
@@ -903,15 +904,7 @@
   <data name="WorkspaceShell_SignOutAction" xml:space="preserve"><value>Sign out</value></data>
   <data name="WorkspaceShell_SignInRequired" xml:space="preserve"><value>Sign in to open that workspace.</value></data>
   <data name="WorkspaceShell_InvalidSignInUser" xml:space="preserve"><value>Select a valid user to sign in.</value></data>
-  <data name="SignIn_PageTitle" xml:space="preserve"><value>Sign in</value></data>
-  <data name="SignIn_Eyebrow" xml:space="preserve"><value>Workspace access</value></data>
-  <data name="SignIn_Heading" xml:space="preserve"><value>Local account sign-in</value></data>
-  <data name="SignIn_Summary" xml:space="preserve"><value>Sign in with your assigned local credentials to lock the interface to your roles and permissions.</value></data>
-  <data name="SignIn_FormTitle" xml:space="preserve"><value>Start secure session</value></data>
-  <data name="SignIn_UserField" xml:space="preserve"><value>User</value></data>
-  <data name="SignIn_SelectUser" xml:space="preserve"><value>Select a user</value></data>
-  <data name="SignIn_NoUsersBody" xml:space="preserve"><value>No active users are available for sign-in.</value></data>
-  <data name="SignIn_SubmitAction" xml:space="preserve"><value>Sign in</value></data>
+
   <data name="ApprovalQueue_WhyHereTitle" xml:space="preserve"><value>Why this request is here</value></data>
   <data name="ApprovalQueue_WhyHereSummary" xml:space="preserve"><value>This request is currently waiting for the signer responsible for the active stage shown below.</value></data>
   <data name="ApprovalQueue_WhatToConfirmTitle" xml:space="preserve"><value>What to confirm now</value></data>
@@ -1089,9 +1082,7 @@
   <data name="DocumentFormCue_OfficialLetterDate" xml:space="preserve"><value>Official letter date</value></data>
   <data name="DocumentFormCue_BankReference" xml:space="preserve"><value>Bank reference number</value></data>
   <data name="DocumentFormCue_AttachmentPurpose" xml:space="preserve"><value>Annex purpose or attachment note</value></data>
-  <data name="Privacy_PageTitle" xml:space="preserve"><value>Privacy policy</value></data>
   <data name="Privacy_PageBody" xml:space="preserve"><value>This page is reserved for the privacy notice and data-handling commitments for system users.</value></data>
-  <data name="Footer_HelpCenter" xml:space="preserve"><value>Help center</value></data>
   <data name="Error_PageTitle" xml:space="preserve"><value>Error</value></data>
   <data name="Error_Heading" xml:space="preserve"><value>Error</value></data>
   <data name="Error_Summary" xml:space="preserve"><value>An error occurred while processing your request.</value></data>
@@ -1140,4 +1131,39 @@
   <data name="ApprovalQueue_ChecklistReviewFields" xml:space="preserve"><value>Review the request details and supporting fields</value></data>
   <data name="ApprovalQueue_ChecklistValidateGovernance" xml:space="preserve"><value>Validate governance and signature requirements</value></data>
   <data name="ApprovalQueue_ChecklistRecommendDecision" xml:space="preserve"><value>Recommendation is ready for decision</value></data>
+  <data name="Dashboard_Section_PriorityTasks" xml:space="preserve"><value>Priority tasks &amp; approvals</value></data>
+  <data name="Dashboard_Section_RecentActivity" xml:space="preserve"><value>Recent system activity</value></data>
+  <data name="Dashboard_Empty_NoTasks" xml:space="preserve"><value>No urgent tasks are waiting for you.</value></data>
+  <data name="Dashboard_Empty_NoActivity" xml:space="preserve"><value>No recent activity recorded.</value></data>
+  <data name="Dashboard_Metric_Approvals_Sub" xml:space="preserve"><value>Action required</value></data>
+  <data name="Dashboard_Metric_Requests_Sub" xml:space="preserve"><value>In progress</value></data>
+  <data name="Dashboard_Metric_Operations_Sub" xml:space="preserve"><value>Backlog</value></data>
+  <data name="Dashboard_Metric_Expiring_Sub" xml:space="preserve"><value>Risk alert</value></data>
+  <data name="Navigation_Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Dashboard_PageTitle" xml:space="preserve"><value>Operational dashboard</value></data>
+  <data name="Dashboard_WelcomeHeading" xml:space="preserve"><value>Welcome to BG operations</value></data>
+  <data name="Dashboard_WelcomeSummary" xml:space="preserve"><value>Start from your assigned workspaces, then open the queue that needs action now.</value></data>
+  <data name="Dashboard_Metric_PendingTitle" xml:space="preserve"><value>Pending Approvals</value></data>
+  <data name="Dashboard_Metric_ActiveTitle" xml:space="preserve"><value>Active Requests</value></data>
+  <data name="Dashboard_Metric_CompletedTodayTitle" xml:space="preserve"><value>Operations Backlog</value></data>
+  <data name="Dashboard_Metric_NearingExpiryTitle" xml:space="preserve"><value>Nearing Expiry</value></data>
+  <data name="Dashboard_Action_Navigate" xml:space="preserve"><value>Quick Navigation</value></data>
+  <data name="NavProfile" xml:space="preserve"><value>My Profile</value></data>
+  <data name="AccountSettings_Caption" xml:space="preserve"><value>Account Settings</value></data>
+  <data name="Profile_PersonalDetails" xml:space="preserve"><value>Personal details</value></data>
+  <data name="Profile_Preferences" xml:space="preserve"><value>UI Preferences</value></data>
+  <data name="LanguageField" xml:space="preserve"><value>Preferred Language</value></data>
+  <data name="ThemeField" xml:space="preserve"><value>Preferred Theme</value></data>
+  <data name="Profile_SaveAction" xml:space="preserve"><value>Save changes</value></data>
+  <data name="Profile_UpdateSuccess" xml:space="preserve"><value>Your profile has been updated successfully.</value></data>
+  <data name="Footer_HelpCenter" xml:space="preserve"><value>Help Center</value></data>
+  <data name="Privacy_PageTitle" xml:space="preserve"><value>Privacy Policy</value></data>
+  <data name="WorkspaceShell_NavIntake" xml:space="preserve"><value>Intake Workspace</value></data>
+  <data name="WorkspaceShell_NavOperations" xml:space="preserve"><value>Operations Queue</value></data>
+  <data name="SignIn_PageTitle" xml:space="preserve"><value>Sign in</value></data>
+  <data name="SignIn_Heading" xml:space="preserve"><value>KFSHRC BG</value></data>
+  <data name="SignIn_Eyebrow" xml:space="preserve"><value>Internal Guarantee Portal</value></data>
+  <data name="Shared_UsernameLabel" xml:space="preserve"><value>Username</value></data>
+  <data name="Shared_PasswordLabel" xml:space="preserve"><value>Password</value></data>
+  <data name="SignIn_SubmitAction" xml:space="preserve"><value>Sign in to Workspace</value></data>
 </root>

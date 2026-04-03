@@ -27,6 +27,12 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.Email)
             .HasMaxLength(256);
 
+        builder.Property(user => user.PreferredCulture)
+            .HasMaxLength(10);
+
+        builder.Property(user => user.PreferredTheme)
+            .HasMaxLength(32);
+
         builder.Property(user => user.ExternalId)
             .HasMaxLength(128);
 

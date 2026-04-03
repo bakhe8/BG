@@ -27,23 +27,25 @@
                 <a asp-page="/Approvals/Queue" 
                    asp-all-route-data="Model.BuildSelectionRoute(item.RequestId)"
                    aria-current="@(isActive ? "true" : "false")"
-                   class="request-queue-link @(isActive ? "active" : null) @(isBlocked ? "is-blocked" : null)">
-                    <div class="request-queue-copy">
-                        <div class="entity-subtitle">@item.RequesterDisplayName</div>
-                        <strong>@item.GuaranteeNumber</strong>
-                        <p class="compact-copy">@stageTitle</p>
-                    </div>
-                    <div class="request-queue-meta">
-                        @if (isActive)
-                        {
-                            <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
-                        }
-                        <span class="status-badge is-active">@T[item.StatusResourceKey]</span>
-                        <span class="section-caption">@item.SubmittedAtUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>
-                        @if (isBlocked)
-                        {
-                            <span class="compact-copy text-danger">@T["SurfaceAction_BlockedLabel"]</span>
-                        }
+                   class="request-queue-link border-bottom py-3 px-1 @(isActive ? "active" : null) @(isBlocked ? "is-blocked" : null)">
+                    <div class="d-flex justify-content-between align-items-center w-100">
+                        <div class="request-queue-copy">
+                            <div class="entity-subtitle x-small text-muted text-uppercase fw-bold mb-1">@item.RequesterDisplayName</div>
+                            <strong class="d-block text-dark mb-1">@item.GuaranteeNumber</strong>
+                            <p class="compact-copy small text-muted mb-0">@stageTitle</p>
+                        </div>
+                        <div class="request-queue-meta text-end">
+                            <div class="mb-2">
+                                <bg-badge class="bg-badge-pending">@T[item.StatusResourceKey]</bg-badge>
+                            </div>
+                            <span class="x-small text-muted">@item.SubmittedAtUtc.ToLocalTime().ToString("g")</span>
+                            @if (isBlocked)
+                            {
+                                <div class="x-small text-danger fw-bold mt-1">
+                                    <i class="bi bi-lock-fill me-1"></i>@T["SurfaceAction_BlockedLabel"]
+                                </div>
+                            }
+                        </div>
                     </div>
                 </a>
             }

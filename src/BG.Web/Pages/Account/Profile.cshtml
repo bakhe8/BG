@@ -1,0 +1,114 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = T["NavProfile"];
+    
+    string BuildInitials(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return "BG";
+        var initials = new List<char>(2);
+        foreach (var part in value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            initials.Add(char.ToUpperInvariant(part[0]));
+            if (initials.Count == 2) break;
+        }
+        return initials.Count == 0 ? "BG" : new string(initials.ToArray());
+    }
+    
+    var initials = BuildInitials(Model.Profile?.DisplayName);
+}
+
+<section class="section-shell profile-settings-surface">
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="notice-banner is-success mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i>@Model.StatusMessage
+        </div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors mb-4"></div>
+
+    <div class="mb-5 pb-4 border-bottom">
+        <section-caption>@T["AccountSettings_Caption"]</section-caption>
+        <h1 class="fw-bold text-dark m-0">@T["NavProfile"]</h1>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="bg-card shadow-sm p-4 rounded-4 text-center">
+                <div class="mb-4">
+                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-brand-green bg-opacity-10 fw-bold text-brand-green shadow-sm mb-3"
+                          style="width: 80px; height: 80px; font-size: 2rem;">
+                        @initials
+                    </span>
+                    <h4 class="fw-bold text-dark m-0">@Model.Profile?.DisplayName</h4>
+                    <p class="text-muted small">@@@Model.Profile?.Username</p>
+                </div>
+                
+                <div class="border-top pt-3 text-start">
+                    <div class="mb-3">
+                        <label class="x-small fw-bold text-muted text-uppercase">@T["RolesField"]</label>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                            @foreach (var role in Model.Profile?.RoleNames ?? [])
+                            {
+                                <bg-badge variant="light">@role</bg-badge>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="bg-card shadow-sm p-4 rounded-4">
+                <form method="post">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">
+                                <i class="bi bi-person-lines-fill me-2"></i>@T["Profile_PersonalDetails"]
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label x-small fw-bold opacity-75" asp-for="Input.DisplayName">@T["DisplayNameField"]</label>
+                            <input asp-for="Input.DisplayName" class="form-control rounded-4 p-3 shadow-none border-light bg-light bg-opacity-50" maxlength="128" placeholder="@T["DisplayNameField"]" />
+                            <span asp-validation-for="Input.DisplayName" class="text-danger x-small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label x-small fw-bold opacity-75" asp-for="Input.Email">@T["EmailField"]</label>
+                            <input asp-for="Input.Email" class="form-control rounded-4 p-3 shadow-none border-light bg-light bg-opacity-50" maxlength="256" placeholder="email@example.com" />
+                            <span asp-validation-for="Input.Email" class="text-danger x-small"></span>
+                        </div>
+
+                        <div class="col-12 mt-5">
+                            <h5 class="fw-bold text-dark mb-4 border-bottom pb-2">
+                                <i class="bi bi-palette-fill me-2"></i>@T["Profile_Preferences"]
+                            </h5>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label x-small fw-bold opacity-75" asp-for="Input.PreferredCulture">@T["LanguageField"]</label>
+                            <select asp-for="Input.PreferredCulture" asp-items="Model.CultureOptions" class="form-select rounded-4 p-3 shadow-none border-light bg-light bg-opacity-50">
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label x-small fw-bold opacity-75" asp-for="Input.PreferredTheme">@T["ThemeField"]</label>
+                            <select asp-for="Input.PreferredTheme" asp-items="Model.ThemeOptions" class="form-select rounded-4 p-3 shadow-none border-light bg-light bg-opacity-50">
+                            </select>
+                        </div>
+
+                        <div class="col-12 mt-5 pt-3">
+                            <button type="submit" class="bg-btn bg-btn-primary px-5 py-3 shadow-sm rounded-4">
+                                <i class="bi bi-shield-check me-2 rotate-rtl"></i>@T["Profile_SaveAction"]
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

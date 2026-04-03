@@ -36,24 +36,24 @@
             </div>
         </div>
 
-        @* 2. Scrollable Work Surface (Matching Image 5) *@
-        <div class="flex-grow-1 overflow-auto p-4">
-            
-            @* Primary Metrics Grid *@
-            <div class="row g-4 mb-5">
-                <div class="col-6">
-                    <div class="bg-light p-4 rounded-4 border border-white">
-                        <div class="bg-grid-label mb-2">@T["OperationsQueue_Header_Value"]</div>
-                        <div class="bg-grid-value fs-4 text-brand-green">SAR @(item.SuggestedConfirmedAmount.HasValue ? item.SuggestedConfirmedAmount.Value.ToString("N0") : "0")</div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="bg-light p-4 rounded-4 border border-white">
-                        <div class="bg-grid-label mb-2">@T["OperationsQueue_Header_Date"]</div>
-                        <div class="bg-grid-value fs-4">@item.SuggestedConfirmedExpiryDate</div>
-                    </div>
-                </div>
+@* 2. Scrollable Work Surface (Matching Image 5) *@
+<div class="flex-grow-1 overflow-auto p-4">
+    
+    @* Primary Metrics Grid *@
+    <div class="row g-4 mb-5">
+        <div class="col-6">
+            <div class="bg-light p-4 rounded-4 border-0">
+                <div class="bg-grid-label mb-2">@T["OperationsQueue_Header_Value"]</div>
+                <div class="bg-grid-value fs-4 text-brand-green">SAR @(decimal.TryParse(item.SuggestedConfirmedAmount, out var parsedAmt) ? parsedAmt.ToString("N0") : (item.SuggestedConfirmedAmount ?? "0"))</div>
             </div>
+        </div>
+        <div class="col-6">
+            <div class="bg-light p-4 rounded-4 border-0">
+                <div class="bg-grid-label mb-2">@T["OperationsQueue_Header_Date"]</div>
+                <div class="bg-grid-value fs-4">@item.SuggestedConfirmedExpiryDate</div>
+            </div>
+        </div>
+    </div>
 
             @* Internal Navigation Pills *@
             <div class="bg-light p-1 rounded-pill d-flex mb-5" style="border: 1px solid #E5E7EB;">
@@ -87,8 +87,8 @@
             </div>
         </div>
 
-        @* 3. Institutional Action Bar (Matching Image 5) *@
-        <div class="p-4 border-top bg-white">
+        @* 3. Institutional Action Bar (Matching Image 1, 3) *@
+        <div class="bg-sticky-action-bar">
             <form method="post" id="decision-form" class="m-0">
                 <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
                 <input type="hidden" name="reviewItemId" value="@item.Id" />
@@ -101,13 +101,13 @@
                     </button>
                     
                     <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Return")" 
-                            class="bg-btn flex-grow-1 py-3 border" style="background-color: #FEF3C7; color: #92400E !important;">
+                            class="bg-btn flex-grow-1 py-3" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FDE68A;">
                         <i class="bi bi-arrow-left-right fs-5"></i>
                         <span>@T["OperationsQueue_Action_Return"]</span>
                     </button>
 
                     <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Reject")" 
-                            class="bg-btn flex-grow-1 py-3 border" style="background-color: #FEE2E2; color: #991B1B !important;">
+                            class="bg-btn flex-grow-1 py-3" style="background-color: #FEE2E2; color: #991B1B !important; border: 1px solid #FECACA;">
                         <i class="bi bi-x-circle fs-5"></i>
                         <span>@T["OperationsQueue_Action_Reject"]</span>
                     </button>

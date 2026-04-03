@@ -43,36 +43,40 @@
         <h1 class="fw-bold text-dark m-0">@T["UsersPageHeading"]</h1>
     </div>
 
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-5">
         <div class="col-md-3">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["UsersListTitle"]</div>
-                <div class="display-6 fw-bold text-dark">@Model.Users.Count</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-brand-green opacity-10" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["UsersListTitle"]</span>
+                <div class="bg-grid-value fs-2 mt-2">@Model.Users.Count</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["Status_Active"]</div>
-                <div class="display-6 fw-bold text-brand-green">@activeUsers</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-brand-green opacity-25" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["Status_Active"]</span>
+                <div class="bg-grid-value fs-2 mt-2 text-brand-green">@activeUsers</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["Credentials_Ready"]</div>
-                <div class="display-6 fw-bold text-brand-gold">@credentialReadyUsers</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-info opacity-10" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["Credentials_Ready"]</span>
+                <div class="bg-grid-value fs-2 mt-2 text-info">@credentialReadyUsers</div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="bg-card shadow-sm p-4 text-center">
-                <div class="section-caption x-small mb-1">@T["RolesField"]</div>
-                <div class="display-6 fw-bold text-dark">@assignedRoles</div>
+            <div class="bg-light p-4 rounded-4 border-0 h-100 position-relative overflow-hidden">
+                <div class="position-absolute top-0 start-0 h-100 bg-secondary opacity-10" style="width: 4px;"></div>
+                <span class="bg-grid-label">@T["RolesField"]</span>
+                <div class="bg-grid-value fs-2 mt-2">@assignedRoles</div>
             </div>
         </div>
     </div>
 
-    <div class="admin-users-layout">
-        <div class="admin-users-sidebar">
-            <article class="admin-users-directory bg-card shadow-sm">
+    <div class="layout-dual-panel">
+        <div class="layout-sidebar">
+            <article class="admin-users-directory">
                 <div class="admin-users-card-header">
                     <div>
                         <h5 class="fw-bold text-dark m-0">@T["UsersListTitle"]</h5>
@@ -84,8 +88,8 @@
                 @if (Model.Users.Count == 0)
                 {
                     <div class="text-center py-5">
-                        <i class="bi bi-people-fill display-1 text-light mb-4 d-block"></i>
-                        <p class="text-secondary mb-0">@T["EmptyUsers"]</p>
+                        <i class="bi bi-people-fill display-1 text-muted opacity-25 mb-4 d-block"></i>
+                        <p class="text-muted mb-0">@T["EmptyUsers"]</p>
                     </div>
                 }
                 else
@@ -98,32 +102,21 @@
 
                             <a asp-page="/Administration/Users"
                                asp-all-route-data="Model.BuildSelectionRoute(user.Id)"
-                               class="request-queue-link admin-user-link @(isActive ? "active" : null)">
-                                <div class="request-queue-copy">
-                                    <div class="admin-user-link-header">
-                                        <span class="admin-user-avatar">@userInitials</span>
-                                        <div>
-                                            <strong>@user.DisplayName</strong>
-                                            <div class="entity-subtitle">@@@user.Username</div>
-                                        </div>
+                               class="request-queue-link border-0 py-3 px-1 @(isActive ? "active" : null)">
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <div class="request-queue-copy">
+                                        <div class="entity-subtitle x-small text-muted text-uppercase fw-bold mb-1">@T[$"SourceType_{user.SourceType}"]</div>
+                                        <strong class="d-block text-dark">@user.DisplayName</strong>
+                                        <div class="x-small text-muted">@@@user.Username</div>
                                     </div>
-                                    <p class="compact-copy mb-0">
-                                        @T[$"SourceType_{user.SourceType}"]
-                                        @if (user.Roles.Count > 0)
-                                        {
-                                            <span> · @string.Join(" · ", user.Roles.Take(2))</span>
-                                        }
-                                    </p>
-                                </div>
-                                <div class="request-queue-meta">
-                                    @if (isActive)
-                                    {
-                                        <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
-                                    }
-                                    <bg-badge variant="@(user.IsActive ? "success" : "danger")">
-                                        @T[user.IsActive ? "Status_Active" : "Status_Inactive"]
-                                    </bg-badge>
-                                    <span class="section-caption">@T[user.HasLocalPassword ? "Credentials_Ready" : "Credentials_Missing"]</span>
+                                    <div class="request-queue-meta text-end">
+                                        <div class="mb-2">
+                                            <bg-badge class="bg-badge-@(user.IsActive ? "success" : "returned")">
+                                                @T[user.IsActive ? "Status_Active" : "Status_Inactive"]
+                                            </bg-badge>
+                                        </div>
+                                        <span class="x-small text-muted">@T[user.HasLocalPassword ? "Credentials_Ready" : "Credentials_Missing"]</span>
+                                    </div>
                                 </div>
                             </a>
                         }
@@ -131,7 +124,7 @@
                 }
             </article>
 
-            <article class="admin-users-create bg-card shadow-sm">
+            <article class="admin-users-create">
                 <div class="admin-users-card-header">
                     <div>
                         <h5 class="fw-bold text-dark m-0">@T["CreateUserTitle"]</h5>
@@ -142,36 +135,36 @@
                 <form method="post" class="d-flex flex-column gap-4">
                     <div>
                         <label class="form-label x-small fw-bold opacity-75" asp-for="Input.Username">@T["UsernameField"]</label>
-                        <input asp-for="Input.Username" class="form-control rounded-4 p-2 small" maxlength="64" />
+                        <input asp-for="Input.Username" class="bg-input" maxlength="64" />
                     </div>
 
                     <div>
                         <label class="form-label x-small fw-bold opacity-75" asp-for="Input.DisplayName">@T["DisplayNameField"]</label>
-                        <input asp-for="Input.DisplayName" class="form-control rounded-4 p-2 small" maxlength="128" />
+                        <input asp-for="Input.DisplayName" class="bg-input" maxlength="128" />
                     </div>
 
                     <div>
                         <label class="form-label x-small fw-bold opacity-75" asp-for="Input.Email">@T["EmailField"]</label>
-                        <input asp-for="Input.Email" class="form-control rounded-4 p-2 small" maxlength="256" />
+                        <input asp-for="Input.Email" class="bg-input" maxlength="256" />
                     </div>
 
                     <div>
                         <label class="form-label x-small fw-bold opacity-75" asp-for="Input.InitialPassword">@T["PasswordField"]</label>
-                        <input asp-for="Input.InitialPassword" class="form-control rounded-4 p-2 small" type="password" maxlength="128" autocomplete="new-password" />
+                        <input asp-for="Input.InitialPassword" class="bg-input" type="password" maxlength="128" autocomplete="new-password" />
                     </div>
 
-                    <div class="bg-light rounded-4 p-3">
-                        <div class="x-small fw-bold text-dark mb-3">@T["RolesField"]</div>
+                    <div>
+                        <div class="bg-grid-label mb-3">@T["RolesField"]</div>
                         @if (Model.Roles.Count == 0)
                         {
                             <p class="x-small text-muted italic mb-0">@T["NoRolesAvailable"]</p>
                         }
                         else
                         {
-                            <div class="admin-users-role-picker">
+                            <div class="d-grid gap-2">
                                 @foreach (var role in Model.Roles)
                                 {
-                                    <label class="d-flex align-items-center gap-3 p-2 bg-white rounded-3 border cursor-pointer">
+                                    <label class="d-flex align-items-center gap-3 p-3 bg-muted rounded-4 cursor-pointer">
                                         <input type="checkbox" name="Input.SelectedRoleIds" value="@role.Id" class="form-check-input mt-0" />
                                         <div>
                                             <div class="x-small fw-bold text-dark">@role.Name</div>
@@ -186,12 +179,14 @@
                         }
                     </div>
 
-                    <bg-button type="submit" variant="primary" class="w-100">@T["SaveUserAction"]</bg-button>
+                    <button type="submit" class="bg-btn bg-btn-primary w-100 py-3 shadow-none">
+                        <i class="bi bi-person-plus-fill me-2 rotate-rtl"></i>@T["SaveUserAction"]
+                    </button>
                 </form>
             </article>
         </div>
 
-        <article class="admin-users-detail bg-card shadow-sm">
+        <article class="admin-users-detail">
             @if (activeUser is null)
             {
                 <div class="text-center py-5">
@@ -214,16 +209,16 @@
                             <div class="entity-subtitle">@@@activeUser.Username</div>
                         </div>
                     </div>
-                    <bg-badge variant="@(activeUser.IsActive ? "success" : "danger")">
+                    <span class="status-indicator @(activeUser.IsActive ? "is-active" : "is-inactive")">
                         @T[activeUser.IsActive ? "Status_Active" : "Status_Inactive"]
-                    </bg-badge>
+                    </span>
                 </div>
 
                 <p class="compact-copy mb-4">@T["UsersPage_SelectedUserSummary"]</p>
 
                 <div class="admin-user-detail-grid">
                     <section class="admin-user-detail-section">
-                        <label class="section-caption x-small">@T["UsersPage_IdentityTitle"]</label>
+                        <label class="section-caption">@T["UsersPage_IdentityTitle"]</label>
                         <div class="admin-user-facts">
                             <div class="admin-user-fact">
                                 <span>@T["UsernameField"]</span>
@@ -241,7 +236,7 @@
                     </section>
 
                     <section class="admin-user-detail-section">
-                        <label class="section-caption x-small">@T["UsersPage_ContactTitle"]</label>
+                        <label class="section-caption">@T["UsersPage_ContactTitle"]</label>
                         <div class="admin-user-facts">
                             <div class="admin-user-fact">
                                 <span>@T["EmailField"]</span>
@@ -255,7 +250,7 @@
                     </section>
 
                     <section class="admin-user-detail-section">
-                        <label class="section-caption x-small">@T["UsersPage_SecurityTitle"]</label>
+                        <label class="section-caption">@T["UsersPage_SecurityTitle"]</label>
                         <div class="admin-user-facts">
                             <div class="admin-user-fact">
                                 <span>@T["CredentialsField"]</span>
@@ -269,7 +264,7 @@
                     </section>
 
                     <section class="admin-user-detail-section">
-                        <label class="section-caption x-small">@T["RolesField"]</label>
+                        <label class="section-caption">@T["RolesField"]</label>
                         @if (activeUser.Roles.Count == 0)
                         {
                             <p class="x-small text-muted italic mb-0">@T["NoRolesAssigned"]</p>
@@ -286,19 +281,19 @@
                     </section>
                 </div>
 
-                <section class="admin-user-password-panel">
-                    <label class="section-caption x-small">@T["UsersPage_ResetPasswordTitle"]</label>
+                <div class="admin-user-password-panel">
+                    <label class="section-caption">@T["UsersPage_ResetPasswordTitle"]</label>
                     <form method="post" asp-page-handler="SetPassword" class="admin-user-password-form">
                         <input type="hidden" name="userId" value="@activeUser.Id" />
                         <div class="flex-grow-1">
                             <label class="form-label x-small fw-bold opacity-75" for="newPassword">@T["ResetPasswordField"]</label>
-                            <input id="newPassword" name="newPassword" class="form-control rounded-4 p-2 x-small" type="password" placeholder="@T["UsersPage_NewPasswordPlaceholder"]" autocomplete="new-password" />
+                            <input id="newPassword" name="newPassword" class="bg-input" type="password" placeholder="@T["UsersPage_NewPasswordPlaceholder"]" autocomplete="new-password" />
                         </div>
-                        <bg-button type="submit" variant="light" class="text-primary flex-shrink-0">
-                            @T["SavePasswordAction"]
-                        </bg-button>
+                        <button type="submit" class="bg-btn bg-btn-secondary px-4 py-2 border shadow-none">
+                            <i class="bi bi-shield-lock me-1"></i>@T["SavePasswordAction"]
+                        </button>
                     </form>
-                </section>
+                </div>
             }
         </article>
     </div>

@@ -3,13 +3,11 @@
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.Pages.Requests.WorkspaceModel
 
-<div class="bg-card-premium h-100 d-flex flex-column request-active-panel">
+<div class="h-100 d-flex flex-column request-active-panel bg-white border rounded-4 overflow-hidden shadow-sm">
     @if (Model.ActiveRequest is null)
     {
         <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center py-5">
-            <div class="bg-brand-gold-soft rounded-circle p-4 mb-4">
-                <i class="bi bi-file-earmark-plus fs-1 text-brand-gold"></i>
-            </div>
+            <i class="bi bi-file-earmark-plus fs-1 text-muted opacity-25 d-block mb-3"></i>
             <h2 class="fw-bold text-dark">@T["RequestsWorkspace_StartNowTitle"]</h2>
             <p class="text-secondary mt-2 mb-0">@T["RequestsWorkspace_StartNowBody"]</p>
         </div>
@@ -19,212 +17,146 @@
         var request = Model.ActiveRequest;
         var stageTitle = Model.ResolveStageTitle(request);
         var requestedChange = Model.ResolveRequestedChange(request);
-        var currentActionTitle = request.CanSubmitForApproval
-            ? T["RequestsWorkspace_SubmitAction"].Value
-            : request.CanRevise
-                ? T["RequestsWorkspace_EditRequestTitle"].Value
-                : request.CanWithdraw
-                    ? T["RequestsWorkspace_WithdrawAction"].Value
-                    : T["RequestsWorkspace_TrackingSummaryHeading"].Value;
+        var hasAction = Model.HasOwnerAction(request);
 
-        <div class="request-active-header d-flex justify-content-between align-items-start mb-4 pb-4 border-bottom">
-            <div>
-                <section-caption>@T["RequestsWorkspace_CurrentRequestTitle"]</section-caption>
-                <h1 class="fw-bold text-dark m-0">@request.GuaranteeNumber</h1>
-                <p class="text-secondary mt-1 mb-0">@T[Model.ResolveStateSummaryResourceKey(request.StatusResourceKey)]</p>
+        @* 1. Institutional Header *@
+        <div class="p-4 border-bottom bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">@request.GuaranteeNumber</span>
+                    <bg-badge class="bg-badge-success">@T[request.StatusResourceKey]</bg-badge>
+                </div>
+                <button type="button" class="btn-close" aria-label="Close"></button>
             </div>
-            <bg-badge variant="success" size="lg">@T[request.StatusResourceKey]</bg-badge>
+            <h3 class="fw-bold text-dark mb-2">@T[request.RequestTypeResourceKey]</h3>
+            <div class="d-flex align-items-center gap-2 text-muted x-small text-uppercase fw-bold">
+                <i class="bi bi-calendar3"></i>
+                <span>@T["CreatedAtField"]: @request.CreatedAtUtc.ToLocalTime().ToString("d")</span>
+                <span class="mx-1">·</span>
+                <i class="bi bi-layers"></i>
+                <span>@stageTitle</span>
+            </div>
         </div>
 
-        <div class="surface-action-stack">
-            <div class="surface-action-zone @(Model.HasOwnerAction(request) ? "is-primary" : "is-blocked")">
-                <div class="surface-action-header">
-                    <span class="surface-action-kicker">@T["SurfaceAction_CurrentActionLabel"]</span>
-                    <h3 class="surface-action-title">@currentActionTitle</h3>
-                </div>
-                <p class="surface-action-copy">@T[Model.ResolveNextActionResourceKey(request)]</p>
-
-                @if (!Model.HasOwnerAction(request))
-                {
-                    var noActionReasonResourceKey = Model.ResolveNoOwnerActionReasonResourceKey(request);
-                    if (!string.IsNullOrWhiteSpace(noActionReasonResourceKey))
-                    {
-                        <p class="compact-copy mb-0">@T[noActionReasonResourceKey]</p>
-                    }
-                }
-
-                @if (request.CanSubmitForApproval || request.CanWithdraw)
-                {
-                    <div class="action-row">
-                        @if (request.CanSubmitForApproval)
-                        {
-                            <form method="post" asp-page-handler="Submit">
-                                <input type="hidden" name="requestId" value="@request.Id" />
-                                <input type="hidden" name="request" value="@request.Id" />
-                                <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                                <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
-                                <bg-button type="submit" variant="primary">@T["RequestsWorkspace_SubmitAction"]</bg-button>
-                            </form>
-                        }
-
-                        @if (request.CanWithdraw)
-                        {
-                            <form method="post" asp-page-handler="Withdraw">
-                                <input type="hidden" name="requestId" value="@request.Id" />
-                                <input type="hidden" name="request" value="@request.Id" />
-                                <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                                <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
-                                <bg-button type="submit" variant="light" class="text-danger border-danger border-opacity-25">@T["RequestsWorkspace_WithdrawAction"]</bg-button>
-                            </form>
-                        }
+        @* 2. Scrollable Work Surface *@
+        <div class="flex-grow-1 overflow-auto p-4">
+            
+            @* Stats Grid *@
+            <div class="row g-4 mb-5">
+                <div class="col-6">
+                    <div class="bg-light p-4 rounded-4 border-0">
+                        <div class="bg-grid-label">@T["RequestsWorkspace_RequestedChangeTitle"]</div>
+                        <div class="bg-grid-value fs-5 mt-1">@requestedChange</div>
                     </div>
-                }
-            </div>
-
-            <div class="request-active-facts">
-                <section class="surface-stat">
-                    <span class="section-caption">@T["RequestsWorkspace_RequestTypeField"]</span>
-                    <strong>@T[request.RequestTypeResourceKey]</strong>
-                </section>
-                <section class="surface-stat">
-                    <span class="section-caption">@T["RequestsWorkspace_RequestedChangeTitle"]</span>
-                    <strong>@requestedChange</strong>
-                </section>
-                <section class="surface-stat">
-                    <span class="section-caption">@T["RequestsWorkspace_CurrentStageLabel"]</span>
-                    <strong>@stageTitle</strong>
-                </section>
-                <section class="surface-stat">
-                    <span class="section-caption">@T["CreatedAtField"]</span>
-                    <strong>@request.CreatedAtUtc.ToLocalTime().ToString("d", CultureInfo.CurrentCulture)</strong>
-                </section>
+                </div>
+                <div class="col-6">
+                    <div class="bg-light p-4 rounded-4 border-0">
+                        <div class="bg-grid-label">@T["RequestsWorkspace_CurrentStageLabel"]</div>
+                        <div class="bg-grid-value fs-5 mt-1">@stageTitle</div>
+                    </div>
+                </div>
             </div>
 
             @if (request.CanRevise)
             {
-                <article class="bg-card request-revision-card">
-                    <div class="request-revision-header">
-                        <div>
-                            <span class="section-caption">@T["RequestsWorkspace_EditRequestTitle"]</span>
-                            <h3 class="fw-bold text-dark m-0">@T["RequestsWorkspace_EditRequestTitle"]</h3>
-                        </div>
-                        <p class="compact-copy mb-0">@T["RequestsWorkspace_EditRequestSummary"]</p>
-                    </div>
-
-                    <form method="post" asp-page-handler="Update" class="row g-4">
-                        <input type="hidden" name="requestId" value="@request.Id" />
-                        <input type="hidden" name="request" value="@request.Id" />
-                        <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                        <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
-
+                <form method="post" id="request-form" class="stack-form d-flex flex-column gap-4">
+                    <input type="hidden" name="requestId" value="@request.Id" />
+                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                    
+                    <div class="row g-3">
                         @if (request.RequiresRequestedAmount)
                         {
                             <div class="col-md-6">
-                                <label class="form-label fw-bold x-small" for="update-amount-@request.Id">@T["RequestsWorkspace_RequestedAmountField"]</label>
-                                <input id="update-amount-@request.Id" name="requestedAmount" class="form-control" inputmode="decimal" value="@request.RequestedAmount" />
+                                <label class="form-label x-small text-muted text-uppercase fw-bold" for="update-amount">@T["RequestsWorkspace_RequestedAmountField"]</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0 x-small fw-bold">SAR</span>
+                                    <input id="update-amount" name="requestedAmount" class="form-control rounded-3" inputmode="decimal" value="@request.RequestedAmount" />
+                                </div>
                             </div>
                         }
 
                         @if (request.RequiresRequestedExpiryDate)
                         {
                             <div class="col-md-6">
-                                <label class="form-label fw-bold x-small" for="update-expiry-@request.Id">@T["RequestsWorkspace_RequestedExpiryDateField"]</label>
-                                <input id="update-expiry-@request.Id" name="requestedExpiryDate" class="form-control" type="date" value="@request.RequestedExpiryDate" />
+                                <label class="form-label x-small text-muted text-uppercase fw-bold" for="update-expiry">@T["RequestsWorkspace_RequestedExpiryDateField"]</label>
+                                <input id="update-expiry" name="requestedExpiryDate" class="form-control rounded-3" type="date" value="@request.RequestedExpiryDate" />
                             </div>
                         }
+                    </div>
 
-                        <div class="col-12">
-                            <label class="form-label fw-bold x-small" for="update-notes-@request.Id">@T["RequestsWorkspace_NotesField"]</label>
-                            <textarea id="update-notes-@request.Id" name="notes" class="form-control" rows="3">@request.Notes</textarea>
-                        </div>
-
-                        <div class="col-12 d-flex justify-content-end mt-4">
-                            <bg-button type="submit" variant="secondary">@T["RequestsWorkspace_UpdateAction"]</bg-button>
-                        </div>
-                    </form>
-
-                    @if (request.CanCancel)
-                    {
-                        <form method="post" asp-page-handler="Cancel" class="d-flex justify-content-end">
-                            <input type="hidden" name="requestId" value="@request.Id" />
-                            <input type="hidden" name="request" value="@request.Id" />
-                            <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                            <input type="hidden" name="page" value="@Model.Snapshot.OwnedRequestsPage.PageNumber" />
-                            <bg-button type="submit" variant="light" class="text-secondary bg-transparent border-0">@T["RequestsWorkspace_CancelAction"]</bg-button>
-                        </form>
-                    }
-                </article>
+                    <div>
+                        <label class="form-label x-small text-muted text-uppercase fw-bold" for="update-notes">@T["RequestsWorkspace_NotesField"]</label>
+                        <textarea id="update-notes" name="notes" class="form-control rounded-3" rows="3">@request.Notes</textarea>
+                    </div>
+                </form>
+            }
+            else if (!hasAction)
+            {
+                <div class="alert alert-light border-0 shadow-none small italic mb-4">
+                    <i class="bi bi-info-circle me-2"></i>@T[Model.ResolveNextActionResourceKey(request)]
+                </div>
             }
 
-            <details class="details-panel">
-                <summary>
-                    <span>@T["RequestsWorkspace_RequestDetailsTitle"]</span>
-                    <span class="section-caption">@T["RequestsWorkspace_RequestDetailsSummary"]</span>
-                </summary>
-                <div class="details-panel-body">
-                    <section class="request-active-section">
-                        <span class="section-caption">@T["RequestsWorkspace_LastDecisionLabel"]</span>
-                        @if (!string.IsNullOrWhiteSpace(request.LastDecisionResourceKey))
-                        {
-                            <div class="fw-bold">@T[request.LastDecisionResourceKey]</div>
-                        }
-                        <p class="compact-copy italic mb-0">@(string.IsNullOrWhiteSpace(request.LastDecisionNote) ? T["RequestsWorkspace_NoNotes"].Value : request.LastDecisionNote)</p>
-                    </section>
-
-                    <section class="request-active-section">
-                        <span class="section-caption">@T["RequestsWorkspace_NotesField"]</span>
-                        <p class="compact-copy mb-0">@(string.IsNullOrWhiteSpace(request.Notes) ? T["RequestsWorkspace_NoNotes"].Value : request.Notes)</p>
-                    </section>
-
-                    <section class="request-active-section">
-                        <span class="section-caption">@T["RequestsWorkspace_CorrespondenceLabel"]</span>
-                        <div class="fw-bold">@request.CorrespondenceCount</div>
-                    </section>
-
+            @* Details Accordion (Image 4 style details) *@
+            <div class="mt-5 pt-4 border-top">
+                <h6 class="x-small text-muted text-uppercase fw-bold mb-4">@T["RequestsWorkspace_RequestDetailsTitle"]</h6>
+                
+                <div class="d-flex flex-column gap-3">
+                    <div class="p-3 bg-light rounded-3">
+                        <span class="x-small text-muted d-block mb-1">@T["RequestsWorkspace_LastDecisionLabel"]</span>
+                        <div class="small fw-bold text-dark">@(string.IsNullOrWhiteSpace(request.LastDecisionNote) ? T["RequestsWorkspace_NoNotes"].Value : request.LastDecisionNote)</div>
+                    </div>
+                    
                     @if (request.PrimaryDocumentForm is not null)
                     {
-                        <section class="request-active-section">
-                            <span class="section-caption">@T["RequestsWorkspace_TrackingSummaryTitle"]</span>
-                            <div class="pill-list">
-                                <span class="pill">@T[request.PrimaryDocumentForm.TitleResourceKey]</span>
-                                <span class="pill">@T[request.PrimaryDocumentForm.BankResourceKey]</span>
-                                <span class="pill">@T[request.GuaranteeCategoryResourceKey]</span>
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="x-small text-muted d-block mb-1">@T["RequestsWorkspace_TrackingSummaryTitle"]</span>
+                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                <span class="badge bg-white text-dark border x-small">@T[request.PrimaryDocumentForm.TitleResourceKey]</span>
+                                <span class="badge bg-white text-dark border x-small">@T[request.PrimaryDocumentForm.BankResourceKey]</span>
+                                <span class="badge bg-white text-dark border x-small">@T[request.GuaranteeCategoryResourceKey]</span>
                             </div>
-                        </section>
-                    }
-                </div>
-            </details>
-
-            <details class="details-panel">
-                <summary>
-                    <span>@T["RequestsWorkspace_LedgerTitle"]</span>
-                    <span class="section-caption">@T["RequestsWorkspace_LedgerSummary"]</span>
-                </summary>
-                <div class="details-panel-body">
-                    @if (request.LedgerEntries.Count == 0)
-                    {
-                        <p class="x-small text-muted m-0">@T["RequestsWorkspace_LedgerEmpty"]</p>
-                    }
-                    else
-                    {
-                        <div class="bg-timeline">
-                            @foreach (var ledgerEntry in request.LedgerEntries)
-                            {
-                                <div class="bg-timeline-item">
-                                    <div class="bg-timeline-icon"><i class="bi bi-clock"></i></div>
-                                    <div class="ms-1">
-                                        <div class="bg-timeline-title">@ledgerEntry.OccurredAtUtc.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</div>
-                                        <div class="x-small text-brand-green mb-1 fw-bold">
-                                            @(string.IsNullOrWhiteSpace(ledgerEntry.ActorDisplayName) ? T["RequestsWorkspace_LedgerSystemActor"].Value : Model.ResolveRoleDisplayName(ledgerEntry.ActorDisplayName))
-                                        </div>
-                                        <p class="x-small text-muted mb-0">@Model.ResolveLedgerSummary(ledgerEntry)</p>
-                                    </div>
-                                </div>
-                            }
                         </div>
                     }
                 </div>
-            </details>
+            </div>
         </div>
+
+        @if (hasAction || request.CanRevise || request.CanWithdraw)
+        {
+            @* 3. Institutional Action Bar *@
+            <div class="bg-sticky-action-bar">
+                <div class="d-flex gap-2 w-100">
+                    @if (request.CanSubmitForApproval)
+                    {
+                        <form method="post" asp-page-handler="Submit" class="flex-grow-1">
+                            <input type="hidden" name="requestId" value="@request.Id" />
+                            <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                            <button type="submit" class="bg-btn bg-btn-primary w-100 py-3 shadow-none">
+                                <i class="bi bi-send-check-fill me-2 rotate-rtl"></i>@T["RequestsWorkspace_SubmitAction"]
+                            </button>
+                        </form>
+                    }
+                    
+                    @if (request.CanRevise)
+                    {
+                        <button type="submit" form="request-form" formaction="/Requests/Workspace?handler=Update" class="bg-btn bg-btn-primary py-3 shadow-none flex-grow-1">
+                            <i class="bi bi-save2 me-2"></i>@T["RequestsWorkspace_UpdateAction"]
+                        </button>
+                    }
+
+                    @if (request.CanWithdraw)
+                    {
+                        <form method="post" asp-page-handler="Withdraw" class="flex-grow-0">
+                            <input type="hidden" name="requestId" value="@request.Id" />
+                            <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                            <button type="submit" class="bg-btn bg-btn-secondary px-4 py-3 border text-danger">
+                                <i class="bi bi-trash3 me-1"></i>
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
     }
 </div>

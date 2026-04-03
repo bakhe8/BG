@@ -52,6 +52,10 @@ public sealed class User
     public DateTimeOffset? PasswordChangedAtUtc { get; private set; }
 
     public DateTimeOffset? LastSyncedAtUtc { get; private set; }
+    
+    public string? PreferredCulture { get; private set; }
+    
+    public string? PreferredTheme { get; private set; }
 
     public ICollection<UserRole> UserRoles { get; private set; } = new List<UserRole>();
 
@@ -80,6 +84,14 @@ public sealed class User
     public static string NormalizeUsernameKey(string username)
     {
         return NormalizeRequired(username, nameof(username), 64).ToUpperInvariant();
+    }
+
+    public void UpdateProfile(string displayName, string? email, string? preferredCulture = null, string? preferredTheme = null)
+    {
+        DisplayName = NormalizeRequired(displayName, nameof(displayName), 128);
+        Email = string.IsNullOrWhiteSpace(email) ? null : NormalizeOptional(email, 256)?.ToLowerInvariant();
+        PreferredCulture = string.IsNullOrWhiteSpace(preferredCulture) ? null : NormalizeOptional(preferredCulture, 10);
+        PreferredTheme = string.IsNullOrWhiteSpace(preferredTheme) ? null : NormalizeOptional(preferredTheme, 32);
     }
 
     public void SetLocalPassword(string passwordHash, DateTimeOffset changedAtUtc)

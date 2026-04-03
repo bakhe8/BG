@@ -87,7 +87,7 @@ public static class BgServicesExtensions
 
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
-        services.AddSingleton<IUiConfigurationService, UiConfigurationService>();
+        services.AddScoped<IUiConfigurationService, UiConfigurationService>();
         services.AddScoped<IWorkspaceShellService, WorkspaceShellService>();
         services.AddScoped<IExecutionActorAccessor, HttpContextExecutionActorAccessor>();
         services.AddScoped<INotificationBroadcaster, NotificationBroadcaster>();

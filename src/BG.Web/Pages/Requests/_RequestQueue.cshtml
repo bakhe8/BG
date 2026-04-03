@@ -2,66 +2,83 @@
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.Pages.Requests.WorkspaceModel
 
-<div class="bg-card shadow-sm p-0 overflow-hidden h-100 d-flex flex-column">
-    <div class="p-3 bg-brand-gold-soft border-bottom d-flex justify-content-between align-items-center">
+<article class="requests-queue-panel bg-white border rounded-4 overflow-hidden shadow-sm h-100 d-flex flex-column">
+    @* Institutional Header *@
+    <div class="px-4 py-3 border-bottom bg-white d-flex justify-content-between align-items-center">
         <div>
-            <span class="fw-bold text-dark d-block">@T["RequestsWorkspace_MyRequestsTitle"]</span>
+            <h6 class="fw-bold text-dark m-0">@T["RequestsWorkspace_MyRequestsTitle"]</h6>
+            <bg-badge class="bg-badge-draft mt-1">@Model.Snapshot.OwnedRequests.Count @T["RequestsWorkspace_MyRequestsSummary"]</bg-badge>
         </div>
-        <bg-badge variant="secondary">@Model.Snapshot.OwnedRequests.Count</bg-badge>
     </div>
 
-    <div class="flex-grow-1 overflow-auto p-3">
-        @if (Model.Snapshot.OwnedRequests.Count == 0)
-        {
-            <div class="text-center py-5">
-                <i class="bi bi-inbox fs-1 text-muted opacity-25 d-block mb-3"></i>
-                <p class="x-small text-secondary">@T["RequestsWorkspace_Empty"]</p>
-            </div>
-        }
-        else
-        {
-            <div class="d-flex flex-column gap-2">
-                @foreach (var request in Model.Snapshot.OwnedRequests)
-                {
-                    var isActive = Model.ActiveRequest?.Id == request.Id;
-                    var stageTitle = Model.ResolveStageTitle(request);
-                    var requestedChange = Model.ResolveRequestedChange(request);
+    @if (Model.Snapshot.OwnedRequests.Count == 0)
+    {
+        <div class="p-5 text-center text-muted flex-grow-1 d-flex flex-column justify-content-center">
+            <i class="bi bi-inbox fs-1 mb-3"></i>
+            <p class="compact-copy mb-0 fw-bold">@T["RequestsWorkspace_Empty"]</p>
+        </div>
+    }
+    else
+    {
+        @* Institutional Grid Header (Same as Operations) *@
+        <div class="px-4 py-2 border-bottom bg-light bg-opacity-50 x-small fw-bold text-muted d-grid gap-3" 
+             style="grid-template-columns: 100px 1fr 100px 80px; text-transform: uppercase; letter-spacing: 0.1em;">
+            <div>@T["OperationsQueue_Header_Reference"]</div>
+            <div>@T["RequestsWorkspace_RequestedChangeTitle"]</div>
+            <div>@T["OperationsQueue_Header_Date"]</div>
+            <div class="text-center">@T["OperationsQueue_Header_Action"]</div>
+        </div>
+
+        <div class="request-queue-list flex-grow-1 overflow-auto">
+            @foreach (var request in Model.Snapshot.OwnedRequests)
+            {
+                var isActive = Model.ActiveRequest?.Id == request.Id;
+                var stageTitle = Model.ResolveStageTitle(request);
+                var requestedChange = Model.ResolveRequestedChange(request);
+                
+                <a href="@Url.Page("/Requests/Workspace", Model.BuildSelectionRoute(request.Id))" 
+                   aria-current="@(isActive ? "true" : "false")"
+                   class="request-queue-link @(isActive ? "active" : null)"
+                   style="grid-template-columns: 100px 1fr 100px 80px; padding: 0.75rem 1.5rem !important;">
                     
-                    <a href="@Url.Page("/Requests/Workspace", Model.BuildSelectionRoute(request.Id))" 
-                       aria-current="@(isActive ? "true" : "false")"
-                       class="request-queue-link @(isActive ? "active" : null)">
-                        <div class="request-queue-copy">
-                            <div class="entity-subtitle">@T[request.RequestTypeResourceKey]</div>
-                            <strong>@request.GuaranteeNumber</strong>
-                            <p class="compact-copy">@requestedChange</p>
-                        </div>
-                        <div class="request-queue-meta">
-                            @if (isActive)
-                            {
-                                <span class="surface-action-kicker">@T["SurfaceQueue_CurrentItemLabel"]</span>
-                            }
-                            <span class="status-badge is-active">@T[request.StatusResourceKey]</span>
-                            <span class="section-caption">@stageTitle</span>
-                            <span class="compact-copy">@request.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd")</span>
-                        </div>
-                    </a>
-                }
-            </div>
-        }
-    </div>
+                    <div class="bg-grid-col">
+                        <strong class="small text-dark">@request.GuaranteeNumber</strong>
+                    </div>
+
+                    <div class="bg-grid-col overflow-hidden">
+                        <div class="x-small text-muted text-uppercase fw-bold mb-1">@T[request.RequestTypeResourceKey]</div>
+                        <span class="small text-dark opacity-75 text-truncate d-block">@requestedChange</span>
+                    </div>
+
+                    <div class="bg-grid-col">
+                        <span class="x-small text-muted">@request.CreatedAtUtc.ToLocalTime().ToString("d")</span>
+                    </div>
+
+                    <div class="bg-grid-col text-center">
+                        <bg-badge class="bg-badge-@(request.CanCancel ? "success" : "pending")">
+                            @T[request.StatusResourceKey]
+                        </bg-badge>
+                    </div>
+                </a>
+            }
+        </div>
+    }
 
     @if (Model.Snapshot.OwnedRequestsPage.TotalPageCount > 1)
     {
         var pageInfo = Model.Snapshot.OwnedRequestsPage;
-        <div class="p-3 bg-light border-top d-flex justify-content-between">
-            <a class="btn btn-sm btn-white border rounded-pill px-3 @(pageInfo.HasPreviousPage ? "" : "disabled")" 
-               href="@Url.Page("/Requests/Workspace", Model.BuildPageRoute(pageInfo.PreviousPageNumber))">
-                <i class="bi bi-chevron-left me-1"></i>@T["Pagination_Previous"]
-            </a>
-            <a class="btn btn-sm btn-white border rounded-pill px-3 @(pageInfo.HasNextPage ? "" : "disabled")" 
-               href="@Url.Page("/Requests/Workspace", Model.BuildPageRoute(pageInfo.NextPageNumber))">
-                @T["Pagination_Next"]<i class="bi bi-chevron-right ms-1"></i>
-            </a>
+        <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center">
+            <span class="x-small text-muted">@pageInfo.PageNumber / @pageInfo.TotalPageCount</span>
+            <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-white border rounded-pill px-3 x-small fw-bold @(pageInfo.HasPreviousPage ? "" : "disabled")" 
+                   href="@Url.Page("/Requests/Workspace", Model.BuildPageRoute(pageInfo.PreviousPageNumber))">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+                <a class="btn btn-sm btn-white border rounded-pill px-3 x-small fw-bold @(pageInfo.HasNextPage ? "" : "disabled")" 
+                   href="@Url.Page("/Requests/Workspace", Model.BuildPageRoute(pageInfo.NextPageNumber))">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </div>
         </div>
     }
-</div>
+</article>

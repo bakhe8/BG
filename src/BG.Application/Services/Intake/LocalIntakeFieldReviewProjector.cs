@@ -6,6 +6,7 @@ namespace BG.Application.Services;
 
 internal sealed class LocalIntakeFieldReviewProjector : IIntakeFieldReviewProjector
 {
+    private const int ConfidenceThreshold = 40;
     private readonly IIntakeExtractionConfidenceScorer _confidenceScorer;
 
     public LocalIntakeFieldReviewProjector(IIntakeExtractionConfidenceScorer confidenceScorer)
@@ -39,10 +40,14 @@ internal sealed class LocalIntakeFieldReviewProjector : IIntakeFieldReviewProjec
             {
                 if (candidateMap.TryGetValue(sampleField.FieldKey, out var candidate))
                 {
+                    var confidence = _confidenceScorer.Score(sampleField, candidate);
+                    var requiresReview = confidence < ConfidenceThreshold;
+
                     return sampleField with
                     {
                         Value = candidate.Value,
-                        ConfidencePercent = _confidenceScorer.Score(sampleField, candidate),
+                        ConfidencePercent = confidence,
+                        RequiresExplicitReview = requiresReview,
                         ProvenanceResourceKey = IntakeFieldProvenanceCatalog.GetResourceKey(candidate.Source),
                         IsExpectedByDocumentForm = expectedFieldKeys.Contains(sampleField.FieldKey)
                     };

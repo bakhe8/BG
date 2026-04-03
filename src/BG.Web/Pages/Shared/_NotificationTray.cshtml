@@ -2,15 +2,15 @@
 @inject IStringLocalizer<SharedResource> T
 
 <div class="dropdown me-3 border-end pe-4 h-100 d-flex align-items-center">
-    <button class="btn btn-light rounded-circle p-2 position-relative shadow-sm" 
-            type="button" 
-            id="notificationDropdown" 
-            data-bs-toggle="dropdown" 
+    <button class="btn rounded-circle p-2 position-relative"
+            style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);"
+            type="button"
+            id="notificationDropdown"
+            data-bs-toggle="dropdown"
             aria-expanded="false">
-        <i class="bi bi-bell-fill fs-5 text-brand-green"></i>
-        <span id="notification-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
-            0
-            <span class="visually-hidden">@T["Notifications_UnreadCount"]</span>
+        <i class="bi bi-bell-fill fs-5 text-white"></i>
+        <span id="notification-badge" class="notification-badge d-none">
+            @* Value is managed via JS; visual dot only to match Image 1 *@
         </span>
     </button>
     <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border-0 rounded-4" 

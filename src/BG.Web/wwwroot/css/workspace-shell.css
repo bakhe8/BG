@@ -42,13 +42,38 @@
   color: rgba(255, 255, 255, 0.8) !important;
 }
 
-.shell-user-strip {
-  border-left-color: rgba(255, 255, 255, 0.15) !important;
+/* Centered Header Search (Image 1, 5) */
+.shell-header-search {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 38px;
+    width: 320px;
+    transition: all 0.2s ease;
 }
 
-html[dir="rtl"] .shell-user-strip {
-  border-left: none !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
+.shell-header-search:focus-within {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.placeholder-white-50::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Breadcrumbs (Image 5) */
+.breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.4) !important;
+    content: "/" !important;
+}
+
+.breadcrumb-item a:hover {
+    opacity: 1 !important;
+    text-decoration: underline !important;
+}
+
+.shell-user-strip {
+  border-inline-start: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .shell-header-actions {
@@ -81,11 +106,23 @@ html[dir="rtl"] .shell-user-strip {
     background: rgba(255, 255, 255, 0.2);
 }
 
+.notification-badge {
+    position: absolute;
+    top: 4px;
+    inset-inline-end: 4px;
+    width: 10px;
+    height: 10px;
+    background-color: #EF4444; /* Modern Red */
+    border: 2px solid var(--kfshrc-green); /* Badge cutout effect */
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
 /* 2️⃣ Sidebar: Clean White Navigation */
 .shell-sidebar {
   width: 280px;
   background-color: white; /* Workspace surface feel */
-  border-right: 1px solid var(--border-light);
+  border-inline-end: 1px solid var(--border-light);
   transition: transform 0.3s ease;
 }
 
@@ -137,21 +174,47 @@ html[dir="rtl"] .shell-user-strip {
 
 /* Active State: Institutional Indicator */
 .nav-link.active {
-  background-color: #ECFDF5 !important; /* Green tint */
   color: var(--kfshrc-green) !important;
   font-weight: 700;
-  border-left: 4px solid var(--kfshrc-green);
+  border-inline-start: 4px solid var(--kfshrc-green);
+}
+
+html[dir="ltr"] .nav-link.active {
+  background: linear-gradient(to right, #F0FDF4 0%, rgba(240, 253, 244, 0) 100%) !important;
   border-radius: 4px 12px 12px 4px;
 }
 
-.nav-link.active i {
-  color: var(--kfshrc-green) !important;
+html[dir="rtl"] .nav-link.active {
+  background: linear-gradient(to left, #F0FDF4 0%, rgba(240, 253, 244, 0) 100%) !important;
+  border-radius: 12px 4px 4px 12px;
 }
 
-html[dir="rtl"] .nav-link.active {
-    border-left: none;
-    border-right: 4px solid var(--kfshrc-green);
-    border-radius: 12px 4px 4px 12px;
+/* 3️⃣ Surface Queue: Institutional Grid (Image 1, 4) */
+.request-queue-link {
+    display: grid !important;
+    grid-template-columns: 140px 1fr 140px 140px 140px 40px;
+    gap: 16px;
+    align-items: center;
+    padding: 1rem 1.5rem !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.request-queue-link:hover {
+    background-color: #F9FAFB;
+}
+
+.request-queue-link.active {
+    background-color: #F0FDF4; /* Institutional Soft Highlight */
+}
+
+html[dir="ltr"] .request-queue-link.active {
+    box-shadow: inset 4px 0 0 -1px #006847;
+}
+
+html[dir="rtl"] .request-queue-link.active {
+    box-shadow: inset -4px 0 0 -1px #006847;
 }
 
 
@@ -186,10 +249,22 @@ html[dir="rtl"] .nav-link.active {
   box-shadow: var(--shadow-sm);
 }
 
-/* Responsive Overrides */
-@media (max-width: 991.98px) {
-  .shell-sidebar {
-    position: fixed;
+/* Desktop: Override Bootstrap offcanvas — sidebar must be a real flex child so RTL direction flips it */
+@media (min-width: 992px) {
+  .shell-app .shell-sidebar {
+    position: relative !important;
+    visibility: visible !important;
+    transform: none !important;
+    z-index: auto !important;
+    flex-shrink: 0;
     height: 100vh;
+  }
+}
+
+/* Mobile: Let Bootstrap offcanvas handle the drawer — from the correct side per direction */
+@media (max-width: 991.98px) {
+  .shell-app .shell-sidebar {
+    height: 100vh;
+    /* position: fixed is already set by Bootstrap .offcanvas — don't override it on mobile */
   }
 }
