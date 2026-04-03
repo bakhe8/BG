@@ -1,11 +1,13 @@
 using BG.Application.Common;
 using BG.Application.Contracts.Persistence;
+using BG.Application.Contracts.Services;
 using BG.Application.Dispatch;
 using BG.Application.Models.Dispatch;
 using BG.Application.ReferenceData;
 using BG.Application.Services;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
+using BG.Domain.Notifications;
 using BG.Domain.Workflow;
 
 namespace BG.UnitTests.Application;
@@ -16,7 +18,7 @@ public sealed class DispatchWorkspaceServiceTests
     public async Task GetWorkspaceAsync_returns_requests_ready_for_dispatch()
     {
         var fixture = DispatchFixture.Create();
-        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request));
+        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request), new StubNotificationService());
 
         var snapshot = await service.GetWorkspaceAsync(fixture.Actor.Id);
 
@@ -36,7 +38,7 @@ public sealed class DispatchWorkspaceServiceTests
     public async Task GetLetterPreviewAsync_returns_preview_for_ready_request()
     {
         var fixture = DispatchFixture.Create();
-        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request));
+        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request), new StubNotificationService());
 
         var result = await service.GetLetterPreviewAsync(
             fixture.Actor.Id,
@@ -57,7 +59,7 @@ public sealed class DispatchWorkspaceServiceTests
     {
         var fixture = DispatchFixture.Create();
         var repository = new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request);
-        var service = new DispatchWorkspaceService(repository);
+        var service = new DispatchWorkspaceService(repository, new StubNotificationService());
 
         var result = await service.PrintDispatchLetterAsync(
             new PrintDispatchLetterCommand(
@@ -87,7 +89,7 @@ public sealed class DispatchWorkspaceServiceTests
     {
         var fixture = DispatchFixture.Create();
         var repository = new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request);
-        var service = new DispatchWorkspaceService(repository);
+        var service = new DispatchWorkspaceService(repository, new StubNotificationService());
 
         var result = await service.RecordDispatchAsync(
             new RecordDispatchCommand(
@@ -101,7 +103,7 @@ public sealed class DispatchWorkspaceServiceTests
 
         Assert.True(result.Succeeded);
         Assert.Equal("LTR-9001", result.Value!.ReferenceNumber);
-        Assert.Equal(GuaranteeRequestStatus.AwaitingBankResponse, fixture.Request.Status);
+        Assert.Equal(GuaranteeRequestStatus.SubmittedToBank, fixture.Request.Status);
         Assert.NotNull(fixture.Request.SubmittedToBankAtUtc);
         Assert.Single(fixture.Request.Correspondence);
         var dispatchEvent = Assert.Single(
@@ -120,7 +122,7 @@ public sealed class DispatchWorkspaceServiceTests
     {
         var fixture = DispatchFixture.Create();
         var repository = new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request);
-        var service = new DispatchWorkspaceService(repository);
+        var service = new DispatchWorkspaceService(repository, new StubNotificationService());
 
         await service.RecordDispatchAsync(
             new RecordDispatchCommand(
@@ -159,7 +161,7 @@ public sealed class DispatchWorkspaceServiceTests
     {
         var fixture = DispatchFixture.Create();
         var repository = new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request);
-        var service = new DispatchWorkspaceService(repository);
+        var service = new DispatchWorkspaceService(repository, new StubNotificationService());
 
         await service.RecordDispatchAsync(
             new RecordDispatchCommand(
@@ -198,7 +200,7 @@ public sealed class DispatchWorkspaceServiceTests
     public async Task ReopenDispatchAsync_requires_correction_note()
     {
         var fixture = DispatchFixture.Create();
-        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request));
+        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request), new StubNotificationService());
 
         await service.RecordDispatchAsync(
             new RecordDispatchCommand(
@@ -227,7 +229,7 @@ public sealed class DispatchWorkspaceServiceTests
     public async Task RecordDispatchAsync_returns_request_not_ready_when_request_is_not_approved_for_dispatch()
     {
         var fixture = DispatchFixture.Create(markApprovedForDispatch: false);
-        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request));
+        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request), new StubNotificationService());
 
         var result = await service.RecordDispatchAsync(
             new RecordDispatchCommand(
@@ -248,7 +250,7 @@ public sealed class DispatchWorkspaceServiceTests
     public async Task PrintDispatchLetterAsync_requires_print_permission()
     {
         var fixture = DispatchFixture.Create(actorPermissionKeys: ["dispatch.view", "dispatch.record"]);
-        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request));
+        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request), new StubNotificationService());
 
         var result = await service.PrintDispatchLetterAsync(
             new PrintDispatchLetterCommand(
@@ -266,7 +268,7 @@ public sealed class DispatchWorkspaceServiceTests
     public async Task RecordDispatchAsync_requires_email_permission_for_official_email_channel()
     {
         var fixture = DispatchFixture.Create(actorPermissionKeys: ["dispatch.view", "dispatch.record"]);
-        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request));
+        var service = new DispatchWorkspaceService(new StubDispatchWorkspaceRepository(fixture.Actor, fixture.Request), new StubNotificationService());
 
         var result = await service.RecordDispatchAsync(
             new RecordDispatchCommand(
@@ -498,5 +500,17 @@ public sealed class DispatchWorkspaceServiceTests
 
             return new DispatchFixture(actor, requester, request);
         }
+    }
+
+    private sealed class StubNotificationService : INotificationService
+    {
+        public Task SendNotificationAsync(string message, string? link, string requiredPermission, Guid? targetUserId = null, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
+
+        public Task<IEnumerable<Notification>> GetUserNotificationsAsync(Guid userId, string[] userPermissions, CancellationToken cancellationToken = default)
+            => Task.FromResult<IEnumerable<Notification>>([]);
+
+        public Task MarkAsReadAsync(Guid notificationId, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 }

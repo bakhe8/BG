@@ -7,6 +7,7 @@ using BG.Application.ReferenceData;
 using BG.Application.Services;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
+using BG.Domain.Notifications;
 using BG.Domain.Operations;
 
 namespace BG.UnitTests.Application;
@@ -31,7 +32,8 @@ public sealed class OperationsReviewQueueServiceTests
         var service = new OperationsReviewQueueService(
             new StubOperationsReviewRepository(actor, item),
             new StubWorkflowTemplateService(),
-            new StubOperationsReviewMatchingService());
+            new StubOperationsReviewMatchingService(),
+            new StubNotificationService());
 
         var snapshot = await service.GetSnapshotAsync(actor.Id);
 
@@ -94,7 +96,8 @@ public sealed class OperationsReviewQueueServiceTests
         var service = new OperationsReviewQueueService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubOperationsReviewMatchingService());
+            new StubOperationsReviewMatchingService(),
+            new StubNotificationService());
 
         var result = await service.ApplyBankResponseAsync(
             new ApplyBankResponseCommand(
@@ -169,7 +172,8 @@ public sealed class OperationsReviewQueueServiceTests
         var service = new OperationsReviewQueueService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubOperationsReviewMatchingService());
+            new StubOperationsReviewMatchingService(),
+            new StubNotificationService());
 
         var result = await service.ApplyBankResponseAsync(
             new ApplyBankResponseCommand(
@@ -248,7 +252,8 @@ public sealed class OperationsReviewQueueServiceTests
         var service = new OperationsReviewQueueService(
             repository,
             new StubWorkflowTemplateService(),
-            new OperationsReviewMatchingService());
+            new OperationsReviewMatchingService(),
+            new StubNotificationService());
 
         var result = await service.ApplyBankResponseAsync(
             new ApplyBankResponseCommand(
@@ -262,7 +267,7 @@ public sealed class OperationsReviewQueueServiceTests
 
         Assert.False(result.Succeeded);
         Assert.Equal(OperationsReviewErrorCodes.ResponseBankProfileMismatch, result.ErrorCode);
-        Assert.Equal(GuaranteeRequestStatus.AwaitingBankResponse, request.Status);
+        Assert.Equal(GuaranteeRequestStatus.SubmittedToBank, request.Status);
         Assert.Equal(OperationsReviewItemStatus.Pending, item.Status);
         Assert.Empty(guarantee.Events.Where(ledgerEntry => ledgerEntry.EventType == GuaranteeEventType.ExpiryExtended));
         Assert.False(repository.SaveChangesCalled);
@@ -318,7 +323,8 @@ public sealed class OperationsReviewQueueServiceTests
         var service = new OperationsReviewQueueService(
             new StubOperationsReviewRepository(actor, item),
             new StubWorkflowTemplateService(),
-            new OperationsReviewMatchingService());
+            new OperationsReviewMatchingService(),
+            new StubNotificationService());
 
         var snapshot = await service.GetSnapshotAsync(actor.Id);
 
@@ -373,7 +379,8 @@ public sealed class OperationsReviewQueueServiceTests
         var service = new OperationsReviewQueueService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubOperationsReviewMatchingService());
+            new StubOperationsReviewMatchingService(),
+            new StubNotificationService());
 
         var applyResult = await service.ApplyBankResponseAsync(
             new ApplyBankResponseCommand(
@@ -457,7 +464,8 @@ public sealed class OperationsReviewQueueServiceTests
         var service = new OperationsReviewQueueService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubOperationsReviewMatchingService());
+            new StubOperationsReviewMatchingService(),
+            new StubNotificationService());
 
         var applyResult = await service.ApplyBankResponseAsync(
             new ApplyBankResponseCommand(
@@ -842,5 +850,17 @@ public sealed class OperationsReviewQueueServiceTests
                     null)
             ];
         }
+    }
+
+    private sealed class StubNotificationService : INotificationService
+    {
+        public Task SendNotificationAsync(string message, string? link, string requiredPermission, Guid? targetUserId = null, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
+
+        public Task<IEnumerable<Notification>> GetUserNotificationsAsync(Guid userId, string[] userPermissions, CancellationToken cancellationToken = default)
+            => Task.FromResult<IEnumerable<Notification>>([]);
+
+        public Task MarkAsReadAsync(Guid notificationId, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 }

@@ -8,6 +8,7 @@ using BG.Application.Approvals;
 using BG.Application.ReferenceData;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
+using BG.Domain.Notifications;
 using BG.Domain.Workflow;
 using Microsoft.Extensions.Options;
 
@@ -294,7 +295,8 @@ public sealed class ApprovalQueueServiceTests
         return new ApprovalQueueService(
             repository,
             new StubIntakeDocumentStore(),
-            Options.Create(options ?? new ApprovalGovernanceOptions()));
+            Options.Create(options ?? new ApprovalGovernanceOptions()),
+            new StubNotificationService());
     }
 
     private static Role CreateRole(string name, params string[] permissionKeys)
@@ -1058,5 +1060,17 @@ public sealed class ApprovalQueueServiceTests
 
             return new ApprovalFixture(delegateActor, requester, request, process, delegation);
         }
+    }
+
+    private sealed class StubNotificationService : INotificationService
+    {
+        public Task SendNotificationAsync(string message, string? link, string requiredPermission, Guid? targetUserId = null, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
+
+        public Task<IEnumerable<Notification>> GetUserNotificationsAsync(Guid userId, string[] userPermissions, CancellationToken cancellationToken = default)
+            => Task.FromResult<IEnumerable<Notification>>([]);
+
+        public Task MarkAsReadAsync(Guid notificationId, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 }

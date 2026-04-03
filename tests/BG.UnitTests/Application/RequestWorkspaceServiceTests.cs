@@ -9,6 +9,7 @@ using BG.Application.ReferenceData;
 using BG.Application.Services;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
+using BG.Domain.Notifications;
 using BG.Domain.Workflow;
 
 namespace BG.UnitTests.Application;
@@ -44,7 +45,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             new StubRequestWorkspaceRepository([actorA, actorB], guarantee),
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var snapshot = await service.GetWorkspaceAsync(actorA.Id);
 
@@ -75,7 +77,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var result = await service.CreateRequestAsync(
             new CreateGuaranteeRequestCommand(
@@ -121,7 +124,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var result = await service.CreateRequestAsync(
             new CreateGuaranteeRequestCommand(
@@ -156,7 +160,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var result = await service.CreateRequestAsync(
             new CreateGuaranteeRequestCommand(
@@ -190,7 +195,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             new StubRequestWorkspaceRepository([actor], guarantee),
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var template = await service.GetWorkflowTemplateAsync(guarantee.GuaranteeNumber, GuaranteeRequestType.Release);
 
@@ -235,7 +241,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository(definition));
+            new StubWorkflowDefinitionRepository(definition),
+            new StubNotificationService());
 
         var result = await service.SubmitRequestForApprovalAsync(actor.Id, request.Id);
 
@@ -284,7 +291,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             new StubRequestWorkspaceRepository([actor], guarantee),
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository(invalidDefinition));
+            new StubWorkflowDefinitionRepository(invalidDefinition),
+            new StubNotificationService());
 
         var result = await service.SubmitRequestForApprovalAsync(actor.Id, request.Id);
 
@@ -324,7 +332,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var result = await service.UpdateRequestAsync(
             new UpdateGuaranteeRequestCommand(
@@ -363,7 +372,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var result = await service.CancelRequestAsync(actor.Id, request.Id);
 
@@ -405,7 +415,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             repository,
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var result = await service.WithdrawRequestAsync(actor.Id, request.Id);
 
@@ -450,7 +461,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             new StubRequestWorkspaceRepository([actor], guarantee),
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var snapshot = await service.GetWorkspaceAsync(actor.Id);
 
@@ -546,7 +558,8 @@ public sealed class RequestWorkspaceServiceTests
         var service = new RequestWorkspaceService(
             new StubRequestWorkspaceRepository([actor], guarantee),
             new StubWorkflowTemplateService(),
-            new StubWorkflowDefinitionRepository());
+            new StubWorkflowDefinitionRepository(),
+            new StubNotificationService());
 
         var snapshot = await service.GetWorkspaceAsync(actor.Id);
 
@@ -862,5 +875,17 @@ public sealed class RequestWorkspaceServiceTests
         {
             return Task.CompletedTask;
         }
+    }
+
+    private sealed class StubNotificationService : INotificationService
+    {
+        public Task SendNotificationAsync(string message, string? link, string requiredPermission, Guid? targetUserId = null, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
+
+        public Task<IEnumerable<Notification>> GetUserNotificationsAsync(Guid userId, string[] userPermissions, CancellationToken cancellationToken = default)
+            => Task.FromResult<IEnumerable<Notification>>([]);
+
+        public Task MarkAsReadAsync(Guid notificationId, CancellationToken cancellationToken = default)
+            => Task.CompletedTask;
     }
 }
