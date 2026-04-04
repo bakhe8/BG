@@ -45,7 +45,6 @@ public sealed class WorkspaceAccessMiddleware
                path.StartsWithSegments("/Index", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/SignIn", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/Error", StringComparison.OrdinalIgnoreCase) ||
-               path.StartsWithSegments("/Privacy", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/health", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/api/system", StringComparison.OrdinalIgnoreCase);

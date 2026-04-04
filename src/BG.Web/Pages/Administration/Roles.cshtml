@@ -86,8 +86,8 @@
                                 <div class="d-flex justify-content-between align-items-center w-100">
                                     <div class="request-queue-copy">
                                         <div class="entity-subtitle x-small text-muted text-uppercase fw-bold mb-1">@T["RolesListTitle"]</div>
-                                        <strong class="d-block text-dark">@role.Name</strong>
-                                        <div class="x-small text-muted">@(string.IsNullOrWhiteSpace(role.Description) ? T["RolesPage_NoDescription"].Value : role.Description)</div>
+                                        <strong class="d-block text-dark">@T[role.Name]</strong>
+                                        <div class="x-small text-muted">@(string.IsNullOrWhiteSpace(role.Description) ? T["RolesPage_NoDescription"].Value : T[role.Description].Value)</div>
                                     </div>
                                     <div class="request-queue-meta text-end">
                                         <div class="mb-2">
@@ -172,8 +172,8 @@
             {
                 <div class="admin-users-card-header">
                     <div>
-                        <h4 class="fw-bold text-dark m-0">@activeRole.Name</h4>
-                        <div class="entity-subtitle">@(string.IsNullOrWhiteSpace(activeRole.Description) ? T["RolesPage_NoDescription"].Value : activeRole.Description)</div>
+                        <h4 class="fw-bold text-dark m-0">@T[activeRole.Name]</h4>
+                        <div class="entity-subtitle">@(string.IsNullOrWhiteSpace(activeRole.Description) ? T["RolesPage_NoDescription"].Value : T[activeRole.Description].Value)</div>
                     </div>
                     <bg-badge variant="light">@activeRole.PermissionKeys.Count @T["PermissionsField"]</bg-badge>
                 </div>
@@ -183,11 +183,11 @@
                 <div class="admin-role-facts-grid">
                     <section class="admin-role-fact-card">
                         <span class="section-caption x-small">@T["RoleNameField"]</span>
-                        <strong>@activeRole.Name</strong>
+                        <strong>@T[activeRole.Name]</strong>
                     </section>
                     <section class="admin-role-fact-card">
                         <span class="section-caption x-small">@T["DescriptionField"]</span>
-                        <strong>@(string.IsNullOrWhiteSpace(activeRole.Description) ? T["RolesPage_NoDescription"].Value : activeRole.Description)</strong>
+                        <strong>@(string.IsNullOrWhiteSpace(activeRole.Description) ? T["RolesPage_NoDescription"].Value : T[activeRole.Description].Value)</strong>
                     </section>
                     <section class="admin-role-fact-card">
                         <span class="section-caption x-small">@T["RolesPage_PermissionCoverageTitle"]</span>

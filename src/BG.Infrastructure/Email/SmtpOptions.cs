@@ -1,4 +1,4 @@
-namespace BG.Application.Dispatch;
+namespace BG.Infrastructure.Email;
 
 public sealed class SmtpOptions
 {

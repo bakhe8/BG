@@ -1,6 +1,5 @@
 using BG.Application.Common;
 using BG.Application.Contracts.Services;
-using BG.Application.Dispatch;
 using BG.Application.Models.Dispatch;
 using MailKit.Net.Smtp;
 using MailKit.Security;

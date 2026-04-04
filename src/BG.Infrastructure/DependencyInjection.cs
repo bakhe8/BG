@@ -46,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<IReportRepository, ReportRepository>();
         services.AddScoped<ILetterGenerationService, QuestPdfLetterGenerationService>();
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
         services.AddScoped<IEmailDispatchService, MailKitEmailDispatchService>();
         services.AddSingleton<ISmtpClientAdapterFactory, MailKitSmtpClientAdapterFactory>();
         services.AddScoped<IIntakeDocumentStore, LocalIntakeDocumentStore>();

@@ -336,10 +336,20 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-.venv-ocr312/
+.venv*/
 build_errors.txt
+build_output.txt
 .agents/
 .config/.store/
+
+# Working documents — not part of project history
+IMPLEMENTATION_PLAN.md
+
+# Claude Code session files
+.claude/
+
+# Localization utility scripts — one-off, not part of source
+src/BG.Web/Resources/*.py
 
 # Local developer secrets — must never be committed
 secrets.txt

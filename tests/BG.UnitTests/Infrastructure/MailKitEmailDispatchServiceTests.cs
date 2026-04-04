@@ -1,4 +1,3 @@
-using BG.Application.Dispatch;
 using BG.Infrastructure.Email;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
