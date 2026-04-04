@@ -1,4 +1,5 @@
 using System.Net;
+using BG.Application.Contracts.Services;
 using BG.Web.Security;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;

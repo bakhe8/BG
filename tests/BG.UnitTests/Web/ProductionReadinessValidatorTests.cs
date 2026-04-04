@@ -122,7 +122,10 @@ public sealed class ProductionReadinessValidatorTests
                 ["Ocr:PythonExecutablePath"] = paths.PythonExecutablePath,
                 ["Ocr:WorkerScriptPath"] = paths.WorkerScriptPath,
                 ["Ocr:MaxFileSizeBytes"] = "15728640",
-                ["Ocr:QueueCapacity"] = "4"
+                ["Ocr:QueueCapacity"] = "4",
+                ["Smtp:Host"] = "smtp.hospital.local",
+                ["Smtp:Port"] = "587",
+                ["Smtp:FromAddress"] = "bg-noreply@hospital.local"
             });
 
             ProductionReadinessValidator.Validate(configuration, new StubHostEnvironment("Production"));

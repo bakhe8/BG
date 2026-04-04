@@ -1,6 +1,2 @@
-namespace BG.Web.Security;
-
-public sealed record LoginLockoutDecision(
-    bool IsLockedOut,
-    int FailureCount,
-    DateTimeOffset? LockedUntilUtc);
+// Type moved to BG.Application.Contracts.Services — alias kept for Web compilation.
+global using LoginLockoutDecision = BG.Application.Contracts.Services.LoginLockoutDecision;

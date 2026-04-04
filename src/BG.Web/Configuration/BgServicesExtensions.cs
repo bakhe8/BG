@@ -39,8 +39,6 @@ public static class BgServicesExtensions
             dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(resolvedKeysPath));
         }
 
-        services.Configure<LoginLockoutOptions>(configuration.GetSection(LoginLockoutOptions.SectionName));
-        services.AddSingleton<ILoginAttemptLockoutService, MemoryLoginAttemptLockoutService>();
         services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
         services

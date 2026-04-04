@@ -21,6 +21,7 @@ public static class ProductionReadinessValidator
         ValidateOperationalSeed(configuration, failures);
         ValidateSwagger(configuration, failures);
         ValidateOcr(configuration, failures);
+        ValidateSmtp(configuration, failures);
 
         if (failures.Count == 0)
         {
@@ -176,6 +177,28 @@ public static class ProductionReadinessValidator
         if (queueCapacity <= 0)
         {
             failures.Add("Ocr:QueueCapacity must be greater than zero when OCR is enabled in production.");
+        }
+    }
+
+    private static void ValidateSmtp(IConfiguration configuration, ICollection<string> failures)
+    {
+        var host = configuration["Smtp:Host"];
+        if (string.IsNullOrWhiteSpace(host))
+        {
+            failures.Add("Smtp:Host must be configured for production (required for bank letter email dispatch).");
+            return;
+        }
+
+        var fromAddress = configuration["Smtp:FromAddress"];
+        if (string.IsNullOrWhiteSpace(fromAddress))
+        {
+            failures.Add("Smtp:FromAddress must be configured for production.");
+        }
+
+        var port = configuration.GetValue<int>("Smtp:Port");
+        if (port <= 0 || port > 65535)
+        {
+            failures.Add("Smtp:Port must be a valid port number (1-65535) for production.");
         }
     }
 }

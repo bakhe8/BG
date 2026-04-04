@@ -3,6 +3,7 @@ using BG.Domain.Identity;
 using BG.Domain.Operations;
 using BG.Domain.Workflow;
 using BG.Domain.Notifications;
+using BG.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
@@ -53,6 +54,8 @@ public sealed class BgDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
 
     public DbSet<Bank> Banks => Set<Bank>();
+
+    internal DbSet<LoginAttemptRecord> LoginAttemptRecords => Set<LoginAttemptRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

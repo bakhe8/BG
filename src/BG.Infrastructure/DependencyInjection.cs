@@ -5,6 +5,7 @@ using BG.Application.Contracts.Services;
 using BG.Infrastructure.Documents;
 using BG.Infrastructure.Email;
 using BG.Infrastructure.HealthChecks;
+using BG.Infrastructure.Identity;
 using BG.Infrastructure.Persistence;
 using BG.Infrastructure.Persistence.Repositories;
 using BG.Infrastructure.PostgreSql;
@@ -25,11 +26,19 @@ public static class DependencyInjection
         services.AddDbContext<BgDbContext>((serviceProvider, options) =>
         {
             var runtimeConfiguration = serviceProvider.GetRequiredService<IConfiguration>();
-            var connectionString = PostgreSqlConnectionStringResolver.Resolve(runtimeConfiguration);
-
-            options.UseNpgsql(
-                connectionString,
-                npgsql => npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));
+            var sqliteConnection = runtimeConfiguration.GetConnectionString("Sqlite");
+            
+            if (!string.IsNullOrWhiteSpace(sqliteConnection))
+            {
+                options.UseSqlite(sqliteConnection);
+            }
+            else
+            {
+                var connectionString = PostgreSqlConnectionStringResolver.Resolve(runtimeConfiguration);
+                options.UseNpgsql(
+                    connectionString,
+                    npgsql => npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));
+            }
         });
         services.AddHealthChecks()
             .AddCheck<PostgreSqlHealthCheck>("postgresql");
@@ -50,7 +59,11 @@ public static class DependencyInjection
         services.AddScoped<IEmailDispatchService, MailKitEmailDispatchService>();
         services.AddSingleton<ISmtpClientAdapterFactory, MailKitSmtpClientAdapterFactory>();
         services.AddScoped<IIntakeDocumentStore, LocalIntakeDocumentStore>();
+        services.AddHostedService<StagingCleanupService>();
         services.AddSingleton<ILocalPasswordHasher, Pbkdf2LocalPasswordHasher>();
+        services.Configure<BG.Application.Contracts.Services.LoginLockoutOptions>(
+            configuration.GetSection(BG.Application.Contracts.Services.LoginLockoutOptions.SectionName));
+        services.AddScoped<ILoginAttemptLockoutService, DbLoginAttemptLockoutService>();
         services.AddScoped<OperationalSeedService>();
 
         return services;

@@ -1,12 +1,2 @@
-using System.Net;
-
-namespace BG.Web.Security;
-
-public interface ILoginAttemptLockoutService
-{
-    LoginLockoutDecision GetDecision(string? username, IPAddress? remoteIpAddress);
-
-    LoginLockoutDecision RegisterFailure(string? username, IPAddress? remoteIpAddress);
-
-    void Reset(string? username, IPAddress? remoteIpAddress);
-}
+// ILoginAttemptLockoutService is defined in BG.Application.Contracts.Services.
+// This file is intentionally empty — kept to avoid breaking existing using directives.

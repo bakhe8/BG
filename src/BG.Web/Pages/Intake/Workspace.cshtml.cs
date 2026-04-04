@@ -140,6 +140,8 @@ public sealed class WorkspaceModel : PageModel
         };
     }
 
+    [RequestSizeLimit(67_108_864)] // 64 MB — matches web.config maxAllowedContentLength
+    [RequestFormLimits(MultipartBodyLengthLimit = 67_108_864)]
     public async Task<IActionResult> OnPostExtractAsync(CancellationToken cancellationToken)
     {
         await LoadWorkspaceAsync(

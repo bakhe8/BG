@@ -78,7 +78,7 @@ public sealed partial class HostedFlowTests
         Assert.Contains("bank-response.pdf", queueHtml, StringComparison.Ordinal);
     }
 
-    [Fact(Skip = "Pending implementation of bank profile conflict UI")]
+    [Fact]
     public async Task Operations_queue_shows_blocked_apply_reason_when_bank_profile_conflicts()
     {
         await using var factory = new HostedAppFactory();
