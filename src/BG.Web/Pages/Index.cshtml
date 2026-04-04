@@ -126,23 +126,38 @@
         <div class="col-lg-4">
             <div class="d-flex flex-column gap-4">
                 @* Role Quick Navigation *@
-                <div class="section-card p-4 rounded-5 bg-white shadow-sm border-0">
-                    <h6 class="fw-bold text-dark mb-4 px-1">@T["Dashboard_Action_Navigate"]</h6>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <a href="/Intake/Workspace" class="nav-tile p-3 rounded-4 text-center text-decoration-none group d-block border h-100">
-                                <i class="bi bi-box-arrow-in-right d-block fs-3 mb-2 text-muted group-hover:text-brand-green"></i>
-                                <span class="small fw-bold text-dark d-block">@T["WorkspaceShell_NavIntake"]</span>
-                            </a>
-                        </div>
-                        <div class="col-6">
-                            <a href="/Operations/Queue" class="nav-tile p-3 rounded-4 text-center text-decoration-none group d-block border h-100">
-                                <i class="bi bi-check2-circle d-block fs-3 mb-2 text-muted group-hover:text-brand-green"></i>
-                                <span class="small fw-bold text-dark d-block">@T["WorkspaceShell_NavOperations"]</span>
-                            </a>
+                @if (Model.NavigationItems.Any())
+                {
+                    <div class="section-card p-4 rounded-5 bg-white shadow-sm border-0">
+                        <h6 class="fw-bold text-dark mb-4 px-1">@T["Dashboard_Action_Navigate"]</h6>
+                        <div class="row g-2">
+                            @foreach (var navItem in Model.NavigationItems)
+                            {
+                                var navIcon = navItem.PagePath switch
+                                {
+                                    var p when p.StartsWith("/Intake", StringComparison.OrdinalIgnoreCase) => "bi-file-earmark-plus",
+                                    var p when p.StartsWith("/Operations", StringComparison.OrdinalIgnoreCase) => "bi-shield-check",
+                                    var p when p.Contains("Requests", StringComparison.OrdinalIgnoreCase) => "bi-journal-text",
+                                    var p when p.StartsWith("/Approvals", StringComparison.OrdinalIgnoreCase) => "bi-check2-circle",
+                                    var p when p.StartsWith("/Dispatch", StringComparison.OrdinalIgnoreCase) => "bi-send",
+                                    var p when p.StartsWith("/Reports", StringComparison.OrdinalIgnoreCase) => "bi-bar-chart-line",
+                                    var p when p.StartsWith("/Administration/Users", StringComparison.OrdinalIgnoreCase) => "bi-people",
+                                    var p when p.StartsWith("/Administration/Delegations", StringComparison.OrdinalIgnoreCase) => "bi-person-badge",
+                                    var p when p.StartsWith("/Administration/Roles", StringComparison.OrdinalIgnoreCase) => "bi-shield",
+                                    var p when p.StartsWith("/Administration/Banks", StringComparison.OrdinalIgnoreCase) => "bi-bank",
+                                    var p when p.StartsWith("/Administration", StringComparison.OrdinalIgnoreCase) => "bi-gear",
+                                    _ => "bi-grid"
+                                };
+                                <div class="col-6">
+                                    <a href="@navItem.PagePath" class="nav-tile p-3 rounded-4 text-center text-decoration-none group d-block border h-100">
+                                        <i class="bi @navIcon d-block fs-3 mb-2 text-muted"></i>
+                                        <span class="small fw-bold text-dark d-block">@T[navItem.ResourceKey]</span>
+                                    </a>
+                                </div>
+                            }
                         </div>
                     </div>
-                </div>
+                }
 
                 @* System Activity Feed *@
                 <div class="section-card p-4 rounded-5 bg-white shadow-sm border-0 flex-grow-1">

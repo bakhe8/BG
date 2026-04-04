@@ -15,15 +15,18 @@ public sealed class SignInModel : PageModel
     private readonly ILocalAuthenticationService _localAuthenticationService;
     private readonly ILoginAttemptLockoutService _loginAttemptLockoutService;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly IWorkspaceShellService _workspaceShellService;
 
     public SignInModel(
         ILocalAuthenticationService localAuthenticationService,
         ILoginAttemptLockoutService loginAttemptLockoutService,
-        IStringLocalizer<SharedResource> localizer)
+        IStringLocalizer<SharedResource> localizer,
+        IWorkspaceShellService workspaceShellService)
     {
         _localAuthenticationService = localAuthenticationService;
         _loginAttemptLockoutService = loginAttemptLockoutService;
         _localizer = localizer;
+        _workspaceShellService = workspaceShellService;
     }
 
     [BindProperty]
@@ -97,7 +100,15 @@ public sealed class SignInModel : PageModel
                 ExpiresUtc = DateTimeOffset.UtcNow.AddHours(12)
             });
 
-        return LocalRedirect(NormalizeReturnUrl(ReturnUrl));
+        var normalizedReturnUrl = NormalizeReturnUrl(ReturnUrl);
+        var requiredPermissions = _workspaceShellService.GetRequiredPermissionKeys(normalizedReturnUrl);
+        if (requiredPermissions.Count > 0 &&
+            !await _workspaceShellService.CurrentUserHasAnyPermissionAsync(requiredPermissions, cancellationToken))
+        {
+            normalizedReturnUrl = "/";
+        }
+
+        return LocalRedirect(normalizedReturnUrl);
     }
 
     public async Task<IActionResult> OnPostSignOutAsync()

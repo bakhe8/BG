@@ -20,6 +20,7 @@ public sealed class IndexModel : PageModel
     }
 
     public HomeDashboardSnapshotDto Dashboard { get; private set; } = HomeDashboardSnapshotDto.Anonymous();
+    public IReadOnlyList<WorkspaceShellNavigationItem> NavigationItems { get; private set; } = [];
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
@@ -37,6 +38,10 @@ public sealed class IndexModel : PageModel
                 .ToArray();
             var administrationItems = shell.NavigationItems
                 .Where(item => item.PagePath.StartsWith("/Administration", StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+
+            NavigationItems = shell.NavigationItems
+                .Where(item => !string.Equals(item.PagePath, "/Index", StringComparison.OrdinalIgnoreCase))
                 .ToArray();
 
             if (operationalItems.Length == 1 && administrationItems.Length == 0)
