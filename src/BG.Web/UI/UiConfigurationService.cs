@@ -40,13 +40,6 @@ public sealed class UiConfigurationService : IUiConfigurationService
 
     public string GetCurrentCulture()
     {
-        // Check session snapshot for authenticated user preference
-        var shellTask = _shellService.GetSnapshotAsync();
-        if (shellTask.IsCompletedSuccessfully && shellTask.Result.CurrentUser?.PreferredCulture is { } preferred)
-        {
-            return NormalizeCulture(preferred);
-        }
-
         return NormalizeCulture(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
     }
 

@@ -1365,4 +1365,19 @@
   <data name="OperationsReviewStatus_Rejected" xml:space="preserve">
     <value>مرفوض</value>
   </data>
+  <data name="GuaranteeStatus_Active" xml:space="preserve">
+    <value>فعّال</value>
+  </data>
+  <data name="GuaranteeStatus_Released" xml:space="preserve">
+    <value>محرَّر</value>
+  </data>
+  <data name="GuaranteeStatus_Replaced" xml:space="preserve">
+    <value>مُستبدَل</value>
+  </data>
+  <data name="GuaranteeStatus_Expired" xml:space="preserve">
+    <value>منتهي الصلاحية</value>
+  </data>
+  <data name="GuaranteeStatus_Cancelled" xml:space="preserve">
+    <value>ملغى</value>
+  </data>
 </root>

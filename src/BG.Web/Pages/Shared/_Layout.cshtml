@@ -232,7 +232,7 @@
                 </div>
 
                 <div class="shell-stage-header-actions">
-                    <div class="header-icon-group hx-boost-false">
+                    <div class="header-icon-group">
                         @* Search Input *@
                         <form method="get" action="/Requests/History"
                               class="shell-header-search d-none d-md-flex align-items-center px-3 rounded-pill">
@@ -248,12 +248,13 @@
                         @* Notifications Tray *@
                         <partial name="_NotificationTray" />
 
-                        @* Language Switcher *@
+                        @* Language Switcher — hx-boost="false" forces full reload so <html lang/dir> and Bootstrap CSS are updated *@
                         <div class="shell-language-switch d-flex rounded-pill p-1">
                             @foreach (var culture in UiConfiguration.SupportedCultures)
                             {
                                 var isActive = culture.Culture == currentCulture;
-                                <a class="btn btn-sm rounded-pill px-3 @(isActive ? "bg-brand-green text-white shadow-sm" : "text-white opacity-50")"
+                                <a hx-boost="false"
+                                   class="btn btn-sm rounded-pill px-3 @(isActive ? "bg-brand-green text-white shadow-sm" : "text-white opacity-50")"
                                    href="@Url.Action("SetCulture", "UiPreferences", new { culture = culture.Culture, returnUrl })">
                                     @T[$"Culture_{culture.Culture}"]
                                 </a>
@@ -263,7 +264,7 @@
                         @* User Profile Dropdown *@
                         @if (shell.CurrentUser is not null)
                         {
-                            <div class="dropdown hx-boost-false border-start border-white border-opacity-10 ps-3 ms-1">
+                            <div class="dropdown border-start border-white border-opacity-10 ps-3 ms-1" hx-boost="false">
                                 <button class="btn rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
                                         style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; font-size: 0.75rem;"
                                         type="button"

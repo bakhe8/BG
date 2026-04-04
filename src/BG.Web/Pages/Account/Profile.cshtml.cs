@@ -4,6 +4,7 @@ using BG.Application.Models.Identity;
 using BG.Web.Localization;
 using BG.Web.UI;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -85,6 +86,23 @@ public sealed class ProfileModel : PageModel
 
         if (result.Succeeded)
         {
+            // Sync culture cookie so the page renders immediately in the new language
+            if (!string.IsNullOrWhiteSpace(Input.PreferredCulture))
+            {
+                var normalizedCulture = _uiConfigurationService.NormalizeCulture(Input.PreferredCulture);
+                Response.Cookies.Append(
+                    CookieRequestCultureProvider.DefaultCookieName,
+                    CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(normalizedCulture)),
+                    new CookieOptions
+                    {
+                        Expires = DateTimeOffset.UtcNow.AddYears(1),
+                        IsEssential = true,
+                        HttpOnly = true,
+                        Secure = Request.IsHttps,
+                        SameSite = SameSiteMode.Lax
+                    });
+            }
+
             StatusMessage = _localizer["Profile_UpdateSuccess"];
             return RedirectToPage();
         }

@@ -1365,4 +1365,19 @@
   <data name="OperationsReviewStatus_Rejected" xml:space="preserve">
     <value>Rejected</value>
   </data>
+  <data name="GuaranteeStatus_Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="GuaranteeStatus_Released" xml:space="preserve">
+    <value>Released</value>
+  </data>
+  <data name="GuaranteeStatus_Replaced" xml:space="preserve">
+    <value>Replaced</value>
+  </data>
+  <data name="GuaranteeStatus_Expired" xml:space="preserve">
+    <value>Expired</value>
+  </data>
+  <data name="GuaranteeStatus_Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
 </root>
