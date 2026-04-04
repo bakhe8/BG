@@ -259,42 +259,35 @@
                                 </a>
                             }
                         </div>
-                    </div>
 
                         @* User Profile Dropdown *@
                         @if (shell.CurrentUser is not null)
                         {
-                            <div class="dropdown hx-boost-false ms-2">
-                                <button class="btn d-flex align-items-center gap-2 p-1 rounded-pill border border-white border-opacity-10 text-decoration-none dropdown-toggle hide-caret"
+                            <div class="dropdown hx-boost-false border-start border-white border-opacity-10 ps-3 ms-1">
+                                <button class="btn rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                                        style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); width: 40px; height: 40px; font-size: 0.75rem;"
                                         type="button"
                                         id="userDropdown"
                                         data-bs-toggle="dropdown"
-                                        aria-expanded="false">
-                                    <div class="text-end d-none d-md-block text-white ms-2">
-                                        <div class="small fw-bold lh-1">@T[shell.CurrentUser.DisplayName]</div>
-                                        <div class="x-small opacity-50">@shell.CurrentUser.Username</div>
-                                    </div>
-                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-20 fw-bold text-white shadow-sm"
-                                          style="width: 32px; height: 32px; font-size: 0.75rem;"
-                                          aria-label="@shell.CurrentUser.DisplayName">
-                                        @currentUserInitials
-                                    </span>
+                                        aria-expanded="false"
+                                        aria-label="@shell.CurrentUser.DisplayName">
+                                    @currentUserInitials
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 py-2" aria-labelledby="userDropdown">
-                                    <li class="d-md-none">
-                                        <div class="px-3 py-2 border-bottom mb-1">
-                                            <div class="small fw-bold">@T[shell.CurrentUser.DisplayName]</div>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 py-0 overflow-hidden" aria-labelledby="userDropdown">
+                                    <li>
+                                        <div class="px-3 py-3 bg-light border-bottom">
+                                            <div class="small fw-bold">@shell.CurrentUser.DisplayName</div>
                                             <div class="x-small text-muted">@shell.CurrentUser.Username</div>
                                         </div>
                                     </li>
-                                    <li>
+                                    <li class="py-1">
                                         <a asp-page="/Account/Profile" class="dropdown-item d-flex align-items-center gap-2 py-2">
                                             <i class="bi bi-person-circle text-primary"></i>
                                             @T["NavProfile"]
                                         </a>
                                     </li>
-                                    <li><hr class="dropdown-divider opacity-50"></li>
-                                    <li>
+                                    <li><hr class="dropdown-divider opacity-50 my-1"></li>
+                                    <li class="pb-1">
                                         <form method="post" asp-page="/SignIn" asp-page-handler="SignOut">
                                             <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2 py-2">
                                                 <i class="bi bi-box-arrow-right"></i>
@@ -306,6 +299,7 @@
                             </div>
                         }
                     </div>
+                </div>
             </header>
 
             <main role="main" class="shell-stage-main flex-grow-1 p-4">
