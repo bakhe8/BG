@@ -697,8 +697,10 @@
   <data name="MetricHosting" xml:space="preserve"><value>Hosting</value></data>
   <data name="Administration_Banks_CanonicalName" xml:space="preserve"><value>Canonical name</value></data>
   <data name="Administration_Banks_CreateAction" xml:space="preserve"><value>Add bank</value></data>
+  <data name="Administration_Banks_CreateSuccess" xml:space="preserve"><value>Bank added successfully.</value></data>
   <data name="Administration_Banks_CreateTitle" xml:space="preserve"><value>Add new bank</value></data>
   <data name="Administration_Banks_DeactivateAction" xml:space="preserve"><value>Deactivate</value></data>
+  <data name="Administration_Banks_DeactivateSuccess" xml:space="preserve"><value>Bank deactivated successfully.</value></data>
   <data name="Administration_Banks_DirectorySummary" xml:space="preserve"><value>Manage the bank registry used for document routing and email dispatch.</value></data>
   <data name="Administration_Banks_EmailDispatchEnabled" xml:space="preserve"><value>Enable email dispatch</value></data>
   <data name="Administration_Banks_Empty" xml:space="preserve"><value>No banks have been registered yet.</value></data>
@@ -707,6 +709,7 @@
   <data name="Administration_Banks_ShortCode" xml:space="preserve"><value>Short code</value></data>
   <data name="Administration_Banks_SupportedChannels" xml:space="preserve"><value>Supported channels</value></data>
   <data name="Administration_Banks_UpdateAction" xml:space="preserve"><value>Save changes</value></data>
+  <data name="Administration_Banks_UpdateSuccess" xml:space="preserve"><value>Bank updated successfully.</value></data>
   <data name="NavApprovals" xml:space="preserve"><value>Approvals</value></data>
   <data name="NavBanks" xml:space="preserve"><value>Banks</value></data>
   <data name="NavDelegations" xml:space="preserve"><value>Delegations</value></data>

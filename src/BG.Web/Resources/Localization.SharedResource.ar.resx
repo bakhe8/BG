@@ -697,8 +697,10 @@
   <data name="MetricHosting" xml:space="preserve"><value>الاستضافة</value></data>
   <data name="Administration_Banks_CanonicalName" xml:space="preserve"><value>الاسم الرسمي</value></data>
   <data name="Administration_Banks_CreateAction" xml:space="preserve"><value>إضافة بنك</value></data>
+  <data name="Administration_Banks_CreateSuccess" xml:space="preserve"><value>تم إضافة البنك بنجاح.</value></data>
   <data name="Administration_Banks_CreateTitle" xml:space="preserve"><value>إضافة بنك جديد</value></data>
   <data name="Administration_Banks_DeactivateAction" xml:space="preserve"><value>تعطيل</value></data>
+  <data name="Administration_Banks_DeactivateSuccess" xml:space="preserve"><value>تم تعطيل البنك بنجاح.</value></data>
   <data name="Administration_Banks_DirectorySummary" xml:space="preserve"><value>إدارة سجل البنوك المستخدم لتوجيه المستندات وإرسال البريد الإلكتروني.</value></data>
   <data name="Administration_Banks_EmailDispatchEnabled" xml:space="preserve"><value>تفعيل إرسال البريد الإلكتروني</value></data>
   <data name="Administration_Banks_Empty" xml:space="preserve"><value>لم يتم تسجيل أي بنك بعد.</value></data>
@@ -707,6 +709,7 @@
   <data name="Administration_Banks_ShortCode" xml:space="preserve"><value>الرمز المختصر</value></data>
   <data name="Administration_Banks_SupportedChannels" xml:space="preserve"><value>القنوات المدعومة</value></data>
   <data name="Administration_Banks_UpdateAction" xml:space="preserve"><value>حفظ التغييرات</value></data>
+  <data name="Administration_Banks_UpdateSuccess" xml:space="preserve"><value>تم تحديث بيانات البنك بنجاح.</value></data>
   <data name="NavApprovals" xml:space="preserve"><value>الموافقات</value></data>
   <data name="NavBanks" xml:space="preserve"><value>البنوك</value></data>
   <data name="NavDelegations" xml:space="preserve"><value>التفويضات</value></data>
