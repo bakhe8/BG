@@ -613,11 +613,16 @@
   <data name="IntakeWorkspace_AllowedTitle" xml:space="preserve"><value>المسموح به</value></data>
   <data name="IntakeWorkspace_BeginExtractAction" xml:space="preserve"><value>بدء الاستخراج</value></data>
   <data name="IntakeWorkspace_CaptureChannelField" xml:space="preserve"><value>وسيلة الالتقاط</value></data>
+  <data name="IntakeWorkspace_CaptureChannelLabel" xml:space="preserve"><value>وسيلة الالتقاط</value></data>
+  <data name="IntakeWorkspace_CapturedAtLabel" xml:space="preserve"><value>وقت الالتقاط</value></data>
   <data name="IntakeWorkspace_CaptureProvenanceSummary" xml:space="preserve"><value>سجل كيف دخل المستند إلى BG، ومن أي جهاز أو نظام جاء، وما المرجع الخارجي الذي يمكن العودة إليه لاحقًا لإثبات المصدر.</value></data>
   <data name="IntakeWorkspace_CaptureProvenanceTitle" xml:space="preserve"><value>توثيق مصدر الالتقاط</value></data>
   <data name="IntakeWorkspace_CaptureZoneTitle" xml:space="preserve"><value>الخطوة 1: الالتقاط</value></data>
   <data name="IntakeWorkspace_DetectedFormTitle" xml:space="preserve"><value>النموذج المكتشف</value></data>
   <data name="IntakeWorkspace_DocumentFormField" xml:space="preserve"><value>نموذج المستند</value></data>
+  <data name="IntakeWorkspace_DocumentPreviewFrameTitle" xml:space="preserve"><value>معاينة المستند</value></data>
+  <data name="IntakeWorkspace_DocumentPreviewTitle" xml:space="preserve"><value>معاينة المستند</value></data>
+  <data name="IntakeWorkspace_DocumentPreviewUnavailable" xml:space="preserve"><value>المعاينة غير متاحة لهذا النوع من الملفات.</value></data>
   <data name="IntakeWorkspace_DocumentFormSummary" xml:space="preserve"><value>أكد أي نموذج ضمان أو عائلة خطابات بنكية حقيقية يتبعها هذا المستند قبل الحفظ النهائي.</value></data>
   <data name="IntakeWorkspace_DocumentFormTitle" xml:space="preserve"><value>ملف نموذج المستند</value></data>
   <data name="IntakeWorkspace_DraftPending" xml:space="preserve"><value>ارفع الملف وشغّل الاستخراج قبل الحفظ</value></data>
@@ -638,6 +643,7 @@
   <data name="IntakeWorkspace_HandoffTitle" xml:space="preserve"><value>مرحلة التسليم التالية</value></data>
   <data name="IntakeWorkspace_Heading" xml:space="preserve"><value>مساحة عمل الإدخال بالمسح</value></data>
   <data name="IntakeWorkspace_LoadActorAction" xml:space="preserve"><value>تحميل مستخدم الإدخال</value></data>
+  <data name="IntakeWorkspace_OpenDocumentAction" xml:space="preserve"><value>فتح المستند</value></data>
   <data name="IntakeWorkspace_MetricReview" xml:space="preserve"><value>بوابة المراجعة</value></data>
   <data name="IntakeWorkspace_MetricRole" xml:space="preserve"><value>الدور المخصص</value></data>
   <data name="IntakeWorkspace_MetricSave" xml:space="preserve"><value>أسلوب الحفظ</value></data>
@@ -677,6 +683,7 @@
   <data name="IntakeWorkspace_SubmissionTitle" xml:space="preserve"><value>تنفيذ الإدخال الفعلي</value></data>
   <data name="IntakeWorkspace_Summary" xml:space="preserve"><value>هذه المساحة مخصصة للموظف المختص الذي يمسح المستندات الورقية، يراجع البيانات المستخرجة، ثم يحفظ المستند وبياناته معًا ضمن تسليم مضبوط.</value></data>
   <data name="IntakeWorkspace_SupportRailSummary" xml:space="preserve"><value>افتحه فقط عندما تحتاج حالة الإدخال الحالية إلى سياق إضافي.</value></data>
+  <data name="IntakeWorkspace_UpdateDocumentAction" xml:space="preserve"><value>تحديث المستند</value></data>
   <data name="IntakeWorkspace_SupportRailTitle" xml:space="preserve"><value>الدعم والسياق</value></data>
   <data name="IntakeWorkspace_SupportingReviewTitle" xml:space="preserve"><value>الحقول المستخرجة الداعمة</value></data>
   <data name="IntakeWorkspace_VerifiedFieldsTitle" xml:space="preserve"><value>الحقول المدققة</value></data>
@@ -688,7 +695,20 @@
   <data name="MetricDatabase" xml:space="preserve"><value>قاعدة البيانات</value></data>
   <data name="MetricFramework" xml:space="preserve"><value>إطار العمل</value></data>
   <data name="MetricHosting" xml:space="preserve"><value>الاستضافة</value></data>
+  <data name="Administration_Banks_CanonicalName" xml:space="preserve"><value>الاسم الرسمي</value></data>
+  <data name="Administration_Banks_CreateAction" xml:space="preserve"><value>إضافة بنك</value></data>
+  <data name="Administration_Banks_CreateTitle" xml:space="preserve"><value>إضافة بنك جديد</value></data>
+  <data name="Administration_Banks_DeactivateAction" xml:space="preserve"><value>تعطيل</value></data>
+  <data name="Administration_Banks_DirectorySummary" xml:space="preserve"><value>إدارة سجل البنوك المستخدم لتوجيه المستندات وإرسال البريد الإلكتروني.</value></data>
+  <data name="Administration_Banks_EmailDispatchEnabled" xml:space="preserve"><value>تفعيل إرسال البريد الإلكتروني</value></data>
+  <data name="Administration_Banks_Empty" xml:space="preserve"><value>لم يتم تسجيل أي بنك بعد.</value></data>
+  <data name="Administration_Banks_Heading" xml:space="preserve"><value>سجل البنوك</value></data>
+  <data name="Administration_Banks_OfficialEmail" xml:space="preserve"><value>البريد الإلكتروني الرسمي</value></data>
+  <data name="Administration_Banks_ShortCode" xml:space="preserve"><value>الرمز المختصر</value></data>
+  <data name="Administration_Banks_SupportedChannels" xml:space="preserve"><value>القنوات المدعومة</value></data>
+  <data name="Administration_Banks_UpdateAction" xml:space="preserve"><value>حفظ التغييرات</value></data>
   <data name="NavApprovals" xml:space="preserve"><value>الموافقات</value></data>
+  <data name="NavBanks" xml:space="preserve"><value>البنوك</value></data>
   <data name="NavDelegations" xml:space="preserve"><value>التفويضات</value></data>
   <data name="NavDispatch" xml:space="preserve"><value>الإرسال</value></data>
   <data name="NavHome" xml:space="preserve"><value>الرئيسية</value></data>
@@ -708,6 +728,7 @@
   <data name="NoRolesAssigned" xml:space="preserve"><value>لا توجد أدوار مرتبطة.</value></data>
   <data name="NoRolesAvailable" xml:space="preserve"><value>أنشئ الأدوار أولًا قبل ربطها بالمستخدمين.</value></data>
   <data name="NotConfigured" xml:space="preserve"><value>غير مهيأ</value></data>
+  <data name="NotesField" xml:space="preserve"><value>ملاحظات</value></data>
   <data name="Notification_BankResponseApplied" xml:space="preserve"><value>استجاب البنك لطلب الضمان الخاص بك وتم تحديث الحالة.</value></data>
   <data name="Notification_DeliveryConfirmed" xml:space="preserve"><value>تم تأكيد تسليم خطاب الضمان.</value></data>
   <data name="Notification_LetterDispatched" xml:space="preserve"><value>تم إرسال خطاب الضمان إلى البنك وهو بانتظار الرد.</value></data>
@@ -766,7 +787,11 @@
   <data name="OperationsQueue_Empty" xml:space="preserve"><value>لا توجد عناصر تنتظر في طابور المراجعة التشغيلية.</value></data>
   <data name="OperationsQueue_EvidenceSummary" xml:space="preserve"><value>افتح سياق الالتقاط الكامل وأدلة النظام فقط عندما تحتاج دعماً إضافياً للقرار الحالي.</value></data>
   <data name="OperationsQueue_EvidenceTitle" xml:space="preserve"><value>الأدلة وتتبع الالتقاط</value></data>
+  <data name="OperationsQueue_Header_Action" xml:space="preserve"><value>الإجراء</value></data>
   <data name="OperationsQueue_Header_Date" xml:space="preserve"><value>التاريخ</value></data>
+  <data name="OperationsQueue_Header_Entity" xml:space="preserve"><value>الجهة</value></data>
+  <data name="OperationsQueue_Header_Reference" xml:space="preserve"><value>المرجع</value></data>
+  <data name="OperationsQueue_Header_Type" xml:space="preserve"><value>النوع</value></data>
   <data name="OperationsQueue_Header_Value" xml:space="preserve"><value>القيمة</value></data>
   <data name="OperationsQueue_Heading" xml:space="preserve"><value>طابور المراجعة التشغيلية</value></data>
   <data name="OperationsQueue_LevelsSuffix" xml:space="preserve"><value>مستويات</value></data>

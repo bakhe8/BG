@@ -613,11 +613,16 @@
   <data name="IntakeWorkspace_AllowedTitle" xml:space="preserve"><value>Allowed actions</value></data>
   <data name="IntakeWorkspace_BeginExtractAction" xml:space="preserve"><value>Begin extraction</value></data>
   <data name="IntakeWorkspace_CaptureChannelField" xml:space="preserve"><value>Capture channel</value></data>
+  <data name="IntakeWorkspace_CaptureChannelLabel" xml:space="preserve"><value>Capture channel</value></data>
+  <data name="IntakeWorkspace_CapturedAtLabel" xml:space="preserve"><value>Captured at</value></data>
   <data name="IntakeWorkspace_CaptureProvenanceSummary" xml:space="preserve"><value>Record how the document entered BG, which workstation or source produced it, and what external reference can prove that origin later.</value></data>
   <data name="IntakeWorkspace_CaptureProvenanceTitle" xml:space="preserve"><value>Capture provenance</value></data>
   <data name="IntakeWorkspace_CaptureZoneTitle" xml:space="preserve"><value>Step 1: Capture</value></data>
   <data name="IntakeWorkspace_DetectedFormTitle" xml:space="preserve"><value>Detected form</value></data>
   <data name="IntakeWorkspace_DocumentFormField" xml:space="preserve"><value>Document form</value></data>
+  <data name="IntakeWorkspace_DocumentPreviewFrameTitle" xml:space="preserve"><value>Document preview</value></data>
+  <data name="IntakeWorkspace_DocumentPreviewTitle" xml:space="preserve"><value>Document preview</value></data>
+  <data name="IntakeWorkspace_DocumentPreviewUnavailable" xml:space="preserve"><value>Preview unavailable for this file type.</value></data>
   <data name="IntakeWorkspace_DocumentFormSummary" xml:space="preserve"><value>Confirm which real bank form or letter family this document follows before final save.</value></data>
   <data name="IntakeWorkspace_DocumentFormTitle" xml:space="preserve"><value>Document form profile</value></data>
   <data name="IntakeWorkspace_DraftPending" xml:space="preserve"><value>Upload and extract before saving</value></data>
@@ -638,6 +643,7 @@
   <data name="IntakeWorkspace_HandoffTitle" xml:space="preserve"><value>Next step</value></data>
   <data name="IntakeWorkspace_Heading" xml:space="preserve"><value>Document intake workspace</value></data>
   <data name="IntakeWorkspace_LoadActorAction" xml:space="preserve"><value>Load intake user</value></data>
+  <data name="IntakeWorkspace_OpenDocumentAction" xml:space="preserve"><value>Open document</value></data>
   <data name="IntakeWorkspace_MetricReview" xml:space="preserve"><value>Review gate</value></data>
   <data name="IntakeWorkspace_MetricRole" xml:space="preserve"><value>Assigned role</value></data>
   <data name="IntakeWorkspace_MetricSave" xml:space="preserve"><value>Save mode</value></data>
@@ -677,6 +683,7 @@
   <data name="IntakeWorkspace_SubmissionTitle" xml:space="preserve"><value>Actual intake submission</value></data>
   <data name="IntakeWorkspace_Summary" xml:space="preserve"><value>This workspace is dedicated to the specialist who scans paper documents, verifies the extracted data, and saves the document and its data in one controlled step.</value></data>
   <data name="IntakeWorkspace_SupportRailSummary" xml:space="preserve"><value>Open only when the current intake item needs more context.</value></data>
+  <data name="IntakeWorkspace_UpdateDocumentAction" xml:space="preserve"><value>Update document</value></data>
   <data name="IntakeWorkspace_SupportRailTitle" xml:space="preserve"><value>Support and context</value></data>
   <data name="IntakeWorkspace_SupportingReviewTitle" xml:space="preserve"><value>Supporting extracted fields</value></data>
   <data name="IntakeWorkspace_VerifiedFieldsTitle" xml:space="preserve"><value>Verified fields</value></data>
@@ -688,7 +695,20 @@
   <data name="MetricDatabase" xml:space="preserve"><value>Database</value></data>
   <data name="MetricFramework" xml:space="preserve"><value>Framework</value></data>
   <data name="MetricHosting" xml:space="preserve"><value>Hosting</value></data>
+  <data name="Administration_Banks_CanonicalName" xml:space="preserve"><value>Canonical name</value></data>
+  <data name="Administration_Banks_CreateAction" xml:space="preserve"><value>Add bank</value></data>
+  <data name="Administration_Banks_CreateTitle" xml:space="preserve"><value>Add new bank</value></data>
+  <data name="Administration_Banks_DeactivateAction" xml:space="preserve"><value>Deactivate</value></data>
+  <data name="Administration_Banks_DirectorySummary" xml:space="preserve"><value>Manage the bank registry used for document routing and email dispatch.</value></data>
+  <data name="Administration_Banks_EmailDispatchEnabled" xml:space="preserve"><value>Enable email dispatch</value></data>
+  <data name="Administration_Banks_Empty" xml:space="preserve"><value>No banks have been registered yet.</value></data>
+  <data name="Administration_Banks_Heading" xml:space="preserve"><value>Bank Registry</value></data>
+  <data name="Administration_Banks_OfficialEmail" xml:space="preserve"><value>Official email</value></data>
+  <data name="Administration_Banks_ShortCode" xml:space="preserve"><value>Short code</value></data>
+  <data name="Administration_Banks_SupportedChannels" xml:space="preserve"><value>Supported channels</value></data>
+  <data name="Administration_Banks_UpdateAction" xml:space="preserve"><value>Save changes</value></data>
   <data name="NavApprovals" xml:space="preserve"><value>Approvals</value></data>
+  <data name="NavBanks" xml:space="preserve"><value>Banks</value></data>
   <data name="NavDelegations" xml:space="preserve"><value>Delegations</value></data>
   <data name="NavDispatch" xml:space="preserve"><value>Dispatch</value></data>
   <data name="NavHome" xml:space="preserve"><value>Home</value></data>
@@ -708,6 +728,7 @@
   <data name="NoRolesAssigned" xml:space="preserve"><value>No roles assigned.</value></data>
   <data name="NoRolesAvailable" xml:space="preserve"><value>Create roles first before assigning them to users.</value></data>
   <data name="NotConfigured" xml:space="preserve"><value>Not configured</value></data>
+  <data name="NotesField" xml:space="preserve"><value>Notes</value></data>
   <data name="Notification_BankResponseApplied" xml:space="preserve"><value>The bank has responded to your guarantee request and the status has been updated.</value></data>
   <data name="Notification_DeliveryConfirmed" xml:space="preserve"><value>Delivery of a guarantee letter has been confirmed.</value></data>
   <data name="Notification_LetterDispatched" xml:space="preserve"><value>A guarantee letter has been dispatched to the bank and is awaiting a response.</value></data>
@@ -766,7 +787,11 @@
   <data name="OperationsQueue_Empty" xml:space="preserve"><value>No operational review items are waiting in the queue.</value></data>
   <data name="OperationsQueue_EvidenceSummary" xml:space="preserve"><value>Open the full capture context and system evidence only when you need support for the current decision.</value></data>
   <data name="OperationsQueue_EvidenceTitle" xml:space="preserve"><value>Evidence and capture trace</value></data>
+  <data name="OperationsQueue_Header_Action" xml:space="preserve"><value>Action</value></data>
   <data name="OperationsQueue_Header_Date" xml:space="preserve"><value>Date</value></data>
+  <data name="OperationsQueue_Header_Entity" xml:space="preserve"><value>Entity</value></data>
+  <data name="OperationsQueue_Header_Reference" xml:space="preserve"><value>Reference</value></data>
+  <data name="OperationsQueue_Header_Type" xml:space="preserve"><value>Type</value></data>
   <data name="OperationsQueue_Header_Value" xml:space="preserve"><value>Value</value></data>
   <data name="OperationsQueue_Heading" xml:space="preserve"><value>Operations review queue</value></data>
   <data name="OperationsQueue_LevelsSuffix" xml:space="preserve"><value>levels</value></data>
