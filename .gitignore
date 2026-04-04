@@ -337,10 +337,22 @@ paket-files/
 __pycache__/
 *.pyc
 .venv*/
+.mypy_cache/
 build_errors.txt
 build_output.txt
+build_err.txt
+build_full.txt
 .agents/
 .config/.store/
+
+# SQLite local database files
+*.db
+*.db-shm
+*.db-wal
+
+# One-off developer analysis scripts
+scripts/analyze_guarantee_pdf.py
+scripts/evaluate_ocr_wave.py
 
 # Working documents — not part of project history
 IMPLEMENTATION_PLAN.md
