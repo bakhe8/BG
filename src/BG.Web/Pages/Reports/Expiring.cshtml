@@ -1,0 +1,81 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Reports.ExpiringModel
+@{
+    ViewData["Title"] = T["Reports_Expiring_Heading"];
+}
+
+<section class="section-shell">
+    <div class="mb-5 pb-4 border-bottom">
+        <section-caption>@T["NavReports"]</section-caption>
+        <h1 class="fw-bold text-dark m-0">@T["Reports_Expiring_Heading"]</h1>
+    </div>
+
+    <div class="d-flex gap-2 mb-4 border-bottom pb-3">
+        <a asp-page="/Reports/Portfolio" class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none">@T["Reports_Nav_Portfolio"]</a>
+        <a asp-page="/Reports/Expiring" class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none active">@T["Reports_Nav_Expiring"]</a>
+        <a asp-page="/Reports/Activity" class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none">@T["Reports_Nav_Activity"]</a>
+    </div>
+
+    <form method="get" class="d-flex gap-3 mb-4 align-items-end">
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Expiring_DaysLabel"]</label>
+            <select name="WithinDays" class="bg-input" onchange="this.form.submit()">
+                @foreach (var days in new[] { 7, 14, 30, 60, 90 })
+                {
+                    <option value="@days" selected="@(Model.WithinDays == days)">@days @T["Reports_Expiring_Days"]</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="bg-btn bg-btn-primary px-4 py-2">@T["Reports_Filter_Apply"]</button>
+    </form>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="x-small text-muted">@string.Format(T["Reports_ResultCount"].Value, Model.Items.Count)</span>
+        <a asp-page="/Reports/Expiring" asp-page-handler="csv"
+           asp-route-WithinDays="@Model.WithinDays"
+           class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none">
+            <i class="bi bi-download me-1"></i>@T["Reports_ExportCsv"]
+        </a>
+    </div>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-calendar-check fs-1 text-muted opacity-25 d-block mb-3"></i>
+            <p class="text-muted mb-0">@T["Reports_Expiring_Empty"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="x-small fw-bold">@T["Reports_Col_GuaranteeNumber"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_BankName"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_Beneficiary"]</th>
+                        <th class="x-small fw-bold text-end">@T["Reports_Col_Amount"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_ExpiryDate"]</th>
+                        <th class="x-small fw-bold text-end">@T["Reports_Expiring_DaysRemaining"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        var urgency = item.DaysUntilExpiry <= 7 ? "text-danger fw-bold" : item.DaysUntilExpiry <= 14 ? "text-warning fw-semibold" : null;
+                        <tr class="@urgency">
+                            <td class="fw-semibold text-dark">@item.GuaranteeNumber</td>
+                            <td>@item.BankName</td>
+                            <td class="x-small">@item.BeneficiaryName</td>
+                            <td class="text-end fw-semibold">@item.CurrentAmount.ToString("N2") @item.CurrencyCode</td>
+                            <td>@item.ExpiryDate.ToString("yyyy-MM-dd")</td>
+                            <td class="text-end">@item.DaysUntilExpiry</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

@@ -1,0 +1,191 @@
+@page
+@using BG.Domain.Guarantees
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Administration.BanksModel
+@{
+    ViewData["Title"] = T["Administration_Banks_Heading"];
+    var activeBank = Model.ActiveBank;
+}
+
+<section class="section-shell admin-users-surface">
+    @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+    {
+        <div class="notice-banner is-success">@Model.StatusMessage</div>
+    }
+
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+    <div class="mb-5 pb-4 border-bottom">
+        <section-caption>@T["NavBanks"]</section-caption>
+        <h1 class="fw-bold text-dark m-0">@T["Administration_Banks_Heading"]</h1>
+    </div>
+
+    <div class="layout-dual-panel">
+        <div class="layout-sidebar">
+            <article class="admin-users-directory">
+                <div class="admin-users-card-header">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">@T["NavBanks"]</h5>
+                        <p class="compact-copy mb-0">@T["Administration_Banks_DirectorySummary"]</p>
+                    </div>
+                    <bg-badge variant="light">@Model.Banks.Count</bg-badge>
+                </div>
+
+                @if (Model.Banks.Count == 0)
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-building fs-1 text-muted opacity-25 d-block mb-3"></i>
+                        <p class="text-muted mb-0">@T["Administration_Banks_Empty"]</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="admin-users-directory-list">
+                        @foreach (var bank in Model.Banks)
+                        {
+                            var isActive = activeBank?.Id == bank.Id;
+
+                            <a asp-page="/Administration/Banks"
+                               asp-all-route-data="Model.BuildSelectionRoute(bank.Id)"
+                               class="request-queue-link border-0 py-3 px-1 @(isActive ? "active" : null)">
+                                <div class="d-flex justify-content-between align-items-center w-100">
+                                    <div class="request-queue-copy">
+                                        <strong class="d-block text-dark">@bank.CanonicalName</strong>
+                                        <div class="x-small text-muted">@bank.ShortCode</div>
+                                    </div>
+                                    <bg-badge class="bg-badge-@(bank.IsActive ? "success" : "returned")">
+                                        @T[bank.IsActive ? "Status_Active" : "Status_Inactive"]
+                                    </bg-badge>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+            </article>
+
+            <article class="admin-users-create">
+                <div class="admin-users-card-header">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">@T["Administration_Banks_CreateTitle"]</h5>
+                    </div>
+                </div>
+
+                <form method="post" asp-page-handler="Create" class="d-flex flex-column gap-3">
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="CreateInput.CanonicalName">@T["Administration_Banks_CanonicalName"]</label>
+                        <input asp-for="CreateInput.CanonicalName" class="bg-input" maxlength="128" />
+                    </div>
+
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="CreateInput.ShortCode">@T["Administration_Banks_ShortCode"]</label>
+                        <input asp-for="CreateInput.ShortCode" class="bg-input" maxlength="16" />
+                    </div>
+
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="CreateInput.OfficialEmail">@T["Administration_Banks_OfficialEmail"]</label>
+                        <input asp-for="CreateInput.OfficialEmail" class="bg-input" maxlength="256" />
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="CreateInput.IsEmailDispatchEnabled" class="form-check-input" />
+                        <label asp-for="CreateInput.IsEmailDispatchEnabled" class="form-check-label">@T["Administration_Banks_EmailDispatchEnabled"]</label>
+                    </div>
+
+                    <div>
+                        <div class="bg-grid-label mb-2">@T["Administration_Banks_SupportedChannels"]</div>
+                        @foreach (var channel in Model.DispatchChannelOptions)
+                        {
+                            var createChecked = Model.CreateInput.SupportedDispatchChannels.Contains(channel);
+                            <label class="d-flex align-items-center gap-2 mb-2">
+                                <input type="checkbox" name="CreateInput.SupportedDispatchChannels" value="@channel" class="form-check-input" @(createChecked ? "checked" : null) />
+                                <span class="x-small text-dark">@T[$"DispatchChannel_{channel}"]</span>
+                            </label>
+                        }
+                    </div>
+
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="CreateInput.Notes">@T["NotesField"]</label>
+                        <textarea asp-for="CreateInput.Notes" class="bg-input" rows="2" maxlength="1024"></textarea>
+                    </div>
+
+                    <button type="submit" class="bg-btn bg-btn-primary w-100 py-3 shadow-none">@T["Administration_Banks_CreateAction"]</button>
+                </form>
+            </article>
+        </div>
+
+        <article class="admin-users-detail">
+            @if (activeBank is null)
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-building fs-1 text-muted opacity-25 d-block mb-3"></i>
+                    <h5 class="fw-bold text-dark">@T["NavBanks"]</h5>
+                    <p class="compact-copy mb-0">@T["Administration_Banks_DirectorySummary"]</p>
+                </div>
+            }
+            else
+            {
+                <div class="admin-users-card-header">
+                    <div>
+                        <h4 class="fw-bold text-dark m-0">@activeBank.CanonicalName</h4>
+                        <div class="entity-subtitle">@activeBank.ShortCode</div>
+                    </div>
+                    <span class="status-indicator @(activeBank.IsActive ? "is-active" : "is-inactive")">
+                        @T[activeBank.IsActive ? "Status_Active" : "Status_Inactive"]
+                    </span>
+                </div>
+
+                <form method="post" asp-page-handler="Update" class="d-flex flex-column gap-3">
+                    <input type="hidden" asp-for="UpdateInput.BankId" />
+
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="UpdateInput.CanonicalName">@T["Administration_Banks_CanonicalName"]</label>
+                        <input asp-for="UpdateInput.CanonicalName" class="bg-input" maxlength="128" />
+                    </div>
+
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="UpdateInput.ShortCode">@T["Administration_Banks_ShortCode"]</label>
+                        <input asp-for="UpdateInput.ShortCode" class="bg-input" maxlength="16" />
+                    </div>
+
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="UpdateInput.OfficialEmail">@T["Administration_Banks_OfficialEmail"]</label>
+                        <input asp-for="UpdateInput.OfficialEmail" class="bg-input" maxlength="256" />
+                    </div>
+
+                    <div class="form-check">
+                        <input asp-for="UpdateInput.IsEmailDispatchEnabled" class="form-check-input" />
+                        <label asp-for="UpdateInput.IsEmailDispatchEnabled" class="form-check-label">@T["Administration_Banks_EmailDispatchEnabled"]</label>
+                    </div>
+
+                    <div>
+                        <div class="bg-grid-label mb-2">@T["Administration_Banks_SupportedChannels"]</div>
+                        @foreach (var channel in Model.DispatchChannelOptions)
+                        {
+                            var updateChecked = Model.UpdateInput.SupportedDispatchChannels.Contains(channel);
+                            <label class="d-flex align-items-center gap-2 mb-2">
+                                <input type="checkbox" name="UpdateInput.SupportedDispatchChannels" value="@channel" class="form-check-input" @(updateChecked ? "checked" : null) />
+                                <span class="x-small text-dark">@T[$"DispatchChannel_{channel}"]</span>
+                            </label>
+                        }
+                    </div>
+
+                    <div>
+                        <label class="form-label x-small fw-bold opacity-75" asp-for="UpdateInput.Notes">@T["NotesField"]</label>
+                        <textarea asp-for="UpdateInput.Notes" class="bg-input" rows="2" maxlength="1024"></textarea>
+                    </div>
+
+                    <button type="submit" class="bg-btn bg-btn-primary w-100 py-3 shadow-none">@T["Administration_Banks_UpdateAction"]</button>
+                </form>
+
+                @if (activeBank.IsActive)
+                {
+                    <form method="post" asp-page-handler="Deactivate" class="mt-3">
+                        <input type="hidden" name="bankId" value="@activeBank.Id" />
+                        <button type="submit" class="bg-btn bg-btn-ghost w-100 py-3 shadow-none">@T["Administration_Banks_DeactivateAction"]</button>
+                    </form>
+                }
+            }
+        </article>
+    </div>
+</section>

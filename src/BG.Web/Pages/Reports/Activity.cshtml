@@ -1,0 +1,122 @@
+@page
+@using BG.Domain.Guarantees
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Reports.ActivityModel
+@{
+    ViewData["Title"] = T["Reports_Activity_Heading"];
+}
+
+<section class="section-shell">
+    <div class="mb-5 pb-4 border-bottom">
+        <section-caption>@T["NavReports"]</section-caption>
+        <h1 class="fw-bold text-dark m-0">@T["Reports_Activity_Heading"]</h1>
+    </div>
+
+    <div class="d-flex gap-2 mb-4 border-bottom pb-3">
+        <a asp-page="/Reports/Portfolio" class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none">@T["Reports_Nav_Portfolio"]</a>
+        <a asp-page="/Reports/Expiring" class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none">@T["Reports_Nav_Expiring"]</a>
+        <a asp-page="/Reports/Activity" class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none active">@T["Reports_Nav_Activity"]</a>
+    </div>
+
+    <form method="get" class="d-flex flex-wrap gap-3 mb-4 align-items-end">
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Filter_Status"]</label>
+            <select name="FilterStatus" class="bg-input">
+                <option value="">@T["Reports_Filter_All"]</option>
+                @foreach (var s in Model.StatusOptions)
+                {
+                    <option value="@s" selected="@(Model.FilterStatus == s)">@T[$"RequestStatus_{s}"]</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Filter_RequestType"]</label>
+            <select name="FilterType" class="bg-input">
+                <option value="">@T["Reports_Filter_All"]</option>
+                @foreach (var t in Model.TypeOptions)
+                {
+                    <option value="@t" selected="@(Model.FilterType == t)">@T[$"RequestType_{t}"]</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Filter_From"]</label>
+            <input type="date" name="FilterFrom" value="@Model.FilterFrom?.ToString("yyyy-MM-dd")" class="bg-input" />
+        </div>
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Filter_To"]</label>
+            <input type="date" name="FilterTo" value="@Model.FilterTo?.ToString("yyyy-MM-dd")" class="bg-input" />
+        </div>
+
+        <button type="submit" class="bg-btn bg-btn-primary px-4 py-2">@T["Reports_Filter_Apply"]</button>
+        <a asp-page="/Reports/Activity" class="bg-btn bg-btn-ghost px-4 py-2 text-decoration-none">@T["Reports_Filter_Reset"]</a>
+    </form>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="x-small text-muted">@string.Format(T["Reports_ResultCount"].Value, Model.Items.Count)</span>
+        <a asp-page="/Reports/Activity" asp-page-handler="csv"
+           asp-all-route-data='@(new Dictionary<string, string?> { ["FilterStatus"] = Model.FilterStatus?.ToString(), ["FilterType"] = Model.FilterType?.ToString(), ["FilterFrom"] = Model.FilterFrom?.ToString("yyyy-MM-dd"), ["FilterTo"] = Model.FilterTo?.ToString("yyyy-MM-dd") })'
+           class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none">
+            <i class="bi bi-download me-1"></i>@T["Reports_ExportCsv"]
+        </a>
+    </div>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-file-earmark-text fs-1 text-muted opacity-25 d-block mb-3"></i>
+            <p class="text-muted mb-0">@T["Reports_Activity_Empty"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="x-small fw-bold">@T["Reports_Col_GuaranteeNumber"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_RequestType"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_Status"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_RequestedBy"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_CreatedAt"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_CompletedAt"]</th>
+                        <th class="x-small fw-bold text-end">@T["Reports_Col_Duration"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        var duration = item.CompletedAtUtc.HasValue
+                            ? (int)(item.CompletedAtUtc.Value - item.CreatedAtUtc).TotalDays
+                            : (int)(DateTimeOffset.UtcNow - item.CreatedAtUtc).TotalDays;
+                        <tr>
+                            <td class="fw-semibold text-dark">@item.GuaranteeNumber</td>
+                            <td><bg-badge variant="light">@T[$"RequestType_{item.RequestType}"]</bg-badge></td>
+                            <td><bg-badge class="bg-badge-@GetStatusBadge(item.Status)">@T[$"RequestStatus_{item.Status}"]</bg-badge></td>
+                            <td class="x-small">@item.RequestedByDisplayName</td>
+                            <td class="x-small">@item.CreatedAtUtc.ToLocalTime().ToString("yyyy-MM-dd")</td>
+                            <td class="x-small">@(item.CompletedAtUtc?.ToLocalTime().ToString("yyyy-MM-dd") ?? "—")</td>
+                            <td class="text-end x-small">@duration @T["Reports_Col_Days"]</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@functions {
+    static string GetStatusBadge(GuaranteeRequestStatus status) => status switch
+    {
+        GuaranteeRequestStatus.Completed => "success",
+        GuaranteeRequestStatus.Rejected => "returned",
+        GuaranteeRequestStatus.Cancelled => "returned",
+        GuaranteeRequestStatus.Returned => "returned",
+        GuaranteeRequestStatus.InApproval => "draft",
+        _ => "light"
+    };
+}

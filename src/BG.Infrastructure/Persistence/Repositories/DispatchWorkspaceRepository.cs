@@ -1,5 +1,6 @@
 using BG.Application.Common;
 using BG.Application.Contracts.Persistence;
+using BG.Application.Models.Approvals;
 using BG.Application.Models.Dispatch;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
@@ -271,6 +272,32 @@ internal sealed class DispatchWorkspaceRepository : IDispatchWorkspaceRepository
             .Include(request => request.Correspondence)
             .Include(request => request.ApprovalProcess!)
             .SingleOrDefaultAsync(request => request.Id == requestId, cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ApprovalPriorSignatureReadModel>> GetApprovalSignaturesForRequestAsync(Guid requestId, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.RequestApprovalStages
+            .Include(stage => stage.ActedByUser)
+            .Include(stage => stage.ActedOnBehalfOfUser)
+            .Include(stage => stage.Role)
+            .Where(stage =>
+                stage.ApprovalProcess.GuaranteeRequestId == requestId &&
+                stage.ActedAtUtc.HasValue &&
+                stage.RequiresLetterSignature)
+            .OrderBy(stage => stage.Sequence)
+            .Select(stage => new ApprovalPriorSignatureReadModel(
+                stage.Id,
+                stage.Sequence,
+                stage.TitleResourceKey,
+                stage.TitleText,
+                stage.Role != null ? stage.Role.Name : null,
+                stage.ActedAtUtc!.Value,
+                stage.ActedByUserId,
+                stage.ActedByUser != null ? stage.ActedByUser.DisplayName : null,
+                stage.ActedOnBehalfOfUserId,
+                stage.ActedOnBehalfOfUser != null ? stage.ActedOnBehalfOfUser.DisplayName : null))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
     public void TrackNewOutgoingCorrespondence(GuaranteeCorrespondence correspondence)

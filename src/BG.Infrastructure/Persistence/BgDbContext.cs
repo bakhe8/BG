@@ -52,6 +52,8 @@ public sealed class BgDbContext : DbContext
 
     public DbSet<Notification> Notifications => Set<Notification>();
 
+    public DbSet<Bank> Banks => Set<Bank>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(BgDbContext).Assembly);

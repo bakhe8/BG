@@ -1,4 +1,5 @@
 using BG.Application.Common;
+using BG.Application.Models.Approvals;
 using BG.Application.Models.Dispatch;
 using BG.Domain.Guarantees;
 using BG.Domain.Identity;
@@ -20,6 +21,8 @@ public interface IDispatchWorkspaceRepository
         CancellationToken cancellationToken = default);
 
     Task<GuaranteeRequest?> GetRequestForDispatchAsync(Guid requestId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<ApprovalPriorSignatureReadModel>> GetApprovalSignaturesForRequestAsync(Guid requestId, CancellationToken cancellationToken = default);
 
     void TrackNewOutgoingCorrespondence(GuaranteeCorrespondence correspondence);
 

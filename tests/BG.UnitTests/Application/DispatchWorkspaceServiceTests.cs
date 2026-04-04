@@ -2,6 +2,7 @@ using BG.Application.Common;
 using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
 using BG.Application.Dispatch;
+using BG.Application.Models.Approvals;
 using BG.Application.Models.Dispatch;
 using BG.Application.ReferenceData;
 using BG.Application.Services;
@@ -412,6 +413,9 @@ public sealed class DispatchWorkspaceServiceTests
         {
             return Task.FromResult(requestId == _request.Id ? _request : null);
         }
+
+        public Task<IReadOnlyList<ApprovalPriorSignatureReadModel>> GetApprovalSignaturesForRequestAsync(Guid requestId, CancellationToken cancellationToken = default)
+            => Task.FromResult<IReadOnlyList<ApprovalPriorSignatureReadModel>>([]);
 
         public void TrackNewOutgoingCorrespondence(GuaranteeCorrespondence correspondence)
         {

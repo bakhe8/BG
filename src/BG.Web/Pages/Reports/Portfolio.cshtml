@@ -1,0 +1,127 @@
+@page
+@using BG.Domain.Guarantees
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Reports.PortfolioModel
+@{
+    ViewData["Title"] = T["Reports_Portfolio_Heading"];
+}
+
+<section class="section-shell">
+    <div class="mb-5 pb-4 border-bottom">
+        <section-caption>@T["NavReports"]</section-caption>
+        <h1 class="fw-bold text-dark m-0">@T["Reports_Portfolio_Heading"]</h1>
+    </div>
+
+    <div class="d-flex gap-2 mb-4 border-bottom pb-3">
+        <a asp-page="/Reports/Portfolio" class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none @(ViewContext.RouteData.Values["page"]?.ToString() == "/Reports/Portfolio" ? "active" : null)">@T["Reports_Nav_Portfolio"]</a>
+        <a asp-page="/Reports/Expiring" class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none">@T["Reports_Nav_Expiring"]</a>
+        <a asp-page="/Reports/Activity" class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none">@T["Reports_Nav_Activity"]</a>
+    </div>
+
+    <form method="get" class="d-flex flex-wrap gap-3 mb-4 align-items-end">
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Filter_Status"]</label>
+            <select name="FilterStatus" class="bg-input">
+                <option value="">@T["Reports_Filter_All"]</option>
+                @foreach (var s in Model.StatusOptions)
+                {
+                    <option value="@s" selected="@(Model.FilterStatus == s)">@T[$"GuaranteeStatus_{s}"]</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Filter_Category"]</label>
+            <select name="FilterCategory" class="bg-input">
+                <option value="">@T["Reports_Filter_All"]</option>
+                @foreach (var c in Model.CategoryOptions)
+                {
+                    <option value="@c" selected="@(Model.FilterCategory == c)">@T[$"GuaranteeCategory_{c}"]</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Filter_Bank"]</label>
+            <input type="text" name="FilterBank" value="@Model.FilterBank" class="bg-input" placeholder="@T["Reports_Filter_BankPlaceholder"]" />
+        </div>
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Filter_IssuedFrom"]</label>
+            <input type="date" name="FilterFrom" value="@Model.FilterFrom?.ToString("yyyy-MM-dd")" class="bg-input" />
+        </div>
+
+        <div>
+            <label class="form-label x-small fw-bold opacity-75">@T["Reports_Filter_IssuedTo"]</label>
+            <input type="date" name="FilterTo" value="@Model.FilterTo?.ToString("yyyy-MM-dd")" class="bg-input" />
+        </div>
+
+        <button type="submit" class="bg-btn bg-btn-primary px-4 py-2">@T["Reports_Filter_Apply"]</button>
+        <a asp-page="/Reports/Portfolio" class="bg-btn bg-btn-ghost px-4 py-2 text-decoration-none">@T["Reports_Filter_Reset"]</a>
+    </form>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="x-small text-muted">@string.Format(T["Reports_ResultCount"].Value, Model.Items.Count)</span>
+        <a asp-page="/Reports/Portfolio" asp-page-handler="csv"
+           asp-all-route-data='@(new Dictionary<string, string?> { ["FilterStatus"] = Model.FilterStatus?.ToString(), ["FilterCategory"] = Model.FilterCategory?.ToString(), ["FilterBank"] = Model.FilterBank, ["FilterFrom"] = Model.FilterFrom?.ToString("yyyy-MM-dd"), ["FilterTo"] = Model.FilterTo?.ToString("yyyy-MM-dd") })'
+           class="bg-btn bg-btn-ghost py-2 px-3 text-decoration-none">
+            <i class="bi bi-download me-1"></i>@T["Reports_ExportCsv"]
+        </a>
+    </div>
+
+    @if (Model.Items.Count == 0)
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-shield fs-1 text-muted opacity-25 d-block mb-3"></i>
+            <p class="text-muted mb-0">@T["Reports_Portfolio_Empty"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th class="x-small fw-bold">@T["Reports_Col_GuaranteeNumber"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_BankName"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_Beneficiary"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_Category"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_Status"]</th>
+                        <th class="x-small fw-bold text-end">@T["Reports_Col_Amount"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_IssueDate"]</th>
+                        <th class="x-small fw-bold">@T["Reports_Col_ExpiryDate"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        var isExpired = item.ExpiryDate < DateOnly.FromDateTime(DateTime.UtcNow);
+                        <tr>
+                            <td class="fw-semibold text-dark">@item.GuaranteeNumber</td>
+                            <td>@item.BankName</td>
+                            <td class="x-small">@item.BeneficiaryName</td>
+                            <td><bg-badge variant="light">@T[$"GuaranteeCategory_{item.Category}"]</bg-badge></td>
+                            <td><bg-badge class="bg-badge-@GetStatusBadge(item.Status)">@T[$"GuaranteeStatus_{item.Status}"]</bg-badge></td>
+                            <td class="text-end fw-semibold">@item.CurrentAmount.ToString("N2") @item.CurrencyCode</td>
+                            <td class="x-small">@item.IssueDate.ToString("yyyy-MM-dd")</td>
+                            <td class="x-small @(isExpired ? "text-danger fw-bold" : null)">@item.ExpiryDate.ToString("yyyy-MM-dd")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>
+
+@functions {
+    static string GetStatusBadge(GuaranteeStatus status) => status switch
+    {
+        GuaranteeStatus.Active => "success",
+        GuaranteeStatus.Released => "light",
+        GuaranteeStatus.Replaced => "light",
+        GuaranteeStatus.Expired => "returned",
+        GuaranteeStatus.Cancelled => "returned",
+        _ => "light"
+    };
+}

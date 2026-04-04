@@ -292,6 +292,11 @@ public sealed class DispatchWorkspacePageTests
                 OperationResult<ReopenDispatchReceiptDto>.Success(
                     new ReopenDispatchReceiptDto(command.RequestId, "BG-2026-7101", "LTR-8001")));
         }
+
+        public Task<OperationResult<DispatchLetterPdfResult>> GetLetterPdfAsync(Guid dispatcherUserId, Guid requestId, string referenceNumber, DateOnly letterDate, CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
+        }
     }
 
     private sealed class PassThroughLocalizer : IStringLocalizer<SharedResource>

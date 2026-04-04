@@ -135,6 +135,11 @@ public sealed class DispatchLetterPageTests
         {
             throw new NotSupportedException();
         }
+
+        public Task<OperationResult<DispatchLetterPdfResult>> GetLetterPdfAsync(Guid dispatcherUserId, Guid requestId, string referenceNumber, DateOnly letterDate, CancellationToken cancellationToken = default)
+        {
+            throw new NotSupportedException();
+        }
     }
 
     private sealed class PassThroughLocalizer : IStringLocalizer<SharedResource>

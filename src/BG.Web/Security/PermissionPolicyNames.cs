@@ -16,6 +16,8 @@ public static class PermissionPolicyNames
     public const string RolesManage = "permission.roles.manage";
     public const string DelegationsManage = "permission.delegations.manage";
     public const string WorkflowManage = "permission.workflow.manage";
+    public const string BanksManage = "permission.administration.banks";
+    public const string ReportsView = "permission.reports.view";
 
     public static void Configure(AuthorizationOptions options)
     {
@@ -31,6 +33,8 @@ public static class PermissionPolicyNames
         Add(options, RolesManage, "roles.manage");
         Add(options, DelegationsManage, "delegations.manage");
         Add(options, WorkflowManage, "workflow.manage");
+        Add(options, BanksManage, "administration.banks");
+        Add(options, ReportsView, "reports.view");
     }
 
     private static void Add(AuthorizationOptions options, string policyName, params string[] permissionKeys)

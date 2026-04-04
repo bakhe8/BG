@@ -5,6 +5,13 @@ namespace BG.Application.Contracts.Services;
 
 public interface IDispatchWorkspaceService
 {
+    Task<OperationResult<DispatchLetterPdfResult>> GetLetterPdfAsync(
+        Guid dispatcherUserId,
+        Guid requestId,
+        string referenceNumber,
+        DateOnly letterDate,
+        CancellationToken cancellationToken = default);
+
     Task<DispatchWorkspaceSnapshotDto> GetWorkspaceAsync(
         Guid? dispatcherActorId,
         int pageNumber = 1,

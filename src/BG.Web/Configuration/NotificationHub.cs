@@ -19,8 +19,16 @@ public sealed class NotificationHub : Hub
             await Groups.AddToGroupAsync(Context.ConnectionId, GetGroupName(permission));
         }
 
+        var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (Guid.TryParse(userId, out var userGuid))
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, GetUserGroupName(userGuid));
+        }
+
         await base.OnConnectedAsync();
     }
 
     public static string GetGroupName(string permission) => $"group-permission.{permission}";
+
+    public static string GetUserGroupName(Guid userId) => $"user-{userId}";
 }

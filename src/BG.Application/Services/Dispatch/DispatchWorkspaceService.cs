@@ -4,6 +4,7 @@ using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Services;
 using BG.Application.Dispatch;
 using BG.Application.Intake;
+using BG.Application.Models.Approvals;
 using BG.Application.Models.Dispatch;
 using BG.Application.ReferenceData;
 using BG.Domain.Guarantees;
@@ -15,11 +16,85 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
 {
     private readonly IDispatchWorkspaceRepository _repository;
     private readonly INotificationService _notificationService;
+    private readonly ILetterGenerationService? _letterGenerationService;
 
     public DispatchWorkspaceService(IDispatchWorkspaceRepository repository, INotificationService notificationService)
     {
         _repository = repository;
         _notificationService = notificationService;
+    }
+
+    public DispatchWorkspaceService(IDispatchWorkspaceRepository repository, INotificationService notificationService, ILetterGenerationService letterGenerationService)
+    {
+        _repository = repository;
+        _notificationService = notificationService;
+        _letterGenerationService = letterGenerationService;
+    }
+
+    public async Task<OperationResult<DispatchLetterPdfResult>> GetLetterPdfAsync(
+        Guid dispatcherUserId,
+        Guid requestId,
+        string referenceNumber,
+        DateOnly letterDate,
+        CancellationToken cancellationToken = default)
+    {
+        if (_letterGenerationService is null)
+            return OperationResult<DispatchLetterPdfResult>.Failure(DispatchErrorCodes.DispatcherContextRequired);
+
+        var actor = await _repository.GetDispatchActorByIdAsync(dispatcherUserId, cancellationToken);
+        if (actor is null)
+            return OperationResult<DispatchLetterPdfResult>.Failure(DispatchErrorCodes.DispatcherContextInvalid);
+
+        var request = await _repository.GetRequestForDispatchAsync(requestId, cancellationToken);
+        if (request is null)
+            return OperationResult<DispatchLetterPdfResult>.Failure(DispatchErrorCodes.RequestNotFound);
+
+        if (request.Status is not GuaranteeRequestStatus.ApprovedForDispatch
+            and not GuaranteeRequestStatus.AwaitingBankResponse
+            and not GuaranteeRequestStatus.SubmittedToBank)
+            return OperationResult<DispatchLetterPdfResult>.Failure(DispatchErrorCodes.RequestNotReady);
+
+        var signatures = await _repository.GetApprovalSignaturesForRequestAsync(requestId, cancellationToken);
+
+        var letterDto = new DispatchLetterPreviewDto(
+            request.Id,
+            request.Guarantee.GuaranteeNumber,
+            request.Guarantee.BankName,
+            request.Guarantee.BeneficiaryName,
+            request.Guarantee.PrincipalName,
+            request.Guarantee.CurrencyCode,
+            request.Guarantee.CurrentAmount,
+            request.Guarantee.IssueDate,
+            request.Guarantee.ExpiryDate,
+            request.RequestType,
+            request.RequestedByUser.DisplayName,
+            referenceNumber,
+            letterDate,
+            request.RequestedAmount,
+            request.RequestedExpiryDate,
+            request.Notes,
+            actor.DisplayName,
+            DateTimeOffset.UtcNow,
+            false,
+            0);
+
+        var signatureDtos = signatures
+            .Select(s => new ApprovalPriorSignatureDto(
+                s.StageId,
+                s.Sequence,
+                s.StageTitleResourceKey,
+                s.StageTitle,
+                s.StageRoleName,
+                s.ActedAtUtc,
+                s.ActorDisplayName,
+                s.ResponsibleSignerDisplayName,
+                false))
+            .ToArray();
+
+        var pdfBytes = await _letterGenerationService.GenerateLetterPdfAsync(letterDto, signatureDtos, cancellationToken);
+        var fileName = $"Letter-{request.Guarantee.GuaranteeNumber}-{referenceNumber}.pdf";
+
+        return OperationResult<DispatchLetterPdfResult>.Success(new DispatchLetterPdfResult(pdfBytes, fileName));
     }
 
     public async Task<DispatchWorkspaceSnapshotDto> GetWorkspaceAsync(
