@@ -261,7 +261,7 @@
                             }
                         </div>
 
-                        @* User Profile Dropdown *@
+                        @* User Profile Dropdown — shown when authenticated; Sign In link otherwise *@
                         @if (shell.CurrentUser is not null)
                         {
                             <div class="dropdown border-start border-white border-opacity-10 ps-3 ms-1" hx-boost="false">
@@ -298,6 +298,16 @@
                                     </li>
                                 </ul>
                             </div>
+                        }
+                        else
+                        {
+                            <a href="/SignIn?returnUrl=@Uri.EscapeDataString(returnUrl)"
+                               hx-boost="false"
+                               class="btn d-flex align-items-center gap-2 fw-bold text-white border-start border-white border-opacity-10 ps-3 ms-1"
+                               style="font-size: 0.85rem;">
+                                <i class="bi bi-person-lock fs-5"></i>
+                                <span class="d-none d-md-inline">@T["SignIn_SubmitAction"]</span>
+                            </a>
                         }
                     </div>
                 </div>
