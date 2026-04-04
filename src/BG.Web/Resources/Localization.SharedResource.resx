@@ -34,6 +34,8 @@
   <data name="Shared_Yes" xml:space="preserve"><value>Yes</value></data>
   <data name="Shared_No" xml:space="preserve"><value>No</value></data>
   <data name="Shared_SignOut" xml:space="preserve"><value>Sign Out</value></data>
+  <data name="Shared_MoreActions" xml:space="preserve"><value>More actions</value></data>
+  <data name="Shared_SearchAction" xml:space="preserve"><value>Search</value></data>
   <data name="Home_PageTitle" xml:space="preserve"><value>Operational dashboard</value></data>
   <data name="Home_AnonymousEyebrow" xml:space="preserve"><value>BG workspace</value></data>
   <data name="Home_AnonymousHeading" xml:space="preserve"><value>Bank guarantee work starts from queues, not framework details.</value></data>
@@ -1166,4 +1168,46 @@
   <data name="Shared_UsernameLabel" xml:space="preserve"><value>Username</value></data>
   <data name="Shared_PasswordLabel" xml:space="preserve"><value>Password</value></data>
   <data name="SignIn_SubmitAction" xml:space="preserve"><value>Sign in to Workspace</value></data>
+  <data name="Notification_RequestSubmittedForApproval" xml:space="preserve"><value>A new guarantee request has been submitted for approval.</value></data>
+  <data name="Notification_StageAdvancedToNextApprover" xml:space="preserve"><value>A request has been approved at the current stage and advanced to the next approver.</value></data>
+  <data name="Notification_RequestApprovedForDispatch" xml:space="preserve"><value>A request has completed all approval stages and is ready for dispatch.</value></data>
+  <data name="Notification_RequestReturnedToOwner" xml:space="preserve"><value>Your guarantee request has been returned for revision.</value></data>
+  <data name="Notification_RequestRejectedToOwner" xml:space="preserve"><value>Your guarantee request has been rejected.</value></data>
+  <data name="Notification_LetterDispatched" xml:space="preserve"><value>A guarantee letter has been dispatched to the bank and is awaiting a response.</value></data>
+  <data name="Notification_DeliveryConfirmed" xml:space="preserve"><value>Delivery of a guarantee letter has been confirmed.</value></data>
+  <data name="Notification_BankResponseApplied" xml:space="preserve"><value>The bank has responded to your guarantee request and the status has been updated.</value></data>
+  <data name="RequestsHistory_PageTitle" xml:space="preserve"><value>Guarantee event history</value></data>
+  <data name="RequestsHistory_Heading" xml:space="preserve"><value>Guarantee event history</value></data>
+  <data name="RequestsHistory_GuaranteeLabel" xml:space="preserve"><value>Guarantee number</value></data>
+  <data name="RequestsHistory_Empty" xml:space="preserve"><value>No events are recorded for this guarantee.</value></data>
+  <data name="RequestsHistory_BackToWorkspace" xml:space="preserve"><value>Back to requests</value></data>
+  <data name="RequestsHistory_OpenAction" xml:space="preserve"><value>Open history</value></data>
+  <data name="RequestsHistory_LinkLabel" xml:space="preserve"><value>Guarantee timeline</value></data>
+  <data name="RequestsHistory_LinkHint" xml:space="preserve"><value>Review all guarantee-level events</value></data>
+  <data name="RequestsHistory_AmountDeltaLabel" xml:space="preserve"><value>Amount change</value></data>
+  <data name="RequestsHistory_ExpiryDeltaLabel" xml:space="preserve"><value>Expiry change</value></data>
+  <data name="RequestsHistory_StatusDeltaLabel" xml:space="preserve"><value>Status change</value></data>
+  <data name="GuaranteeEvent_Registered" xml:space="preserve"><value>Guarantee registered</value></data>
+  <data name="GuaranteeEvent_RequestRecorded" xml:space="preserve"><value>Request recorded</value></data>
+  <data name="GuaranteeEvent_RequestUpdated" xml:space="preserve"><value>Request updated</value></data>
+  <data name="GuaranteeEvent_RequestCancelled" xml:space="preserve"><value>Request cancelled</value></data>
+  <data name="GuaranteeEvent_RequestWithdrawn" xml:space="preserve"><value>Request withdrawn</value></data>
+  <data name="GuaranteeEvent_RequestSubmittedForApproval" xml:space="preserve"><value>Request submitted for approval</value></data>
+  <data name="GuaranteeEvent_ApprovalApproved" xml:space="preserve"><value>Approval stage approved</value></data>
+  <data name="GuaranteeEvent_ApprovalReturned" xml:space="preserve"><value>Approval stage returned</value></data>
+  <data name="GuaranteeEvent_ApprovalRejected" xml:space="preserve"><value>Approval stage rejected</value></data>
+  <data name="GuaranteeEvent_CorrespondenceRecorded" xml:space="preserve"><value>Outgoing correspondence recorded</value></data>
+  <data name="GuaranteeEvent_IncomingCorrespondence" xml:space="preserve"><value>Incoming correspondence recorded</value></data>
+  <data name="GuaranteeEvent_DocumentCaptured" xml:space="preserve"><value>Document captured</value></data>
+  <data name="GuaranteeEvent_RequestDocumentLinked" xml:space="preserve"><value>Request document linked</value></data>
+  <data name="GuaranteeEvent_OutgoingLetterPrinted" xml:space="preserve"><value>Outgoing letter printed</value></data>
+  <data name="GuaranteeEvent_OutgoingLetterDispatched" xml:space="preserve"><value>Outgoing letter dispatched</value></data>
+  <data name="GuaranteeEvent_OutgoingLetterDelivered" xml:space="preserve"><value>Outgoing letter delivered</value></data>
+  <data name="GuaranteeEvent_DispatchReopened" xml:space="preserve"><value>Dispatch reopened</value></data>
+  <data name="GuaranteeEvent_ExpiryExtended" xml:space="preserve"><value>Expiry extended</value></data>
+  <data name="GuaranteeEvent_AmountReduced" xml:space="preserve"><value>Amount reduced</value></data>
+  <data name="GuaranteeEvent_Released" xml:space="preserve"><value>Guarantee released</value></data>
+  <data name="GuaranteeEvent_Replaced" xml:space="preserve"><value>Guarantee replaced</value></data>
+  <data name="GuaranteeEvent_StatusConfirmed" xml:space="preserve"><value>Status confirmed</value></data>
+  <data name="GuaranteeEvent_BankConfirmationReopened" xml:space="preserve"><value>Bank confirmation reopened</value></data>
 </root>

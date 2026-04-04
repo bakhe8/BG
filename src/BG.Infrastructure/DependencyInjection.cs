@@ -35,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<IHomeDashboardRepository, HomeDashboardRepository>();
         services.AddScoped<IOperationsReviewRepository, OperationsReviewRepository>();
         services.AddScoped<IRequestWorkspaceRepository, RequestWorkspaceRepository>();
+        services.AddScoped<IGuaranteeHistoryRepository, GuaranteeHistoryRepository>();
         services.AddScoped<IApprovalQueueRepository, ApprovalQueueRepository>();
         services.AddScoped<IDispatchWorkspaceRepository, DispatchWorkspaceRepository>();
         services.AddScoped<IWorkflowDefinitionRepository, WorkflowDefinitionRepository>();

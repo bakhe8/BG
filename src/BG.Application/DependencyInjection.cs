@@ -77,6 +77,7 @@ public static class DependencyInjection
     private static void AddRequestServices(IServiceCollection services)
     {
         services.AddScoped<IRequestWorkspaceService, RequestWorkspaceService>();
+        services.AddScoped<IGuaranteeHistoryService, GuaranteeHistoryService>();
     }
 
     private static void AddApprovalServices(IServiceCollection services)

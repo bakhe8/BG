@@ -34,6 +34,8 @@
   <data name="Shared_Yes" xml:space="preserve"><value>نعم</value></data>
   <data name="Shared_No" xml:space="preserve"><value>لا</value></data>
   <data name="Shared_SignOut" xml:space="preserve"><value>تسجيل الخروج</value></data>
+  <data name="Shared_MoreActions" xml:space="preserve"><value>إجراءات إضافية</value></data>
+  <data name="Shared_SearchAction" xml:space="preserve"><value>بحث</value></data>
   <data name="Home_PageTitle" xml:space="preserve"><value>لوحة التشغيل</value></data>
   <data name="Home_AnonymousEyebrow" xml:space="preserve"><value>بيئة BG</value></data>
   <data name="Home_AnonymousHeading" xml:space="preserve"><value>عمل الضمانات البنكية يبدأ من الطوابير الفعلية لا من تفاصيل الإطار التقني.</value></data>
@@ -1166,4 +1168,46 @@
   <data name="Shared_UsernameLabel" xml:space="preserve"><value>اسم المستخدم</value></data>
   <data name="Shared_PasswordLabel" xml:space="preserve"><value>كلمة المرور</value></data>
   <data name="SignIn_SubmitAction" xml:space="preserve"><value>تسجيل الدخول</value></data>
+  <data name="Notification_RequestSubmittedForApproval" xml:space="preserve"><value>تم تقديم طلب ضمان جديد للاعتماد.</value></data>
+  <data name="Notification_StageAdvancedToNextApprover" xml:space="preserve"><value>تمت الموافقة على الطلب في المرحلة الحالية وتم إحالته إلى المعتمد التالي.</value></data>
+  <data name="Notification_RequestApprovedForDispatch" xml:space="preserve"><value>اكتمل الطلب من جميع مراحل الاعتماد وأصبح جاهزاً للإرسال.</value></data>
+  <data name="Notification_RequestReturnedToOwner" xml:space="preserve"><value>تم إعادة طلب الضمان الخاص بك للمراجعة.</value></data>
+  <data name="Notification_RequestRejectedToOwner" xml:space="preserve"><value>تم رفض طلب الضمان الخاص بك.</value></data>
+  <data name="Notification_LetterDispatched" xml:space="preserve"><value>تم إرسال خطاب الضمان إلى البنك وهو بانتظار الرد.</value></data>
+  <data name="Notification_DeliveryConfirmed" xml:space="preserve"><value>تم تأكيد تسليم خطاب الضمان.</value></data>
+  <data name="Notification_BankResponseApplied" xml:space="preserve"><value>استجاب البنك لطلب الضمان الخاص بك وتم تحديث الحالة.</value></data>
+  <data name="RequestsHistory_PageTitle" xml:space="preserve"><value>سجل أحداث الضمان</value></data>
+  <data name="RequestsHistory_Heading" xml:space="preserve"><value>سجل أحداث الضمان</value></data>
+  <data name="RequestsHistory_GuaranteeLabel" xml:space="preserve"><value>رقم الضمان</value></data>
+  <data name="RequestsHistory_Empty" xml:space="preserve"><value>لا توجد أحداث مسجلة لهذا الضمان.</value></data>
+  <data name="RequestsHistory_BackToWorkspace" xml:space="preserve"><value>العودة إلى الطلبات</value></data>
+  <data name="RequestsHistory_OpenAction" xml:space="preserve"><value>فتح السجل</value></data>
+  <data name="RequestsHistory_LinkLabel" xml:space="preserve"><value>المسار الزمني للضمان</value></data>
+  <data name="RequestsHistory_LinkHint" xml:space="preserve"><value>استعرض جميع أحداث الضمان</value></data>
+  <data name="RequestsHistory_AmountDeltaLabel" xml:space="preserve"><value>تغير المبلغ</value></data>
+  <data name="RequestsHistory_ExpiryDeltaLabel" xml:space="preserve"><value>تغير تاريخ الانتهاء</value></data>
+  <data name="RequestsHistory_StatusDeltaLabel" xml:space="preserve"><value>تغير الحالة</value></data>
+  <data name="GuaranteeEvent_Registered" xml:space="preserve"><value>تم تسجيل الضمان</value></data>
+  <data name="GuaranteeEvent_RequestRecorded" xml:space="preserve"><value>تم تسجيل الطلب</value></data>
+  <data name="GuaranteeEvent_RequestUpdated" xml:space="preserve"><value>تم تحديث الطلب</value></data>
+  <data name="GuaranteeEvent_RequestCancelled" xml:space="preserve"><value>تم إلغاء الطلب</value></data>
+  <data name="GuaranteeEvent_RequestWithdrawn" xml:space="preserve"><value>تم سحب الطلب</value></data>
+  <data name="GuaranteeEvent_RequestSubmittedForApproval" xml:space="preserve"><value>تم إرسال الطلب للاعتماد</value></data>
+  <data name="GuaranteeEvent_ApprovalApproved" xml:space="preserve"><value>تمت الموافقة على مرحلة اعتماد</value></data>
+  <data name="GuaranteeEvent_ApprovalReturned" xml:space="preserve"><value>تم إرجاع مرحلة اعتماد</value></data>
+  <data name="GuaranteeEvent_ApprovalRejected" xml:space="preserve"><value>تم رفض مرحلة اعتماد</value></data>
+  <data name="GuaranteeEvent_CorrespondenceRecorded" xml:space="preserve"><value>تم تسجيل مراسلة صادرة</value></data>
+  <data name="GuaranteeEvent_IncomingCorrespondence" xml:space="preserve"><value>تم تسجيل مراسلة واردة</value></data>
+  <data name="GuaranteeEvent_DocumentCaptured" xml:space="preserve"><value>تم التقاط مستند</value></data>
+  <data name="GuaranteeEvent_RequestDocumentLinked" xml:space="preserve"><value>تم ربط مستند بالطلب</value></data>
+  <data name="GuaranteeEvent_OutgoingLetterPrinted" xml:space="preserve"><value>تمت طباعة خطاب صادر</value></data>
+  <data name="GuaranteeEvent_OutgoingLetterDispatched" xml:space="preserve"><value>تم إرسال خطاب صادر</value></data>
+  <data name="GuaranteeEvent_OutgoingLetterDelivered" xml:space="preserve"><value>تم تأكيد تسليم الخطاب الصادر</value></data>
+  <data name="GuaranteeEvent_DispatchReopened" xml:space="preserve"><value>تمت إعادة فتح الإرسال</value></data>
+  <data name="GuaranteeEvent_ExpiryExtended" xml:space="preserve"><value>تم تمديد تاريخ الانتهاء</value></data>
+  <data name="GuaranteeEvent_AmountReduced" xml:space="preserve"><value>تم تخفيض المبلغ</value></data>
+  <data name="GuaranteeEvent_Released" xml:space="preserve"><value>تم تحرير الضمان</value></data>
+  <data name="GuaranteeEvent_Replaced" xml:space="preserve"><value>تم استبدال الضمان</value></data>
+  <data name="GuaranteeEvent_StatusConfirmed" xml:space="preserve"><value>تم تأكيد الحالة</value></data>
+  <data name="GuaranteeEvent_BankConfirmationReopened" xml:space="preserve"><value>تمت إعادة فتح تأكيد البنك</value></data>
 </root>

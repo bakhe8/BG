@@ -1,0 +1,108 @@
+@page
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<SharedResource> T
+@model BG.Web.Pages.Requests.HistoryModel
+@{
+    ViewData["Title"] = T["RequestsHistory_PageTitle"];
+}
+
+<section class="section-shell requests-surface">
+    <div class="bg-card">
+        <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+            <div>
+                <h2 class="h4 fw-bold mb-1">@T["RequestsHistory_Heading"]</h2>
+                <p class="text-muted mb-0">
+                    @T["RequestsHistory_GuaranteeLabel"]:
+                    <span class="fw-semibold">@(string.IsNullOrWhiteSpace(Model.GuaranteeNumber) ? "-" : Model.GuaranteeNumber)</span>
+                </p>
+            </div>
+            <a asp-page="/Requests/Workspace" class="bg-btn bg-btn-outline px-3 py-2">
+                <i class="bi bi-arrow-left me-2"></i>@T["RequestsHistory_BackToWorkspace"]
+            </a>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="notice-banner is-danger">@Model.ErrorMessage</div>
+    }
+    else if (Model.History.Items.Count == 0)
+    {
+        <div class="bg-card">
+            <p class="mb-0 text-muted">@T["RequestsHistory_Empty"]</p>
+        </div>
+    }
+    else
+    {
+        <div class="bg-card">
+            <div class="d-flex flex-column gap-3">
+                @foreach (var entry in Model.History.Items)
+                {
+                    <article class="p-3 border rounded-4 bg-white">
+                        <div class="d-flex justify-content-between align-items-start gap-3">
+                            <div class="d-flex align-items-start gap-3">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light text-dark border"
+                                      style="width: 36px; height: 36px;">
+                                    <i class="bi @entry.EventIconKey"></i>
+                                </span>
+                                <div>
+                                    <div class="fw-bold">@T[entry.EventTypeResourceKey]</div>
+                                    <div class="small text-muted">@entry.Summary</div>
+                                    @if (!string.IsNullOrWhiteSpace(entry.ActorDisplayName))
+                                    {
+                                        <div class="x-small text-muted mt-1">@entry.ActorDisplayName</div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="x-small text-muted text-nowrap">@entry.OccurredAtUtc.ToLocalTime().ToString("g")</div>
+                        </div>
+
+                        @if (entry.PreviousAmount.HasValue || entry.NewAmount.HasValue || entry.PreviousExpiryDate.HasValue || entry.NewExpiryDate.HasValue ||
+                             !string.IsNullOrWhiteSpace(entry.PreviousStatus) || !string.IsNullOrWhiteSpace(entry.NewStatus))
+                        {
+                            <div class="row g-2 mt-2 pt-2 border-top">
+                                @if (entry.PreviousAmount.HasValue || entry.NewAmount.HasValue)
+                                {
+                                    <div class="col-md-6 x-small text-muted">
+                                        @T["RequestsHistory_AmountDeltaLabel"]: @entry.PreviousAmount?.ToString("0.##") → @entry.NewAmount?.ToString("0.##")
+                                    </div>
+                                }
+                                @if (entry.PreviousExpiryDate.HasValue || entry.NewExpiryDate.HasValue)
+                                {
+                                    <div class="col-md-6 x-small text-muted">
+                                        @T["RequestsHistory_ExpiryDeltaLabel"]: @entry.PreviousExpiryDate?.ToString("yyyy-MM-dd") → @entry.NewExpiryDate?.ToString("yyyy-MM-dd")
+                                    </div>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(entry.PreviousStatus) || !string.IsNullOrWhiteSpace(entry.NewStatus))
+                                {
+                                    <div class="col-12 x-small text-muted">
+                                        @T["RequestsHistory_StatusDeltaLabel"]: @entry.PreviousStatus → @entry.NewStatus
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </article>
+                }
+            </div>
+
+            @{
+                var pageInfo = Model.History.PageInfo;
+            }
+            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                <span class="x-small text-muted">@pageInfo.PageNumber / @pageInfo.TotalPageCount</span>
+                <div class="d-flex gap-2">
+                    <a asp-page="/Requests/History"
+                       asp-all-route-data="Model.BuildPageRoute(pageInfo.PreviousPageNumber)"
+                       class="btn btn-sm btn-white border rounded-pill px-3 x-small fw-bold @(pageInfo.HasPreviousPage ? string.Empty : "disabled")">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                    <a asp-page="/Requests/History"
+                       asp-all-route-data="Model.BuildPageRoute(pageInfo.NextPageNumber)"
+                       class="btn btn-sm btn-white border rounded-pill px-3 x-small fw-bold @(pageInfo.HasNextPage ? string.Empty : "disabled")">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</section>
