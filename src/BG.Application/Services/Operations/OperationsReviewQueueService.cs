@@ -313,6 +313,62 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
         }
     }
 
+    public async Task<OperationResult<DismissBankResponseReceiptDto>> ReturnBankResponseAsync(
+        ReturnBankResponseCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (command.OperationsActorUserId == Guid.Empty)
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorRequired);
+
+        var actor = await _repository.GetOperationsActorByIdAsync(command.OperationsActorUserId, cancellationToken);
+        if (actor is null)
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
+
+        var item = await _repository.GetOpenItemByIdAsync(command.ReviewItemId, cancellationToken);
+        if (item is null)
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReviewItemNotFound);
+
+        try
+        {
+            item.MarkReturned(DateTimeOffset.UtcNow);
+            await _repository.SaveChangesAsync(cancellationToken);
+            return OperationResult<DismissBankResponseReceiptDto>.Success(
+                new DismissBankResponseReceiptDto(item.Id, item.GuaranteeNumber));
+        }
+        catch (InvalidOperationException)
+        {
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReviewItemNotActionable);
+        }
+    }
+
+    public async Task<OperationResult<DismissBankResponseReceiptDto>> RejectBankResponseAsync(
+        RejectBankResponseCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        if (command.OperationsActorUserId == Guid.Empty)
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorRequired);
+
+        var actor = await _repository.GetOperationsActorByIdAsync(command.OperationsActorUserId, cancellationToken);
+        if (actor is null)
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
+
+        var item = await _repository.GetOpenItemByIdAsync(command.ReviewItemId, cancellationToken);
+        if (item is null)
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReviewItemNotFound);
+
+        try
+        {
+            item.MarkRejected(DateTimeOffset.UtcNow);
+            await _repository.SaveChangesAsync(cancellationToken);
+            return OperationResult<DismissBankResponseReceiptDto>.Success(
+                new DismissBankResponseReceiptDto(item.Id, item.GuaranteeNumber));
+        }
+        catch (InvalidOperationException)
+        {
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReviewItemNotActionable);
+        }
+    }
+
     private OperationsReviewItemDto MapItem(OperationsReviewQueueItemReadModel item)
     {
         var scenario = IntakeScenarioCatalog.Find(item.ScenarioKey);
@@ -404,6 +460,8 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             OperationsReviewItemStatus.Pending => "OperationsReviewStatus_Pending",
             OperationsReviewItemStatus.Routed => "OperationsReviewStatus_Routed",
             OperationsReviewItemStatus.Completed => "OperationsReviewStatus_Completed",
+            OperationsReviewItemStatus.Returned => "OperationsReviewStatus_Returned",
+            OperationsReviewItemStatus.Rejected => "OperationsReviewStatus_Rejected",
             _ => "OperationsReviewStatus_Pending"
         };
     }

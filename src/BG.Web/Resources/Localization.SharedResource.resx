@@ -1353,4 +1353,16 @@
   <data name="workflow.stage_already_first" xml:space="preserve"><value>This stage is already the first stage in the workflow.</value></data>
   <data name="workflow.stage_already_last" xml:space="preserve"><value>This stage is already the last stage in the workflow.</value></data>
   <data name="workflow.stage_not_found" xml:space="preserve"><value>The selected workflow stage was not found.</value></data>
+  <data name="OperationsQueue_ReturnSuccess" xml:space="preserve">
+    <value>Bank response for {0} has been returned to the bank.</value>
+  </data>
+  <data name="OperationsQueue_RejectSuccess" xml:space="preserve">
+    <value>Bank response for {0} has been rejected.</value>
+  </data>
+  <data name="OperationsReviewStatus_Returned" xml:space="preserve">
+    <value>Returned</value>
+  </data>
+  <data name="OperationsReviewStatus_Rejected" xml:space="preserve">
+    <value>Rejected</value>
+  </data>
 </root>

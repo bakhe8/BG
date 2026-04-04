@@ -7,6 +7,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Resources\FixResx.cs" />
+    <Compile Remove="Resources\ResxGenerator.cs" />
+    <Compile Remove="Resources\ResxExporter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.11">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

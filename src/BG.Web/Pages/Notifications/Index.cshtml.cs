@@ -8,11 +8,11 @@ using System.Security.Claims;
 namespace BG.Web.Pages.Notifications;
 
 [Authorize]
-public sealed class InboxModel : PageModel
+public sealed class IndexModel : PageModel
 {
     private readonly INotificationService _notificationService;
 
-    public InboxModel(INotificationService notificationService)
+    public IndexModel(INotificationService notificationService)
     {
         _notificationService = notificationService;
     }

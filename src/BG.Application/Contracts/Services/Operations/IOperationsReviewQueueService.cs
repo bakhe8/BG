@@ -21,4 +21,12 @@ public interface IOperationsReviewQueueService
     Task<OperationResult<ReopenAppliedBankResponseReceiptDto>> ReopenAppliedBankResponseAsync(
         ReopenAppliedBankResponseCommand command,
         CancellationToken cancellationToken = default);
+
+    Task<OperationResult<DismissBankResponseReceiptDto>> ReturnBankResponseAsync(
+        ReturnBankResponseCommand command,
+        CancellationToken cancellationToken = default);
+
+    Task<OperationResult<DismissBankResponseReceiptDto>> RejectBankResponseAsync(
+        RejectBankResponseCommand command,
+        CancellationToken cancellationToken = default);
 }

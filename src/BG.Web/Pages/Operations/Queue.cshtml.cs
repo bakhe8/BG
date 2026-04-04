@@ -125,6 +125,68 @@ public sealed class QueueModel : PageModel
         return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber, reviewItemId);
     }
 
+    public async Task<IActionResult> OnPostReturnAsync(
+        Guid actorId,
+        Guid reviewItemId,
+        int? page,
+        Guid? item,
+        CancellationToken cancellationToken)
+    {
+        await LoadAsync(actorId, page, item ?? reviewItemId, cancellationToken);
+
+        if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
+        {
+            ModelState.AddModelError(string.Empty, _localizer["OperationsQueue_NoEligibleActor"]);
+            return Page();
+        }
+
+        var effectiveActorId = Snapshot.ActiveActor.Id;
+
+        var result = await _operationsReviewQueueService.ReturnBankResponseAsync(
+            new ReturnBankResponseCommand(effectiveActorId, reviewItemId),
+            cancellationToken);
+
+        if (!result.Succeeded)
+        {
+            ModelState.AddModelError(string.Empty, _localizer[result.ErrorCode!]);
+            return Page();
+        }
+
+        StatusMessage = _localizer["OperationsQueue_ReturnSuccess", result.Value!.GuaranteeNumber];
+        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber);
+    }
+
+    public async Task<IActionResult> OnPostRejectAsync(
+        Guid actorId,
+        Guid reviewItemId,
+        int? page,
+        Guid? item,
+        CancellationToken cancellationToken)
+    {
+        await LoadAsync(actorId, page, item ?? reviewItemId, cancellationToken);
+
+        if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
+        {
+            ModelState.AddModelError(string.Empty, _localizer["OperationsQueue_NoEligibleActor"]);
+            return Page();
+        }
+
+        var effectiveActorId = Snapshot.ActiveActor.Id;
+
+        var result = await _operationsReviewQueueService.RejectBankResponseAsync(
+            new RejectBankResponseCommand(effectiveActorId, reviewItemId),
+            cancellationToken);
+
+        if (!result.Succeeded)
+        {
+            ModelState.AddModelError(string.Empty, _localizer[result.ErrorCode!]);
+            return Page();
+        }
+
+        StatusMessage = _localizer["OperationsQueue_RejectSuccess", result.Value!.GuaranteeNumber];
+        return RedirectToSelf(effectiveActorId, Snapshot.ItemsPage.PageNumber);
+    }
+
     public IDictionary<string, string> BuildPageRoute(int pageNumber)
     {
         var routeValues = new Dictionary<string, string>

@@ -102,6 +102,28 @@ public sealed class OperationsReviewItem
         Status = OperationsReviewItemStatus.Pending;
     }
 
+    public void MarkReturned(DateTimeOffset returnedAtUtc)
+    {
+        if (Status is OperationsReviewItemStatus.Returned or OperationsReviewItemStatus.Rejected)
+        {
+            throw new InvalidOperationException("The review item has already been dismissed.");
+        }
+
+        CompletedAtUtc = returnedAtUtc;
+        Status = OperationsReviewItemStatus.Returned;
+    }
+
+    public void MarkRejected(DateTimeOffset rejectedAtUtc)
+    {
+        if (Status is OperationsReviewItemStatus.Returned or OperationsReviewItemStatus.Rejected)
+        {
+            throw new InvalidOperationException("The review item has already been dismissed.");
+        }
+
+        CompletedAtUtc = rejectedAtUtc;
+        Status = OperationsReviewItemStatus.Rejected;
+    }
+
     private static string NormalizeRequired(string value, string paramName, int maxLength)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value, paramName);

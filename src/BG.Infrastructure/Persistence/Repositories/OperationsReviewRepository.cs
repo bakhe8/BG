@@ -54,7 +54,7 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
         CancellationToken cancellationToken = default)
     {
         var filteredQuery = _dbContext.OperationsReviewItems
-            .Where(item => item.Status != OperationsReviewItemStatus.Completed)
+            .Where(item => item.Status == OperationsReviewItemStatus.Pending || item.Status == OperationsReviewItemStatus.Routed)
             .AsNoTracking();
 
         var totalItemCount = await filteredQuery.CountAsync(cancellationToken);
@@ -245,7 +245,7 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
         CancellationToken cancellationToken = default)
     {
         var filteredQuery = _dbContext.OperationsReviewItems
-            .Where(item => item.Status == OperationsReviewItemStatus.Completed && item.CompletedAtUtc.HasValue)
+            .Where(item => item.Status >= OperationsReviewItemStatus.Completed && item.CompletedAtUtc.HasValue)
             .AsNoTracking();
 
         if (RepositoryPaging.RequiresClientSideTemporalOrdering(_dbContext))
@@ -288,7 +288,7 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
             .Include(item => item.GuaranteeDocument)
             .Include(item => item.GuaranteeCorrespondence)
             .SingleOrDefaultAsync(
-                item => item.Id == reviewItemId && item.Status != OperationsReviewItemStatus.Completed,
+                item => item.Id == reviewItemId && (item.Status == OperationsReviewItemStatus.Pending || item.Status == OperationsReviewItemStatus.Routed),
                 cancellationToken);
     }
 

@@ -1353,4 +1353,16 @@
   <data name="workflow.stage_already_first" xml:space="preserve"><value>هذه المرحلة هي الأولى بالفعل في المسار.</value></data>
   <data name="workflow.stage_already_last" xml:space="preserve"><value>هذه المرحلة هي الأخيرة بالفعل في المسار.</value></data>
   <data name="workflow.stage_not_found" xml:space="preserve"><value>مرحلة المسار المحددة غير موجودة.</value></data>
+  <data name="OperationsQueue_ReturnSuccess" xml:space="preserve">
+    <value>تم إرجاع الرد البنكي للضمان {0} إلى البنك.</value>
+  </data>
+  <data name="OperationsQueue_RejectSuccess" xml:space="preserve">
+    <value>تم رفض الرد البنكي للضمان {0}.</value>
+  </data>
+  <data name="OperationsReviewStatus_Returned" xml:space="preserve">
+    <value>مُرجَع</value>
+  </data>
+  <data name="OperationsReviewStatus_Rejected" xml:space="preserve">
+    <value>مرفوض</value>
+  </data>
 </root>
