@@ -32,6 +32,18 @@
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
+
+  /* Layout Primitives (Used in Administration & Workspaces) */
+  --bg-sidebar-width: 320px;
+  --bg-shell-gap: 2rem;
+  
+  /* Primitive Tokens (Used in surface-primitives.css) */
+  --muted: var(--text-muted);
+  --border: var(--border-light);
+  --surface: var(--bg-surface);
+  --surface-alt: var(--bg-muted);
+  --accent: var(--kfshrc-green);
+  --accent-strong: var(--kfshrc-green);
 }
 
 /* Global Reset & Body */

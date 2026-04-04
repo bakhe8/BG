@@ -233,14 +233,17 @@
 
                 <div class="shell-stage-header-actions">
                     <div class="header-icon-group hx-boost-false">
-                        @* Search Input (Image 1, 5) *@
-                        <div class="shell-header-search d-none d-md-flex align-items-center px-3 rounded-pill">
+                        @* Search Input *@
+                        <form method="get" action="/Requests/History"
+                              class="shell-header-search d-none d-md-flex align-items-center px-3 rounded-pill">
                             <i class="bi bi-search text-white opacity-50 me-2"></i>
                             <input type="text"
+                                   name="guaranteeNumber"
                                    class="bg-transparent border-0 text-white placeholder-white-50 small w-100"
                                    placeholder="@T["Shared_SearchAction"]..."
-                                   aria-label="@T["Shared_SearchAction"]" />
-                        </div>
+                                   aria-label="@T["Shared_SearchAction"]"
+                                   autocomplete="off" />
+                        </form>
 
                         @* Notifications Tray *@
                         <partial name="_NotificationTray" />
@@ -344,9 +347,6 @@
             <footer class="shell-stage-footer p-4 border-top bg-white mt-auto">
                 <div class="d-flex justify-content-between align-items-center x-small text-muted">
                     <span>@T["FooterBaseline"]</span>
-                    <div class="d-flex gap-3">
-                        <a href="#" class="text-decoration-none text-muted">@T["Footer_HelpCenter"]</a>
-                    </div>
                 </div>
             </footer>
         </div>

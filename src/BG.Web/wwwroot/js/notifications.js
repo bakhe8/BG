@@ -29,7 +29,7 @@ async function fetchInitialNotifications() {
             const notifications = await response.json();
             const list = document.getElementById("notification-list");
             if (list) list.innerHTML = ''; // Clear empty state
-            
+
             if (notifications.length === 0) {
                 showEmptyState();
             } else {
@@ -56,9 +56,9 @@ function addNotificationToUi(notification, isNew) {
     item.href = notification.link || "#";
     item.className = `dropdown-item p-3 border-bottom d-flex align-items-start gap-3 ${isNew ? 'bg-light' : ''}`;
     item.onclick = (e) => markAsRead(notification.id, e);
-    
+
     const time = new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
+
     item.innerHTML = `
         <div class="rounded-circle bg-brand-green p-2 text-white flex-shrink-0" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
             <i class="bi bi-bell-fill x-small"></i>
@@ -68,7 +68,7 @@ function addNotificationToUi(notification, isNew) {
             <div class="x-small text-muted">${time}</div>
         </div>
     `;
-    
+
     if (isNew) {
         list.prepend(item);
     } else {
@@ -103,23 +103,24 @@ function updateBadgeCount(amount, isIncrement = false) {
 function showEmptyState() {
     const list = document.getElementById("notification-list");
     if (!list) return;
+    const emptyMessage = list.dataset.emptyMessage || "No new notifications";
     list.innerHTML = `
         <div class="text-center text-muted p-4">
             <i class="bi bi-bell-slash fs-1 opacity-25 d-block mb-2"></i>
-            <span class="small">لا توجد تنبيهات جديدة</span>
+            <span class="small">${emptyMessage}</span>
         </div>
     `;
 }
 
 function showBrowserNotification(message) {
     if (!("Notification" in window)) return;
-    
+    const appName = document.getElementById("notification-list")?.dataset.appName ?? "BG";
     if (Notification.permission === "granted") {
-        new Notification("نظام BG", { body: message });
+        new Notification(appName, { body: message });
     } else if (Notification.permission !== "denied") {
         Notification.requestPermission().then(permission => {
             if (permission === "granted") {
-                new Notification("نظام BG", { body: message });
+                new Notification(appName, { body: message });
             }
         });
     }

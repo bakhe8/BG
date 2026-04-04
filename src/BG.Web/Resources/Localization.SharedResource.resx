@@ -1060,7 +1060,7 @@
   <data name="RequestsWorkspace_TrackingSummaryTitle" xml:space="preserve"><value>Tracking summary</value></data>
   <data name="RequestsWorkspace_UpdateAction" xml:space="preserve"><value>Save changes</value></data>
   <data name="RequestsWorkspace_UpdateSuccess" xml:space="preserve"><value>Request updated successfully for guarantee {0}.</value></data>
-  <data name="RequestsWorkspace_WithdrawAction" xml:space="preserve"><value>Withdraw from approval</value></data>
+  <data name="RequestsWorkspace_ViewHistoryAction" xml:space="preserve"><value>History</value></data><data name="Notifications_InboxPageTitle" xml:space="preserve"><value>Notifications</value></data><data name="Notifications_InboxSubtitle" xml:space="preserve"><value>Your unread notifications</value></data><data name="Notifications_MarkAllRead" xml:space="preserve"><value>Mark all as read</value></data><data name="Notifications_MarkRead" xml:space="preserve"><value>Mark as read</value></data><data name="RequestsWorkspace_WithdrawAction" xml:space="preserve"><value>Withdraw from approval</value></data>
   <data name="RequestsWorkspace_WithdrawSuccess" xml:space="preserve"><value>Request withdrawn successfully for guarantee {0}.</value></data>
   <data name="RequestsWorkspace_WorkflowCategoryLabel" xml:space="preserve"><value>Workflow branch</value></data>
   <data name="RequestsWorkspace_WorkflowPreviewSummary" xml:space="preserve"><value>This preview confirms the routing that will be used after submission. It is not the full operational dossier.</value></data>

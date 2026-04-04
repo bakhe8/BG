@@ -13,21 +13,23 @@
             @* Value is managed via JS; visual dot only to match Image 1 *@
         </span>
     </button>
-    <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border-0 rounded-4" 
-         aria-labelledby="notificationDropdown" 
+    <div class="dropdown-menu dropdown-menu-end p-0 shadow-lg border-0 rounded-4"
+         aria-labelledby="notificationDropdown"
          style="width: 320px; overflow: hidden;">
         <div class="p-3 bg-brand-green text-white d-flex justify-content-between align-items-center">
             <h6 class="m-0 fw-bold">@T["Notifications_Title"]</h6>
             <span class="x-small opacity-75">@DateTimeOffset.UtcNow.ToString("d MMM")</span>
         </div>
-        <div id="notification-list" class="overflow-auto" style="max-height: 400px;">
+        <div id="notification-list" class="overflow-auto" style="max-height: 400px;"
+             data-empty-message="@T["Notifications_EmptyState"]"
+             data-app-name="BG">
             <div class="text-center text-muted p-4">
                 <i class="bi bi-bell-slash fs-1 opacity-25 d-block mb-2"></i>
                 <span class="small">@T["Notifications_EmptyState"]</span>
             </div>
         </div>
         <div class="p-2 border-top text-center">
-            <a href="#" class="btn btn-link btn-sm x-small text-decoration-none text-brand-green fw-bold">@T["Notifications_ViewAll"]</a>
+            <a href="/Notifications" class="btn btn-link btn-sm x-small text-decoration-none text-brand-green fw-bold">@T["Notifications_ViewAll"]</a>
         </div>
     </div>
 </div>
