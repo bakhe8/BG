@@ -25,6 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\BG.Domain\BG.Domain.csproj" />
     <ProjectReference Include="..\..\src\BG.Application\BG.Application.csproj" />
     <ProjectReference Include="..\..\src\BG.Integrations\BG.Integrations.csproj" />

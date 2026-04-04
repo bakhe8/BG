@@ -159,7 +159,10 @@ public sealed class BgDbContext : DbContext
         var body = Expression.Call(null, containsMethod, Expression.Constant(unknownIds), property);
         var predicate = Expression.Lambda(body, parameter);
 
-        var query = (IQueryable)dbSet.GetType().GetMethod("AsNoTracking")!.Invoke(dbSet, null)!;
+        var asNoTrackingMethod = typeof(EntityFrameworkQueryableExtensions)
+            .GetMethod(nameof(EntityFrameworkQueryableExtensions.AsNoTracking))!
+            .MakeGenericMethod(entityType);
+        var query = (IQueryable)asNoTrackingMethod.Invoke(null, [(IQueryable)dbSet])!;
         var whereMethod = typeof(Queryable).GetMethods()
             .First(m => m.Name == "Where" && m.GetParameters()[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length == 2)
             .MakeGenericMethod(entityType);

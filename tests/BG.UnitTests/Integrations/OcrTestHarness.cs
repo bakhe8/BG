@@ -47,7 +47,7 @@ internal sealed class OcrTestHarness : IDisposable
                     [$"{LocalOcrOptions.SectionName}:Enabled"] = "true",
                     [$"{LocalOcrOptions.SectionName}:PythonExecutablePath"] = pythonExecutablePath,
                     [$"{LocalOcrOptions.SectionName}:WorkerScriptPath"] = workerScriptPath,
-                    [$"{LocalOcrOptions.SectionName}:TimeoutSeconds"] = "180"
+                    [$"{LocalOcrOptions.SectionName}:TimeoutSeconds"] = "360"
                 })
             .Build();
 

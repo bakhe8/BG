@@ -53,7 +53,13 @@ else
                     <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">@item.GuaranteeNumber</span>
                     <bg-badge class="bg-badge-pending">@T[item.StatusResourceKey]</bg-badge>
                 </div>
-                <button type="button" class="btn-close" aria-label="Close"></button>
+                <div class="d-flex align-items-center gap-2">
+                    <a asp-page="/Approvals/Dossier" asp-all-route-data="dossierRoute"
+                       class="bg-btn x-small px-3 py-2">
+                        <i class="bi bi-folder2-open me-1"></i>@T["ApprovalQueue_ViewDossierAction"]
+                    </a>
+                    <button type="button" class="btn-close" aria-label="Close"></button>
+                </div>
             </div>
             <h3 class="fw-bold text-dark mb-2">@stageTitle</h3>
             <div class="d-flex align-items-center gap-2 text-muted x-small text-uppercase fw-bold">

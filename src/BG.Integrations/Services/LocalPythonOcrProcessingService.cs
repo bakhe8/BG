@@ -143,7 +143,7 @@ internal sealed class LocalPythonOcrProcessingService : ILocalOcrWorkerRunner
             var standardErrorTask = process.StandardError.ReadToEndAsync(cancellationToken);
             var waitTask = process.WaitForExitAsync(cancellationToken);
 
-            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(Math.Clamp(_options.TimeoutSeconds, 5, 300)), cancellationToken);
+            var timeoutTask = Task.Delay(TimeSpan.FromSeconds(Math.Clamp(_options.TimeoutSeconds, 5, 600)), cancellationToken);
             var completedTask = await Task.WhenAny(waitTask, timeoutTask);
 
             if (completedTask == timeoutTask)

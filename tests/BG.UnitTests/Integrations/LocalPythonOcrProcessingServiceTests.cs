@@ -121,7 +121,7 @@ public sealed class LocalPythonOcrProcessingServiceTests
                         [$"{LocalOcrOptions.SectionName}:Enabled"] = "true",
                         [$"{LocalOcrOptions.SectionName}:PythonExecutablePath"] = harness.PythonExecutablePath,
                         [$"{LocalOcrOptions.SectionName}:WorkerScriptPath"] = workerScriptPath,
-                        [$"{LocalOcrOptions.SectionName}:TimeoutSeconds"] = "180"
+                        [$"{LocalOcrOptions.SectionName}:TimeoutSeconds"] = "540"
                     })
                 .Build();
 

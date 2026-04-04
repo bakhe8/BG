@@ -107,7 +107,10 @@
         {
             IgnoreSection("Dossier");
         }
-        var stageTitle = activeItem is not null ? T[activeItem.ResourceKey].Value : "BG";
+        var pageTitleOverride = ViewData["Title"]?.ToString();
+        var stageTitle = !string.IsNullOrWhiteSpace(pageTitleOverride) 
+                        ? pageTitleOverride 
+                        : (activeItem is not null ? T[activeItem.ResourceKey].Value : "BG");
         string? stageSummary = null;
     }
     <div class="shell-app @(showShellSidebar ? null : "shell-app-no-sidebar")">
@@ -202,10 +205,21 @@
                     <div>
                         <nav aria-label="breadcrumb" class="mb-1">
                             <ol class="breadcrumb x-small mb-0 opacity-75">
-                                <li class="breadcrumb-item"><a href="/" class="text-white text-decoration-none">@T["Navigation_Home"]</a></li>
-                                @if (activeItem != null)
+                                @if (string.Equals(currentPath, "/", StringComparison.OrdinalIgnoreCase) || string.Equals(currentPath, "/Index", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    <li class="breadcrumb-item active text-white" aria-current="page">@T[activeItem.ResourceKey]</li>
+                                    <li class="breadcrumb-item active text-white" aria-current="page">@T["Navigation_Home"]</li>
+                                }
+                                else
+                                {
+                                    <li class="breadcrumb-item"><a href="/" class="text-white text-decoration-none">@T["Navigation_Home"]</a></li>
+                                    @if (activeItem != null && !string.Equals(activeItem.PagePath, "/Index", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <li class="breadcrumb-item active text-white" aria-current="page">@T[activeItem.ResourceKey]</li>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(pageTitleOverride) && !string.Equals(pageTitleOverride, T["Navigation_Home"].Value, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <li class="breadcrumb-item active text-white" aria-current="page">@pageTitleOverride</li>
+                                    }
                                 }
                             </ol>
                         </nav>
@@ -254,7 +268,7 @@
                                         data-bs-toggle="dropdown" 
                                         aria-expanded="false">
                                     <div class="text-end d-none d-md-block text-white ms-2">
-                                        <div class="small fw-bold lh-1">@shell.CurrentUser.DisplayName</div>
+                                        <div class="small fw-bold lh-1">@(shell.CurrentUser.DisplayName == "System Admin" ? T["Shared_Role_SystemAdmin"] : shell.CurrentUser.DisplayName)</div>
                                         <div class="x-small opacity-50">@shell.CurrentUser.Username</div>
                                     </div>
                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-white bg-opacity-20 fw-bold text-white shadow-sm"
@@ -266,7 +280,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 py-2" aria-labelledby="userDropdown">
                                     <li class="d-md-none">
                                         <div class="px-3 py-2 border-bottom mb-1">
-                                            <div class="small fw-bold">@shell.CurrentUser.DisplayName</div>
+                                            <div class="small fw-bold">@(shell.CurrentUser.DisplayName == "System Admin" ? T["Shared_Role_SystemAdmin"] : shell.CurrentUser.DisplayName)</div>
                                             <div class="x-small text-muted">@shell.CurrentUser.Username</div>
                                         </div>
                                     </li>
@@ -289,11 +303,10 @@
                             </div>
                         }
                     </div>
-                </div>
             </header>
 
             <main role="main" class="shell-stage-main flex-grow-1 p-4">
-                @if (!string.IsNullOrWhiteSpace(shellMessageKey))
+                @if (!string.IsNullOrWhiteSpace(shellMessageKey) && (ViewData["HideShellMessage"] as bool? != true))
                 {
                     <div class="alert alert-info border-0 rounded-4 shadow-sm mb-4">
                         <i class="bi bi-info-circle-fill me-2"></i>@T[shellMessageKey]

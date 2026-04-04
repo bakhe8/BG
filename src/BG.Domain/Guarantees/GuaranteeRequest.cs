@@ -88,11 +88,21 @@ public sealed class GuaranteeRequest
         Status = GuaranteeRequestStatus.SubmittedToBank;
     }
 
+    internal void MarkAwaitingBankResponse()
+    {
+        if (Status != GuaranteeRequestStatus.SubmittedToBank)
+        {
+            throw new InvalidOperationException("Only submitted-to-bank requests can move to awaiting bank response.");
+        }
+
+        Status = GuaranteeRequestStatus.AwaitingBankResponse;
+    }
+
     internal void ReopenForDispatch()
     {
-        if (Status != GuaranteeRequestStatus.AwaitingBankResponse)
+        if (Status is not GuaranteeRequestStatus.SubmittedToBank and not GuaranteeRequestStatus.AwaitingBankResponse)
         {
-            throw new InvalidOperationException("Only requests waiting for bank response can be reopened for dispatch.");
+            throw new InvalidOperationException("Only dispatched or bank-pending requests can be reopened for dispatch.");
         }
 
         if (CompletedAtUtc.HasValue)

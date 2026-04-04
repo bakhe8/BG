@@ -17,13 +17,15 @@
     else
     {
         var item = Model.ActiveItem;
-        
+        var isApplyBlocked = Model.IsApplyBlocked(item);
+        var blockReasonKey = Model.ResolveApplyBlockedReasonResourceKey(item);
+
         @* 1. Institutional Header (Matching Image 5) *@
         <div class="p-4 border-bottom bg-white">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-3">
                     <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">@item.GuaranteeNumber</span>
-                    <bg-badge class="bg-badge-@(item.StatusResourceKey.Contains("Pending") || item.StatusResourceKey.Contains("انتظار") ? "pending" : "returned")">
+                    <bg-badge class="bg-badge-@(item.StatusResourceKey.Contains("Pending") || item.StatusResourceKey.Contains("Waiting") ? "pending" : "returned")">
                         @T[item.StatusResourceKey]
                     </bg-badge>
                 </div>
@@ -32,7 +34,7 @@
             <h3 class="fw-bold text-dark mb-2">@T[item.ScenarioTitleResourceKey]</h3>
             <div class="d-flex align-items-center gap-2 text-muted small">
                 <img src="/img/bank-logo-placeholder.png" alt="Bank" style="height: 24px;" class="opacity-75" />
-                <span class="fw-medium">@(string.IsNullOrWhiteSpace(item.BankReference) ? "SNB - البنك الأهلي السعودي" : item.BankReference)</span>
+                <span class="fw-medium">@(string.IsNullOrWhiteSpace(item.BankReference) ? T["Sample_BankName_SNB"] : item.BankReference)</span>
             </div>
         </div>
 
@@ -87,32 +89,62 @@
             </div>
         </div>
 
-        @* 3. Institutional Action Bar (Matching Image 1, 3) *@
+        @* 3. Institutional Action Bar *@
         <div class="bg-sticky-action-bar">
-            <form method="post" id="decision-form" class="m-0">
-                <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                <input type="hidden" name="reviewItemId" value="@item.Id" />
-                
-                <div class="d-flex gap-3">
-                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Apply")" 
-                            class="bg-btn bg-btn-primary flex-grow-1 py-3 shadow-sm">
-                        <i class="bi bi-check2-circle fs-5"></i>
-                        <span>@T["OperationsQueue_Action_Approve"]</span>
+            @if (item.CompletedAtUtc.HasValue)
+            {
+                <form method="post" id="reopen-form" class="m-0">
+                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                    <input type="hidden" name="reviewItemId" value="@item.Id" />
+                    <div class="mb-3">
+                        <label class="x-small fw-bold mb-1">@T["OperationsQueue_ReopenNoteField"]</label>
+                        <textarea name="correctionNote" class="form-control" rows="2"></textarea>
+                    </div>
+                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "ReopenApplied")"
+                            class="bg-btn flex-grow-1 py-3 w-100" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FDE68A;">
+                        <i class="bi bi-arrow-counterclockwise fs-5"></i>
+                        <span>@T["OperationsQueue_ReopenAction"]</span>
                     </button>
-                    
-                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Return")" 
-                            class="bg-btn flex-grow-1 py-3" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FDE68A;">
-                        <i class="bi bi-arrow-left-right fs-5"></i>
-                        <span>@T["OperationsQueue_Action_Return"]</span>
-                    </button>
+                </form>
+            }
+            else
+            {
+                <form method="post" id="decision-form" class="m-0">
+                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                    <input type="hidden" name="reviewItemId" value="@item.Id" />
 
-                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Reject")" 
-                            class="bg-btn flex-grow-1 py-3" style="background-color: #FEE2E2; color: #991B1B !important; border: 1px solid #FECACA;">
-                        <i class="bi bi-x-circle fs-5"></i>
-                        <span>@T["OperationsQueue_Action_Reject"]</span>
-                    </button>
-                </div>
-            </form>
+                    @if (isApplyBlocked && !string.IsNullOrWhiteSpace(blockReasonKey))
+                    {
+                        <div class="alert alert-warning x-small mb-3 py-2 border-0 opacity-75">
+                            <span class="badge bg-warning text-dark me-2">@T["OperationsQueue_BlockedSuggestionLabel"]</span>
+                            @T[blockReasonKey]
+                        </div>
+                    }
+
+                    <div class="d-flex gap-3">
+                        @if (!isApplyBlocked)
+                        {
+                            <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Apply")"
+                                    class="bg-btn bg-btn-primary flex-grow-1 py-3 shadow-sm">
+                                <i class="bi bi-check2-circle fs-5"></i>
+                                <span>@T["OperationsQueue_ApplyResponseAction"]</span>
+                            </button>
+                        }
+
+                        <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Return")"
+                                class="bg-btn flex-grow-1 py-3" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FDE68A;">
+                            <i class="bi bi-arrow-left-right fs-5"></i>
+                            <span>@T["OperationsQueue_Action_Return"]</span>
+                        </button>
+
+                        <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Reject")"
+                                class="bg-btn flex-grow-1 py-3" style="background-color: #FEE2E2; color: #991B1B !important; border: 1px solid #FECACA;">
+                            <i class="bi bi-x-circle fs-5"></i>
+                            <span>@T["OperationsQueue_Action_Reject"]</span>
+                        </button>
+                    </div>
+                </form>
+            }
         </div>
     }
 </article>

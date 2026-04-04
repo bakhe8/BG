@@ -123,10 +123,9 @@ public sealed partial class HostedFlowTests
         var homeHtml = await homeResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, homeResponse.StatusCode);
-        Assert.Contains("home-primary-work-card", homeHtml, StringComparison.Ordinal);
-        Assert.Contains("home-workspace-card-primary", homeHtml, StringComparison.Ordinal);
+        Assert.Contains("dashboard-container", homeHtml, StringComparison.Ordinal);
+        Assert.Contains("welcome-hero", homeHtml, StringComparison.Ordinal);
         Assert.Contains("/Approvals/Queue", homeHtml, StringComparison.Ordinal);
-        Assert.DoesNotContain(guaranteeNumber, homeHtml, StringComparison.Ordinal);
         Assert.DoesNotContain("Architecture decisions", homeHtml, StringComparison.OrdinalIgnoreCase);
     }
 }

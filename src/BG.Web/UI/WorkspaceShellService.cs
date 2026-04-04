@@ -17,7 +17,9 @@ public sealed class WorkspaceShellService : IWorkspaceShellService
         new("NavUsers", "/Administration/Users", ["users.manage"]),
         new("NavDelegations", "/Administration/Delegations", ["delegations.manage"]),
         new("NavRoles", "/Administration/Roles", ["roles.manage"]),
-        new("NavWorkflowAdmin", "/Administration/Workflow", ["workflow.manage"])
+        new("NavBanks", "/Administration/Banks", ["administration.banks"]),
+        new("NavWorkflowAdmin", "/Administration/Workflow", ["workflow.manage"]),
+        new("NavReports", "/Reports/Portfolio", ["reports.view"])
     ];
 
     private readonly IHttpContextAccessor _httpContextAccessor;

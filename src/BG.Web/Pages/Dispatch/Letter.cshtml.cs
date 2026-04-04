@@ -4,6 +4,7 @@ using BG.Application.Models.Dispatch;
 using BG.Web.Localization;
 using BG.Web.Security;
 using BG.Web.UI;
+using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -76,6 +77,40 @@ public sealed class LetterModel : PageModel
 
         Letter = result.Value;
         return Page();
+    }
+
+    public async Task<IActionResult> OnGetPdfAsync(
+        Guid requestId,
+        string? referenceNumber,
+        string? letterDate,
+        Guid? actorId,
+        CancellationToken cancellationToken)
+    {
+        var resolvedActorId = ResolveActor(actorId ?? ActorId);
+        if (!resolvedActorId.HasValue)
+            return RedirectToPage("/Dispatch/Workspace", new { shellMessage = DispatchErrorCodes.DispatcherContextRequired });
+
+        if (requestId == Guid.Empty)
+            return RedirectToPage("/Dispatch/Workspace", new { shellMessage = DispatchErrorCodes.RequestNotFound });
+
+        if (string.IsNullOrWhiteSpace(referenceNumber) || string.IsNullOrWhiteSpace(letterDate))
+            return RedirectToPage("/Dispatch/Letter", new { requestId, actorId = resolvedActorId, referenceNumber, letterDate });
+
+        if (!DateOnly.TryParse(letterDate, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedLetterDate) &&
+            !DateOnly.TryParse(letterDate, out parsedLetterDate))
+            return RedirectToPage("/Dispatch/Letter", new { requestId, actorId = resolvedActorId, referenceNumber, letterDate });
+
+        var result = await _dispatchWorkspaceService.GetLetterPdfAsync(
+            resolvedActorId.Value,
+            requestId,
+            referenceNumber,
+            parsedLetterDate,
+            cancellationToken);
+
+        if (!result.Succeeded || result.Value is null)
+            return RedirectToPage("/Dispatch/Letter", new { requestId, actorId = resolvedActorId, referenceNumber, letterDate });
+
+        return File(result.Value.Content, "application/pdf", result.Value.FileName);
     }
 
     public object BuildWorkspaceRoute()

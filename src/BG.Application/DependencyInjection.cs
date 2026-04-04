@@ -1,6 +1,8 @@
 using BG.Application.Contracts.Services;
+using BG.Application.Contracts.Services.Reports;
 using BG.Application.Intake;
 using BG.Application.Services;
+using BG.Application.Services.Reports;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using BG.Application.Approvals;
@@ -23,6 +25,7 @@ public static class DependencyInjection
         AddDispatchServices(services);
         AddAdministrationServices(services);
         AddNotificationServices(services);
+        AddReportServices(services);
 
         return services;
     }
@@ -99,6 +102,8 @@ public static class DependencyInjection
 
     private static void AddAdministrationServices(IServiceCollection services)
     {
+        services.AddScoped<IBankAdministrationService, BankAdministrationService>();
+        services.AddScoped<IBankLookupService, BankLookupService>();
         services.AddScoped<IWorkflowAdministrationService, WorkflowAdministrationService>();
         services.AddScoped<IWorkflowTemplateService, WorkflowTemplateService>();
     }
@@ -106,5 +111,10 @@ public static class DependencyInjection
     private static void AddNotificationServices(IServiceCollection services)
     {
         services.AddScoped<INotificationService, NotificationService>();
+    }
+
+    private static void AddReportServices(IServiceCollection services)
+    {
+        services.AddScoped<IReportService, ReportService>();
     }
 }

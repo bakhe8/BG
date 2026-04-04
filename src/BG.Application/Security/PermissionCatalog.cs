@@ -23,6 +23,8 @@ public static class PermissionCatalog
         new("users.manage", "Administration"),
         new("delegations.manage", "Administration"),
         new("roles.view", "Administration"),
-        new("roles.manage", "Administration")
+        new("roles.manage", "Administration"),
+        new("administration.banks", "Administration"),
+        new("reports.view", "Reports")
     ];
 }

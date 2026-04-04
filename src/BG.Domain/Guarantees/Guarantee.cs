@@ -534,6 +534,7 @@ public sealed class Guarantee
         }
 
         correspondence.ConfirmDelivery(deliveryReference, deliveryNote, deliveredAtUtc);
+        request.MarkAwaitingBankResponse();
         LastUpdatedAtUtc = deliveredAtUtc;
 
         AddEvent(

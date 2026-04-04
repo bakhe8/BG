@@ -1,0 +1,7 @@
+{
+  "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
+  "methodDisplay": "method",
+  "parallelizeTestCollections": true,
+  "maxParallelThreads": 2,
+  "testCaseTimeout": 90000
+}

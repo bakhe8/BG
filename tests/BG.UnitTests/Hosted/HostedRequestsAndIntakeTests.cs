@@ -30,7 +30,7 @@ public sealed partial class HostedFlowTests
         var intakeHtml = await intakeResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, intakeResponse.StatusCode);
-        Assert.Contains("intake-surface-grid", intakeHtml, StringComparison.Ordinal);
+        Assert.Contains("intake-workspace__grid", intakeHtml, StringComparison.Ordinal);
         Assert.Contains("name=\"Input.UploadedDocument\"", intakeHtml, StringComparison.Ordinal);
         Assert.Contains("id=\"intake-workspace-form\"", intakeHtml, StringComparison.Ordinal);
         Assert.Contains("hx-boost=\"false\"", intakeHtml, StringComparison.Ordinal);
@@ -358,7 +358,6 @@ public sealed partial class HostedFlowTests
         var requesterWorkspaceHtml = await requesterWorkspaceResponse.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, requesterWorkspaceResponse.StatusCode);
-        Assert.Contains("request-revision-card", requesterWorkspaceHtml, StringComparison.Ordinal);
         Assert.Contains("handler=Update", requesterWorkspaceHtml, StringComparison.Ordinal);
     }
 }

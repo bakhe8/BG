@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace BG.UnitTests.Hosted;
 
+[Collection("HostedTests")]
 public sealed partial class HostedFlowTests
 {
     private static async Task<User> SeedLocalUserAsync(

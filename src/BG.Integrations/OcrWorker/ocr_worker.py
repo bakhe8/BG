@@ -60,6 +60,8 @@ DATE_FRAGMENT = r"(?:20\d{2}\s*[-/]\s*(?:0?[1-9]|1[0-2])\s*[-/]\s*(?:0?[1-9]|[12
 
 GUARANTEE_NUMBER_REGEX = re.compile(r"BG-\d{4}-\d{3,6}", re.IGNORECASE)
 GENERIC_GUARANTEE_CODE_REGEX = re.compile(r"\b[A-Z]{1,5}\d{6,16}\b")
+# Handles mixed-start codes: digits then letters then digits (e.g. 23OGTE48803516)
+MIXED_START_GUARANTEE_CODE_REGEX = re.compile(r"\b\d{1,4}[A-Z]{1,6}\d{6,12}\b")
 COMPLEX_GUARANTEE_CODE_REGEX = re.compile(r"\b[A-Z]{1,6}(?:/[A-Z]{1,6})[-/]?\d{3,12}\b", re.IGNORECASE)
 GUARANTEE_NUMBER_CONTEXT_REGEXES = [
     re.compile(r"(?:خطاب\s*ضمان\s*رقم|رقم\s*خطاب\s*الضمان|الضمان\s*رقم|ضمان\s*رقم)\s*[:\-]?\s*([A-Z0-9/-]{6,24})", re.IGNORECASE),
@@ -576,14 +578,19 @@ def find_first(regexes: list[re.Pattern], text: str) -> str | None:
 
 def looks_like_bank_name(text: str, request_payload: dict) -> str | None:
     canonical_bank_name = (request_payload.get("canonicalBankName") or "").strip()
-    if canonical_bank_name and canonical_bank_name.lower() in text.lower():
-        return canonical_bank_name
 
     normalized = unicodedata.normalize("NFKC", text or "")
     normalized = normalized.translate(ARABIC_NUMERAL_TRANSLATION).replace("،", ",").replace("٫", ".")
+    normalized_lower = normalized.lower()
+
+    # Fast path: canonical name provided and found anywhere in document
+    if canonical_bank_name and canonical_bank_name.lower() in normalized_lower:
+        return canonical_bank_name
+
     lines = [re.sub(r"\s+", " ", line).strip() for line in normalized.splitlines() if line.strip()]
     header_text = "\n".join(lines[:8]).lower()
     leading_header_text = "\n".join(lines[:2]).lower()
+    full_text = normalized_lower
     best_match = None
     best_score = 0
 
@@ -591,10 +598,13 @@ def looks_like_bank_name(text: str, request_payload: dict) -> str | None:
         score = 0
         for hint in hints:
             normalized_hint = hint.lower()
-            if normalized_hint in header_text:
-                score += max(3, len(normalized_hint.split()))
             if normalized_hint in leading_header_text:
-                score += 5
+                score += 8
+            elif normalized_hint in header_text:
+                score += max(3, len(normalized_hint.split()))
+            elif normalized_hint in full_text:
+                # Found in body — lower weight but still valid
+                score += max(1, len(normalized_hint.split()) - 1)
 
         if score > best_score:
             best_score = score
@@ -602,6 +612,21 @@ def looks_like_bank_name(text: str, request_payload: dict) -> str | None:
 
     if best_match and best_score >= 3:
         return best_match
+
+    # Last resort: canonical name matched to a known bank via hints
+    if canonical_bank_name:
+        canonical_lower = canonical_bank_name.lower()
+        for known_name, hints in BANK_HINTS:
+            if canonical_lower == known_name.lower():
+                for hint in hints:
+                    if hint.lower() in full_text:
+                        return known_name
+                break
+
+    # Fallback: bank name provided by operator but not found in text (e.g. appears only as logo).
+    # Return it at reduced confidence so the reviewer can verify.
+    if canonical_bank_name:
+        return canonical_bank_name
 
     return None
 
@@ -669,6 +694,10 @@ def is_likely_guarantee_number(value: str | None) -> bool:
         return True
 
     if re.fullmatch(r"[A-Z]{1,6}\d{3,16}", upper):
+        return True
+
+    # Mixed-start codes used by some banks (e.g. Al Rajhi: 23OGTE48803516)
+    if re.fullmatch(r"\d{1,4}[A-Z]{1,6}\d{6,12}", upper):
         return True
 
     if re.fullmatch(r"[A-Z0-9]{1,8}[-/][A-Z0-9-]{3,20}", upper):
@@ -865,7 +894,10 @@ def build_structured_fields(
         if top_code_match:
             guarantee_number = re.sub(r"\s+", "", top_code_match.group(0))
     if not guarantee_number:
-        guarantee_number = find_first([GUARANTEE_NUMBER_REGEX, COMPLEX_GUARANTEE_CODE_REGEX, GENERIC_GUARANTEE_CODE_REGEX], normalized_text)
+        guarantee_number = find_first(
+            [GUARANTEE_NUMBER_REGEX, COMPLEX_GUARANTEE_CODE_REGEX, GENERIC_GUARANTEE_CODE_REGEX, MIXED_START_GUARANTEE_CODE_REGEX],
+            normalized_text,
+        )
 
     normalized_guarantee_number = normalize_identifier(guarantee_number)
     if is_likely_guarantee_number(normalized_guarantee_number):
@@ -883,11 +915,17 @@ def build_structured_fields(
     bank_name = looks_like_bank_name(text, request_payload)
     scenario_key = request_payload.get("scenarioKey", "") or ""
     if bank_name:
+        canonical_from_payload = (request_payload.get("canonicalBankName") or "").strip()
+        # Lower confidence when bank name is taken from request payload (not found in document text)
+        bank_name_found_in_text = bank_name.lower() in text.lower() or any(
+            h.lower() in text.lower() for _, hints in BANK_HINTS if _ == bank_name for h in hints
+        )
+        bank_name_confidence = (95 if source_label == "direct-pdf-text" else 88) if bank_name_found_in_text else 65
         fields.append(
             make_field(
                 "IntakeField_BankName",
                 bank_name,
-                95 if source_label == "direct-pdf-text" else 88,
+                bank_name_confidence,
                 page_number,
                 bounding_box,
                 source_label,
@@ -923,6 +961,19 @@ def build_structured_fields(
     bank_reference = find_contextual_value(BANK_REFERENCE_CONTEXT_REGEXES, normalized_text)
     if not bank_reference:
         bank_reference = find_first(BANK_REFERENCE_REGEXES, normalized_text)
+    # Use referencePrefix from request to match bank-specific reference patterns dynamically.
+    # This handles banks like Riyad (RYD-OCR-W1) and Alinma (ALN-OCR-W1) whose formats
+    # aren't covered by BANK_REFERENCE_REGEXES. Allows internal dashes.
+    if not bank_reference:
+        reference_prefix = (request_payload.get("referencePrefix") or "").strip()
+        if reference_prefix and re.fullmatch(r"[A-Z]{2,6}", reference_prefix.upper()):
+            prefix_pattern = re.compile(
+                rf"\b{re.escape(reference_prefix.upper())}[-A-Z0-9]{{3,24}}\b",
+                re.IGNORECASE,
+            )
+            prefix_match = prefix_pattern.search(normalized_text)
+            if prefix_match:
+                bank_reference = prefix_match.group(0)
 
     normalized_bank_reference = normalize_identifier(bank_reference)
     if normalized_bank_reference:

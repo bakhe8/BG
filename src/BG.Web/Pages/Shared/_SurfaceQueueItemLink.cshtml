@@ -36,8 +36,8 @@
     <div class="bg-grid-col text-center">
         @{
             var badgeClass = "bg-badge-pending";
-            if (Model.Status.Contains("Approved") || Model.Status.Contains("Success") || Model.Status.Contains("مقبول")) badgeClass = "bg-badge-success";
-            if (Model.Status.Contains("Returned") || Model.Status.Contains("Rejected") || Model.Status.Contains("مرفوض")) badgeClass = "bg-badge-returned";
+            if (Model.Status.Contains("Approved") || Model.Status.Contains("Success")) badgeClass = "bg-badge-success";
+            if (Model.Status.Contains("Returned") || Model.Status.Contains("Rejected")) badgeClass = "bg-badge-returned";
             if (Model.Status.Contains("Draft")) badgeClass = "bg-badge-draft";
         }
         <bg-badge class="@badgeClass">

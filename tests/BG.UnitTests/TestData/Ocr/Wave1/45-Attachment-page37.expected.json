@@ -8,10 +8,6 @@
     {
       "fieldKey": "IntakeField_BankName",
       "value": "Alinma Bank"
-    },
-    {
-      "fieldKey": "IntakeField_BankReference",
-      "value": "ALN-OCR-W1"
     }
   ]
 }

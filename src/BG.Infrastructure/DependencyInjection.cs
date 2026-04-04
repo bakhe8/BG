@@ -1,6 +1,9 @@
 using BG.Application.Contracts.Persistence;
 using BG.Application.Contracts.Persistence.Notifications;
+using BG.Application.Contracts.Persistence.Reports;
 using BG.Application.Contracts.Services;
+using BG.Infrastructure.Documents;
+using BG.Infrastructure.Email;
 using BG.Infrastructure.HealthChecks;
 using BG.Infrastructure.Persistence;
 using BG.Infrastructure.Persistence.Repositories;
@@ -36,10 +39,15 @@ public static class DependencyInjection
         services.AddScoped<IOperationsReviewRepository, OperationsReviewRepository>();
         services.AddScoped<IRequestWorkspaceRepository, RequestWorkspaceRepository>();
         services.AddScoped<IGuaranteeHistoryRepository, GuaranteeHistoryRepository>();
+        services.AddScoped<IBankRepository, BankRepository>();
         services.AddScoped<IApprovalQueueRepository, ApprovalQueueRepository>();
         services.AddScoped<IDispatchWorkspaceRepository, DispatchWorkspaceRepository>();
         services.AddScoped<IWorkflowDefinitionRepository, WorkflowDefinitionRepository>();
         services.AddScoped<INotificationRepository, NotificationRepository>();
+        services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<ILetterGenerationService, QuestPdfLetterGenerationService>();
+        services.AddScoped<IEmailDispatchService, MailKitEmailDispatchService>();
+        services.AddSingleton<ISmtpClientAdapterFactory, MailKitSmtpClientAdapterFactory>();
         services.AddScoped<IIntakeDocumentStore, LocalIntakeDocumentStore>();
         services.AddSingleton<ILocalPasswordHasher, Pbkdf2LocalPasswordHasher>();
         services.AddScoped<OperationalSeedService>();
