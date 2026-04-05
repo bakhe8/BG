@@ -15,13 +15,16 @@ public sealed class QueueModel : PageModel
 {
     private readonly IOperationsReviewQueueService _operationsReviewQueueService;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly IAuthorizationService _authorizationService;
 
     public QueueModel(
         IOperationsReviewQueueService operationsReviewQueueService,
-        IStringLocalizer<SharedResource> localizer)
+        IStringLocalizer<SharedResource> localizer,
+        IAuthorizationService authorizationService)
     {
         _operationsReviewQueueService = operationsReviewQueueService;
         _localizer = localizer;
+        _authorizationService = authorizationService;
     }
 
     [FromQuery(Name = "actor")]
@@ -59,6 +62,11 @@ public sealed class QueueModel : PageModel
         Guid? item,
         CancellationToken cancellationToken)
     {
+        if (!await HasManagePermissionAsync())
+        {
+            return Forbid();
+        }
+
         await LoadAsync(actorId, page, item ?? reviewItemId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
@@ -98,6 +106,11 @@ public sealed class QueueModel : PageModel
         Guid? item,
         CancellationToken cancellationToken)
     {
+        if (!await HasManagePermissionAsync())
+        {
+            return Forbid();
+        }
+
         await LoadAsync(actorId, page, item ?? reviewItemId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
@@ -132,6 +145,11 @@ public sealed class QueueModel : PageModel
         Guid? item,
         CancellationToken cancellationToken)
     {
+        if (!await HasManagePermissionAsync())
+        {
+            return Forbid();
+        }
+
         await LoadAsync(actorId, page, item ?? reviewItemId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
@@ -163,6 +181,11 @@ public sealed class QueueModel : PageModel
         Guid? item,
         CancellationToken cancellationToken)
     {
+        if (!await HasManagePermissionAsync())
+        {
+            return Forbid();
+        }
+
         await LoadAsync(actorId, page, item ?? reviewItemId, cancellationToken);
 
         if (!Snapshot.HasEligibleActor || Snapshot.ActiveActor is null)
@@ -292,5 +315,11 @@ public sealed class QueueModel : PageModel
         return IsActorContextLocked
             ? RedirectToPage("/Operations/Queue", new { page = pageNumber, item = selectedItemId })
             : RedirectToPage("/Operations/Queue", new { actor = actorId, page = pageNumber, item = selectedItemId });
+    }
+
+    private async Task<bool> HasManagePermissionAsync()
+    {
+        var result = await _authorizationService.AuthorizeAsync(User, PermissionPolicyNames.OperationsManage);
+        return result.Succeeded;
     }
 }

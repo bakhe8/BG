@@ -121,6 +121,11 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             return OperationResult<ApplyBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
         }
 
+        if (!HasPermission(actor, "operations.queue.manage"))
+        {
+            return OperationResult<ApplyBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
+        }
+
         if (command.RequestId == Guid.Empty)
         {
             return OperationResult<ApplyBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.RequestRequired);
@@ -260,6 +265,11 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
             return OperationResult<ReopenAppliedBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
         }
 
+        if (!HasPermission(actor, "operations.queue.manage"))
+        {
+            return OperationResult<ReopenAppliedBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
+        }
+
         var correctionNote = Normalize(command.CorrectionNote);
         if (string.IsNullOrWhiteSpace(correctionNote))
         {
@@ -324,6 +334,9 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
         if (actor is null)
             return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
 
+        if (!HasPermission(actor, "operations.queue.manage"))
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
+
         var item = await _repository.GetOpenItemByIdAsync(command.ReviewItemId, cancellationToken);
         if (item is null)
             return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.ReviewItemNotFound);
@@ -350,6 +363,9 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
 
         var actor = await _repository.GetOperationsActorByIdAsync(command.OperationsActorUserId, cancellationToken);
         if (actor is null)
+            return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
+
+        if (!HasPermission(actor, "operations.queue.manage"))
             return OperationResult<DismissBankResponseReceiptDto>.Failure(OperationsReviewErrorCodes.OperationsActorInvalid);
 
         var item = await _repository.GetOpenItemByIdAsync(command.ReviewItemId, cancellationToken);
@@ -531,6 +547,13 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
     private static string? Normalize(string? value)
     {
         return StructuredInputParser.Normalize(value);
+    }
+
+    private static bool HasPermission(BG.Domain.Identity.User actor, string permissionKey)
+    {
+        return actor.UserRoles.Any(userRole =>
+            userRole.Role.RolePermissions.Any(rolePermission =>
+                string.Equals(rolePermission.PermissionKey, permissionKey, StringComparison.OrdinalIgnoreCase)));
     }
 
     private sealed record SuggestedConfirmationValues(

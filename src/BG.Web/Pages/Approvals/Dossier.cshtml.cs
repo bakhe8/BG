@@ -15,13 +15,16 @@ public sealed class DossierModel : PageModel
 {
     private readonly IApprovalQueueService _approvalQueueService;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly IAuthorizationService _authorizationService;
 
     public DossierModel(
         IApprovalQueueService approvalQueueService,
-        IStringLocalizer<SharedResource> localizer)
+        IStringLocalizer<SharedResource> localizer,
+        IAuthorizationService authorizationService)
     {
         _approvalQueueService = approvalQueueService;
         _localizer = localizer;
+        _authorizationService = authorizationService;
     }
 
     [FromQuery(Name = "actor")]
@@ -139,6 +142,12 @@ public sealed class DossierModel : PageModel
         Func<ApprovalDecisionCommand, CancellationToken, Task<BG.Application.Common.OperationResult<ApprovalDecisionReceiptDto>>> action,
         CancellationToken cancellationToken)
     {
+        var authorizationResult = await _authorizationService.AuthorizeAsync(User, PermissionPolicyNames.ApprovalsSign);
+        if (!authorizationResult.Succeeded)
+        {
+            return Forbid();
+        }
+
         PageNumber = pageNumber;
         await LoadAsync(requestId, actorId, cancellationToken);
 

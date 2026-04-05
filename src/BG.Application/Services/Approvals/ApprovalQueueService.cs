@@ -201,6 +201,11 @@ internal sealed class ApprovalQueueService : IApprovalQueueService
             return OperationResult<ApprovalDecisionReceiptDto>.Failure(ApprovalErrorCodes.ApproverContextInvalid);
         }
 
+        if (!HasPermission(actor, "approvals.sign"))
+        {
+            return OperationResult<ApprovalDecisionReceiptDto>.Failure(ApprovalErrorCodes.ApproverContextInvalid);
+        }
+
         var request = await _repository.GetRequestForApprovalAsync(command.RequestId, cancellationToken);
         if (request?.ApprovalProcess is null)
         {
@@ -286,6 +291,13 @@ internal sealed class ApprovalQueueService : IApprovalQueueService
                 request.Id,
                 request.Guarantee.GuaranteeNumber,
                 ApprovalDecisionCatalog.GetResourceKey(outcome)));
+    }
+
+    private static bool HasPermission(BG.Domain.Identity.User actor, string permissionKey)
+    {
+        return actor.UserRoles.Any(userRole =>
+            userRole.Role.RolePermissions.Any(rolePermission =>
+                string.Equals(rolePermission.PermissionKey, permissionKey, StringComparison.OrdinalIgnoreCase)));
     }
 
     private async Task SendApprovalNotificationAsync(

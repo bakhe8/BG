@@ -390,7 +390,7 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
 
             await _notificationService.SendNotificationAsync(
                 NotificationMessageCatalog.LetterDispatched,
-                "/Operations/Workspace",
+                "/Operations/Queue",
                 "operations.queue.view",
                 cancellationToken: cancellationToken);
 
@@ -461,7 +461,7 @@ internal sealed class DispatchWorkspaceService : IDispatchWorkspaceService
 
             await _notificationService.SendNotificationAsync(
                 NotificationMessageCatalog.DeliveryConfirmed,
-                "/Operations/Workspace",
+                "/Operations/Queue",
                 "operations.queue.view",
                 cancellationToken: cancellationToken);
 

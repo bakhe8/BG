@@ -76,7 +76,6 @@ internal sealed class ApprovalQueueRepository : IApprovalQueueRepository
                     user.IsActive &&
                     user.UserRoles.Any(userRole =>
                         userRole.Role.RolePermissions.Any(rolePermission =>
-                            rolePermission.PermissionKey == "approvals.queue.view" ||
                             rolePermission.PermissionKey == "approvals.sign")),
             cancellationToken);
 

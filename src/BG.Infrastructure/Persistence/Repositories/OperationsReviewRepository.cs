@@ -43,7 +43,6 @@ internal sealed class OperationsReviewRepository : IOperationsReviewRepository
                         user.IsActive &&
                         user.UserRoles.Any(userRole =>
                             userRole.Role.RolePermissions.Any(rolePermission =>
-                                rolePermission.PermissionKey == "operations.queue.view" ||
                                 rolePermission.PermissionKey == "operations.queue.manage")),
                 cancellationToken);
     }
