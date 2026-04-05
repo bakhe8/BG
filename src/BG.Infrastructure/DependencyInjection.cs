@@ -26,19 +26,10 @@ public static class DependencyInjection
         services.AddDbContext<BgDbContext>((serviceProvider, options) =>
         {
             var runtimeConfiguration = serviceProvider.GetRequiredService<IConfiguration>();
-            var sqliteConnection = runtimeConfiguration.GetConnectionString("Sqlite");
-            
-            if (!string.IsNullOrWhiteSpace(sqliteConnection))
-            {
-                options.UseSqlite(sqliteConnection);
-            }
-            else
-            {
-                var connectionString = PostgreSqlConnectionStringResolver.Resolve(runtimeConfiguration);
-                options.UseNpgsql(
-                    connectionString,
-                    npgsql => npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));
-            }
+            var connectionString = PostgreSqlConnectionStringResolver.Resolve(runtimeConfiguration);
+            options.UseNpgsql(
+                connectionString,
+                npgsql => npgsql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null));
         });
         services.AddHealthChecks()
             .AddCheck<PostgreSqlHealthCheck>("postgresql");
