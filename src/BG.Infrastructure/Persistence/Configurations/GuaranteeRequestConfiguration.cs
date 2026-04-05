@@ -52,5 +52,11 @@ public sealed class GuaranteeRequestConfiguration : IEntityTypeConfiguration<Gua
 
         builder.HasIndex(request => new { request.RequestedByUserId, request.Status });
         builder.HasIndex(request => new { request.GuaranteeId, request.Status });
+
+        // Prevent race-condition duplicates for open requests of the same type on the same guarantee/user.
+        builder.HasIndex(request => new { request.RequestedByUserId, request.GuaranteeId, request.RequestType })
+            .HasDatabaseName("IX_guarantee_requests_open_owner_guarantee_type_unique")
+            .IsUnique()
+            .HasFilter("\"Status\" <> 'Completed' AND \"Status\" <> 'Cancelled' AND \"Status\" <> 'Rejected'");
     }
 }

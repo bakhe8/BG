@@ -500,7 +500,14 @@ internal sealed class RequestWorkspaceService : IRequestWorkspaceService
 
             _repository.TrackCreatedRequestGraph(request);
             _repository.TrackLedgerEvents(guarantee.Events.Where(ledgerEntry => ledgerEntry.GuaranteeRequestId == request.Id));
-            await _repository.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _repository.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception exception) when (exception.Message.Contains("IX_guarantee_requests_open_owner_guarantee_type_unique", StringComparison.Ordinal))
+            {
+                return OperationResult<CreateGuaranteeRequestReceiptDto>.Failure(RequestErrorCodes.DuplicateOpenRequest);
+            }
 
             return OperationResult<CreateGuaranteeRequestReceiptDto>.Success(
                 new CreateGuaranteeRequestReceiptDto(
