@@ -80,9 +80,10 @@ internal sealed class OperationsReviewQueueService : IOperationsReviewQueueServi
                 .Select(item => new OperationsReviewRecentItemDto(
                     item.Id,
                     item.GuaranteeNumber,
-                    IntakeScenarioCatalog.Find(item.ScenarioKey)?.TitleResourceKey ?? "OperationsReviewScenario_Unknown",
                     "OperationsReviewStatus_Completed",
-                    item.CompletedAtUtc))
+                    item.CompletedAtUtc,
+                    null, // Passing null as it's not in the read model yet
+                    IntakeScenarioCatalog.Find(item.ScenarioKey)?.TitleResourceKey ?? "OperationsReviewScenario_Unknown"))
                 .ToArray(),
             items.Items.PageInfo,
             await _workflowTemplateService.GetTemplatesAsync(cancellationToken),

@@ -25,6 +25,7 @@ internal static partial class LocalIntakeExtractionHeuristics
                 new IntakeExtractionFieldCandidate(
                     IntakeFieldKeys.GuaranteeNumber,
                     extractedGuaranteeNumber,
+                    extractedGuaranteeNumber,
                     IntakeFieldValueSource.FilenamePattern,
                     55)
             ];

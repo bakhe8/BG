@@ -232,6 +232,41 @@ DISALLOWED_GUARANTEE_PREFIXES = {
     "VAT",
 }
 
+DISALLOWED_GUARANTEE_CONTEXT_MARKERS = {
+    "c.r",
+    "cr",
+    "commercial register",
+    "commercial registration",
+    "سجل",
+    "تجاري",
+}
+
+GUARANTEE_CONTEXT_TOKENS = [
+    "ضمان",
+    "خمان",
+    "guarantee",
+    "خطاب",
+    "خطلب",
+    "رقم",
+    "number",
+]
+
+DISALLOWED_AMOUNT_LINE_MARKERS = {
+    "capital",
+    "fully paid",
+    "paid",
+    "company",
+    "c.r",
+    "swift",
+    "tel",
+    "fax",
+    "راس المال",
+    "رأس المال",
+    "مدفوع",
+    "شركة",
+    "سجل",
+}
+
 
 def canonical_result(succeeded: bool, fields: list[dict], warnings: list[str], error_code=None, error_message=None, pipeline_version="wave2-pdf-first"):
     return {
@@ -691,7 +726,12 @@ def is_likely_guarantee_number(value: str | None) -> bool:
         return False
 
     if re.fullmatch(r"\d{6,16}", upper):
-        return True
+        # Numeric-only values in scanned footer blocks are frequently registration/unit identifiers.
+        return False
+
+    # Very short alpha-prefix references (e.g. P56678) are often document refs, not guarantee numbers.
+    if re.fullmatch(r"[A-Z]\d{5}", upper):
+        return False
 
     if re.fullmatch(r"[A-Z]{1,6}\d{3,16}", upper):
         return True
@@ -706,8 +746,69 @@ def is_likely_guarantee_number(value: str | None) -> bool:
     return False
 
 
+def is_disallowed_guarantee_context(text: str, candidate: str) -> bool:
+    candidate_start = text.find(candidate)
+    if candidate_start < 0:
+        return False
+
+    start = max(0, candidate_start - 40)
+    end = min(len(text), candidate_start + len(candidate) + 40)
+    surrounding = text[start:end].lower()
+    return any(marker in surrounding for marker in DISALLOWED_GUARANTEE_CONTEXT_MARKERS)
+
+
+def extract_guarantee_number_from_guarantee_context(text: str) -> str | None:
+    for line in text.splitlines():
+        normalized_line = normalize_native_text(line)
+        if not normalized_line:
+            continue
+
+        if not any(token in normalized_line.lower() for token in GUARANTEE_CONTEXT_TOKENS):
+            continue
+
+        if not re.search(r"رقم|number|no\.?|#|ر\b", normalized_line, re.IGNORECASE):
+            continue
+
+        for match in re.finditer(r"\b[A-Z]{1,2}\d{4,10}\b", normalized_line):
+            candidate = normalize_identifier(match.group(0))
+            if is_likely_guarantee_number(candidate):
+                return candidate
+
+    return None
+
+
+def extract_numeric_guarantee_from_context(text: str) -> str | None:
+    """Extract purely-numeric guarantee codes (e.g. Banque Saudi Fransi six-digit codes)
+    when they appear on a line with an explicit guarantee-number keyword."""
+    for line in text.splitlines():
+        normalized_line = normalize_native_text(line)
+        if not normalized_line:
+            continue
+        lower = normalized_line.lower()
+        if not any(token in lower for token in GUARANTEE_CONTEXT_TOKENS):
+            continue
+        if not re.search(r"رقم|number|no\.?|#|\bno\b", lower, re.IGNORECASE):
+            continue
+        for match in re.finditer(r"\b(\d{5,10})\b", normalized_line):
+            candidate = match.group(1)
+            if 1990 <= int(candidate) <= 2099:
+                continue  # Skip year-like values
+            if any(candidate.startswith(prefix) for prefix in DISALLOWED_GUARANTEE_PREFIXES):
+                continue
+            return candidate
+    return None
+
+
 def extract_beneficiary_name(text: str) -> str | None:
     if re.search(r"(?:مستشفى|متشفي|مصتشفى|مستشفي)\s+الملك\s+فيصل", text, re.IGNORECASE):
+        return "مستشفى الملك فيصل التخصصي ومركز الأبحاث"
+
+    if (
+        re.search(r"مستش", text, re.IGNORECASE)
+        and re.search(r"فيص", text, re.IGNORECASE)
+        and re.search(r"مرك", text, re.IGNORECASE)
+        and re.search(r"بحث|ابح|أبح", text, re.IGNORECASE)
+    ):
         return "مستشفى الملك فيصل التخصصي ومركز الأبحاث"
 
     if (
@@ -725,6 +826,7 @@ def extract_beneficiary_name(text: str) -> str | None:
 
 def extract_principal_name(text: str) -> str | None:
     patterns = [
+        re.compile(r"(?:المقاول|المقلوول|المقلول)\s+(.+?)(?:\s+عقد|\n|رقم|RFQ|PO#|PO\s|REF#)", re.IGNORECASE),
         re.compile(r"(?:عملاءنا\s*السادة|عميلنا\s*السادة|عملائنا\s*السادة)\s*[:\-]?\s*(.+?)(?:\n|RFQ|PO#|PO\s|REF#|رقم\s+أمر|امر\s+شراء|purchase\s+order|بد\s+التحية|وذلك)", re.IGNORECASE),
         re.compile(r"(?:حيث\s+أنكم\s+منحتم\s+عملاءنا\s+السادة)\s*[:\-]?\s*(.+?)(?:\n|RFQ|PO#|PO\s|REF#|رقم\s+أمر|امر\s+شراء|purchase\s+order|وذلك)", re.IGNORECASE),
         re.compile(r"(?:اسم\s*(?:العميل|المقاول|المتقدم)|العميل|المقاول|المتقدم|principal|applicant|customer|contractor)\s*[:\-]?\s*(.+?)(?:\n|RFQ|PO#|PO\s|REF#|رقم\s+أمر|امر\s+شراء|purchase\s+order|وذلك)", re.IGNORECASE),
@@ -756,13 +858,31 @@ def extract_contextual_amount(text: str) -> str | None:
     for regex in AMOUNT_CONTEXT_REGEXES:
         match = regex.search(text)
         if match:
-            return match.group(1).replace(",", "")
+            raw = match.group(1).replace(",", "")
+            try:
+                ctx_value = float(raw)
+            except ValueError:
+                return raw
+            if ctx_value < 1000 or ctx_value > 100000000:
+                continue  # Out of valid amount range
+            if 1990 <= ctx_value <= 2099:
+                continue  # Gregorian year artifact
+            if 1400 <= ctx_value <= 1460:
+                continue  # Hijri year artifact
+            try:
+                raw = str(int(ctx_value))  # Strip leading zeros / trailing .00
+            except (ValueError, OverflowError):
+                pass
+            return raw
 
     amount_candidates = []
     for line in text.splitlines():
         normalized_line = normalize_native_text(line)
         lower_line = normalized_line.lower()
         if not normalized_line:
+            continue
+
+        if any(marker in lower_line for marker in DISALLOWED_AMOUNT_LINE_MARKERS):
             continue
 
         if any(marker in lower_line for marker in ["swift", "fax", "tel", "p.o", "po box", "cr ", "unit no"]):
@@ -781,7 +901,13 @@ def extract_contextual_amount(text: str) -> str | None:
             if numeric_value < 1000 or numeric_value > 100000000:
                 continue
 
-            amount_candidates.append((numeric_value, raw_value))
+            if 1990 <= numeric_value <= 2099:
+                continue  # Gregorian year artifact
+
+            if 1400 <= numeric_value <= 1460:
+                continue  # Hijri year artifact
+
+            amount_candidates.append((numeric_value, str(int(numeric_value))))
 
     if not amount_candidates:
         return None
@@ -888,7 +1014,10 @@ def build_structured_fields(
     normalized_text = normalize_native_text(text.translate(ARABIC_NUMERAL_TRANSLATION))
     fields: list[dict] = []
 
+    guarantee_found_via_context = False
     guarantee_number = find_contextual_value(GUARANTEE_NUMBER_CONTEXT_REGEXES, normalized_text)
+    if guarantee_number:
+        guarantee_found_via_context = True
     if not guarantee_number:
         top_code_match = re.search(r"\b\d{3}\s+\d{6,8}\s+\d\b", normalized_text)
         if top_code_match:
@@ -898,9 +1027,17 @@ def build_structured_fields(
             [GUARANTEE_NUMBER_REGEX, COMPLEX_GUARANTEE_CODE_REGEX, GENERIC_GUARANTEE_CODE_REGEX, MIXED_START_GUARANTEE_CODE_REGEX],
             normalized_text,
         )
+    if not guarantee_number:
+        guarantee_number = extract_guarantee_number_from_guarantee_context(normalized_text)
+        if guarantee_number:
+            guarantee_found_via_context = True
+    if not guarantee_number:
+        guarantee_number = extract_numeric_guarantee_from_context(normalized_text)
+        if guarantee_number:
+            guarantee_found_via_context = True
 
     normalized_guarantee_number = normalize_identifier(guarantee_number)
-    if is_likely_guarantee_number(normalized_guarantee_number):
+    if (guarantee_found_via_context or is_likely_guarantee_number(normalized_guarantee_number)) and not is_disallowed_guarantee_context(normalized_text, normalized_guarantee_number or ""):
         fields.append(
             make_field(
                 "IntakeField_GuaranteeNumber",
@@ -909,6 +1046,7 @@ def build_structured_fields(
                 page_number,
                 bounding_box,
                 source_label,
+                raw_value=guarantee_number,
             )
         )
 
@@ -993,7 +1131,8 @@ def build_structured_fields(
     normalized_official_date = normalize_date_value(date_value) if date_value else None
     if date_value:
         date_field_key = "IntakeField_OfficialLetterDate" if scenario_key != "new-guarantee" else "IntakeField_IssueDate"
-        fields.append(make_field(date_field_key, normalized_official_date, 85, page_number, bounding_box, source_label))
+        date_confidence = 85 if source_label == "direct-pdf-text" else 78
+        fields.append(make_field(date_field_key, normalized_official_date, date_confidence, page_number, bounding_box, source_label))
 
     amount_value = extract_contextual_amount(normalized_text)
     if amount_value and scenario_key in {"new-guarantee", "reduction-confirmation"}:
@@ -1095,10 +1234,11 @@ def build_structured_fields(
     return fields
 
 
-def make_field(field_key: str, value: str, confidence: int, page_number: int, bounding_box: str, source_label: str) -> dict:
+def make_field(field_key: str, value: str, confidence: int, page_number: int, bounding_box: str, source_label: str, raw_value: str | None = None) -> dict:
     return {
         "fieldKey": field_key,
         "value": value,
+        "rawValue": raw_value if raw_value is not None else value,
         "confidencePercent": confidence,
         "pageNumber": page_number,
         "boundingBox": bounding_box,
@@ -1119,7 +1259,7 @@ def process_text_first(document, request_payload: dict, page_numbers: list[int])
             continue
         fields.extend(build_structured_fields(text, request_payload, page_number, "direct-pdf-text"))
 
-    return deduplicate_fields(fields), warnings
+    return fields, warnings
 
 
 def process_scanned(document, request_payload: dict, page_numbers: list[int], file_path: str) -> tuple[list[dict], list[str]]:
@@ -1175,7 +1315,7 @@ def process_scanned(document, request_payload: dict, page_numbers: list[int], fi
     if direct_text_pages > 0 and scanned_pages > 0:
         warnings.append("mixed-pdf-route")
 
-    return deduplicate_fields(fields), deduplicate_warnings(warnings)
+    return fields, deduplicate_warnings(warnings)
 
 
 def cleanup_file(path: str) -> None:

@@ -4,5 +4,5 @@ namespace BG.Application.Contracts.Services;
 
 public interface IOperationsReviewMatchingService
 {
-    IReadOnlyList<OperationsReviewMatchSuggestionDto> SuggestMatches(OperationsReviewQueueItemReadModel item);
+    IReadOnlyList<OperationsUnifiedSuggestion> SuggestMatches(OperationsReviewQueueItemReadModel item);
 }

@@ -11,7 +11,7 @@ namespace BG.Application.Services;
 
 internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchingService
 {
-    public IReadOnlyList<OperationsReviewMatchSuggestionDto> SuggestMatches(OperationsReviewQueueItemReadModel item)
+    public IReadOnlyList<OperationsUnifiedSuggestion> SuggestMatches(OperationsReviewQueueItemReadModel item)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -51,7 +51,7 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
                item.Category is (OperationsReviewItemCategory.IncomingBankConfirmation or OperationsReviewItemCategory.IncomingStatusReply);
     }
 
-    private static OperationsReviewMatchSuggestionDto CreateSuggestion(
+    private static OperationsUnifiedSuggestion CreateSuggestion(
         OperationsReviewRequestCandidateReadModel request,
         ResponseSignal responseSignal,
         GuaranteeDocumentFormDefinition? responseDocumentForm,
@@ -153,7 +153,7 @@ internal sealed class OperationsReviewMatchingService : IOperationsReviewMatchin
 
         score = Math.Clamp(score, 0, 99);
 
-        return new OperationsReviewMatchSuggestionDto(
+        return new OperationsUnifiedSuggestion(
             request.RequestId,
             GuaranteeResourceCatalog.GetRequestTypeResourceKey(request.RequestType),
             GuaranteeResourceCatalog.GetRequestStatusResourceKey(request.Status),

@@ -71,6 +71,7 @@ internal sealed class LocalIntakeDirectTextExtractor : IIntakeDirectTextExtracto
             .Select(field => new IntakeExtractionFieldCandidate(
                 field.FieldKey,
                 field.Value,
+                field.Value,
                 IntakeFieldValueSource.DirectPdfText,
                 field.ConfidencePercent))
             .ToArray();

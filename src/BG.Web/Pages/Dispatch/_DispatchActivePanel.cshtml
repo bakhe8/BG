@@ -1,206 +1,179 @@
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.Pages.Dispatch.WorkspaceModel
+
 @{
-    bool hasAnyDispatchAction = Model.Snapshot.ActiveActor is not null &&
-                                (Model.Snapshot.ActiveActor.CanPrint || Model.Snapshot.ActiveActor.CanRecord || Model.Snapshot.ActiveActor.CanEmail);
+    var isReady = Model.ActiveReadyItem is not null;
+    var isPendingDelivery = Model.ActivePendingDeliveryItem is not null;
+    var hasAnyDispatchAction = Model.Snapshot.ActiveActor?.CanRecord ?? false;
+    var canPrint = Model.Snapshot.ActiveActor?.CanPrint ?? false;
+    var guaranteeNumber = isReady ? Model.ActiveReadyItem!.GuaranteeNumber : (isPendingDelivery ? Model.ActivePendingDeliveryItem!.GuaranteeNumber : "");
 }
 
-@if (Model.ActiveReadyItem is null && Model.ActivePendingDeliveryItem is null)
-{
-    <article class="bg-card shadow-sm p-5 text-center">
-        <div class="py-5">
-            <i class="bi bi-send fs-1 text-muted opacity-25 d-block mb-3"></i>
-            <h2 class="fw-bold text-dark">@T["DispatchWorkspace_Empty"]</h2>
-            <p class="text-secondary">@T["DispatchWorkspace_ItemsTitle"]</p>
-        </div>
-    </article>
-}
-else if (Model.ActiveReadyItem is not null)
-{
-    var item = Model.ActiveReadyItem;
-
-    <article class="dispatch-active-panel h-100 d-flex flex-column bg-white border rounded-4 overflow-hidden shadow-sm">
-        @* 1. Institutional Header *@
-        <div class="p-4 border-bottom bg-white">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">@item.GuaranteeNumber</span>
-                    <bg-badge class="bg-badge-success">@T[item.StatusResourceKey]</bg-badge>
-                </div>
-                <button type="button" class="btn-close" aria-label="Close"></button>
+<div class="canvas_stage_main">
+    @if (!isReady && !isPendingDelivery)
+    {
+        <div class="d-flex flex-column align-items-center justify-content-center h-100 opacity-50 p-5 text-center">
+            <div class="bg-light rounded-circle p-4 mb-4">
+                <i class="bi bi-send-dash fs-1 text-muted"></i>
             </div>
-            <h3 class="fw-bold text-dark mb-2">@T["DispatchWorkspace_ReadyStateTitle"]</h3>
-            <div class="d-flex align-items-center gap-2 text-muted x-small text-uppercase fw-bold">
-                <i class="bi bi-person-circle"></i>
-                <span>@item.RequesterDisplayName</span>
-                <span class="mx-1">·</span>
-                <i class="bi bi-calendar3"></i>
-                <span>@item.ReadyAtUtc.ToLocalTime().ToString("g")</span>
-            </div>
+            <h5 class="fw-bold">@T["DispatchWorkspace_EmptySelectionTitle"]</h5>
+            <p class="small text-muted" style="max-width: 320px;">@T["DispatchWorkspace_EmptySelectionBody"]</p>
         </div>
-
-        @* 2. Scrollable Work Surface *@
-        <div class="flex-grow-1 overflow-auto p-4">
-            
-            @* Stats Grid *@
-            <div class="row g-4 mb-5">
-                <div class="col-6">
-                    <div class="bg-light p-4 rounded-4 border-0">
-                        <div class="bg-grid-label">@T["DispatchWorkspace_ReferenceLabel"]</div>
-                        <div class="bg-grid-value fs-5 mt-1">@(string.IsNullOrWhiteSpace(item.OutgoingReferenceNumber) ? T["OperationsQueue_NotAvailable"].Value : item.OutgoingReferenceNumber)</div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="bg-light p-4 rounded-4 border-0">
-                        <div class="bg-grid-label">@T["DispatchWorkspace_PrintCountLabel"]</div>
-                        <div class="bg-grid-value fs-5 mt-1">@item.PrintCount</div>
-                    </div>
-                </div>
+    }
+    else
+    {
+        @* 1. Inline Toolbar with High-Density Actions *@
+        <div class="inline_toolbar">
+            <div class="inline_toolbar_title">
+                <i class="bi bi-truck-flatbed text-success fs-5"></i>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item text-muted">@T["NavDispatch"]</li>
+                        <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">@guaranteeNumber</li>
+                    </ol>
+                </nav>
             </div>
 
             @if (hasAnyDispatchAction)
             {
-                <form method="post" id="dispatch-form" class="stack-form d-flex flex-column gap-4">
-                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                    <input type="hidden" name="requestId" value="@item.RequestId" />
-                    
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <label class="form-label x-small text-muted text-uppercase fw-bold" for="dispatch-reference">@T["DispatchWorkspace_ReferenceField"]</label>
-                            <input id="dispatch-reference" name="referenceNumber" class="form-control rounded-3" maxlength="64" value="@item.OutgoingReferenceNumber" />
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label x-small text-muted text-uppercase fw-bold" for="dispatch-letter-date">@T["DispatchWorkspace_LetterDateField"]</label>
-                            <input id="dispatch-letter-date" name="letterDate" class="form-control rounded-3" type="date" value="@(item.OutgoingLetterDate?.ToString("yyyy-MM-dd"))" />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="form-label x-small text-muted text-uppercase fw-bold" for="dispatch-channel">@T["DispatchWorkspace_DispatchChannelField"]</label>
-                        <select id="dispatch-channel" name="dispatchChannel" class="form-control rounded-3">
-                            @foreach (var option in Model.GetAvailableDispatchChannelOptions())
-                            {
-                                <option value="@option.Channel">@T[option.ResourceKey]</option>
-                            }
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="form-label x-small text-muted text-uppercase fw-bold" for="dispatch-note">@T["DispatchWorkspace_NoteField"]</label>
-                        <textarea id="dispatch-note" name="note" class="form-control rounded-3" rows="3"></textarea>
-                    </div>
-                </form>
-            }
-            else
-            {
-                <div class="alert alert-light border-0 shadow-none small italic">
-                    <i class="bi bi-info-circle me-2"></i>@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: false)]
-                </div>
-            }
-        </div>
-
-        @if (hasAnyDispatchAction)
-        {
-            @* 3. Institutional Action Bar *@
-            <div class="bg-sticky-action-bar">
-                <div class="d-flex gap-2">
-                    <button type="submit" form="dispatch-form" formaction="/Dispatch/Workspace?handler=Dispatch" class="bg-btn bg-btn-primary px-4 py-3 shadow-none flex-grow-1">
-                        <i class="bi bi-send-check-fill me-2 rotate-rtl"></i>@T["DispatchWorkspace_DispatchAction"]
-                    </button>
-                    @if (Model.Snapshot.ActiveActor!.CanPrint)
+                <div class="toolbar_actions">
+                    @if (isReady)
                     {
-                        <button type="submit" form="dispatch-form" formaction="/Dispatch/Workspace?handler=Print" class="bg-btn bg-btn-secondary px-4 py-3 border flex-grow-1">
-                            <i class="bi bi-printer me-2"></i>@T["DispatchWorkspace_PrintAction"]
+                        <button type="submit" form="dispatch-form" formaction="/Dispatch/Workspace?handler=Dispatch" class="bg-btn bg-btn-primary shadow-green">
+                            <i class="bi bi-send-check-fill me-1 rotate-rtl"></i><span class="fw-bold">@T["DispatchWorkspace_DispatchAction"]</span>
+                        </button>
+                        @if (canPrint)
+                        {
+                            <button type="submit" form="dispatch-form" formaction="/Dispatch/Workspace?handler=Print" class="bg-btn px-3 border border-light bg-white text-dark">
+                                <i class="bi bi-printer me-1 opacity-75"></i><span class="fw-bold">@T["DispatchWorkspace_PrintAction"]</span>
+                            </button>
+                        }
+                    }
+                    else if (isPendingDelivery)
+                    {
+                        <button type="submit" form="delivery-form" formaction="/Dispatch/Workspace?handler=ConfirmDelivery" class="bg-btn bg-btn-primary shadow-green">
+                            <i class="bi bi-check-circle-fill me-1"></i><span class="fw-bold">@T["DispatchWorkspace_ConfirmDeliveryAction"]</span>
+                        </button>
+                        <button type="submit" form="delivery-form" formaction="/Dispatch/Workspace?handler=ReopenDispatch" class="bg-btn px-3 bg-white border text-dark">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i><span class="fw-bold">@T["DispatchWorkspace_ReopenAction"]</span>
                         </button>
                     }
                 </div>
-            </div>
-        }
-    </article>
-}
-else if (Model.ActivePendingDeliveryItem is not null)
-{
-    var item = Model.ActivePendingDeliveryItem;
-
-    <article class="dispatch-active-panel h-100 d-flex flex-column bg-white border rounded-4 overflow-hidden shadow-sm">
-        @* 1. Institutional Header *@
-        <div class="p-4 border-bottom bg-white">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">@item.GuaranteeNumber</span>
-                    <bg-badge class="bg-badge-info">@T["DispatchWorkspace_PendingDeliveryBadge"]</bg-badge>
-                </div>
-                <button type="button" class="btn-close" aria-label="Close"></button>
-            </div>
-            <h3 class="fw-bold text-dark mb-2">@T["DispatchWorkspace_PendingDeliveryTitle"]</h3>
-            <div class="d-flex align-items-center gap-2 text-muted x-small text-uppercase fw-bold">
-                <i class="bi bi-person-circle"></i>
-                <span>@item.RequesterDisplayName</span>
-                <span class="mx-1">·</span>
-                <i class="bi bi-send"></i>
-                <span>@item.DispatchedAtUtc.ToLocalTime().ToString("g")</span>
-            </div>
+            }
+            
+            <a asp-page="/Dispatch/Workspace" class="btn-close ms-2" aria-label="Close"></a>
         </div>
 
-        @* 2. Scrollable Work Surface *@
-        <div class="flex-grow-1 overflow-auto p-4">
-            
-            @* Stats Grid *@
-            <div class="row g-4 mb-5">
-                <div class="col-6">
-                    <div class="bg-light p-4 rounded-4 border-0">
-                        <div class="bg-grid-label">@T["DispatchWorkspace_ReferenceLabel"]</div>
-                        <div class="bg-grid-value fs-5 mt-1">@item.ReferenceNumber</div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="bg-light p-4 rounded-4 border-0">
-                        <div class="bg-grid-label">@T["DispatchWorkspace_DispatchChannelLabel"]</div>
-                        <div class="bg-grid-value fs-5 mt-1">@T[item.DispatchChannelResourceKey]</div>
-                    </div>
-                </div>
-            </div>
-
-            @if (hasAnyDispatchAction)
+        @* 2. Operational Main Content *@
+        <div class="flex-grow-1 overflow-auto">
+            @if (isReady)
             {
-                <form method="post" id="delivery-form" class="stack-form d-flex flex-column gap-4">
-                    <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
-                    <input type="hidden" name="requestId" value="@item.RequestId" />
-                    <input type="hidden" name="correspondenceId" value="@item.CorrespondenceId" />
-
-                    <div>
-                        <label class="form-label x-small text-muted text-uppercase fw-bold" for="delivery-reference">@T["DispatchWorkspace_DeliveryReferenceField"]</label>
-                        <input id="delivery-reference" name="deliveryReference" class="form-control rounded-3" maxlength="128" />
+                var item = Model.ActiveReadyItem!;
+                
+                <div class="canvas_stage_section">
+                    <div class="canvas_stage_section_title">@T["OperationsQueue_TabSummary"]</div>
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-4">
+                            <div class="xx-small text-muted text-uppercase fw-bold mb-1">@T["DispatchWorkspace_ReferenceLabel"]</div>
+                            <div class="fw-bold text-dark fs-5">@(string.IsNullOrWhiteSpace(item.OutgoingReferenceNumber) ? "---" : item.OutgoingReferenceNumber)</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="xx-small text-muted text-uppercase fw-bold mb-1">@T["DispatchWorkspace_PrintCountLabel"]</div>
+                            <div class="fw-bold text-dark">@item.PrintCount</div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <bg-badge class="bg-badge-success fs-6">@T[item.StatusResourceKey]</bg-badge>
+                        </div>
                     </div>
+                </div>
 
-                    <div>
-                        <label class="form-label x-small text-muted text-uppercase fw-bold" for="delivery-note">@T["DispatchWorkspace_DeliveryNoteField"]</label>
-                        <textarea id="delivery-note" name="deliveryNote" class="form-control rounded-3" rows="3"></textarea>
-                    </div>
-                </form>
+                <div class="canvas_stage_section">
+                    <div class="canvas_stage_section_title">@T["DispatchWorkspace_DispatchAction"]</div>
+                    @if (hasAnyDispatchAction)
+                    {
+                        <form method="post" id="dispatch-form" class="stack-form d-flex flex-column gap-4">
+                            <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                            <input type="hidden" name="requestId" value="@item.RequestId" />
+                            
+                            <div class="row g-4">
+                                <div class="col-6">
+                                    <label class="form-label xx-small text-muted text-uppercase fw-bold opacity-75" for="dispatch-reference">@T["DispatchWorkspace_ReferenceField"]</label>
+                                    <input id="dispatch-reference" name="referenceNumber" class="form-control rounded-3 p-2 fw-bold" maxlength="64" value="@item.OutgoingReferenceNumber" />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label xx-small text-muted text-uppercase fw-bold opacity-75" for="dispatch-letter-date">@T["DispatchWorkspace_LetterDateField"]</label>
+                                    <input id="dispatch-letter-date" name="letterDate" class="form-control rounded-3 p-2" type="date" value="@(item.OutgoingLetterDate?.ToString("yyyy-MM-dd"))" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label xx-small text-muted text-uppercase fw-bold opacity-75" for="dispatch-channel">@T["DispatchWorkspace_DispatchChannelField"]</label>
+                                <select id="dispatch-channel" name="dispatchChannel" class="form-select rounded-3 p-2">
+                                    @foreach (var option in Model.GetAvailableDispatchChannelOptions())
+                                    {
+                                        <option value="@option.Channel">@T[option.ResourceKey]</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="form-label xx-small text-muted text-uppercase fw-bold opacity-75" for="dispatch-note">@T["DispatchWorkspace_NoteField"]</label>
+                                <textarea id="dispatch-note" name="note" class="form-control rounded-3 p-3 small" rows="3"></textarea>
+                            </div>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-light border border-dashed rounded-4 p-4 text-muted small italic">
+                            <i class="bi bi-info-circle me-2 opacity-50"></i>@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: false)]
+                        </div>
+                    }
+                </div>
             }
             else
             {
-                <div class="alert alert-light border-0 shadow-none small italic">
-                    <i class="bi bi-info-circle me-2"></i>@T[Model.ResolveNoActionReasonResourceKey(isPendingDelivery: true)]
+                var item = Model.ActivePendingDeliveryItem!;
+                
+                <div class="canvas_stage_section">
+                    <div class="canvas_stage_section_title">@T["DispatchWorkspace_PendingDeliveryTitle"]</div>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="xx-small text-muted text-uppercase fw-bold mb-1">@T["DispatchWorkspace_ReferenceLabel"]</div>
+                            <div class="fw-bold text-dark fs-5">@item.ReferenceNumber</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="xx-small text-muted text-uppercase fw-bold mb-1">@T["DispatchWorkspace_DispatchChannelLabel"]</div>
+                            <div class="fw-bold text-dark">@T[item.DispatchChannelResourceKey]</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="canvas_stage_section">
+                    <div class="canvas_stage_section_title">@T["DispatchWorkspace_ConfirmDeliveryAction"]</div>
+                    @if (hasAnyDispatchAction)
+                    {
+                        <form method="post" id="delivery-form" class="stack-form d-flex flex-column gap-4">
+                            <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
+                            <input type="hidden" name="requestId" value="@item.RequestId" />
+                            <input type="hidden" name="correspondenceId" value="@item.CorrespondenceId" />
+
+                            <div>
+                                <label class="form-label xx-small text-muted text-uppercase fw-bold opacity-75" for="delivery-reference">@T["DispatchWorkspace_DeliveryReferenceField"]</label>
+                                <input id="delivery-reference" name="deliveryReference" class="form-control rounded-3 p-2 fw-bold" maxlength="128" />
+                            </div>
+
+                            <div>
+                                <label class="form-label xx-small text-muted text-uppercase fw-bold opacity-75" for="delivery-note">@T["DispatchWorkspace_DeliveryNoteField"]</label>
+                                <textarea id="delivery-note" name="deliveryNote" class="form-control rounded-3 p-3 small" rows="3"></textarea>
+                            </div>
+                        </form>
+                    }
                 </div>
             }
         </div>
 
-        @if (hasAnyDispatchAction)
-        {
-            @* 3. Institutional Action Bar *@
-            <div class="bg-sticky-action-bar">
-                <div class="d-flex gap-2">
-                    <button type="submit" form="delivery-form" formaction="/Dispatch/Workspace?handler=ConfirmDelivery" class="bg-btn bg-btn-primary px-4 py-3 shadow-none flex-grow-1">
-                        <i class="bi bi-check-circle-fill me-2"></i>@T["DispatchWorkspace_ConfirmDeliveryAction"]
-                    </button>
-                    <button type="submit" form="delivery-form" formaction="/Dispatch/Workspace?handler=ReopenDispatch" class="bg-btn bg-btn-secondary px-4 py-3 border flex-grow-1" style="background-color: #FEE2E2; color: #991B1B !important; border: 1px solid #FECACA;">
-                        <i class="bi bi-arrow-counterclockwise me-2"></i>@T["DispatchWorkspace_ReopenAction"]
-                    </button>
-                </div>
-            </div>
-        }
-    </article>
-}
+        @* 3. End of Content - Actions moved to Toolbar *@
+        <div class="pb-1"></div>
+    }
+</div>

@@ -6,6 +6,7 @@ using BG.Infrastructure.Documents;
 using BG.Infrastructure.Email;
 using BG.Infrastructure.HealthChecks;
 using BG.Infrastructure.Identity;
+using BG.Infrastructure.Intake;
 using BG.Infrastructure.Persistence;
 using BG.Infrastructure.Persistence.Repositories;
 using BG.Infrastructure.PostgreSql;
@@ -50,6 +51,7 @@ public static class DependencyInjection
         services.AddScoped<IEmailDispatchService, MailKitEmailDispatchService>();
         services.AddSingleton<ISmtpClientAdapterFactory, MailKitSmtpClientAdapterFactory>();
         services.AddScoped<IIntakeDocumentStore, LocalIntakeDocumentStore>();
+        services.AddScoped<IOcrFeedbackService, DbOcrFeedbackService>();
         services.AddHostedService<StagingCleanupService>();
         services.AddSingleton<ILocalPasswordHasher, Pbkdf2LocalPasswordHasher>();
         services.Configure<BG.Application.Contracts.Services.LoginLockoutOptions>(

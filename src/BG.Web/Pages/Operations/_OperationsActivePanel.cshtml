@@ -1,150 +1,151 @@
-@using System.Globalization
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.Pages.Operations.QueueModel
 
-<article class="operations-active-panel h-100 d-flex flex-column bg-white border rounded-4 overflow-hidden shadow-sm">
-    @if (Model.ActiveItem is null)
+@{
+    var item = Model.ActiveItem;
+    var isApplyBlocked = item != null && item.SupportsRequestMatching && item.MatchSuggestions.Count > 0 && item.MatchSuggestions.All(s => s.IsSelectionBlocked);
+    var blockReasonKey = item != null ? item.MatchSuggestions.Select(s => s.BlockingReasonResourceKey).FirstOrDefault(r => !string.IsNullOrWhiteSpace(r)) : null;
+    
+    decimal parsedAmt = 0;
+    var hasValidAmount = item != null && decimal.TryParse(item.SuggestedConfirmedValue, out parsedAmt);
+}
+
+<div class="canvas_stage_main">
+    @if (item is null)
     {
-        <div class="h-100 d-flex flex-column align-items-center justify-content-center text-center p-5">
+        <div class="d-flex flex-column align-items-center justify-content-center h-100 opacity-50 p-5 text-center">
             <div class="bg-light rounded-circle p-4 mb-4">
-                <i class="bi bi-inbox text-muted fs-1"></i>
+                <i class="bi bi-layout-text-sidebar-reverse fs-1 text-muted"></i>
             </div>
-            <h4 class="fw-bold">@T["OperationsQueue_NoSelectionTitle"]</h4>
-            <p class="text-muted small">@T["OperationsQueue_NoSelectionSubtitle"]</p>
+            <h5 class="fw-bold">@T["OperationsQueue_EmptySelectionTitle"]</h5>
+            <p class="small text-muted" style="max-width: 320px;">@T["OperationsQueue_EmptySelectionBody"]</p>
         </div>
     }
     else
     {
-        var item = Model.ActiveItem;
-        var isApplyBlocked = Model.IsApplyBlocked(item);
-        var blockReasonKey = Model.ResolveApplyBlockedReasonResourceKey(item);
-
-        @* 1. Institutional Header (Matching Image 5) *@
-        <div class="p-4 border-bottom bg-white">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fw-bold">@item.GuaranteeNumber</span>
-                    <bg-badge class="bg-badge-@(item.StatusResourceKey.Contains("Pending") || item.StatusResourceKey.Contains("Waiting") ? "pending" : "returned")">
-                        @T[item.StatusResourceKey]
-                    </bg-badge>
-                </div>
-                <button type="button" class="btn-close" aria-label="Close"></button>
-            </div>
-            <h3 class="fw-bold text-dark mb-2">@T[item.ScenarioTitleResourceKey]</h3>
-            <div class="d-flex align-items-center gap-2 text-muted small">
-                <img src="/img/bank-logo-placeholder.svg" alt="Bank" style="height: 24px;" class="opacity-75" />
-                <span class="fw-medium">@(string.IsNullOrWhiteSpace(item.BankReference) ? T["Sample_BankName_SNB"] : item.BankReference)</span>
-            </div>
-        </div>
-
-@* 2. Scrollable Work Surface (Matching Image 5) *@
-<div class="flex-grow-1 overflow-auto p-4">
-    
-    @* Primary Metrics Grid *@
-    <div class="row g-4 mb-5">
-        <div class="col-6">
-            <div class="bg-light p-4 rounded-4 border-0">
-                <div class="bg-grid-label mb-2">@T["OperationsQueue_Header_Value"]</div>
-                <div class="bg-grid-value fs-4 text-brand-green">SAR @(decimal.TryParse(item.SuggestedConfirmedAmount, out var parsedAmt) ? parsedAmt.ToString("N0") : (item.SuggestedConfirmedAmount ?? "0"))</div>
-            </div>
-        </div>
-        <div class="col-6">
-            <div class="bg-light p-4 rounded-4 border-0">
-                <div class="bg-grid-label mb-2">@T["OperationsQueue_Header_Date"]</div>
-                <div class="bg-grid-value fs-4">@item.SuggestedConfirmedExpiryDate</div>
-            </div>
-        </div>
-    </div>
-
-            @* Internal Navigation Pills *@
-            <div class="bg-light p-1 rounded-pill d-flex mb-5" style="border: 1px solid #E5E7EB;">
-                <button class="btn btn-sm rounded-pill flex-grow-1 py-2 bg-white shadow-sm fw-bold">@T["OperationsQueue_TabSummary"]</button>
-                <button class="btn btn-sm rounded-pill flex-grow-1 py-2 text-muted fw-bold">@T["OperationsQueue_TabDocuments"]</button>
-                <button class="btn btn-sm rounded-pill flex-grow-1 py-2 text-muted fw-bold">@T["OperationsQueue_TabHistory"]</button>
+        @* 1. Inline Toolbar with High-Density Actions *@
+        <div class="inline_toolbar">
+            <div class="inline_toolbar_title">
+                <i class="bi bi-shield-check text-success fs-5"></i>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item text-muted">@T["NavOperationsQueue"]</li>
+                        <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">@item.GuaranteeNumber</li>
+                    </ol>
+                </nav>
             </div>
 
-            @* Detailed Attributes List *@
-            <div class="bg-light rounded-4 p-1 overflow-hidden border border-white">
-                <div class="bg-white p-3 d-flex justify-content-between align-items-center border-bottom">
-                    <span class="text-muted small fw-bold">@T["OperationsQueue_DocumentLabel"]</span>
-                    <span class="fw-bold small">@item.FileName</span>
-                </div>
-                <div class="bg-white p-3 d-flex justify-content-between align-items-center border-bottom">
-                    <span class="text-muted small fw-bold">@T["OperationsQueue_CreatedAtLabel"]</span>
-                    <span class="fw-bold small text-muted">@item.CapturedAtUtc.ToLocalTime().ToString("d")</span>
-                </div>
-                <div class="bg-white p-3 d-flex justify-content-between align-items-center">
-                    <span class="text-muted small fw-bold">@T["OperationsQueue_RecommendedLaneLabel"]</span>
-                    <bg-badge class="bg-badge-success">@T[item.RecommendedLaneResourceKey]</bg-badge>
-                </div>
-            </div>
-            
-            @* Notes Area *@
-            <div class="mt-5">
-                <div class="bg-grid-label mb-2">@T["OperationsQueue_NotesTitle"]</div>
-                <div class="bg-light p-3 rounded-4 border border-white italic text-muted small">
-                    @item.SuggestedStatusStatement
-                </div>
-            </div>
-        </div>
-
-        @* 3. Institutional Action Bar *@
-        <div class="bg-sticky-action-bar">
-            @if (item.CompletedAtUtc.HasValue)
+            @if (!item.CompletedAtUtc.HasValue)
             {
-                <form method="post" id="reopen-form" class="m-0">
+                <form method="post" id="decision-form" class="toolbar_actions">
                     <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
                     <input type="hidden" name="reviewItemId" value="@item.Id" />
-                    <div class="mb-3">
-                        <label class="x-small fw-bold mb-1">@T["OperationsQueue_ReopenNoteField"]</label>
-                        <textarea name="correctionNote" class="form-control" rows="2"></textarea>
-                    </div>
-                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "ReopenApplied")"
-                            class="bg-btn flex-grow-1 py-3 w-100" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FDE68A;">
-                        <i class="bi bi-arrow-counterclockwise fs-5"></i>
-                        <span>@T["OperationsQueue_ReopenAction"]</span>
+
+                    @if (!isApplyBlocked)
+                    {
+                        <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Apply")"
+                                class="bg-btn bg-btn-primary shadow-green">
+                            <i class="bi bi-check2-circle me-1"></i>
+                            <span class="fw-bold">@T["OperationsQueue_ApplyResponseAction"]</span>
+                        </button>
+                    }
+
+                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Return")"
+                            class="bg-btn px-3" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FDE68A;">
+                        <i class="bi bi-arrow-left-right me-1"></i>
+                        <span class="fw-bold">@T["OperationsQueue_Action_Return"]</span>
+                    </button>
+
+                    <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Reject")"
+                            class="bg-btn px-3" style="background-color: #FEE2E2; color: #991B1B !important; border: 1px solid #FECACA;">
+                        <i class="bi bi-x-circle me-1"></i>
+                        <span class="fw-bold">@T["OperationsQueue_Action_Reject"]</span>
                     </button>
                 </form>
             }
-            else
+            
+            <a asp-page="/Operations/Queue" class="btn-close ms-3" aria-label="Close"></a>
+        </div>
+
+        @* 2. Operational Main Content *@
+        <div class="flex-grow-1 overflow-auto">
+            
+            @* Summary: key facts at a glance *@
+            <div class="canvas_stage_section">
+                <div class="canvas_stage_section_title">@T["OperationsQueue_TabSummary"]</div>
+                <div class="d-flex align-items-start gap-4 flex-wrap">
+                    <div class="ops-fact-card">
+                        <div class="xx-small text-muted text-uppercase fw-bold mb-1">@T["OperationsQueue_Header_Value"]</div>
+                        <div class="fw-bold text-dark fs-4 lh-1">SAR @(hasValidAmount ? parsedAmt.ToString("N0") : (item?.SuggestedConfirmedValue ?? "—"))</div>
+                    </div>
+                    <div class="ops-fact-card">
+                        <div class="xx-small text-muted text-uppercase fw-bold mb-1">@T["OperationsQueue_Header_Date"]</div>
+                        <div class="fw-bold text-dark fs-5 lh-1">@(string.IsNullOrWhiteSpace(item.SuggestedConfirmedExpiryDate) ? "—" : item.SuggestedConfirmedExpiryDate)</div>
+                    </div>
+                    <div class="ops-fact-card ms-auto">
+                        <div class="xx-small text-muted text-uppercase fw-bold mb-2">@T["OperationsQueue_Header_Status"]</div>
+                        <bg-badge class="bg-badge-@(item.StatusResourceKey.Contains("Pending") || item.StatusResourceKey.Contains("Waiting") ? "pending" : "returned")">
+                            @T[item.StatusResourceKey]
+                        </bg-badge>
+                    </div>
+                </div>
+            </div>
+
+            @* Documents: file and routing *@
+            <div class="canvas_stage_section">
+                <div class="canvas_stage_section_title">@T["OperationsQueue_TabDocuments"]</div>
+                <div class="d-flex gap-3 flex-wrap">
+                    <div class="ops-doc-card">
+                        <div class="xx-small text-muted text-uppercase fw-bold mb-2">@T["OperationsQueue_DocumentLabel"]</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 1.4rem;"></i>
+                            <span class="fw-semibold small text-dark">@item.FileName</span>
+                        </div>
+                    </div>
+                    <div class="ops-doc-card">
+                        <div class="xx-small text-muted text-uppercase fw-bold mb-2">@T["OperationsQueue_RecommendedLaneLabel"]</div>
+                        <bg-badge class="bg-badge-success py-1 px-3">@T[item.RecommendedLaneResourceKey]</bg-badge>
+                    </div>
+                </div>
+            </div>
+
+            @* Bank note *@
+            @if (!string.IsNullOrWhiteSpace(item.SuggestedStatusStatement))
             {
-                <form method="post" id="decision-form" class="m-0">
+                <div class="canvas_stage_section">
+                    <div class="canvas_stage_section_title">@T["OperationsQueue_NotesTitle"]</div>
+                    <div class="ops-note-block">
+                        <i class="bi bi-chat-quote me-2 opacity-50"></i>
+                        <span>@item.SuggestedStatusStatement</span>
+                    </div>
+                </div>
+            }
+
+            @* Visual Padding for Scrollable Content *@
+            <div class="py-4"></div>
+        </div>
+
+        @* 3. Re-open Action (If Completed) *@
+        @if (item.CompletedAtUtc.HasValue)
+        {
+            <div class="bg-sticky-action-bar border-top-0 pt-0">
+                <form method="post" id="reopen-form" class="m-0 bg-light rounded-3 p-3 border">
                     <input type="hidden" name="actorId" value="@Model.Snapshot.ActiveActor!.Id" />
                     <input type="hidden" name="reviewItemId" value="@item.Id" />
-
-                    @if (isApplyBlocked && !string.IsNullOrWhiteSpace(blockReasonKey))
-                    {
-                        <div class="alert alert-warning x-small mb-3 py-2 border-0 opacity-75">
-                            <span class="badge bg-warning text-dark me-2">@T["OperationsQueue_BlockedSuggestionLabel"]</span>
-                            @T[blockReasonKey]
+                    <div class="d-flex gap-3 align-items-end">
+                        <div class="flex-grow-1">
+                            <label class="xx-small fw-bold opacity-75 mb-1 text-uppercase">@T["OperationsQueue_ReopenNoteField"]</label>
+                            <textarea name="correctionNote" class="form-control rounded-3" rows="1"></textarea>
                         </div>
-                    }
-
-                    <div class="d-flex gap-3">
-                        @if (!isApplyBlocked)
-                        {
-                            <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Apply")"
-                                    class="bg-btn bg-btn-primary flex-grow-1 py-3 shadow-sm">
-                                <i class="bi bi-check2-circle fs-5"></i>
-                                <span>@T["OperationsQueue_ApplyResponseAction"]</span>
-                            </button>
-                        }
-
-                        <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Return")"
-                                class="bg-btn flex-grow-1 py-3" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FDE68A;">
-                            <i class="bi bi-arrow-left-right fs-5"></i>
-                            <span>@T["OperationsQueue_Action_Return"]</span>
-                        </button>
-
-                        <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "Reject")"
-                                class="bg-btn flex-grow-1 py-3" style="background-color: #FEE2E2; color: #991B1B !important; border: 1px solid #FECACA;">
-                            <i class="bi bi-x-circle fs-5"></i>
-                            <span>@T["OperationsQueue_Action_Reject"]</span>
+                        <button type="submit" formaction="@Url.Page("/Operations/Queue", pageHandler: "ReopenApplied")"
+                                class="bg-btn px-4 d-flex align-items-center justify-content-center" style="background-color: #FEF3C7; color: #92400E !important; border: 1px solid #FDE68A; height: 42px;">
+                            <i class="bi bi-arrow-counterclockwise me-2"></i>
+                            <span class="fw-bold">@T["OperationsQueue_ReopenAction"]</span>
                         </button>
                     </div>
                 </form>
-            }
-        </div>
+            </div>
+        }
     }
-</article>
+</div>

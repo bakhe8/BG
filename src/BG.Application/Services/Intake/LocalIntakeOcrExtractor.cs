@@ -68,6 +68,7 @@ internal sealed class LocalIntakeOcrExtractor : IIntakeOcrExtractor
             .Select(field => new IntakeExtractionFieldCandidate(
                 field.FieldKey,
                 field.Value,
+                field.RawValue ?? field.Value,
                 ResolveSource(field.SourceLabel),
                 field.ConfidencePercent))
             .ToArray();
@@ -77,14 +78,7 @@ internal sealed class LocalIntakeOcrExtractor : IIntakeOcrExtractor
             return fallbackCandidates;
         }
 
-        return mappedCandidates
-            .Concat(fallbackCandidates)
-            .GroupBy(candidate => candidate.FieldKey, StringComparer.Ordinal)
-            .Select(group => group
-                .OrderByDescending(candidate => IntakeFieldProvenanceCatalog.GetPriority(candidate.Source))
-                .ThenByDescending(candidate => candidate.ConfidencePercent)
-                .First())
-            .ToArray();
+        return [..mappedCandidates, ..fallbackCandidates];
     }
 
     private static IntakeFieldValueSource ResolveSource(string? sourceLabel)

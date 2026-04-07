@@ -25,43 +25,79 @@ internal sealed class LocalIntakeFieldReviewProjector : IIntakeFieldReviewProjec
 
         var expectedFieldKeys = documentForm.ExpectedFieldKeys.ToHashSet(StringComparer.Ordinal);
 
-        var candidateMap = candidates
+        var candidateGroups = candidates
             .GroupBy(candidate => candidate.FieldKey, StringComparer.Ordinal)
             .ToDictionary(
                 group => group.Key,
                 group => group
                     .OrderByDescending(candidate => IntakeFieldProvenanceCatalog.GetPriority(candidate.Source))
                     .ThenByDescending(candidate => candidate.ConfidencePercent)
-                    .First(),
+                    .ToArray(),
                 StringComparer.Ordinal);
 
         return scenario.SampleFields
             .Select(sampleField =>
             {
-                if (candidateMap.TryGetValue(sampleField.FieldKey, out var candidate))
+                if (candidateGroups.TryGetValue(sampleField.FieldKey, out var fieldCandidates))
                 {
-                    var confidence = _confidenceScorer.Score(sampleField, candidate);
-                    var requiresReview = confidence < ConfidenceThreshold;
+                    var best = fieldCandidates[0];
+                    var confidence = _confidenceScorer.Score(sampleField, best);
+                    var sourcesAgreed = ComputeSourcesAgreed(fieldCandidates);
+                    var conflictDetail = sourcesAgreed ? null : BuildConflictDetail(fieldCandidates);
+                    var requiresReview = confidence < ConfidenceThreshold || !sourcesAgreed;
 
                     return sampleField with
                     {
-                        Value = candidate.Value,
+                        Value = best.Value,
+                        RawValue = best.RawValue,
                         ConfidencePercent = confidence,
                         RequiresExplicitReview = requiresReview,
-                        ProvenanceResourceKey = IntakeFieldProvenanceCatalog.GetResourceKey(candidate.Source),
-                        IsExpectedByDocumentForm = expectedFieldKeys.Contains(sampleField.FieldKey)
+                        ProvenanceResourceKey = IntakeFieldProvenanceCatalog.GetResourceKey(best.Source),
+                        IsExpectedByDocumentForm = expectedFieldKeys.Contains(sampleField.FieldKey),
+                        SourcesAgreed = sourcesAgreed,
+                        SourcesConflictDetail = conflictDetail,
+                        ReviewReason = requiresReview
+                            ? (confidence < ConfidenceThreshold ? "low-confidence" : "sources-conflict")
+                            : null
                     };
                 }
 
                 return sampleField with
                 {
                     Value = string.Empty,
+                    RawValue = null,
                     ConfidencePercent = 0,
                     RequiresExplicitReview = true,
                     ProvenanceResourceKey = null,
-                    IsExpectedByDocumentForm = expectedFieldKeys.Contains(sampleField.FieldKey)
+                    IsExpectedByDocumentForm = expectedFieldKeys.Contains(sampleField.FieldKey),
+                    SourcesAgreed = false,
+                    SourcesConflictDetail = null,
+                    ReviewReason = "not-extracted"
                 };
             })
             .ToArray();
+    }
+
+    private static bool ComputeSourcesAgreed(IntakeExtractionFieldCandidate[] candidates)
+    {
+        if (candidates.Length <= 1)
+            return true;
+
+        var distinctSources = candidates.Select(c => c.Source).Distinct().Count();
+        if (distinctSources <= 1)
+            return true;
+
+        var distinctValues = candidates
+            .Select(c => c.Value.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Count();
+
+        return distinctValues == 1;
+    }
+
+    private static string BuildConflictDetail(IntakeExtractionFieldCandidate[] candidates)
+    {
+        var parts = candidates.Take(3).Select(c => $"{c.Source}={c.Value}");
+        return string.Join("; ", parts);
     }
 }

@@ -68,12 +68,14 @@ public static class DependencyInjection
             serviceProvider => new LocalIntakeOcrExtractor(
                 serviceProvider.GetRequiredService<IOcrDocumentProcessingService>()));
         services.AddSingleton<IIntakeExtractionConfidenceScorer, LocalIntakeExtractionConfidenceScorer>();
+        services.AddSingleton<IIntakeCandidateValidator, LocalIntakeCandidateValidator>();
         services.AddSingleton<IIntakeFieldReviewProjector, LocalIntakeFieldReviewProjector>();
         services.AddSingleton<IIntakeExtractionEngine>(
             serviceProvider => new LocalIntakeExtractionEngine(
                 serviceProvider.GetRequiredService<IIntakeDocumentClassifier>(),
                 serviceProvider.GetRequiredService<IIntakeDirectTextExtractor>(),
                 serviceProvider.GetRequiredService<IIntakeOcrExtractor>(),
+                serviceProvider.GetRequiredService<IIntakeCandidateValidator>(),
                 serviceProvider.GetRequiredService<IIntakeFieldReviewProjector>()));
     }
 

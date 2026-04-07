@@ -2,65 +2,57 @@
 @inject IStringLocalizer<SharedResource> T
 @model BG.Web.Pages.Operations.QueueModel
 
-@{
-    var panelHeaderModel = new SurfacePanelHeaderModel(
-        T["OperationsQueue_OpenItemsTitle"].Value,
-        T["OperationsQueue_OpenItemsSummary"].Value);
-}
-
-<article class="operations-queue-panel bg-white border rounded-4 overflow-hidden shadow-sm h-100 d-flex flex-column">
-    <partial name="/Pages/Shared/_SurfacePanelHeader.cshtml" model="panelHeaderModel" />
-
-    @if (Model.Snapshot.Items.Count == 0)
-    {
-        <div class="p-5 text-center text-muted flex-grow-1 d-flex flex-column justify-content-center">
-            <i class="bi bi-inbox fs-1 mb-3"></i>
-            <p class="compact-copy mb-0 fw-bold">@T["OperationsQueue_Empty"]</p>
+<aside class="bg_unified_stage_sidebar">
+    <div class="bg_unified_stage_sidebar_header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="fw-bold text-dark mb-0">@T["OperationsQueue_ItemsTitle"]</h6>
+                <div class="xx-small text-muted opacity-75">@T["OperationsQueue_ItemsSummary"]</div>
+            </div>
+            <div class="badge bg-light text-dark border rounded-pill">@Model.Snapshot.Items.Count</div>
         </div>
-    }
-    else
-    {
-        @* Institutional Grid Header (Image 1, 4) *@
-        <div class="px-4 py-3 border-bottom bg-light bg-opacity-50 x-small fw-bold text-muted d-grid gap-3" 
-             style="grid-template-columns: 140px 1fr 140px 140px 140px 40px; text-transform: uppercase; letter-spacing: 0.1em;">
-            <div>@T["OperationsQueue_Header_Reference"]</div>
-            <div>@T["OperationsQueue_Header_Entity"]</div>
-            <div>@T["OperationsQueue_Header_Type"]</div>
-            <div>@T["OperationsQueue_Header_Value"]</div>
-            <div>@T["OperationsQueue_Header_Date"]</div>
-            <div class="text-center">@T["OperationsQueue_Header_Action"]</div>
-        </div>
+    </div>
 
-        <div class="request-queue-list flex-grow-1 overflow-auto">
+    <div class="bg_unified_stage_sidebar_list">
+        @if (Model.Snapshot.Items.Count == 0)
+        {
+            <div class="p-5 text-center opacity-50">
+                <i class="bi bi-inbox fs-2 mb-3 d-block"></i>
+                <p class="small fw-bold">@T["OperationsQueue_Empty"]</p>
+            </div>
+        }
+        else
+        {
             @foreach (var item in Model.Snapshot.Items)
             {
-                var isActive = Model.ActiveItem?.Id == item.Id;
-                var itemModel = new SurfaceQueueItemLinkModel(
+                var isActive = Model.SelectedItemId == item.Id;
+                var itemModel = new SurfaceUnifiedLink(
                     "/Operations/Queue",
                     new Dictionary<string, string>(Model.BuildSelectionRoute(item.Id)),
                     item.GuaranteeNumber,
                     T[item.ScenarioTitleResourceKey].Value,
-                    T[item.RecommendedLaneResourceKey].Value,
+                    item.CapturedByDisplayName ?? "System",
                     T[item.StatusResourceKey].Value,
-                    item.FileName,
-                    string.IsNullOrWhiteSpace(item.BankReference) ? null : item.BankReference,
+                    item.CapturedAtUtc.ToLocalTime().ToString("MM/dd HH:mm"),
+                    item.BankReference,
                     isActive);
-
                 <partial name="/Pages/Shared/_SurfaceQueueItemLink.cshtml" model="itemModel" />
             }
-        </div>
-    }
+        }
+    </div>
 
     @if (Model.Snapshot.ItemsPage.TotalPageCount > 1)
     {
-        var pageInfo = Model.Snapshot.ItemsPage;
-        var paginationModel = new SurfacePaginationModel(
-            "/Operations/Queue",
-            pageInfo.HasPreviousPage ? new Dictionary<string, string>(Model.BuildPageRoute(pageInfo.PreviousPageNumber)) : null,
-            pageInfo.HasNextPage ? new Dictionary<string, string>(Model.BuildPageRoute(pageInfo.NextPageNumber)) : null,
-            T["Pagination_Previous"].Value,
-            T["Pagination_Next"].Value);
-
-        <partial name="/Pages/Shared/_SurfacePagination.cshtml" model="paginationModel" />
+        <div class="p-2 border-top bg-white">
+            @{
+                var paginationModel = new SurfacePaginationModel(
+                    "/Operations/Queue",
+                    Model.Snapshot.ItemsPage.HasPreviousPage ? new Dictionary<string, string>(Model.BuildPageRoute(Model.Snapshot.ItemsPage.PreviousPageNumber)) : null,
+                    Model.Snapshot.ItemsPage.HasNextPage ? new Dictionary<string, string>(Model.BuildPageRoute(Model.Snapshot.ItemsPage.NextPageNumber)) : null,
+                    T["Pagination_Previous"].Value,
+                    T["Pagination_Next"].Value);
+            }
+            <partial name="/Pages/Shared/_SurfacePagination.cshtml" model="paginationModel" />
+        </div>
     }
-</article>
+</aside>

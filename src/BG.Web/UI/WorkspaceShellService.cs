@@ -85,6 +85,8 @@ public sealed class WorkspaceShellService : IWorkspaceShellService
         return matchedModule?.PermissionKeys ?? Array.Empty<string>();
     }
 
+    private Task<UserAccessProfileDto?>? _currentUserTask;
+
     private async Task<UserAccessProfileDto?> GetCurrentUserAsync(CancellationToken cancellationToken)
     {
         var httpContext = _httpContextAccessor.HttpContext;
@@ -93,27 +95,16 @@ public sealed class WorkspaceShellService : IWorkspaceShellService
             return null;
         }
 
-        if (httpContext.Items.TryGetValue(typeof(UserAccessProfileDto), out var cachedProfile))
-        {
-            return cachedProfile as UserAccessProfileDto;
-        }
-
         if (httpContext.User.Identity?.IsAuthenticated != true)
         {
-            httpContext.Items[typeof(UserAccessProfileDto)] = null!;
             return null;
         }
 
-        var userId = GetAuthenticatedUserId();
-        if (!userId.HasValue)
-        {
-            httpContext.Items[typeof(UserAccessProfileDto)] = null!;
-            return null;
-        }
+        // Use a task-based cache in this scoped service instance to handle concurrent requests
+        // from different components on the same page (e.g., Layout and Page).
+        _currentUserTask ??= _userAccessProfileService.GetProfileAsync(GetAuthenticatedUserId() ?? Guid.Empty, cancellationToken);
 
-        var profile = await _userAccessProfileService.GetProfileAsync(userId.Value, cancellationToken);
-        httpContext.Items[typeof(UserAccessProfileDto)] = profile!;
-        return profile;
+        return await _currentUserTask;
     }
 
     private sealed record WorkspaceModuleDefinition(

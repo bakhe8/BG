@@ -4,25 +4,15 @@
 @model BG.Web.Pages.Operations.QueueModel
 @{
     ViewData["Title"] = T["OperationsQueue_PageTitle"];
-    var headerModel = new SurfaceHeaderModel(
-        T["NavOperationsQueue"].Value,
-        T["OperationsQueue_Heading"].Value,
-        null);
-    var noEligibleActorModel = new SurfaceMessageCardModel(
-        T["OperationsQueue_NoEligibleActor"].Value,
-        T["OperationsQueue_NoEligibleActorBody"].Value);
-    var emptyQueueModel = new SurfaceMessageCardModel(
-        T["OperationsQueue_OpenItemsTitle"].Value,
-        T["OperationsQueue_Empty"].Value);
-    var hasOpenItems = Model.Snapshot.Items.Count > 0;
-    var hasVisibleWorkItem = hasOpenItems || Model.ActiveItem is not null;
+    
     var showQueueList = Model.Snapshot.Items.Count > 1;
+    var hasVisibleWorkItem = Model.Snapshot.Items.Count > 0 || Model.ActiveItem is not null;
 
     ViewData["HideSupportRail"] = true;
     ViewData["HideDetailDrawer"] = true;
 }
 
-<section class="section-shell operations-surface">
+<section class="section-shell operations-surface py-0">
     @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
     {
         <div class="notice-banner is-success">@Model.StatusMessage</div>
@@ -30,30 +20,11 @@
 
     <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
 
-    <partial name="/Pages/Shared/_SurfaceHeader.cshtml" model="headerModel" />
-
-    @if (!Model.Snapshot.HasEligibleActor || Model.Snapshot.ActiveActor is null)
-    {
-        <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="noEligibleActorModel" />
-    }
-    else if (!hasVisibleWorkItem)
-    {
-        <partial name="/Pages/Shared/_SurfaceMessageCard.cshtml" model="emptyQueueModel" />
-    }
-    else
-    {
+    <div class="canvas_stage">
         @if (showQueueList)
         {
-            <div class="operations-surface-grid">
-                <partial name="_OperationsQueueList" model="Model" />
-                <partial name="_OperationsActivePanel" model="Model" />
-            </div>
+            <partial name="_OperationsQueueList" model="Model" />
         }
-        else
-        {
-            <div class="operations-surface-solo">
-                <partial name="_OperationsActivePanel" model="Model" />
-            </div>
-        }
-    }
+        <partial name="_OperationsActivePanel" model="Model" />
+    </div>
 </section>

@@ -230,21 +230,21 @@ html[dir="rtl"] .request-queue-link.active {
 .shell-stage-main {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 2rem !important; /* Spacious whitespace */
+  padding: 1.5rem 2rem;   /* Single source of outer spacing */
   background-color: var(--bg-app);
 }
 
 /* Workspace Specifics: Decision-first lists */
 .workspace-shell {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .workspace-main {
   flex-grow: 1;
   background: white;
   border-radius: var(--radius-lg);
-  padding: 2rem;
+  padding: 2rem;            /* Inner content padding */
   border: 1px solid var(--border-light);
   box-shadow: var(--shadow-sm);
 }
@@ -267,4 +267,1384 @@ html[dir="rtl"] .request-queue-link.active {
     height: 100vh;
     /* position: fixed is already set by Bootstrap .offcanvas — don't override it on mobile */
   }
+}
+
+/* 3️⃣ Field Layout Containers */
+.intake-field-list {
+    display: grid;
+    grid-template-columns: 1fr; /* Default mobile 1-column */
+    grid-gap: 2.5rem 2rem; /* Substantial 2.5rem vertical spacing between rows */
+    margin-top: 1.5rem;
+}
+@media (min-width: 1200px) {
+    .intake-field-list {
+        grid-template-columns: 1fr 1fr; /* 2 columns for desktop */
+    }
+    .intake-coupled-grid--amount {
+        grid-template-columns: 2fr 1fr; /* More balanced 2:1 split for Amount:Currency */
+    }
+}
+
+.intake-field-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.intake-field-row.is-full-width {
+    grid-column: 1 / -1; /* Spans all columns */
+}
+
+.intake-field-row__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem; /* Space between label and input */
+    line-height: 1.6; /* Improved readability */
+}
+
+.intake-field-row__label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-main);
+    font-family: var(--font-heading);
+}
+
+.intake-field-row__confidence {
+    margin-inline-start: auto;
+}
+
+.intake-field-row__state {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--state-warning);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+}
+
+.intake-field-row__input {
+    width: 100%;
+}
+
+/* 5️⃣ 
+    Coupled Fields Grid (Amount/Currency, Dates)
+    Enforces a 3-row synchronized structure:
+    Row 1: Labels & Metadata
+    Row 2: Review/State Banners
+    Row 3: Input Controls
+*/
+.intake-coupled-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 0 2rem;
+    align-items: end;
+}
+
+.intake-coupled-grid__label {
+    grid-row: 1;
+}
+
+.intake-coupled-grid__state {
+    grid-row: 2;
+    min-height: 1.25rem; /* Reserves space for "Requires Review" text */
+    margin-bottom: 0.25rem;
+}
+
+.intake-coupled-grid__input {
+    grid-row: 3;
+    align-self: start;
+}
+
+/* Redefining Form Controls for Worksheets (Compact & Premium) */
+.form-control, .bg-input-compact {
+    padding: 0.5rem 0.75rem !important; /* Smaller padding as requested */
+    font-size: 0.9rem !important;
+    border-radius: var(--radius-sm) !important;
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-light) !important;
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: 34px; /* Even more compact for premium workspace feel */
+    padding: 0.4rem 0.75rem !important;
+}
+
+.form-control:focus, .bg-input-compact:focus {
+    border-color: var(--kfshrc-green) !important;
+    box-shadow: 0 0 0 3px rgba(0, 104, 71, 0.1) !important;
+}
+
+/* 6️⃣ Admin Specific Refinements (Roles/Permissions) */
+.admin-role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.admin-role-checkbox-card {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+}
+
+.admin-role-checkbox-card:hover {
+    border-color: var(--kfshrc-green) !important;
+    background-color: #F0FDF4 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 104, 71, 0.05);
+}
+
+.admin-role-checkbox-card:has(input:checked) {
+    border-color: var(--kfshrc-green) !important;
+    background-color: #F0FDF4 !important;
+}
+
+.admin-role-picker-group {
+    border-bottom: 1px dashed var(--border-light);
+    padding-bottom: 2.5rem;
+}
+
+.admin-role-picker-group:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.xx-small {
+    font-size: 0.65rem;
+    letter-spacing: 0.025em;
+}
+
+/* 7️⃣ Admin Roles Management Layout (3-Column Horizontal Workspace) */
+/* 7.1 Admin Roles Management Layout (3-Column Horizontal Workspace) */
+.admin-roles-layout {
+    display: grid;
+    grid-template-columns: 350px 420px minmax(0, 1fr);
+    gap: 1.5rem;
+    height: calc(100vh - 280px); /* Constrain height to viewport */
+    align-items: stretch;
+    min-height: 600px;
+}
+
+.admin-roles-sidebar,
+.admin-roles-identity,
+.admin-roles-authority {
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* Critical for independent scrolling in grid */
+    height: 100%;
+    overflow-y: auto;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-roles-sidebar {
+    background: transparent; /* Directory list looks better flat */
+    border: none;
+    box-shadow: none;
+}
+
+.admin-roles-directory {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    height: 100%;
+    overflow-y: auto;
+}
+
+.admin-roles-detail {
+    flex-grow: 1;
+    min-height: auto; /* Managed by grid */
+}
+
+.admin-role-item {
+    display: flex;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--border-light);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-right: 3px solid transparent;
+}
+
+.admin-role-item:hover {
+    background: rgba(var(--brand-green-rgb), 0.05);
+}
+
+.admin-role-item.active {
+    background: rgba(var(--brand-green-rgb), 0.1);
+    border-right-color: var(--brand-green);
+}
+
+/* 7.2 Admin Workflow Management Layout (3-Column Horizontal Workspace) */
+.admin-workflow-layout {
+    display: grid;
+    grid-template-columns: 350px 420px minmax(0, 1fr);
+    gap: 1.5rem;
+    height: calc(100vh - 280px);
+    align-items: stretch;
+    min-height: 650px;
+}
+
+.admin-workflow-sidebar,
+.admin-workflow-governance,
+.admin-workflow-architecture {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-workflow-sidebar {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.admin-workflow-directory {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    height: 100%;
+    overflow-y: auto;
+}
+
+.admin-workflow-stage-card {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.admin-workflow-stage-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--brand-green-light);
+}
+
+.admin-workflow-stage-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+    justify-content: flex-end;
+}
+
+.admin-role-item.active {
+    background-color: #F0FDF4; /* Institutional Soft Highlight */
+    border-inline-start: 4px solid var(--kfshrc-green);
+}
+
+html[dir="ltr"] .admin-role-item.active {
+    box-shadow: inset 4px 0 0 -1px #006847;
+}
+
+/* 7.3 Workspace Column Headers (Unified for Roles & Workflow) */
+.admin-workspace-column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 1.25rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.admin-column-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.admin-column-summary {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+    margin-bottom: 0;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* 7.4 Admin Users Management Layout (3-Column Horizontal Workspace) */
+.admin-users-layout {
+    display: grid;
+    grid-template-columns: 350px 420px minmax(0, 1fr);
+    gap: 1.5rem;
+    height: calc(100vh - 280px);
+    align-items: stretch;
+    min-height: 650px;
+}
+
+.admin-users-sidebar,
+.admin-users-profile,
+.admin-users-access {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow-y: auto;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-users-sidebar {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.admin-users-directory {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    height: 100%;
+    overflow-y: auto;
+}
+
+.admin-user-fact-card {
+    background: #f9fafb;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.admin-user-fact-card span {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.admin-user-fact-card strong {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+/* 8.0 Dispatch Workspace Layout (2-Column "Command Center") */
+.dispatch-surface-grid {
+    display: flex; /* Switched from grid to flex for better pane control */
+    width: 100% !important;
+    gap: 0 !important; /* Unified pane: zero gap between list and panel */
+    height: calc(100vh - 180px);
+    align-items: stretch;
+    background-color: white; 
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.dispatch-surface {
+    max-width: none !important; 
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 32px !important;
+}
+
+.dispatch-surface-solo {
+    display: flex;
+    justify-content: stretch; /* Expanded from center to kill the void */
+    height: calc(100vh - 250px);
+}
+
+.dispatch-surface-solo .dispatch-active-panel {
+    width: 100%;
+    max-width: none !important; /* Force fluid expansion */
+}
+
+.dispatch-queue-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.dispatch-active-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* 9.0 Operations Review Queue Layout (2-Column "Command Center") */
+.operations-surface-grid {
+    display: flex; /* Switched from grid to flex for better pane control */
+    width: 100% !important;
+    gap: 0 !important; /* Unified pane: zero gap between list and panel */
+    height: calc(100vh - 180px);
+    align-items: stretch;
+    background-color: white; 
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.operations-surface {
+    max-width: none !important; 
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 32px !important;
+}
+
+.operations-surface-solo {
+    display: flex;
+    justify-content: stretch; /* Expanded from center to kill the void */
+    height: calc(100vh - 250px);
+}
+
+.operations-surface-solo .operations-active-panel {
+    width: 100%;
+    max-width: none !important; /* Force fluid expansion */
+}
+
+.operations-queue-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.operations-active-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+html[dir="rtl"] .dispatch-active-panel .btn-close,
+html[dir="rtl"] .operations-active-panel .btn-close {
+    margin-right: auto;
+    margin-left: -0.5rem;
+}
+
+/* 10.0 Unified Foundation System (Design System v1.0) */
+
+/* 10.1 Layout Grids (RTL-Ready) */
+.bg-workspace-grid-2col {
+    display: grid;
+    grid-template-columns: 520px minmax(0, 1fr);
+    gap: 2rem;
+    height: calc(100vh - 250px);
+    align-items: stretch;
+}
+
+.bg-workspace-grid-3col {
+    display: grid;
+    grid-template-columns: 350px 420px minmax(0, 1fr);
+    gap: 1.5rem;
+    height: calc(100vh - 280px);
+    align-items: stretch;
+    min-height: 600px;
+}
+
+/* 10.2 Unified Panel Container (Active Workspace) */
+.bg-unified-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    background-color: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.bg-unified-panel-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1.25rem 1.5rem; /* Tightened from 1.5rem 2rem */
+}
+
+/* 10.3 Unified Sticky Action Bar (Decision-First) */
+.bg-sticky-action-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    background: white;
+    border-top: 1px solid var(--border-light);
+    padding: 1.25rem 2rem;
+    margin-top: auto; /* Ensures it stays at bottom of flex-column */
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+/* 10.4 Unified Metric Grid & Cards (Quick Facts) */
+.bg-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.bg-metric-card {
+    background: #F9FAFB;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.bg-metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--kfshrc-green);
+    opacity: 0.15;
+}
+
+/* 10.5 High-Density Operations Addons */
+.canvas_stage_section {
+    padding: 1.5rem 1.5rem; /* Standardized internal padding for alignment with toolbar */
+    border-bottom: 1px solid var(--border-light);
+}
+
+.canvas_stage_section:last-child {
+    border-bottom: none;
+}
+
+.canvas_stage_section_title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+.inline_toolbar {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background-color: #fdfdfd;
+    border-bottom: 1px solid var(--border-light);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    min-height: 56px;
+    gap: 1.5rem;
+}
+
+.toolbar_actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-inline-start: auto;
+}
+
+.toolbar_actions .bg-btn {
+    padding: 0.4rem 1rem !important;
+    font-size: 0.8rem !important;
+}
+
+.xx-small {
+    font-size: 0.65rem;
+    letter-spacing: 0.025em;
+}
+
+.bg-metric-card.is-important::before {
+    opacity: 0.8;
+}
+
+.bg-metric-label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    margin-bottom: 0.5rem;
+}
+
+.bg-metric-value {
+    display: block;
+    font-size: 1.5rem; /* Standardized scale */
+    font-weight: 800;
+    color: var(--text-dark);
+    line-height: 1.2;
+}
+
+.bg-metric-value.is-financial {
+    color: var(--kfshrc-green);
+}
+
+/* 10.5 Unified Tab Navigator (Underline Style) */
+.bg-unified-nav-tabs {
+    display: flex;
+    gap: 2rem;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 2rem;
+    padding: 0 0.5rem;
+}
+
+.bg-unified-nav-tabs .nav-tab-item {
+    padding: 0.75rem 0.25rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.bg-unified-nav-tabs .nav-tab-item:hover {
+    color: var(--kfshrc-green);
+}
+
+.bg-unified-nav-tabs .nav-tab-item.active {
+    color: var(--kfshrc-green);
+    border-bottom-color: var(--kfshrc-green);
+}
+
+/* 11.0 Canvas Workspace System (Radical Redesign v2.0) */
+
+/* 11.1 The Canvas Stage (Unified Stage) */
+.canvas_stage {
+    display: flex;
+    width: 100% !important;
+    flex: 1 1 0;    /* Participate in flex height chain — works even when parent has no explicit height */
+    min-height: 0;  /* Allow flex shrink below content size */
+    background-color: white;
+    overflow: hidden;
+    margin: 0 !important;
+    position: relative;
+    animation: canvasFadeIn 0.4s ease-out;
+}
+
+/* 11.1.1 Full-bleed canvas surfaces — only when canvas_stage is present */
+.shell-stage-main:has(.canvas_stage) {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: 0 !important;
+}
+
+.workspace-shell:has(.canvas_stage) {
+    flex: 1 1 0;
+    min-height: 0;
+    gap: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.workspace-main:has(.canvas_stage) {
+    padding: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    flex: 1 1 0;
+}
+
+.section-shell:has(.canvas_stage) {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes canvasFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 11.2 Directory Rail (Right Side - Selection) */
+.bg_unified_stage_sidebar, .canvas_stagesidebar {
+    width: 420px !important; /* Locked width for spaciousness */
+    flex-shrink: 0 !important; 
+    border-inline-end: 1px solid var(--border-light);
+    background-color: #F8FAFC !important; /* Cool Gray for functional distinction */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+}
+.canvas_stagesidebarheader,
+.bg_unified_stage_sidebar_header {
+    height: 56px; /* Strict alignment with inline_toolbar */
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    background: white;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02); /* Edge definition */
+}
+
+.canvas_stagesidebarlist,
+.bg_unified_stage_sidebar_list {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0;
+}
+
+/* 11.3 Active Surface Stage (Left Side - Data) */
+.canvas_stage_main {
+    flex: 1 1 0 !important; /* Absolute expansion */
+    height: 100%;
+    overflow-y: auto;
+    position: relative;
+    padding: 0;
+    background-color: white;
+    border-inline-start: 1px solid var(--border-light) !important; 
+    box-shadow: inset 15px 0 15px -15px rgba(0,0,0,0.05); /* Technical shadow for pane depth */
+}
+
+.canvas_stagemain {
+    flex: 1 1 auto !important;
+    height: 100%;
+}
+
+/* 11.4 Inline Toolbar Style inherited from .inline_toolbar above */
+
+.inline_toolbartitle {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 11.5 Canvas Directory Items (High Density) */
+.canvas_stageitem,
+.bg_unified_stageitem {
+    display: block;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    border-inline-start: 4px solid transparent;
+    cursor: pointer;
+}
+
+.canvas_stageitem:hover,
+.bg_unified_stageitem:hover {
+    background-color: #F9FAFB;
+}
+
+.canvas_stageitem.active,
+.bg_unified_stageitem.active {
+    background-color: #F0FDF4;
+    border-inline-start-color: var(--kfshrc-green);
+}
+
+.canvas_stageitemid,
+.bg_unified_stageitemid {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--kfshrc-green);
+    opacity: 0.8;
+}
+
+.canvas_stageitemtitle,
+.bg_unified_stageitemtitle {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 4px 0;
+    line-height: 1.4;
+}
+
+.canvas_stageitemmeta,
+.bg_unified_stageitemmeta {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 4px;
+}
+
+/* 11.6 Section Grouping in Canvas Main */
+.canvas_stagesection {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.canvas_stagesectiontitle {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.canvas_stagesectiontitle::after {
+    content: '';
+    flex-grow: 1;
+    height: 1px;
+    background: #F3F4F6;
+}
+
+/* 11.7 Operations Active Panel Micro-components */
+.ops-fact-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 140px;
+}
+
+.ops-doc-card {
+    background: #F8FAFC;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    min-width: 200px;
+}
+
+.ops-note-block {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background: #F8FAFC;
+    border: 1px dashed var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   12.0  MISSING LAYOUT PRIMITIVES — Institutional Standard Fix
+         Classes used in HTML with zero CSS definitions.
+         All values follow the established design token system.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 12.1  Dual-Panel Admin Layout (Sidebar + Detail — Banks, Delegations) */
+.layout-dual-panel,
+.admin-delegations-layout {
+    display: grid;
+    grid-template-columns: var(--bg-sidebar-width, 320px) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.layout-sidebar,
+.admin-delegations-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* 12.2  Card Header Pattern (Title + Badge row — shared across admin pages) */
+.admin-users-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    flex-shrink: 0;
+}
+
+/* 12.3  Banks Admin Detail/Create panels (unstyled article elements) */
+.admin-users-create,
+.admin-users-detail {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-users-create > *:not(.admin-users-card-header),
+.admin-users-detail > *:not(.admin-users-card-header) {
+    padding: 1.25rem 1.5rem;
+}
+
+/* 12.4  Directory list containers (overflow-y scroll) */
+.admin-users-directory-list,
+.admin-delegations-directory-list {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+/* 12.5  Delegation detail panels (add flex structure — bg-card provides padding) */
+.admin-delegations-directory,
+.admin-delegations-create,
+.admin-delegations-detail {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* 12.6  Text micro-primitives (shared across admin panels and lists) */
+.entity-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 2px;
+    display: block;
+}
+
+.compact-copy {
+    font-size: 0.83rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+}
+
+.surface-action-kicker {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--kfshrc-green);
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* 12.7  List item sub-regions (copy + meta inside sidebar list items) */
+.request-queue-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.request-queue-meta {
+    flex-shrink: 0;
+    text-align: end;
+}
+
+/* Override the 6-column table-grid on request-queue-link
+   when used inside sidebar cards — switch to simple flex row */
+.admin-users-directory-list .request-queue-link,
+.approval-queue-list-card .request-queue-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    grid-template-columns: unset;
+}
+
+.admin-delegations-directory-list .request-queue-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    grid-template-columns: unset;
+}
+
+/* 12.8  Delegation detail — fact grid & permission panels */
+.admin-delegation-facts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-role-fact-card {
+    background: #F9FAFB;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.admin-role-fact-card span {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.admin-role-fact-card strong {
+    font-size: 0.9rem;
+    color: var(--text-dark, #1F2937);
+    font-weight: 700;
+}
+
+.admin-role-permissions-panel,
+.admin-user-password-panel {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-light);
+}
+
+.admin-role-permission-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-role-permission-group {
+    background: #F9FAFB;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+}
+
+.admin-user-password-form {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    margin-top: 1rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   13.0  APPROVAL & REQUEST SURFACE LAYOUTS
+         Two-pane page layouts within workspace-main context.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 13.1  Approval Queue — 2-pane layout inside workspace-main */
+.approval-surface-grid {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.approval-queue-list-card {
+    position: sticky;
+    top: 0;               /* Keeps queue visible while detail scrolls */
+    max-height: calc(100vh - 280px);
+    overflow-y: auto;
+}
+
+.approval-surface-solo {
+    display: flex;
+    justify-content: center;
+}
+
+.approval-surface-solo > * {
+    width: 100%;
+    max-width: 860px;
+}
+
+/* 13.2  Request Workspace — 2-column layout */
+.request-workspace-grid {
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.requests-create-column,
+.requests-tracking-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   14.0  PADDING NORMALIZATION
+         Remove double-padding on pages that add extra spacing
+         while already inside workspace-main (2rem padding).
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Dashboard: py-4 class causes double vertical padding — neutralize */
+.dashboard-container {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Notifications: constrain width without adding side padding */
+.notifications-surface {
+    max-width: 760px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   15.0  GLOBAL MISSING COMPONENTS
+         UI primitives used across all pages with zero CSS definitions.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 15.1  Notice / Alert Banners */
+.notice-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    border-inline-start: 4px solid transparent;
+}
+
+.notice-banner.is-success {
+    background: #F0FDF4;
+    color: #065F46;
+    border-inline-start-color: var(--kfshrc-green);
+}
+
+.notice-banner.is-danger {
+    background: #FEF2F2;
+    color: #991B1B;
+    border-inline-start-color: #DC2626;
+}
+
+.notice-banner.is-warning {
+    background: #FFFBEB;
+    color: #92400E;
+    border-inline-start-color: #F59E0B;
+}
+
+/* 15.2  Button variants missing from bg-components.css */
+.bg-btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border-light);
+    color: var(--text-main) !important;
+}
+
+.bg-btn-ghost:hover {
+    background: #F3F4F6;
+    border-color: #D1D5DB;
+}
+
+.bg-btn-ghost.active {
+    background: #F0FDF4;
+    border-color: var(--kfshrc-green);
+    color: var(--kfshrc-green) !important;
+}
+
+.bg-btn-white {
+    background: white;
+    border: 1px solid var(--border-light);
+    color: var(--text-main) !important;
+}
+
+.bg-btn-white:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+}
+
+.shadow-green {
+    box-shadow: 0 4px 14px rgba(0, 104, 71, 0.25) !important;
+}
+
+/* 15.3  Badge variants missing */
+.bg-badge-light,
+[class*="bg-badge"][variant="light"] {
+    background-color: #F3F4F6 !important;
+    color: #374151 !important;
+}
+
+.bg-badge-draft {
+    background-color: #EFF6FF !important;
+    color: #1D4ED8 !important;
+}
+
+.bg-badge-warning {
+    background-color: #FFFBEB !important;
+    color: #92400E !important;
+}
+
+/* 15.4  Status indicator (user active/inactive dot) */
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.3rem 0.85rem;
+    border-radius: 99px;
+}
+
+.status-indicator::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-indicator.is-active {
+    background: #D1FAE5;
+    color: #065F46;
+}
+
+.status-indicator.is-active::before {
+    background: #059669;
+}
+
+.status-indicator.is-inactive {
+    background: #F3F4F6;
+    color: #6B7280;
+}
+
+.status-indicator.is-inactive::before {
+    background: #9CA3AF;
+}
+
+/* 15.5  Stack form (vertical form with consistent spacing) */
+.stack-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   16.0  INTAKE WORKSPACE — Complete Layout & Component System
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 16.1  Page-level section wrapper */
+.intake-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* 16.2  Two-column canvas grid: capture (left/right) + verification */
+.intake-workspace__grid {
+    display: grid;
+    grid-template-columns: minmax(380px, 420px) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+}
+
+@media (max-width: 1100px) {
+    .intake-workspace__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 16.3  Panel card — shared by both capture and verification */
+.intake-panel {
+    background: white;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 16.4  Panel header bar */
+.intake-panel__header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1rem 1.5rem;
+    background: #F8FAFC;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    flex-shrink: 0;
+}
+
+.intake-panel__header i {
+    color: var(--kfshrc-green);
+    font-size: 1rem;
+}
+
+/* 16.5  Capture panel — status strip below header */
+.intake-status-strip {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+    background: #FAFAFA;
+}
+
+/* 16.6  File upload block */
+.intake-upload-block {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* 16.7  Preview / next-step area */
+.intake-next-step {
+    flex-grow: 1;
+    padding: 1.25rem 1.5rem;
+    overflow-y: auto;
+}
+
+.intake-document-preview-card {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.intake-document-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* 16.8  Review warning banner (inside verification panel) */
+.intake-review-banner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.5rem;
+    background: #FEF3C7;
+    color: #92400E;
+    border-bottom: 1px solid #FDE68A;
+    font-size: 0.83rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.intake-review-banner--pending {
+    background: #F0F9FF;
+    color: #0369A1;
+    border-bottom-color: #BAE6FD;
+}
+
+/* 16.9  Verification field list — pad inside the panel */
+.intake-panel--verification .intake-field-list {
+    padding: 1.5rem;
+}
+
+/* 16.10  Action footer with save button */
+.intake-action-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border-light);
+    padding: 1rem 0;
+    margin-top: 1.25rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.intake-action-footer .bg-btn {
+    min-width: 200px;
 }

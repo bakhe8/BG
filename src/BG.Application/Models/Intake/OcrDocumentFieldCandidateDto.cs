@@ -6,4 +6,5 @@ public sealed record OcrDocumentFieldCandidateDto(
     int ConfidencePercent,
     int PageNumber,
     string? BoundingBox,
-    string? SourceLabel);
+    string? SourceLabel,
+    string? RawValue = null);

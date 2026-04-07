@@ -84,6 +84,13 @@ public sealed class RolesModel : PageModel
             .ToArray();
         ActiveRole = ResolveActiveRole(SelectedRoleId);
         SelectedRoleId = ActiveRole?.Id;
+
+        if (ActiveRole != null && string.IsNullOrEmpty(Input.Name))
+        {
+            Input.Name = ActiveRole.Name;
+            Input.Description = ActiveRole.Description;
+            Input.SelectedPermissionKeys = ActiveRole.PermissionKeys.ToList();
+        }
     }
 
     private RoleSummaryDto? ResolveActiveRole(Guid? selectedRoleId)

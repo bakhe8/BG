@@ -1,47 +1,26 @@
 @using Microsoft.Extensions.Localization
 @inject IStringLocalizer<SharedResource> T
-@model BG.Web.UI.SurfaceQueueItemLinkModel
+@model BG.Web.UI.SurfaceUnifiedLink
 
-<a class="request-queue-link @(Model.IsActive ? "active" : null)"
-   aria-current="@(Model.IsActive ? "true" : "false")"
-   asp-page="@Model.PagePath"
-   asp-all-route-data="Model.RouteValues">
+<a href="@Url.Page(Model.PagePath, Model.RouteValues)" class="bg_unified_stageitem @(Model.IsActive ? "active" : "")">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <span class="bg_unified_stageitemid">@Model.Subtitle</span>
+        <span class="xx-small text-muted opacity-75">@Model.MetaPrimary</span>
+    </div>
     
-    @* Column 1: Reference *@
-    <div class="bg-grid-col">
-        <strong class="bg-grid-value text-dark d-block">@Model.Title</strong>
-    </div>
-
-    @* Column 2: Entity *@
-    <div class="bg-grid-col overflow-hidden">
-        <span class="bg-grid-value text-dark opacity-75 text-truncate d-block">@Model.Subtitle</span>
-    </div>
-
-    @* Column 3: Type *@
-    <div class="bg-grid-col">
-        <span class="bg-grid-value x-small text-muted text-uppercase fw-bold">@Model.Summary</span>
-    </div>
-
-    @* Column 4: Value (Optional Meta) *@
-    <div class="bg-grid-col">
-        <span class="bg-grid-value fw-bold text-brand-green">@Model.MetaPrimary</span>
-    </div>
-
-    @* Column 5: Date *@
-    <div class="bg-grid-col">
-        <span class="bg-grid-value small text-muted">@Model.MetaSecondary</span>
-    </div>
-
-    @* Column 6: Status & Action Indicator *@
-    <div class="bg-grid-col text-center">
-        @{
-            var badgeClass = "bg-badge-pending";
-            if (Model.Status.Contains("Approved") || Model.Status.Contains("Success")) badgeClass = "bg-badge-success";
-            if (Model.Status.Contains("Returned") || Model.Status.Contains("Rejected")) badgeClass = "bg-badge-returned";
-            if (Model.Status.Contains("Draft")) badgeClass = "bg-badge-draft";
+    <div class="bg_unified_stageitemtitle">@Model.Title</div>
+    
+    <div class="bg_unified_stageitemmeta">
+        <div class="d-flex align-items-center gap-2">
+            <span class="fw-bold" style="color: var(--kfshrc-green); opacity: 0.9;">@Model.Status</span>
+            <span class="opacity-25">|</span>
+            <span>@Model.Summary</span>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.MetaSecondary))
+        {
+            <div class="xx-small text-muted opacity-75 mt-1 border-top pt-1 mt-auto">
+                <i class="bi bi-hash me-1"></i>@Model.MetaSecondary
+            </div>
         }
-        <bg-badge class="@badgeClass">
-            @Model.Status
-        </bg-badge>
     </div>
 </a>

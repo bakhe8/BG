@@ -795,6 +795,7 @@
   <data name="OperationsQueue_Header_Entity" xml:space="preserve"><value>الجهة</value></data>
   <data name="OperationsQueue_Header_Reference" xml:space="preserve"><value>المرجع</value></data>
   <data name="OperationsQueue_Header_Type" xml:space="preserve"><value>النوع</value></data>
+  <data name="OperationsQueue_Header_Status" xml:space="preserve"><value>الحالة</value></data>
   <data name="OperationsQueue_Header_Value" xml:space="preserve"><value>القيمة</value></data>
   <data name="OperationsQueue_Heading" xml:space="preserve"><value>طابور المراجعة التشغيلية</value></data>
   <data name="OperationsQueue_LevelsSuffix" xml:space="preserve"><value>مستويات</value></data>
@@ -1085,10 +1086,51 @@
   <data name="RolesPage_PermissionCoverageTitle" xml:space="preserve"><value>تغطية الصلاحيات</value></data>
   <data name="RolesPage_RoleCreated" xml:space="preserve"><value>تم حفظ الدور بنجاح.</value></data>
   <data name="RolesPage_SelectedRoleSummary" xml:space="preserve"><value>راجع الدور المحدد قبل تغيير حزم الصلاحيات التي تشكل الوصول إلى مساحات العمل.</value></data>
+  <data name="RolesPage_IdentityTitle" xml:space="preserve"><value>هوية الدور</value></data>
+  <data name="RolesPage_IdentitySummary" xml:space="preserve"><value>الاسم والوصف التعريفي لمجموعة الصلاحيات.</value></data>
+  <data name="RolesPage_AuthoritySummary" xml:space="preserve"><value>تحديد حزم الصلاحيات المسندة لهذا الدور.</value></data>
+  <data name="RolesPage_EditDisclaimer" xml:space="preserve"><value>تنبيه: أي تغيير في هذا الدور سيؤثر على جميع المستخدمين المرتبطين به فورا.</value></data>
+  <data name="RoleNamePlaceholder" xml:space="preserve"><value>مثال: مراجع العقود</value></data>
+  <data name="DescriptionPlaceholder" xml:space="preserve"><value>أضف وصفا لمهام هذا الدور...</value></data>
+
   <data name="Sample_BankName_SNB" xml:space="preserve"><value>البنك الأهلي السعودي - SNB</value></data>
+  <data name="CreateRoleAction" xml:space="preserve"><value>إنشاء الدور</value></data>
+  <data name="UpdateRoleAction" xml:space="preserve"><value>حفظ التغييرات</value></data>
   <data name="SavePasswordAction" xml:space="preserve"><value>حفظ كلمة المرور</value></data>
-  <data name="SaveRoleAction" xml:space="preserve"><value>إنشاء دور</value></data>
+  <data name="SaveRoleAction" xml:space="preserve"><value>حفظ الدور</value></data>
   <data name="SaveUserAction" xml:space="preserve"><value>إنشاء مستخدم</value></data>
+  <data name="PermissionGroup_Administration" xml:space="preserve"><value>إدارة النظام</value></data>
+  <data name="PermissionGroup_Approvals" xml:space="preserve"><value>وحدة الموافقات</value></data>
+  <data name="PermissionGroup_Dispatch" xml:space="preserve"><value>وحدة الإرسال</value></data>
+  <data name="PermissionGroup_Intake" xml:space="preserve"><value>وحدة الإدخال</value></data>
+  <data name="PermissionGroup_Operations" xml:space="preserve"><value>وحدة العمليات</value></data>
+  <data name="PermissionGroup_Reports" xml:space="preserve"><value>التقارير والإحصاءات</value></data>
+  <data name="PermissionGroup_Requests" xml:space="preserve"><value>إدارة الطلبات</value></data>
+  <data name="PermissionGroup_Workflow" xml:space="preserve"><value>مسارات العمل</value></data>
+
+  <data name="Permission_administration.banks" xml:space="preserve"><value>إدارة البنوك</value></data>
+  <data name="Permission_approvals.queue.view" xml:space="preserve"><value>عرض طابور الموافقات</value></data>
+  <data name="Permission_approvals.sign" xml:space="preserve"><value>التوقيع على الطلبات</value></data>
+  <data name="Permission_delegations.manage" xml:space="preserve"><value>إدارة التفويضات</value></data>
+  <data name="Permission_dispatch.email" xml:space="preserve"><value>إرسال الإشعارات بالبريد</value></data>
+  <data name="Permission_dispatch.print" xml:space="preserve"><value>طباعة الضمانات</value></data>
+  <data name="Permission_dispatch.record" xml:space="preserve"><value>أرشفة وتوثيق الإرسال</value></data>
+  <data name="Permission_dispatch.view" xml:space="preserve"><value>عرض شاشة الإرسال</value></data>
+  <data name="Permission_intake.finalize" xml:space="preserve"><value>اعتماد الإدخال</value></data>
+  <data name="Permission_intake.scan" xml:space="preserve"><value>مسح الباركود</value></data>
+  <data name="Permission_intake.verify" xml:space="preserve"><value>التحقق من البيانات</value></data>
+  <data name="Permission_intake.view" xml:space="preserve"><value>عرض الإدخال</value></data>
+  <data name="Permission_operations.queue.manage" xml:space="preserve"><value>إدارة طابور العمليات</value></data>
+  <data name="Permission_operations.queue.view" xml:space="preserve"><value>عرض طابور العمليات</value></data>
+  <data name="Permission_reports.view" xml:space="preserve"><value>عرض التقارير</value></data>
+  <data name="Permission_requests.create" xml:space="preserve"><value>إنشاء الطلبات</value></data>
+  <data name="Permission_requests.view" xml:space="preserve"><value>عرض الطلبات</value></data>
+  <data name="Permission_roles.manage" xml:space="preserve"><value>إدارة هويات الأدوار</value></data>
+  <data name="Permission_roles.view" xml:space="preserve"><value>عرض الأدوار</value></data>
+  <data name="Permission_users.manage" xml:space="preserve"><value>إدارة الحسابات</value></data>
+  <data name="Permission_users.view" xml:space="preserve"><value>عرض المستخدمين</value></data>
+  <data name="Permission_workflow.manage" xml:space="preserve"><value>إدارة مسارات العمل</value></data>
+
   <data name="Shared_CloseAction" xml:space="preserve"><value>إغلاق</value></data>
   <data name="Shared_DateFormatPlaceholder" xml:space="preserve"><value>يوم/شهر/سنة</value></data>
   <data name="Shared_MoreActions" xml:space="preserve"><value>إجراءات إضافية</value></data>
@@ -1380,4 +1422,32 @@
   <data name="GuaranteeStatus_Cancelled" xml:space="preserve">
     <value>ملغى</value>
   </data>
+  <data name="WorkflowAdmin_ArchitectureSummary" xml:space="preserve"><value>إدارة التسلسل الهيكلي والمراحل الخاصة بمسار الطلب.</value></data>
+  <data name="WorkflowAdmin_DefinitionsWord" xml:space="preserve"><value>مسارات</value></data>
+  <data name="WorkflowAdmin_SignatureRequiredShort" xml:space="preserve"><value>توقيع مطلوب</value></data>
+  <data name="WorkflowAdmin_StagesWord" xml:space="preserve"><value>مراحل</value></data>
+  <data name="OperationsQueue_ItemsTitle" xml:space="preserve"><value>قائمة المعاملات</value></data>
+  <data name="OperationsQueue_ItemsSummary" xml:space="preserve"><value>مراجعة ومعالجة الطلبات الواردة</value></data>
+  <data name="OperationsQueue_Empty" xml:space="preserve"><value>لا توجد معاملات تنتظر في طابور المراجعة التشغيلية.</value></data>
+  <data name="OperationsQueue_EmptySelectionTitle" xml:space="preserve"><value>لم يتم اختيار معاملة</value></data>
+  <data name="OperationsQueue_EmptySelectionBody" xml:space="preserve"><value>اختر معاملة من قائمة الطابور للبدء في معالجتها.</value></data>
+  <data name="OperationsQueue_ApplyResponseAction" xml:space="preserve"><value>تطبيق رد البنك</value></data>
+  <data name="OperationsQueue_Action_Return" xml:space="preserve"><value>إعادة</value></data>
+  <data name="OperationsQueue_Action_Reject" xml:space="preserve"><value>رفض</value></data>
+  <data name="OperationsQueue_TabSummary" xml:space="preserve"><value>ملخص المعاملة</value></data>
+  <data name="OperationsQueue_Header_Value" xml:space="preserve"><value>القيمة</value></data>
+  <data name="OperationsQueue_Header_Date" xml:space="preserve"><value>التاريخ</value></data>
+  <data name="OperationsQueue_Header_Status" xml:space="preserve"><value>الحالة</value></data>
+  <data name="OperationsQueue_TabDocuments" xml:space="preserve"><value>المستندات</value></data>
+  <data name="OperationsQueue_DocumentLabel" xml:space="preserve"><value>اسم المستند</value></data>
+  <data name="OperationsQueue_RecommendedLaneLabel" xml:space="preserve"><value>المسار المقترح</value></data>
+  <data name="OperationsQueue_NotesTitle" xml:space="preserve"><value>ملاحظات البنك</value></data>
+  <data name="OperationsQueue_PageTitle" xml:space="preserve"><value>طابور المراجعة التشغيلية</value></data>
+  <data name="OperationsQueue_ApplySuccess" xml:space="preserve"><value>تم تطبيق رد البنك بنجاح على الضمان {0}.</value></data>
+  <data name="OperationsQueue_ReturnSuccess" xml:space="preserve"><value>تم إرجاع المعاملة رقم {0} للمراجعة.</value></data>
+  <data name="OperationsQueue_RejectSuccess" xml:space="preserve"><value>تم رفض المعاملة رقم {0}.</value></data>
+  <data name="OperationsQueue_NoEligibleActor" xml:space="preserve"><value>لا يوجد مستخدم تشغيل مؤهل حالياً.</value></data>
+  <data name="OperationsQueue_ReopenNoteField" xml:space="preserve"><value>ملاحظات إعادة الفتح</value></data>
+  <data name="OperationsQueue_ReopenAction" xml:space="preserve"><value>إعادة فتح المعاملة</value></data>
+  <data name="OperationsQueue_EmptySelection" xml:space="preserve"><value>يرجى اختيار معاملة من القائمة الجانبية للعرض.</value></data>
 </root>

@@ -1093,6 +1093,65 @@ namespace BG.Infrastructure.Persistence.Migrations
                     b.ToTable("LoginAttemptRecords", (string)null);
                 });
 
+            modelBuilder.Entity("BG.Infrastructure.Intake.OcrFeedbackRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CorrectedValue")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<string>("DetectedBankName")
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("DocumentToken")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
+
+                    b.Property<string>("FieldKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<int>("OriginalConfidencePercent")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("OriginalValue")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("character varying(512)");
+
+                    b.Property<DateTimeOffset>("RecordedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ScenarioKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecordedAtUtc")
+                        .HasDatabaseName("IX_ocr_feedback_records_recorded_at");
+
+                    b.HasIndex("ScenarioKey", "FieldKey")
+                        .HasDatabaseName("IX_ocr_feedback_records_scenario_field");
+
+                    b.ToTable("ocr_feedback_records", (string)null);
+                });
+
             modelBuilder.Entity("BG.Domain.Guarantees.GuaranteeCorrespondence", b =>
                 {
                     b.HasOne("BG.Domain.Guarantees.Guarantee", "Guarantee")

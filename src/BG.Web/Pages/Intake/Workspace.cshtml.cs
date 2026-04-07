@@ -21,17 +21,23 @@ public sealed class WorkspaceModel : PageModel
     private readonly IIntakeWorkspaceService _intakeWorkspaceService;
     private readonly IIntakeSubmissionService _intakeSubmissionService;
     private readonly IIntakeDocumentStore _intakeDocumentStore;
+    private readonly IIntakeExtractionEngine _intakeExtractionEngine;
+    private readonly IOcrFeedbackService _ocrFeedbackService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public WorkspaceModel(
         IIntakeWorkspaceService intakeWorkspaceService,
         IIntakeSubmissionService intakeSubmissionService,
         IIntakeDocumentStore intakeDocumentStore,
+        IIntakeExtractionEngine intakeExtractionEngine,
+        IOcrFeedbackService ocrFeedbackService,
         IStringLocalizer<SharedResource> localizer)
     {
         _intakeWorkspaceService = intakeWorkspaceService;
         _intakeSubmissionService = intakeSubmissionService;
         _intakeDocumentStore = intakeDocumentStore;
+        _intakeExtractionEngine = intakeExtractionEngine;
+        _ocrFeedbackService = ocrFeedbackService;
         _localizer = localizer;
     }
 
@@ -199,6 +205,8 @@ public sealed class WorkspaceModel : PageModel
 
         Input.IntakeActorUserId = Workspace.ActiveActor.Id;
 
+        var feedbackEntries = await BuildOcrFeedbackEntriesAsync(cancellationToken);
+
         var result = await _intakeSubmissionService.FinalizeAsync(Input.ToCommand(), cancellationToken);
 
         if (!result.Succeeded)
@@ -208,8 +216,51 @@ public sealed class WorkspaceModel : PageModel
             return Page();
         }
 
+        if (feedbackEntries.Count > 0)
+        {
+            await _ocrFeedbackService.RecordAsync(feedbackEntries, cancellationToken);
+        }
+
         StatusMessage = _localizer["IntakeWorkspace_SaveSuccess", result.Value!.GuaranteeNumber];
         return RedirectToSelf(Input.IntakeActorUserId, SelectedScenario.Key);
+    }
+
+    private async Task<IReadOnlyList<OcrFieldFeedbackEntryDto>> BuildOcrFeedbackEntriesAsync(CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(Input.StagedDocumentToken))
+            return Array.Empty<OcrFieldFeedbackEntryDto>();
+
+        var stagedDocument = await _intakeDocumentStore.GetStagedAsync(Input.StagedDocumentToken, cancellationToken);
+        if (stagedDocument is null)
+            return Array.Empty<OcrFieldFeedbackEntryDto>();
+
+        var extractedDraft = await _intakeExtractionEngine.ExtractAsync(Input.ScenarioKey, stagedDocument, cancellationToken);
+        if (extractedDraft.Fields.Count == 0)
+            return Array.Empty<OcrFieldFeedbackEntryDto>();
+
+        var entries = new List<OcrFieldFeedbackEntryDto>();
+        foreach (var field in extractedDraft.Fields)
+        {
+            var correctedValue = ResolveCurrentValue(field.FieldKey);
+            if (string.IsNullOrWhiteSpace(correctedValue))
+                continue;
+
+            var extractedValue = field.Value ?? string.Empty;
+            if (string.Equals(extractedValue.Trim(), correctedValue.Trim(), StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            entries.Add(new OcrFieldFeedbackEntryDto(
+                Input.StagedDocumentToken,
+                Input.ScenarioKey,
+                field.FieldKey,
+                Input.BankName,
+                extractedValue,
+                correctedValue,
+                field.ProvenanceResourceKey ?? "unknown",
+                field.ConfidencePercent));
+        }
+
+        return entries;
     }
 
     private async Task LoadWorkspaceAsync(Guid? actorId, string? scenarioKey, CancellationToken cancellationToken)

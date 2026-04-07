@@ -43,7 +43,29 @@
   --surface: var(--bg-surface);
   --surface-alt: var(--bg-muted);
   --accent: var(--kfshrc-green);
+  --accent: var(--kfshrc-green);
   --accent-strong: var(--kfshrc-green);
+}
+
+/* --- 1.1 Custom Sleek Scrollbars --- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1; /* Slate-300 */
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8; /* Slate-400 */
 }
 
 /* Global Reset & Body */

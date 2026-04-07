@@ -232,7 +232,7 @@ public sealed class QueueModel : PageModel
         return routeValues;
     }
 
-    public string ResolveSuggestionOptionLabel(OperationsReviewMatchSuggestionDto suggestion)
+    public string ResolveSuggestionOptionLabel(OperationsUnifiedSuggestion suggestion)
     {
         var label = $"{_localizer[suggestion.RequestTypeResourceKey].Value} - {_localizer[suggestion.StatusResourceKey].Value} ({suggestion.Score})";
         return suggestion.IsSelectionBlocked
@@ -240,7 +240,7 @@ public sealed class QueueModel : PageModel
             : label;
     }
 
-    public IReadOnlyList<OperationsReviewMatchSuggestionDto> GetSelectionSuggestions(OperationsReviewItemDto item)
+    public IReadOnlyList<OperationsUnifiedSuggestion> GetSelectionSuggestions(OperationsReviewItemDto item)
     {
         return item.MatchSuggestions
             .OrderBy(suggestion => suggestion.IsSelectionBlocked ? 1 : 0)
@@ -323,3 +323,4 @@ public sealed class QueueModel : PageModel
         return result.Succeeded;
     }
 }
+
